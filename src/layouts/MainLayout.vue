@@ -6,16 +6,10 @@
           flat
           dense
           round
-          icon="menu"
+          :icon="leftDrawerOpen ? 'keyboard_double_arrow_left' : 'keyboard_double_arrow_right'"
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -26,12 +20,42 @@
     >
       <q-list>
         <q-item-label
+          class="text-h5 text-primary text-weight-medium"
           header
         >
-          Essential Links
+          Kids Club Inc
         </q-item-label>
 
-        <EssentialLink
+        <q-separator />
+
+        <q-item-label
+          class="text-h5 text-primary text-weight-medium"
+          header
+        >
+          <q-item
+            class="flex q-pa-none q-ma-none"
+          >
+            <q-item-section
+              style="max-width: 40px"
+              avatar
+            >
+              <q-img src="favicon.ico" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1 text-blue-grey-10">
+                Abdulloh
+              </q-item-label>
+              <q-item-label caption>
+                abdulloh@gmail.com
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-item-label>
+
+        <q-separator />
+
+        <side-bar-link
           v-for="link in linksList"
           :key="link.title"
           v-bind="link"
@@ -47,51 +71,74 @@
 
 <script setup>
 import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import SideBarLink from 'components/SideBarLink.vue'
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    title: 'Foydalanuvchilar',
+    icon: 'person',
+    to: { name: 'club.users' }
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    title: 'To’quv',
+    icon: 'precision_manufacturing',
+    to: { name: 'club.weave' }
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    title: 'Hom Material Sklad',
+    icon: 'warehouse',
+    to: { name: 'club.unripeMaterialWarehouse' }
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    title: 'Bo’yoq',
+    icon: 'palette',
+    to: { name: 'club.paint' }
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    title: 'Tayyor Material Sklad',
+    icon: 'warehouse',
+    to: { name: 'club.material-warehouse' }
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
+    title: 'Bichuv',
+    icon: 'content_cut',
+    to: { name: 'club.cut' }
   },
   {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
+    title: 'Vishevka',
+    icon: 'grain',
+    to: { name: 'club.embroidery' }
+  },
+  {
+    title: 'Tikuv',
+    icon: 'grain',
+    to: { name: 'club.sew' }
+  },
+  {
+    title: 'Upakovka',
+    icon: 'grain',
+    to: { name: 'club.packing' }
+  },
+  {
+    title: 'Product Sklad',
+    icon: 'grain',
+    to: { name: 'club.productWarehouse' }
+  },
+  {
+    title: 'Mijozlar',
+    icon: 'group',
+    to: { name: 'club.clients' }
+  },
+  {
+    title: 'Statistika',
+    icon: 'insert_chart',
+    to: { name: 'club.statistic' }
+  },
+  {
+    title: 'Budget',
+    icon: 'assured_workload',
+    to: { name: 'club.budget' }
+  },
 ]
 
 const leftDrawerOpen = ref(false)

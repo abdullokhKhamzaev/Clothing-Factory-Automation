@@ -2,16 +2,79 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    name: 'club.home',
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') }
+      {
+        path: '/users',
+        name: 'club.users',
+        component: () => import('pages/UsersPage.vue')
+      },
+      {
+        path: 'weave',
+        name: 'club.weave',
+        component: () => import('pages/WeavePage.vue')
+      },
+      {
+        path: 'unripe-material-warehouse',
+        name: 'club.unripeMaterialWarehouse',
+        component: () => import('pages/UnripeMaterialWarehousePage.vue')
+      },
+      {
+        path: 'paint',
+        name: 'club.paint',
+        component: () => import('pages/PaintPage.vue')
+      },
+      {
+        path: 'material-warehouse',
+        name: 'club.material-warehouse',
+        component: () => import('pages/MaterialWarehousePage.vue')
+      },
+      {
+        path: 'cut',
+        name: 'club.cut',
+        component: () => import('pages/CutPage.vue')
+      },
+      {
+        path: 'embroidery',
+        name: 'club.embroidery',
+        component: () => import('pages/EmbroideryPage.vue')
+      },
+      {
+        path: 'sew',
+        name: 'club.sew',
+        component: () => import('pages/SewPage.vue')
+      },
+      {
+        path: 'packing',
+        name: 'club.packing',
+        component: () => import('pages/PackingPage.vue')
+      },
+      {
+        path: 'product-warehouse',
+        name: 'club.productWarehouse',
+        component: () => import('pages/ProductWarehousePage.vue')
+      },
+      {
+        path: 'clients',
+        name: 'club.clients',
+        component: () => import('pages/ClientsPage.vue')
+      },
+      {
+        path: 'statistic',
+        name: 'club.statistic',
+        component: () => import('pages/StatisticPage.vue')
+      },
+      {
+        path: 'budget',
+        name: 'club.budget',
+        component: () => import('pages/BudgetPage.vue')
+      }
     ]
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
+    component: () => import('pages/NotFoundPage.vue')
   }
 ]
 

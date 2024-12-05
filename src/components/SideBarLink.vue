@@ -1,20 +1,29 @@
 <template>
   <q-item
     clickable
-    tag="a"
-    target="_blank"
-    :href="props.link"
+    :to="props.to"
+    class="flex"
   >
     <q-item-section
       v-if="props.icon"
-      avatar
+      style="max-width: 24px"
     >
-      <q-icon :name="props.icon" />
+      <q-icon
+        :name="props.icon"
+        size="sm"
+      />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label>{{ props.title }}</q-item-label>
-      <q-item-label caption>{{ props.caption }}</q-item-label>
+      <q-item-label class="text-subtitle1 text-blue-grey-10">
+        {{ props.title }}
+      </q-item-label>
+      <q-item-label
+        v-if="props.caption"
+        caption
+      >
+        {{ props.caption }}
+      </q-item-label>
     </q-item-section>
   </q-item>
 </template>
