@@ -15,7 +15,7 @@
     </q-item-section>
 
     <q-item-section>
-      <q-item-label class="text-subtitle1 text-blue-grey-10">
+      <q-item-label class="text-subtitle1">
         {{ props.title }}
       </q-item-label>
       <q-item-label
