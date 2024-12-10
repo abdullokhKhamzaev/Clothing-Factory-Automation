@@ -1,11 +1,34 @@
+// let isAdmin = () => JSON.parse(atob(localStorage.getItem('token').split('.')[1])).roles.includes('ROLE_ADMIN')
+// const ifAuthorized = (to, from, next) => {
+//   if (localStorage.getItem('token') !== null) {
+//     next()
+//   } else {
+//     next('/login')
+//   }
+// }
+// //
+// const ifNotAuthorized = (to, from, next) => {
+//   if (localStorage.getItem('token') === null) {
+//     next()
+//   } else {
+//     next('/')
+//   }
+// }
+
 const routes = [
+  {
+    path: '/login',
+    component: () => import('pages/LoginPage.vue'),
+    // beforeEnter: ifNotAuthorized
+  },
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     name: 'club.home',
+    // beforeEnter: ifAuthorized,
     children: [
       {
-        path: '/users',
+        path: 'users',
         name: 'club.users',
         component: () => import('pages/UsersPage.vue')
       },
