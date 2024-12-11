@@ -1,3 +1,24 @@
+<script setup>
+import { reactive, ref } from "vue";
+import { useAuthorization } from "src/stores/authorization.js";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+let isLoading = ref(false);
+const authorization = reactive({
+  phone: '',
+  password: ''
+})
+
+function auth() {
+  isLoading.value = true;
+  useAuthorization().userAuth(authorization)
+    .then(() => {
+      router.push('/');
+    })
+}
+</script>
+
 <template>
   <div
     class="row justify-center items-center q-pa-md"
@@ -9,19 +30,22 @@
           <div class="q-mb-xl">
             <div class="flex justify-center">
               <div class="text-h4 q-my-none text-weight-bold text-primary">
-                Registration Form
+                Login Form
               </div>
             </div>
           </div>
 
-          <q-form ref="form" class="q-gutter-md" @submit="submit">
-            <q-input v-model="user.first_name" label="First Name" name="First Name"/>
-            <q-input v-model="user.last_name" label="Last Name" name="Last Name"/>
-            <q-input v-model="user.email" label="Email" name="Email"/>
-            <q-input v-model="user.password" label="Password" name="password" type="password"/>
+          <q-form ref="form" class="q-gutter-md" @submit="auth">
+            <q-input
+              v-model="authorization.phone"
+              label="Phone"
+              name="First Name"
+              mask="+############"
+            />
+            <q-input v-model="authorization.password" label="Password" name="password" type="password"/>
 
             <div>
-              <q-btn class="full-width" color="primary" label="Register" type="submit" />
+              <q-btn class="full-width" color="primary" label="Login" type="submit" :loading="isLoading" />
             </div>
           </q-form>
         </q-card-section>
@@ -30,16 +54,3 @@
   </div>
 </template>
 
-<script setup>
-import {reactive} from "vue";
-
-const user = reactive({
-  last_name: null,
-  first_name: null,
-  email: null,
-  password: null
-})
-const submit = () => {
-  console.log('asa');
-}
-</script>

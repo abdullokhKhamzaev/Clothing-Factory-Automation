@@ -38,10 +38,12 @@
             label="Ustunlar"
             options-cover
             style="min-width: 150px"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
           />
           <q-input
             outlined
             v-model="search"
+            :class="$q.screen.lt.sm ? 'full-width' : false"
             label="Ism"
             name="Name"
             clearable
@@ -63,11 +65,11 @@
             :props="props"
           >
             <div v-if="col.name === 'name'">
-              <div class="q-gutter-sm flex items-center">
+              <div class="q-gutter-sm flex no-wrap items-center">
                 <q-avatar>
                   <q-img :src="props.row.photo" />
                 </q-avatar>
-                <span class="q-ml-sm">{{ props.row.name }}</span>
+                <div class="q-ml-sm">{{ props.row.name }}</div>
               </div>
             </div>
             <div v-else>
@@ -81,7 +83,7 @@
                   O'zgartirish
                 </q-tooltip>
               </q-btn>
-              <q-btn size="md" color="red" rounded dense icon='delete'>
+              <q-btn size="md" color="red" rounded dense icon='delete' @click="confirm = true">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   O'chirish
                 </q-tooltip>
@@ -135,6 +137,25 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="confirm" persistent>
+      <q-card>
+        <q-card-section class="row flex items-center q-pb-none">
+          <div class="text-h6">Confirm Deletion</div>
+          <q-space />
+          <q-icon name="delete" color="grey" size="sm" />
+        </q-card-section>
+
+        <q-card-section>
+          Are you sure you want to delete this item? This action cannot be undone.
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-px-md q-mb-sm">
+          <q-btn label="Cancel" color="primary" v-close-popup />
+          <q-btn label="Confirm" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -143,6 +164,7 @@ import {ref} from 'vue'
 const search = ref('')
 const loading = ref(false);
 const icon = ref(false);
+const confirm = ref(false);
 const visibleColumns = ref([ 'name', 'phone', 'password', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
   { name: 'name', label: 'Ism', align: 'left', field: 'name', sortable: true },
