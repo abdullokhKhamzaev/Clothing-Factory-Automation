@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import { useAuthorization } from "src/stores/authorization.js";
+import { useAuthorization } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -15,6 +15,9 @@ function auth() {
   useAuthorization().userAuth(authorization)
     .then(() => {
       router.push('/');
+    })
+    .finally(() => {
+      isLoading.value = false;
     })
 }
 </script>
