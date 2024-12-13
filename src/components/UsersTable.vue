@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from "vue";
+import { useDeleteUser } from "stores/user/deleteUser.js";
+import { useQuasar } from "quasar";
 
+const $q = useQuasar();
 const emit = defineEmits(['submit']);
 defineProps({
   users: {
@@ -14,8 +17,11 @@ defineProps({
   }
 });
 
-const confirmModal = ref(false);
-const name = ref('');
+const showConfirmModal = ref(false);
+const searchName = ref('');
+const selectedUser = ref(null);
+
+// table settings
 const visibleColumns = ref([ 'name', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
   { name: 'name', label: 'Ism', align: 'left', field: 'name', sortable: false, required: true },
@@ -24,8 +30,26 @@ const columns = [
   { name: 'salaryCurrency', label: 'Valyuta', align: 'left', field: 'salaryCurrency' },
   { name: 'roles', label: 'Status', align: 'left', field: 'roles', sortable: true }
 ];
-const requestUsers = () => {
+function requestUsers() {
   emit('submit', { name: name.value });
+}
+function removeUser() {
+  if (selectedUser.value.id) {
+    useDeleteUser().userDelete(selectedUser.value.id)
+      .then(() => {
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: "Foydalanuvchi o'chirildi"
+        });
+        selectedUser.value = null;
+        showConfirmModal.value = false;
+        requestUsers();
+      })
+  } else {
+    console.warn('user is empty');
+  }
 }
 </script>
 
@@ -64,7 +88,7 @@ const requestUsers = () => {
         />
         <q-input
           outlined
-          v-model="name"
+          v-model="searchName"
           :class="$q.screen.lt.sm ? 'full-width' : false"
           label="Ism"
           name="Name"
@@ -109,7 +133,7 @@ const requestUsers = () => {
                 O'zgartirish
               </q-tooltip>
             </q-btn>
-            <q-btn size="md" color="red" rounded dense icon='delete' @click="confirmModal = true">
+            <q-btn size="md" color="red" rounded dense icon='delete' @click="showConfirmModal = true; selectedUser = props.row">
               <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                 O'chirish
               </q-tooltip>
@@ -119,7 +143,7 @@ const requestUsers = () => {
       </q-tr>
     </template>
   </q-table>
-  <q-dialog v-model="confirmModal" persistent>
+  <q-dialog v-model="showConfirmModal" persistent>
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
         <div class="text-h6">Confirm Deletion</div>
@@ -132,8 +156,8 @@ const requestUsers = () => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn label="Cancel" color="primary" v-close-popup />
-        <q-btn label="Confirm" color="red" v-close-popup />
+        <q-btn label="Cancel" color="primary" v-close-popup @click="selectedUser = null" />
+        <q-btn label="Confirm" color="red" @click="removeUser" />
       </q-card-actions>
     </q-card>
   </q-dialog>
