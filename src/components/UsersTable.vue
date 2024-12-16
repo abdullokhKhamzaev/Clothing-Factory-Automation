@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useDeleteUser } from "stores/user/deleteUser.js";
+import { useChangeUser } from "stores/user/changeUser.js";
 import { useQuasar } from "quasar";
 
 const $q = useQuasar();
@@ -18,11 +19,13 @@ defineProps({
 });
 
 const showConfirmModal = ref(false);
+const showUserModal = ref(false);
+const isPwd = ref(false);
 const searchName = ref('');
-const selectedUser = ref(null);
+const selectedUser = ref({});
 
 // table settings
-const visibleColumns = ref([ 'name', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
+const visibleColumns = ref([ 'name', 'surName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
   { name: 'name', label: 'Ism', align: 'left', field: 'name', sortable: false, required: true },
   { name: 'phone', label: 'Telefon', align: 'left', field: 'phone' },
@@ -31,7 +34,27 @@ const columns = [
   { name: 'roles', label: 'Status', align: 'left', field: 'roles', sortable: true }
 ];
 function requestUsers() {
-  emit('submit', { name: name.value });
+  emit('submit', { name: searchName.value });
+}
+function changeUser() {
+  if (selectedUser.value.id) {
+    useChangeUser().userChange(selectedUser.value.id, {
+      selectedUser
+    })
+      .then(() => {
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: "Foydalanuvchi o'zgartirildi"
+        });
+        selectedUser.value = null;
+        showConfirmModal.value = false;
+        requestUsers();
+      })
+  } else {
+    console.warn('user is empty');
+  }
 }
 function removeUser() {
   if (selectedUser.value.id) {
@@ -116,6 +139,10 @@ function removeUser() {
             {{ props.row.surName }}
           </div>
 
+          <div v-else-if="col.name === 'salaryCurrency'">
+            {{ props.row.salaryCurrency.name }}
+          </div>
+
           <div v-else-if="col.name === 'roles'">
             <span v-for="role in props.row.roles" :key="role">
               {{ role }}
@@ -128,7 +155,7 @@ function removeUser() {
         </q-td>
         <q-td auto-width>
           <div class="flex no-wrap justify-end q-gutter-x-sm">
-            <q-btn size="md" color="primary" rounded dense icon='edit'>
+            <q-btn size="md" color="primary" rounded dense icon='edit' @click="showUserModal = true; selectedUser = props.row">
               <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                 O'zgartirish
               </q-tooltip>
@@ -143,6 +170,8 @@ function removeUser() {
       </q-tr>
     </template>
   </q-table>
+
+  <!-- Dialogs -->
   <q-dialog v-model="showConfirmModal" persistent>
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
@@ -159,6 +188,82 @@ function removeUser() {
         <q-btn label="Cancel" color="primary" v-close-popup @click="selectedUser = null" />
         <q-btn label="Confirm" color="red" @click="removeUser" />
       </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showUserModal">
+    <q-card style="width: 900px; max-width: 80vw;">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h6">Foydalanuvchi o'zgartirish</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup @click="selectedUser = {}" />
+      </q-card-section>
+
+      <q-card-section>
+        <q-form
+          @submit="changeUser"
+          class="q-gutter-md"
+        >
+          <q-input
+            filled
+            v-model="selectedUser.name"
+            label="Ism *"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
+          />
+          <q-input
+            filled
+            v-model="selectedUser.surName"
+            label="Familya *"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
+          />
+          <q-input
+            filled
+            v-model="selectedUser.phone"
+            label="Telefon *"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
+          />
+
+          <q-input
+            :type="isPwd ? 'password' : 'text'"
+            filled
+            v-model="selectedUser.password"
+            label="Parol *"
+            :rules="[ val => val && val.length > 0 || 'Iltimos parolni kiriting']"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+
+          <q-select
+            filled
+            v-model="selectedUser.salaryCurrency"
+            :options="[
+                '/api/currencies/1'
+              ]"
+            label="Valyuta"
+          />
+
+          <q-input
+            filled
+            type="number"
+            v-model="selectedUser.salary"
+            label="Oylik *"
+            :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
+          />
+
+          <div>
+            <q-btn label="O'zgartirish" type="submit" color="primary"/>
+          </div>
+        </q-form>
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
