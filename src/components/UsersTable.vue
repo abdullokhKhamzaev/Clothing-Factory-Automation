@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from "vue";
+import {reactive, ref} from "vue";
 import { useDeleteUser } from "stores/user/deleteUser.js";
 import { useChangeUser } from "stores/user/changeUser.js";
-import { useQuasar } from "quasar";
+import { useQuasar, exportFile } from "quasar";
+import { useUser } from "stores/user/createUser.js";
+import { useFetchUsers } from "stores/user/getUsers.js";
 
 const $q = useQuasar();
 const emit = defineEmits(['submit']);
@@ -23,6 +25,16 @@ const showUserModal = ref(false);
 const isPwd = ref(false);
 const searchName = ref('');
 const selectedUser = ref({});
+const createUserDialog = ref(false);
+const user = reactive({
+  name: null,
+  surName: null,
+  phone: null,
+  password: null,
+  salary: null,
+  salaryCurrency: null
+});
+const userLoading = ref(false);
 
 // table settings
 const visibleColumns = ref([ 'name', 'surName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
@@ -33,8 +45,98 @@ const columns = [
   { name: 'salaryCurrency', label: 'Valyuta', align: 'left', field: 'salaryCurrency' },
   { name: 'roles', label: 'Status', align: 'left', field: 'roles', sortable: true }
 ];
+function wrapCsvValue(val, formatFn, row) {
+  // If the value is undefined or null, return an empty string
+  if (val === undefined || val === null) {
+    return '""';
+  }
+
+  let formatted = formatFn ? formatFn(val, row) : val;
+
+  // If the formatted value is still undefined or null, return an empty string
+  if (formatted === undefined || formatted === null) {
+    formatted = '';
+  }
+
+  // Escape quotes by doubling them.
+  formatted = formatted.replace(/"/g, '""');
+
+  // Handle new lines (optional).
+  formatted = formatted.replace(/\r?\n/g, ' '); // Replaces newlines with a space.
+
+  return `"${formatted}"`;
+}
+function exportTable(users) {
+  const content = [
+    // Create header row (column labels)
+    columns.map(col => wrapCsvValue(col.label)).join(','),
+
+    // Create data rows
+    users.map(row =>
+      columns.map(col => {
+        // Access nested data like salaryCurrency.name or roles
+        let value = typeof col.field === 'function'
+          ? col.field(row)
+          : row[col.field ?? col.name];
+
+        // Handle nested fields like salaryCurrency
+        if (col.name === 'salaryCurrency') {
+          value = row.salaryCurrency ? row.salaryCurrency.name : '';
+        } else if (col.name === 'roles') {
+          value = row.roles ? row.roles.join(', ') : ''; // Joining roles into a comma-separated string
+        }
+
+        return wrapCsvValue(value, col.format, row);
+      }).join(',')
+    )
+  ].join('\r\n'); // Use carriage return and newline to separate rows
+
+  const status = exportFile(
+    'table-export.csv',
+    content,
+    'text/csv'
+  );
+
+  if (status !== true) {
+    $q.notify({
+      message: 'Browser denied file download...',
+      color: 'negative',
+      icon: 'warning'
+    });
+  }
+}
 function requestUsers() {
   emit('submit', { name: searchName.value });
+}
+function clear() {
+  user.name = null;
+  user.surName = null;
+  user.phone = null;
+  user.password = null;
+  user.salary = null;
+  user.salaryCurrency = null;
+}
+function queryUsers () {
+  userLoading.value = true;
+  useFetchUsers().usersGet('?page=1');
+  userLoading.value = false;
+}
+function createUser() {
+  userLoading.value = true
+
+  useUser().userCreate(user)
+    .finally(() => {
+      userLoading.value = false;
+      createUserDialog.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: "Yangi foydalanuvchi qo'shildi"
+      })
+      clear();
+      queryUsers();
+    })
 }
 function changeUser() {
   if (selectedUser.value.id) {
@@ -83,6 +185,7 @@ function removeUser() {
     :rows="users"
     :columns="columns"
     no-data-label="tables.users.header.empty"
+    title="Users"
     color="primary"
     row-key="id"
     :visible-columns="visibleColumns"
@@ -92,39 +195,59 @@ function removeUser() {
       <q-inner-loading showing color="primary" />
     </template>
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
-        <q-select
-          v-model="visibleColumns"
-          multiple
-          outlined
-          dense
-          options-dense
-          :display-value="$q.lang.table.columns"
-          emit-value
-          map-options
-          :options="columns"
-          option-value="name"
-          label="Ustunlar"
-          options-cover
-          style="min-width: 150px"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-        />
-        <q-input
-          outlined
-          v-model="searchName"
-          :class="$q.screen.lt.sm ? 'full-width' : false"
-          label="Ism"
-          name="Name"
-          clearable
-          @update:model-value="requestUsers"
-          :debounce="1000"
-          dense
-        >
-          <template v-slot:prepend>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </div>
+      <div class="col-12 flex">
+          <q-input
+            style="min-width: 225px"
+            outlined
+            v-model="searchName"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            label="Qidirish uchun yozing..."
+            name="Name"
+            clearable
+            @update:model-value="requestUsers"
+            :debounce="1000"
+            dense
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+          <q-select
+            v-model="visibleColumns"
+            multiple
+            outlined
+            dense
+            options-dense
+            :display-value="$q.lang.table.columns"
+            emit-value
+            map-options
+            :options="columns"
+            option-value="name"
+            label="Ustunlar"
+            options-cover
+            style="min-width: 100px;"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
+          />
+          <div
+            :class="$q.screen.lt.sm ? 'flex full-width justify-between': 'flex'"
+          >
+            <q-btn
+              :class="$q.screen.lt.sm ? '' : 'q-mr-sm'"
+              color="primary"
+              icon-right="outbox"
+              no-caps
+              outline
+              @click="exportTable(users)"
+            />
+            <q-btn
+              color="primary"
+              icon-right="add"
+              label="Qo'shish"
+              no-caps
+              @click="createUserDialog = true"
+            />
+          </div>
+        </div>
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
@@ -225,7 +348,6 @@ function removeUser() {
             mask="+############"
             :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
           />
-
           <q-input
             :type="isPwd ? 'password' : 'text'"
             filled
@@ -241,10 +363,84 @@ function removeUser() {
               />
             </template>
           </q-input>
-
           <q-select
             filled
             v-model="selectedUser.salaryCurrency"
+            :options="[
+                '/api/currencies/1'
+              ]"
+            label="Valyuta"
+          />
+          <q-input
+            filled
+            type="number"
+            v-model="selectedUser.salary"
+            label="Oylik *"
+            :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
+          />
+          <div>
+            <q-btn label="O'zgartirish" type="submit" color="primary"/>
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="createUserDialog">
+    <q-card style="width: 900px; max-width: 80vw;">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h6">Foydalanuvchi qo'shish</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section>
+        <q-form
+          @submit="createUser"
+          @reset="clear"
+          class="q-gutter-md"
+        >
+          <q-input
+            filled
+            v-model="user.name"
+            label="Ism *"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
+          />
+          <q-input
+            filled
+            v-model="user.surName"
+            label="Familya *"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
+          />
+          <q-input
+            filled
+            v-model="user.phone"
+            label="Telefon *"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
+          />
+
+          <q-input
+            :type="isPwd ? 'password' : 'text'"
+            filled
+            v-model="user.password"
+            label="Parol *"
+            :rules="[ val => val && val.length > 0 || 'Iltimos parolni kiriting']"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+
+          <q-select
+            filled
+            v-model="user.salaryCurrency"
             :options="[
                 '/api/currencies/1'
               ]"
@@ -254,13 +450,14 @@ function removeUser() {
           <q-input
             filled
             type="number"
-            v-model="selectedUser.salary"
+            v-model="user.salary"
             label="Oylik *"
             :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
           />
 
           <div>
-            <q-btn label="O'zgartirish" type="submit" color="primary"/>
+            <q-btn label="Qo'shish" type="submit" color="primary"/>
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
           </div>
         </q-form>
       </q-card-section>
