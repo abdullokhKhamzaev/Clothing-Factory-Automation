@@ -64,7 +64,9 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <q-page class="bg-white">
+        <router-view />
+      </q-page>
     </q-page-container>
   </q-layout>
 </template>

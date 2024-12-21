@@ -1,11 +1,9 @@
 <template>
-  <q-layout>
-    <q-page-container>
-      <q-page style="background-color: #F5F6F8">
-        <router-view />
-      </q-page>
-    </q-page-container>
-  </q-layout>
+  <div
+    id="q-app"
+  >
+    <router-view />
+  </div>
 </template>
 
 <script setup>
