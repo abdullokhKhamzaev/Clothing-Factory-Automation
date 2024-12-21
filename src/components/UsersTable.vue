@@ -1,11 +1,12 @@
 <script setup>
-import {reactive, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useDeleteUser } from "stores/user/deleteUser.js";
 import { useChangeUser } from "stores/user/changeUser.js";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/createUser.js";
-import { useFetchUsers } from "stores/user/getUsers.js";
+import { useFetchCurrencies } from "stores/currency/getCurrencies.js";
 
+const currenyUser = useFetchCurrencies();
 const $q = useQuasar();
 const emit = defineEmits(['submit']);
 defineProps({
@@ -26,15 +27,11 @@ const isPwd = ref(false);
 const searchName = ref('');
 const selectedUser = ref({});
 const createUserDialog = ref(false);
-const user = reactive({
-  name: null,
-  surName: null,
-  phone: null,
-  password: null,
-  salary: null,
-  salaryCurrency: null
-});
+function clear() {
+  selectedUser.value = {};
+}
 const userLoading = ref(false);
+const currencyLoading = ref(false);
 
 // table settings
 const visibleColumns = ref([ 'name', 'surName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
@@ -45,6 +42,16 @@ const columns = [
   { name: 'salaryCurrency', label: 'Valyuta', align: 'left', field: 'salaryCurrency' },
   { name: 'roles', label: 'Status', align: 'left', field: 'roles', sortable: true }
 ];
+const currencyOptions = computed(() => {
+  let options = [];
+  for ( let i in currenyUser.state.currencies ) {
+    options.push( {
+      label: `${currenyUser.state.currencies[i].symbol} - ${currenyUser.state.currencies[i].name} (${currenyUser.state.currencies[i].shortName})`,
+      value: currenyUser.state.currencies[i]['@id']
+    } );
+  }
+  return options
+})
 function wrapCsvValue(val, formatFn, row) {
   // If the value is undefined or null, return an empty string
   if (val === undefined || val === null) {
@@ -108,25 +115,16 @@ function exportTable(users) {
 function requestUsers() {
   emit('submit', { name: searchName.value });
 }
-function clear() {
-  user.name = null;
-  user.surName = null;
-  user.phone = null;
-  user.password = null;
-  user.salary = null;
-  user.salaryCurrency = null;
-}
-function queryUsers () {
-  userLoading.value = true;
-  useFetchUsers().usersGet('?page=1');
-  userLoading.value = false;
+function queryCurrencies () {
+  currencyLoading.value = true;
+  currenyUser.currenciesGet('?page=1');
+  currencyLoading.value = false;
 }
 function createUser() {
   userLoading.value = true
 
-  useUser().userCreate(user)
-    .finally(() => {
-      userLoading.value = false;
+  useUser().userCreate(selectedUser)
+    .then(() => {
       createUserDialog.value = false;
       $q.notify({
         type: 'positive',
@@ -134,8 +132,19 @@ function createUser() {
         timeout: 1000,
         message: "Yangi foydalanuvchi qo'shildi"
       })
-      clear();
-      queryUsers();
+      selectedUser.value = null;
+      requestUsers();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: "Yangi foydalanuvchi qo'shishda xatolik yuz berdi"
+      })
+    })
+    .finally(() => {
+      userLoading.value = false;
     })
 }
 function changeUser() {
@@ -176,6 +185,20 @@ function removeUser() {
     console.warn('user is empty');
   }
 }
+function handleEditAction(user) {
+  showUserModal.value = true;
+  selectedUser.value = user
+  if (user?.salaryCurrency?.id) {
+    selectedUser.value.salaryCurrency = {
+      label: `${user.salaryCurrency.symbol} - ${user.salaryCurrency.name} (${user.salaryCurrency.shortName})`,
+      value: user.salaryCurrency['@id']
+    }
+  }
+}
+
+onMounted(() => {
+  queryCurrencies();
+})
 </script>
 
 <template>
@@ -278,7 +301,7 @@ function removeUser() {
         </q-td>
         <q-td auto-width>
           <div class="flex no-wrap justify-end q-gutter-x-sm">
-            <q-btn size="md" color="primary" rounded dense icon='edit' @click="showUserModal = true; selectedUser = props.row">
+            <q-btn size="md" color="primary" rounded dense icon='edit' @click="handleEditAction(props.row)">
               <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                 O'zgartirish
               </q-tooltip>
@@ -308,17 +331,17 @@ function removeUser() {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn label="Cancel" color="primary" v-close-popup @click="selectedUser = null" />
+        <q-btn label="Cancel" color="primary" v-close-popup @click="clear" />
         <q-btn label="Confirm" color="red" @click="removeUser" />
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showUserModal">
+  <q-dialog v-model="showUserModal" persistent>
     <q-card style="width: 900px; max-width: 80vw;">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Foydalanuvchi o'zgartirish</div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup @click="selectedUser = {}" />
+        <q-btn icon="close" flat round dense v-close-popup @click="clear" />
       </q-card-section>
 
       <q-card-section>
@@ -365,11 +388,13 @@ function removeUser() {
           </q-input>
           <q-select
             filled
+            emit-value
+            map-options
             v-model="selectedUser.salaryCurrency"
-            :options="[
-                '/api/currencies/1'
-              ]"
+            :options="currencyOptions"
             label="Valyuta"
+            option-value="value"
+            option-label="label"
           />
           <q-input
             filled
@@ -385,7 +410,7 @@ function removeUser() {
       </q-card-section>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="createUserDialog">
+  <q-dialog v-model="createUserDialog" persistent>
     <q-card style="width: 900px; max-width: 80vw;">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">Foydalanuvchi qo'shish</div>
@@ -401,21 +426,21 @@ function removeUser() {
         >
           <q-input
             filled
-            v-model="user.name"
+            v-model="selectedUser.name"
             label="Ism *"
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
           />
           <q-input
             filled
-            v-model="user.surName"
+            v-model="selectedUser.surName"
             label="Familya *"
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
           />
           <q-input
             filled
-            v-model="user.phone"
+            v-model="selectedUser.phone"
             label="Telefon *"
             name="First Name"
             mask="+############"
@@ -425,7 +450,7 @@ function removeUser() {
           <q-input
             :type="isPwd ? 'password' : 'text'"
             filled
-            v-model="user.password"
+            v-model="selectedUser.password"
             label="Parol *"
             :rules="[ val => val && val.length > 0 || 'Iltimos parolni kiriting']"
           >
@@ -440,17 +465,19 @@ function removeUser() {
 
           <q-select
             filled
-            v-model="user.salaryCurrency"
-            :options="[
-                '/api/currencies/1'
-              ]"
+            emit-value
+            map-options
+            v-model="selectedUser.salaryCurrency"
+            :options="currencyOptions"
             label="Valyuta"
+            option-value="value"
+            option-label="label"
           />
 
           <q-input
             filled
             type="number"
-            v-model="user.salary"
+            v-model="selectedUser.salary"
             label="Oylik *"
             :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
           />
