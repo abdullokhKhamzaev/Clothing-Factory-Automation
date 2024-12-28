@@ -10,6 +10,28 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
+        <q-space />
+        <q-select
+          v-model="locale"
+          :options="localeOptions"
+          :label="$t('language')"
+          color="black"
+          options-dense
+          emit-value
+          map-options
+          style="min-width: 150px"
+          outlined
+          dense
+          filled
+          bg-color="white"
+          @update:model-value="changeLang"
+        >
+          <template v-slot:append>
+            <q-avatar>
+              <q-icon name="language" size="sm" color="primary" />
+            </q-avatar>
+          </template>
+        </q-select>
       </q-toolbar>
     </q-header>
 
@@ -74,7 +96,10 @@
 <script setup>
 import { ref } from 'vue'
 import SideBarLink from 'components/SideBarLink.vue'
+import { useI18n } from 'vue-i18n'
+const { locale } = useI18n();
 
+const leftDrawerOpen = ref(false)
 const linksList = [
   {
     title: 'Foydalanuvchilar',
@@ -142,10 +167,22 @@ const linksList = [
     to: { name: 'club.budget' }
   },
 ]
-
-const leftDrawerOpen = ref(false)
+const localeOptions = [
+  {
+    label: 'English',
+    value: 'en'
+  },
+  {
+    label: 'Uzbek',
+    value: 'uz'
+  },
+]
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+function changeLang (lang) {
+  locale.value = lang;
+  localStorage.setItem('lang', lang)
 }
 </script>
