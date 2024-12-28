@@ -33,6 +33,11 @@ const routes = [
         component: () => import('pages/UsersPage.vue')
       },
       {
+        path: 'thread',
+        name: 'club.thread',
+        component: () => import('pages/ThreadPage.vue')
+      },
+      {
         path: 'weave',
         name: 'club.weave',
         component: () => import('pages/WeavePage.vue')

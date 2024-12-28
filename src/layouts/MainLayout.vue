@@ -107,6 +107,11 @@ const linksList = [
     to: { name: 'club.users' }
   },
   {
+    title: 'Ip Sklad',
+    icon: 'warehouse',
+    to: { name: 'club.thread' }
+  },
+  {
     title: 'To’quv',
     icon: 'precision_manufacturing',
     to: { name: 'club.weave' }
