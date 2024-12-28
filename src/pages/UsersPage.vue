@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import { useFetchUsers } from "stores/user/getUsers.js";
-import UsersTable from "components/UsersTable.vue";
+import UsersTable from "components/tables/UsersTable.vue";
 const storeUser = useFetchUsers();
 const loading = ref(false);
 

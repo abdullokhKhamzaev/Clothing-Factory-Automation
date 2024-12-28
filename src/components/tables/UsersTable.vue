@@ -286,17 +286,21 @@ onMounted(() => {
           </div>
 
           <div v-else-if="col.name === 'salaryCurrency'">
-            {{ props.row.salaryCurrency.name }}
+            {{ props.row?.salaryCurrency?.name || '-' }}
           </div>
 
           <div v-else-if="col.name === 'roles'">
-            <span v-for="role in props.row.roles" :key="role">
+            <span
+              v-for="role in props.row.roles"
+              :key="role"
+              class="q-mr-sm"
+            >
               {{ role }}
             </span>
           </div>
 
           <div v-else>
-            {{ props.row[col.field] }}
+            {{ props.row[col.field] || '-' }}
           </div>
         </q-td>
         <q-td auto-width>

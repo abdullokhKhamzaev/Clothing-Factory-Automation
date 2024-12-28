@@ -6,7 +6,7 @@
           flat
           dense
           round
-          :icon="leftDrawerOpen ? 'keyboard_double_arrow_left' : 'keyboard_double_arrow_right'"
+          :icon="leftDrawerOpen ? 'mdi-chevron-double-left' : 'mdi-chevron-double-right'"
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
@@ -28,7 +28,7 @@
         >
           <template v-slot:append>
             <q-avatar>
-              <q-icon name="language" size="sm" color="primary" />
+              <q-icon name="mdi-translate-variant" size="sm" color="primary" />
             </q-avatar>
           </template>
         </q-select>
@@ -102,73 +102,73 @@ const { locale } = useI18n();
 const leftDrawerOpen = ref(false)
 const linksList = [
   {
-    title: 'Foydalanuvchilar',
-    icon: 'person',
+    title: 'users',
+    icon: 'mdi-account-multiple',
     to: { name: 'club.users' }
   },
   {
-    title: 'Ip Sklad',
-    icon: 'warehouse',
+    title: 'threadWarehouse',
+    icon: 'mdi-warehouse',
     to: { name: 'club.thread' }
   },
   {
-    title: 'To’quv',
-    icon: 'precision_manufacturing',
+    title: 'weaving',
+    icon: 'mdi-store-cog',
     to: { name: 'club.weave' }
   },
   {
-    title: 'Hom Material Sklad',
-    icon: 'warehouse',
+    title: 'unripeMaterialWarehouse',
+    icon: 'mdi-warehouse',
     to: { name: 'club.unripeMaterialWarehouse' }
   },
   {
-    title: 'Bo’yoq',
-    icon: 'palette',
+    title: 'paint',
+    icon: 'mdi-palette-outline',
     to: { name: 'club.paint' }
   },
   {
-    title: 'Tayyor Material Sklad',
-    icon: 'warehouse',
+    title: 'paintedMaterialWarehouse',
+    icon: 'mdi-warehouse',
     to: { name: 'club.material-warehouse' }
   },
   {
-    title: 'Bichuv',
-    icon: 'content_cut',
+    title: 'cutting',
+    icon: 'mdi-scissors-cutting',
     to: { name: 'club.cut' }
   },
   {
-    title: 'Vishevka',
-    icon: 'grain',
+    title: 'embroidery',
+    icon: 'mdi-draw',
     to: { name: 'club.embroidery' }
   },
   {
-    title: 'Tikuv',
-    icon: 'grain',
+    title: 'sewing',
+    icon: 'mdi-nail',
     to: { name: 'club.sew' }
   },
   {
-    title: 'Upakovka',
-    icon: 'grain',
+    title: 'package',
+    icon: 'mdi-package-down',
     to: { name: 'club.packing' }
   },
   {
-    title: 'Product Sklad',
-    icon: 'grain',
+    title: 'productWarehouse',
+    icon: 'mdi-warehouse',
     to: { name: 'club.productWarehouse' }
   },
   {
-    title: 'Mijozlar',
-    icon: 'group',
+    title: 'customers',
+    icon: 'mdi-account-group',
     to: { name: 'club.clients' }
   },
   {
-    title: 'Statistika',
-    icon: 'insert_chart',
+    title: 'statistics',
+    icon: 'mdi-chart-bar-stacked',
     to: { name: 'club.statistic' }
   },
   {
-    title: 'Budget',
-    icon: 'assured_workload',
+    title: 'budget',
+    icon: 'mdi-bank-circle-outline',
     to: { name: 'club.budget' }
   },
 ]

@@ -16,7 +16,7 @@
 
     <q-item-section>
       <q-item-label class="text-subtitle1">
-        {{ props.title }}
+        {{ $t(`menu.sideBar.${props.title}`) }}
       </q-item-label>
       <q-item-label
         v-if="props.caption"
