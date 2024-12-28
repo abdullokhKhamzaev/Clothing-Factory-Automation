@@ -1,6 +1,10 @@
 export default {
   balance: 'Balance',
+  convert: 'Convert',
+  from: 'from',
   language: 'Language',
+  to: 'to',
+  quantity: 'Quantity',
   warehouse: 'Warehouse',
   menu: {
     sideBar: {

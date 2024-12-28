@@ -1,6 +1,10 @@
 export default {
   balance: 'Hisob',
+  convert: 'Ayriboshlash',
+  from: 'Dan',
   language: 'Til',
+  to: 'Ga',
+  quantity: 'Miqdor',
   warehouse: 'Ombor',
   menu: {
     sideBar: {
