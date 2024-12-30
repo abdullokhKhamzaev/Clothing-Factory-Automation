@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import { useAuthorization } from "stores/user/authorization.js";
+import { useAuth } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -12,9 +12,14 @@ const authorization = reactive({
 
 function auth() {
   isLoading.value = true;
-  useAuthorization().userAuth(authorization)
-    .then(() => {
+  useAuth().auth(authorization)
+    .then((res) => {
+      localStorage.setItem('accessToken', res.data.accessToken)
+      localStorage.setItem('refreshToken', res.data.refreshToken)
       router.push('/');
+    })
+    .catch((err) => {
+      console.log(err);
     })
     .finally(() => {
       isLoading.value = false;
@@ -56,4 +61,3 @@ function auth() {
     </div>
   </div>
 </template>
-

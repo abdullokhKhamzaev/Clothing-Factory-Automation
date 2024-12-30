@@ -1,6 +1,6 @@
 // let isAdmin = () => JSON.parse(atob(localStorage.getItem('token').split('.')[1])).roles.includes('ROLE_ADMIN')
 const ifAuthorized = (to, from, next) => {
-  if (localStorage.getItem('token') !== null) {
+  if (localStorage.getItem('accessToken') !== null) {
     next()
   } else {
     next('/login')
@@ -8,7 +8,7 @@ const ifAuthorized = (to, from, next) => {
 }
 //
 const ifNotAuthorized = (to, from, next) => {
-  if (localStorage.getItem('token') === null) {
+  if (localStorage.getItem('accessToken') === null) {
     next()
   } else {
     next('/')
