@@ -205,12 +205,12 @@ function deleteAction() {
           <div class="flex no-wrap justify-end q-gutter-x-sm">
             <q-btn size="md" color="primary" rounded dense icon='edit' @click="showUpdateModal = true; selectedData = props.row">
               <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                O'zgartirish
+                {{ $t('edit') }}
               </q-tooltip>
             </q-btn>
             <q-btn size="md" color="red" rounded dense icon='delete' @click="showDeleteModal = true; selectedData = props.row">
               <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                O'chirish
+                {{ $t('delete') }}
               </q-tooltip>
             </q-btn>
           </div>
@@ -241,7 +241,7 @@ function deleteAction() {
   <q-dialog v-model="showUpdateModal" persistent>
     <q-card style="width: 900px; max-width: 80vw;">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">O'zgartirish</div>
+        <div class="text-h6">{{ $t('edit') }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
       </q-card-section>
@@ -274,7 +274,7 @@ function deleteAction() {
             :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
           />
           <div>
-            <q-btn label="O'zgartirish" type="submit" color="primary"/>
+            <q-btn :label="$t('edit')" type="submit" color="primary"/>
           </div>
         </q-form>
       </q-card-section>

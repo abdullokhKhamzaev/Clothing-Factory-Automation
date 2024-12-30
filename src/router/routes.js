@@ -96,6 +96,11 @@ const routes = [
         path: 'budget',
         name: 'club.budget',
         component: () => import('pages/BudgetPage.vue')
+      },
+      {
+        path: 'setting',
+        name: 'club.setting',
+        component: () => import('pages/SettingPage.vue')
       }
     ]
   },

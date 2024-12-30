@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
-export const useUser = defineStore('book', () => {
+export const useUser = defineStore('user', () => {
     function userCreate(data) {
         return new Promise((resolve, reject) => {
             client.post('users', data)

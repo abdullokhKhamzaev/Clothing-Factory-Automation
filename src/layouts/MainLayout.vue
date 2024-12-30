@@ -171,6 +171,11 @@ const linksList = [
     icon: 'mdi-bank-circle-outline',
     to: { name: 'club.budget' }
   },
+  {
+    title: 'settings',
+    icon: 'mdi-cog',
+    to: { name: 'club.setting' }
+  },
 ]
 const localeOptions = [
   {
