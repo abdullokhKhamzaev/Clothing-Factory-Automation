@@ -247,7 +247,7 @@ export default {
     },
     thread: {
       header: {
-        title: 'Thread types',
+        title: 'Thread',
         empty: 'There is no available thread'
       },
       columns: {
@@ -260,7 +260,7 @@ export default {
     },
     material: {
       header: {
-        title: 'Material types',
+        title: 'Material',
         empty: 'There is no available material'
       },
       columns: {

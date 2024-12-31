@@ -247,7 +247,7 @@ export default {
     },
     thread: {
       header: {
-        title: 'Ip turlari',
+        title: 'Iplar',
         empty: 'Hech qanday ip turi mavjud emas'
       },
       columns: {
@@ -260,7 +260,7 @@ export default {
     },
     material: {
       header: {
-        title: 'Material turlari',
+        title: 'Materiallar',
         empty: 'Hech qanday material turi mavjud emas'
       },
       columns: {
