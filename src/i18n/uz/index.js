@@ -3,6 +3,7 @@ export default {
   balance: 'Hisob',
   convert: 'Ayriboshlash',
   columns: 'Ustunlar',
+  colors: 'Ranglar',
   delete: "O'chirish",
   edit: "O'zgartirish",
   fabrics: "Fabrikalar",
@@ -58,6 +59,10 @@ export default {
     fabric: {
       barCreate: 'Bo\'yoq Fabrika Yaratish',
       barEdit: 'Bo\'yoq Fabrika O\'zgartirish',
+    },
+    color: {
+      barCreate: 'Rang Yaratish',
+      barEdit: 'Rang O\'zgartirish',
     },
   },
   forms: {
@@ -200,6 +205,26 @@ export default {
         successDeleted: 'Bo\'yoq Fabrika muvaffaqiyatli o\'chirildi.',
         failure: 'Bo\'yoq Fabrika saqlashda xatolik yuz berdi.'
       }
+    },
+    color: {
+      fields: {
+        name: {
+          label: 'Nom',
+          validation: {
+            required: 'Nom talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Rang Yaratish',
+        edit: 'Rang O\'zgartirish'
+      },
+      confirmation: {
+        successCreated: 'Rang muvaffaqiyatli yaratildi.',
+        successEdited: 'Rang muvaffaqiyatli o\'zgartirildi.',
+        successDeleted: 'Rang muvaffaqiyatli o\'chirildi.',
+        failure: 'Rang saqlashda xatolik yuz berdi.'
+      }
     }
   },
   tables: {
@@ -257,6 +282,18 @@ export default {
       },
       buttons: {
         add: 'Fabrika Qo\'shish'
+      },
+    },
+    color: {
+      header: {
+        title: 'Ranglar',
+        empty: 'Hech qanday rang mavjud emas'
+      },
+      columns: {
+        name: 'Nomi'
+      },
+      buttons: {
+        add: 'Rang Qo\'shish'
       },
     }
   }

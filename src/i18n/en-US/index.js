@@ -3,6 +3,7 @@ export default {
   balance: 'Balance',
   convert: 'Convert',
   columns: 'Columns',
+  colors: 'Colors',
   delete: 'Delete',
   edit: 'Edit',
   fabrics: "Fabrics",
@@ -58,6 +59,10 @@ export default {
     fabric: {
       barCreate: 'Create Paint Factory',
       barEdit: 'Edit Paint Factory',
+    },
+    color: {
+      barCreate: 'Create Color',
+      barEdit: 'Edit Color',
     },
   },
   forms: {
@@ -201,6 +206,26 @@ export default {
         failure: 'There was an error saving paint factory.'
       }
     },
+    color: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Color',
+        edit: 'Edit Color'
+      },
+      confirmation: {
+        successCreated: 'Color was successfully created.',
+        successEdited: 'Color was successfully edited.',
+        successDeleted: 'Color was successfully deleted.',
+        failure: 'There was an error saving paint color.'
+      }
+    },
   },
   tables: {
     users: {
@@ -257,6 +282,18 @@ export default {
       },
       buttons: {
         add: 'Add Factory'
+      },
+    },
+    color: {
+      header: {
+        title: 'Colors',
+        empty: 'There is no available color'
+      },
+      columns: {
+        name: 'Name'
+      },
+      buttons: {
+        add: 'Add Color'
       },
     }
   }

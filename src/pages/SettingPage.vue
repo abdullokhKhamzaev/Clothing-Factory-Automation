@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useThread } from "stores/thread.js";
 import { useMaterial } from "stores/material.js";
 import { usePaintFabric } from "stores/paintFabric.js";
+import { useColor } from "stores/color.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 
@@ -14,6 +15,8 @@ const material = useMaterial();
 const materials = ref([]);
 const fabric = usePaintFabric();
 const fabrics = ref([]);
+const color = useColor();
+const colors = ref([]);
 const measurementOptions = ref([
   {
     label: 'KG',
@@ -30,6 +33,7 @@ const tab = ref('threads');
 const threadLoading = ref(false);
 const materialLoading = ref(false);
 const fabricLoading = ref(false);
+const colorLoading = ref(false);
 
 const showThreadCreateModal = ref(false);
 const showThreadUpdateModal = ref(false);
@@ -40,6 +44,9 @@ const showMaterialDeleteModal = ref(false);
 const showFabricCreateModal = ref(false);
 const showFabricUpdateModal = ref(false);
 const showFabricDeleteModal = ref(false);
+const showColorCreateModal = ref(false);
+const showColorUpdateModal = ref(false);
+const showColorDeleteModal = ref(false);
 
 const columns = [
   { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
@@ -49,6 +56,10 @@ const columns = [
 const fabricColumns = [
   { name: 'name', label: t('tables.fabric.columns.name'), align: 'left', field: 'name' },
   { name: 'address', label: t('tables.fabric.columns.address'), align: 'left', field: 'address' },
+  { name: 'action', label: '', align: 'right', field: 'action' }
+];
+const colorColumns = [
+  { name: 'name', label: t('tables.fabric.columns.name'), align: 'left', field: 'name' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
@@ -80,6 +91,16 @@ function getFabrics (){
     })
     .finally(() => {
       fabricLoading.value = false;
+    });
+}
+function getColors (){
+  colorLoading.value = true;
+  color.fetchColors('?page=1')
+    .then((res) => {
+      colors.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      colorLoading.value = false;
     });
 }
 function clearAction() {
@@ -146,10 +167,6 @@ function createMaterialAction() {
 function createFabricAction() {
   fabricLoading.value = true;
 
-  if ( selectedData?.value?.quantity ) {
-    selectedData.value.quantity = String(selectedData.value.quantity);
-  }
-
   fabric.createFabric(selectedData.value)
     .then(() => {
       showFabricCreateModal.value = false;
@@ -171,6 +188,31 @@ function createFabricAction() {
       })
     })
     .finally(() => fabricLoading.value = false);
+}
+function createColorAction() {
+  colorLoading.value = true;
+
+  color.createColor(selectedData.value)
+    .then(() => {
+      showColorCreateModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.color.confirmation.successCreated')
+      })
+      clearAction();
+      getColors();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.color.confirmation.failure')
+      })
+    })
+    .finally(() => colorLoading.value = false);
 }
 function updateThreadAction() {
   if (selectedData.value.id) {
@@ -257,6 +299,36 @@ function updateFabricAction() {
         })
       })
       .finally(() => fabricLoading.value = false);
+  } else {
+    console.warn('data is empty');
+  }
+  clearAction();
+}
+function updateColorAction() {
+  if (selectedData.value.id) {
+    colorLoading.value = true;
+
+    color.editColor(selectedData.value.id, selectedData.value)
+      .then(() => {
+        showColorUpdateModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.color.confirmation.successEdited')
+        });
+        clearAction();
+        getColors();
+      })
+      .catch(() => {
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.color.confirmation.failure')
+        })
+      })
+      .finally(() => colorLoading.value = false);
   } else {
     console.warn('data is empty');
   }
@@ -349,16 +421,46 @@ function deleteFabricAction() {
     console.warn('data is empty');
   }
 }
+function deleteColorAction() {
+  if (selectedData.value.id) {
+    colorLoading.value = true;
+
+    color.deleteColor(selectedData.value.id)
+      .then(() => {
+        showColorDeleteModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.color.confirmation.successDeleted')
+        });
+        clearAction();
+        getColors();
+      })
+      .catch(() => {
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.color.confirmation.failure')
+        })
+      })
+      .finally(() => colorLoading.value = false)
+  } else {
+    console.warn('data is empty');
+  }
+}
 
 onMounted(() => {
   getThreads();
   getMaterials();
   getFabrics();
+  getColors();
 })
 </script>
 
 <template>
-  <div class="q-mx-md q-mt-md flex-block" :style="$q.screen.xs ? '' : 'max-width: 300px'">
+  <div class="q-mx-md q-mt-md flex">
     <q-tabs
       v-model="tab"
       no-caps
@@ -366,10 +468,12 @@ onMounted(() => {
       outside-arrows
       mobile-arrows
       class="shadow-2 text-primary"
+      :class="$q.screen.xs ? 'full-width' : ''"
     >
       <q-tab name="threads" :label="$t('threads')"/>
       <q-tab name="materials" :label="$t('materials')"/>
       <q-tab name="fabrics" :label="$t('fabrics')"/>
+      <q-tab name="colors" :label="$t('colors')"/>
     </q-tabs>
   </div>
 
@@ -893,6 +997,136 @@ onMounted(() => {
             <q-card-actions align="right" class="q-px-md q-mb-sm">
               <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
               <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteFabricAction" />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-tab-panel>
+      <q-tab-panel name="colors">
+        <q-table
+          flat
+          bordered
+          :rows="colors"
+          :columns="colorColumns"
+          :no-data-label="$t('tables.color.header.empty')"
+          :loading="colorLoading"
+          color="primary"
+          row-key="id"
+          hide-bottom
+        >
+          <template v-slot:loading>
+            <q-inner-loading showing color="primary" />
+          </template>
+          <template v-slot:top>
+            <div class="col-12 flex justify-between">
+              <div class="q-table__title">{{ $t('tables.color.header.title') }}</div>
+              <div class="text-right">
+                <q-btn
+                  color="primary"
+                  icon-right="add"
+                  :label="$t('tables.color.buttons.add')"
+                  no-caps
+                  @click="showColorCreateModal = true"
+                />
+              </div>
+            </div>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td v-for="col in colorColumns" :key="col.name" :props="props">
+                <div class="flex justify-end" v-if="col.name === 'action'">
+                  <div class="flex no-wrap q-gutter-x-sm">
+                    <q-btn size="md" color="primary" rounded dense icon="edit" @click="showColorUpdateModal = true; selectedData = props.row">
+                      <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                        {{ $t('edit') }}
+                      </q-tooltip>
+                    </q-btn>
+                    <q-btn size="md" color="red" rounded dense icon="delete" @click="showColorDeleteModal = true; selectedData = props.row">
+                      <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                        {{ $t('delete') }}
+                      </q-tooltip>
+                    </q-btn>
+                  </div>
+                </div>
+
+                <div v-else>
+                  {{ props.row[col.field] || '-' }}
+                </div>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+        <!-- Dialogs -->
+        <q-dialog v-model="showColorCreateModal" persistent>
+          <div
+            class="bg-white shadow-3"
+            style="width: 900px; max-width: 80vw;"
+          >
+            <q-form @submit.prevent="createColorAction">
+              <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+                <div class="text-h6"> {{ $t('dialogs.color.barCreate') }} </div>
+                <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+              </div>
+              <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+                <q-input
+                  filled
+                  v-model="selectedData.name"
+                  :label="$t('forms.color.fields.name.label')"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || $t('forms.color.fields.name.validation.required')]"
+                  class="col-12"
+                  hide-bottom-space
+                />
+              </div>
+              <q-separator />
+              <div class="q-px-md q-py-sm text-center">
+                <q-btn no-caps :label="$t('forms.color.buttons.create')" type="submit" color="primary" />
+              </div>
+            </q-form>
+          </div>
+        </q-dialog>
+        <q-dialog v-model="showColorUpdateModal" persistent>
+          <div
+            class="bg-white shadow-3"
+            style="width: 900px; max-width: 80vw;"
+          >
+            <q-form @submit.prevent="updateColorAction">
+              <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+                <div class="text-h6"> {{ $t('dialogs.color.barEdit') }} </div>
+                <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+              </div>
+              <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+                <q-input
+                  filled
+                  v-model="selectedData.name"
+                  :label="$t('forms.fabric.fields.name.label')"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || $t('forms.color.fields.name.validation.required')]"
+                  class="col-12"
+                  hide-bottom-space
+                />
+              </div>
+              <q-separator />
+              <div class="q-px-md q-py-sm text-center">
+                <q-btn no-caps :label="$t('forms.color.buttons.edit')" type="submit" color="primary" />
+              </div>
+            </q-form>
+          </div>
+        </q-dialog>
+        <q-dialog v-model="showColorDeleteModal" persistent>
+          <q-card>
+            <q-card-section class="row flex items-center q-pb-none">
+              <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
+              <q-space />
+              <q-icon name="delete" color="grey" size="sm" />
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('dialogs.delete.info') }}
+            </q-card-section>
+
+            <q-card-actions align="right" class="q-px-md q-mb-sm">
+              <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+              <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteColorAction" />
             </q-card-actions>
           </q-card>
         </q-dialog>
