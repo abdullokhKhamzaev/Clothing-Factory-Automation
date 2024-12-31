@@ -1,14 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { useDeleteUser } from "stores/user/deleteUser.js";
-import { useChangeUser } from "stores/user/changeUser.js";
+import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
-import { useUser } from "stores/user/createUser.js";
-import { useFetchCurrencies } from "stores/currency/getCurrencies.js";
+import { useUser } from "stores/user/user.js";
+import { useCurrency } from "stores/currency.js";
 
-const currenyUser = useFetchCurrencies();
-const $q = useQuasar();
-const emit = defineEmits(['submit']);
+// Props
 defineProps({
   users: {
     type: Array,
@@ -21,37 +18,147 @@ defineProps({
   }
 });
 
-const showConfirmModal = ref(false);
-const showUserModal = ref(false);
+const $q = useQuasar();
+const { t } = useI18n();
+const emit = defineEmits(['submit']);
+const user = useUser();
+
+const currency = useCurrency();
+const currencies = ref([]);
+
+// Dialogs
+const showCreateModal = ref(false);
+const showUpdateModal = ref(false);
+const showDeleteModal = ref(false);
+
 const isPwd = ref(false);
-const searchName = ref('');
-const selectedUser = ref({});
-const createUserDialog = ref(false);
-function clear() {
-  selectedUser.value = {};
-}
+const searchTitle = ref('');
+const selectedData = ref({});
+
 const userLoading = ref(false);
 const currencyLoading = ref(false);
 
 // table settings
 const visibleColumns = ref([ 'name', 'surName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
-  { name: 'name', label: 'Ism', align: 'left', field: 'name', sortable: false, required: true },
-  { name: 'phone', label: 'Telefon', align: 'left', field: 'phone' },
-  { name: 'salary', label: 'Maosh', align: 'left', field: 'salary', sortable: true },
-  { name: 'salaryCurrency', label: 'Valyuta', align: 'left', field: 'salaryCurrency' },
-  { name: 'roles', label: 'Status', align: 'left', field: 'roles', sortable: true }
+  { name: 'name', label: t('tables.users.columns.name'), align: 'left', field: 'name', required: true },
+  { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'salary', label: t('tables.users.columns.salary'), field: 'salary', sortable: true },
+  { name: 'salaryCurrency', label: t('tables.users.columns.currency'), align: 'left', field: 'salaryCurrency' },
+  { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
+  { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+
+// computed
 const currencyOptions = computed(() => {
   let options = [];
-  for ( let i in currenyUser.state.currencies ) {
+  for ( let i in currencies.value ) {
     options.push( {
-      label: `${currenyUser.state.currencies[i].symbol} - ${currenyUser.state.currencies[i].name} (${currenyUser.state.currencies[i].shortName})`,
-      value: currenyUser.state.currencies[i]['@id']
+      label: `${currencies.value[i].symbol} - ${currencies.value[i].name} (${currencies.value[i].shortName})`,
+      value: currencies.value[i]['@id']
     } );
   }
   return options
 })
+
+// functions
+function getUsers() {
+  emit('submit', { name: searchTitle.value });
+}
+function getCurrencies () {
+  currencyLoading.value = true;
+  currency.fetchCurrencies('?page=1')
+    .then((res) => {
+      currencies.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      currencyLoading.value = false;
+    });
+}
+function clearAction() {
+  selectedData.value = {};
+}
+function adaptCurrencyOption() {
+  if (selectedData.value?.salaryCurrency?.id) {
+    selectedData.value.salaryCurrency = {
+      label: `${selectedData.value.salaryCurrency.symbol} - ${selectedData.value.salaryCurrency.name} (${selectedData.value.salaryCurrency.shortName})`,
+      value: selectedData.value.salaryCurrency['@id']
+    }
+  }
+}
+function createAction() {
+  userLoading.value = true
+
+  user.createUser(selectedData.value)
+    .then(() => {
+      showCreateModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.users.confirmation.successCreated')
+      })
+      clearAction();
+      getUsers();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.users.confirmation.failure')
+      })
+    })
+    .finally(() => {
+      userLoading.value = false;
+    })
+}
+function updateAction() {
+  if (selectedData?.value?.id) {
+    userLoading.value = true;
+    user.editUser(selectedData.value.id, selectedData.value)
+      .then(() => {
+        clearAction();
+        showDeleteModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.users.confirmation.successEdited')
+        });
+        getUsers();
+      })
+      .catch(() => {
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.users.confirmation.failure')
+        })
+      })
+      .finally(() => userLoading.value = false);
+  } else {
+    console.warn('data is empty');
+  }
+}
+function deleteAction() {
+  if ( selectedData?.value?.id ) {
+    user.deleteUser(selectedData.value.id)
+      .then(() => {
+        showDeleteModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.users.confirmation.successDeleted')
+        });
+        clearAction();
+        getUsers();
+      })
+  } else {
+    console.warn('data is empty');
+  }
+}
 function wrapCsvValue(val, formatFn, row) {
   // If the value is undefined or null, return an empty string
   if (val === undefined || val === null) {
@@ -112,92 +219,9 @@ function exportTable(users) {
     });
   }
 }
-function requestUsers() {
-  emit('submit', { name: searchName.value });
-}
-function queryCurrencies () {
-  currencyLoading.value = true;
-  currenyUser.currenciesGet('?page=1');
-  currencyLoading.value = false;
-}
-function createUser() {
-  userLoading.value = true
-
-  useUser().userCreate(selectedUser)
-    .then(() => {
-      createUserDialog.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: "Yangi foydalanuvchi qo'shildi"
-      })
-      selectedUser.value = null;
-      requestUsers();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: "Yangi foydalanuvchi qo'shishda xatolik yuz berdi"
-      })
-    })
-    .finally(() => {
-      userLoading.value = false;
-    })
-}
-function changeUser() {
-  if (selectedUser.value.id) {
-    useChangeUser().userChange(selectedUser.value.id, {
-      selectedUser
-    })
-      .then(() => {
-        $q.notify({
-          type: 'positive',
-          position: 'top',
-          timeout: 1000,
-          message: "Foydalanuvchi o'zgartirildi"
-        });
-        selectedUser.value = null;
-        showConfirmModal.value = false;
-        requestUsers();
-      })
-  } else {
-    console.warn('user is empty');
-  }
-}
-function removeUser() {
-  if (selectedUser.value.id) {
-    useDeleteUser().userDelete(selectedUser.value.id)
-      .then(() => {
-        $q.notify({
-          type: 'positive',
-          position: 'top',
-          timeout: 1000,
-          message: "Foydalanuvchi o'chirildi"
-        });
-        selectedUser.value = null;
-        showConfirmModal.value = false;
-        requestUsers();
-      })
-  } else {
-    console.warn('user is empty');
-  }
-}
-function handleEditAction(user) {
-  showUserModal.value = true;
-  selectedUser.value = user
-  if (user?.salaryCurrency?.id) {
-    selectedUser.value.salaryCurrency = {
-      label: `${user.salaryCurrency.symbol} - ${user.salaryCurrency.name} (${user.salaryCurrency.shortName})`,
-      value: user.salaryCurrency['@id']
-    }
-  }
-}
 
 onMounted(() => {
-  queryCurrencies();
+  getCurrencies();
 })
 </script>
 
@@ -207,12 +231,11 @@ onMounted(() => {
     bordered
     :rows="users"
     :columns="columns"
-    no-data-label="tables.users.header.empty"
-    title="Users"
+    :no-data-label="$t('tables.users.header.empty')"
+    :loading="loading"
     color="primary"
     row-key="id"
     :visible-columns="visibleColumns"
-    @request="requestUsers"
   >
     <template v-slot:loading>
       <q-inner-loading showing color="primary" />
@@ -221,34 +244,32 @@ onMounted(() => {
       <div class="col-12 flex">
           <q-input
             style="min-width: 225px"
-            outlined
-            v-model="searchName"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-            label="Qidirish uchun yozing..."
-            name="Name"
-            clearable
-            @update:model-value="requestUsers"
-            :debounce="1000"
             dense
+            outlined
+            clearable
+            v-model="searchTitle"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            :label="$t('tables.users.header.searchTitle')"
+            :debounce="1000"
+            @update:model-value="getUsers"
           >
             <template v-slot:append>
-              <q-icon name="search" />
+              <q-icon name="search" color="primary" />
             </template>
           </q-input>
           <q-select
-            v-model="visibleColumns"
+            style="min-width: 100px;"
+            dense
             multiple
             outlined
-            dense
             options-dense
-            :display-value="$q.lang.table.columns"
             emit-value
             map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
             :options="columns"
             option-value="name"
-            label="Ustunlar"
-            options-cover
-            style="min-width: 100px;"
+            :label="$t('columns')"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
           />
           <div
@@ -265,9 +286,9 @@ onMounted(() => {
             <q-btn
               color="primary"
               icon-right="add"
-              label="Qo'shish"
+              :label="$t('tables.users.buttons.add')"
               no-caps
-              @click="createUserDialog = true"
+              @click="showCreateModal = true"
             />
           </div>
         </div>
@@ -299,22 +320,23 @@ onMounted(() => {
             </span>
           </div>
 
+          <div v-else-if="col.name === 'action'">
+            <div class="flex no-wrap justify-end q-gutter-x-sm">
+              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = props.row; adaptCurrencyOption(); showUpdateModal = true;">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('edit') }}
+                </q-tooltip>
+              </q-btn>
+              <q-btn size="md" color="red" rounded dense icon='delete' @click="selectedData = props.row; showDeleteModal = true;">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('delete') }}
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+
           <div v-else>
             {{ props.row[col.field] || '-' }}
-          </div>
-        </q-td>
-        <q-td auto-width>
-          <div class="flex no-wrap justify-end q-gutter-x-sm">
-            <q-btn size="md" color="primary" rounded dense icon='edit' @click="handleEditAction(props.row)">
-              <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                O'zgartirish
-              </q-tooltip>
-            </q-btn>
-            <q-btn size="md" color="red" rounded dense icon='delete' @click="showConfirmModal = true; selectedUser = props.row">
-              <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                O'chirish
-              </q-tooltip>
-            </q-btn>
           </div>
         </q-td>
       </q-tr>
@@ -322,176 +344,192 @@ onMounted(() => {
   </q-table>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showConfirmModal" persistent>
+  <q-dialog v-model="showCreateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="createAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('dialogs.user.barCreate') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            v-model="selectedData.name"
+            :label="$t('forms.user.fields.name.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.surName"
+            :label="$t('forms.user.fields.surname.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.phone"
+            :label="$t('forms.user.fields.phone.label')"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            :type="isPwd ? 'password' : 'text'"
+            filled
+            v-model="selectedData.password"
+            :label="$t('forms.user.fields.password.label')"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.password.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+          <q-select
+            filled
+            emit-value
+            map-options
+            v-model="selectedData.salaryCurrency"
+            :options="currencyOptions"
+            :label="$t('forms.user.fields.currency.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
+            class="col-12"
+          />
+          <q-input
+            filled
+            type="number"
+            v-model="selectedData.salary"
+            :label="$t('forms.user.fields.salary.label')"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.user.buttons.create')" type="submit" color="primary"/>
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showUpdateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="updateAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('dialogs.user.barEdit') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            v-model="selectedData.name"
+            :label="$t('forms.user.fields.name.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.surName"
+            :label="$t('forms.user.fields.surname.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.phone"
+            :label="$t('forms.user.fields.phone.label')"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            :type="isPwd ? 'password' : 'text'"
+            filled
+            v-model="selectedData.password"
+            :label="$t('forms.user.fields.password.label')"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.password.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+          <q-select
+            filled
+            emit-value
+            map-options
+            v-model="selectedData.salaryCurrency"
+            :options="currencyOptions"
+            :label="$t('forms.user.fields.currency.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
+            class="col-12"
+          />
+          <q-input
+            filled
+            type="number"
+            v-model="selectedData.salary"
+            :label="$t('forms.user.fields.salary.label')"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.user.buttons.edit')" type="submit" color="primary"/>
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showDeleteModal" persistent>
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
-        <div class="text-h6">Confirm Deletion</div>
+        <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
         <q-space />
         <q-icon name="delete" color="grey" size="sm" />
       </q-card-section>
 
       <q-card-section>
-        Are you sure you want to delete this item? This action cannot be undone.
+        {{ $t('dialogs.delete.info') }}
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn label="Cancel" color="primary" v-close-popup @click="clear" />
-        <q-btn label="Confirm" color="red" @click="removeUser" />
+        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteAction" />
       </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showUserModal" persistent>
-    <q-card style="width: 900px; max-width: 80vw;">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">Foydalanuvchi o'zgartirish</div>
-        <q-space />
-        <q-btn icon="close" flat round dense v-close-popup @click="clear" />
-      </q-card-section>
-
-      <q-card-section>
-        <q-form
-          @submit="changeUser"
-          class="q-gutter-md"
-        >
-          <q-input
-            filled
-            v-model="selectedUser.name"
-            label="Ism *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedUser.surName"
-            label="Familya *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedUser.phone"
-            label="Telefon *"
-            name="First Name"
-            mask="+############"
-            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
-          />
-          <q-input
-            :type="isPwd ? 'password' : 'text'"
-            filled
-            v-model="selectedUser.password"
-            label="Parol *"
-            :rules="[ val => val && val.length > 0 || 'Iltimos parolni kiriting']"
-          >
-            <template v-slot:append>
-              <q-icon
-                :name="isPwd ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="isPwd = !isPwd"
-              />
-            </template>
-          </q-input>
-          <q-select
-            filled
-            emit-value
-            map-options
-            v-model="selectedUser.salaryCurrency"
-            :options="currencyOptions"
-            label="Valyuta"
-            option-value="value"
-            option-label="label"
-          />
-          <q-input
-            filled
-            type="number"
-            v-model="selectedUser.salary"
-            label="Oylik *"
-            :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
-          />
-          <div>
-            <q-btn label="O'zgartirish" type="submit" color="primary"/>
-          </div>
-        </q-form>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="createUserDialog" persistent>
-    <q-card style="width: 900px; max-width: 80vw;">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">Foydalanuvchi qo'shish</div>
-        <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
-      </q-card-section>
-
-      <q-card-section>
-        <q-form
-          @submit="createUser"
-          @reset="clear"
-          class="q-gutter-md"
-        >
-          <q-input
-            filled
-            v-model="selectedUser.name"
-            label="Ism *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedUser.surName"
-            label="Familya *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedUser.phone"
-            label="Telefon *"
-            name="First Name"
-            mask="+############"
-            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
-          />
-
-          <q-input
-            :type="isPwd ? 'password' : 'text'"
-            filled
-            v-model="selectedUser.password"
-            label="Parol *"
-            :rules="[ val => val && val.length > 0 || 'Iltimos parolni kiriting']"
-          >
-            <template v-slot:append>
-              <q-icon
-                :name="isPwd ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="isPwd = !isPwd"
-              />
-            </template>
-          </q-input>
-
-          <q-select
-            filled
-            emit-value
-            map-options
-            v-model="selectedUser.salaryCurrency"
-            :options="currencyOptions"
-            label="Valyuta"
-            option-value="value"
-            option-label="label"
-          />
-
-          <q-input
-            filled
-            type="number"
-            v-model="selectedUser.salary"
-            label="Oylik *"
-            :rules="[ val => val && val.length > 0 || 'Iltimos oylikni kiriting']"
-          />
-
-          <div>
-            <q-btn label="Qo'shish" type="submit" color="primary"/>
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-          </div>
-        </q-form>
-      </q-card-section>
     </q-card>
   </q-dialog>
 </template>

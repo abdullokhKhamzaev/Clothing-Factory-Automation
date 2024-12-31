@@ -2,13 +2,14 @@ export default {
   add: 'Add',
   balance: 'Balance',
   convert: 'Convert',
+  columns: 'Columns',
   delete: 'Delete',
   edit: 'Edit',
-  from: 'from',
+  from: 'From',
   language: 'Language',
   materials: 'Materials',
   noData: 'The data is empty',
-  to: 'to',
+  to: 'To',
   thread: 'Thread',
   threads: 'Threads',
   quantity: 'Quantity',
@@ -41,12 +42,66 @@ export default {
         cancel: 'Cancel'
       }
     },
+    user: {
+      barCreate: 'Create User',
+      barEdit: 'Edit User',
+    },
     thread: {
       barCreate: 'Create Thread',
       barEdit: 'Edit Thread',
     },
   },
   forms: {
+    user: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        surname: {
+          label: 'Surname',
+          validation: {
+            required: 'Surname is required.',
+          }
+        },
+        phone: {
+          label: 'Phone',
+          validation: {
+            required: 'Phone is required.',
+          }
+        },
+        password: {
+          label: 'Password',
+          validation: {
+            required: 'Password is required.',
+          }
+        },
+        currency: {
+          label: 'Currency',
+          validation: {
+            required: 'Currency is required.',
+          }
+        },
+        salary: {
+          label: 'Salary',
+          validation: {
+            required: 'Salary is required.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Create User',
+        edit: 'Edit User'
+      },
+      confirmation: {
+        successCreated: 'User was successfully created.',
+        successEdited: 'User was successfully edited.',
+        successDeleted: 'User was successfully deleted.',
+        failure: 'There was an error saving user.'
+      }
+    },
     thread: {
       fields: {
         name: {
@@ -81,6 +136,23 @@ export default {
     }
   },
   tables: {
+    users: {
+      header: {
+        title: 'Users',
+        searchTitle: 'Search by name',
+        empty: 'There is no available user'
+      },
+      columns: {
+        name: 'Name',
+        phone: 'Phone',
+        salary: 'Salary',
+        currency: 'Currency',
+        role: 'Role'
+      },
+      buttons: {
+        add: 'Add User'
+      },
+    },
     thread: {
       header: {
         title: 'Thread types',

@@ -1,29 +1,34 @@
 <script setup>
-import {onMounted, ref} from 'vue'
-import { useFetchUsers } from "stores/user/getUsers.js";
+import { onMounted, ref } from "vue";
+import { useUser } from "stores/user/user.js";
 import UsersTable from "components/tables/UsersTable.vue";
-const storeUser = useFetchUsers();
+
+const user = useUser();
+const users = ref([]);
 const loading = ref(false);
 
-function queryUsers () {
+function getUsers () {
   loading.value = true;
-  storeUser.usersGet('?page=1');
-  loading.value = false;
+  user.fetchUsers('?page=1')
+    .then((res) => {
+      users.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
-onMounted(() => {
-  queryUsers();
-})
 
-function handleAction() {
-  queryUsers();
-}
+onMounted(() => {
+  getUsers();
+})
 </script>
 
 <template>
   <div class="q-pa-md">
     <UsersTable
-      :users="storeUser.state.users"
-      @submit="handleAction"
+      :users="users"
+      :loading="loading"
+      @submit="getUsers"
     />
   </div>
 </template>

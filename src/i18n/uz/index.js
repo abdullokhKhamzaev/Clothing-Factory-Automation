@@ -2,6 +2,7 @@ export default {
   add: "Qo'shish",
   balance: 'Hisob',
   convert: 'Ayriboshlash',
+  columns: 'Ustunlar',
   delete: "O'chirish",
   edit: "O'zgartirish",
   from: 'Dan',
@@ -41,12 +42,66 @@ export default {
         cancel: 'Bekor qilish'
       }
     },
+    user: {
+      barCreate: 'Foydalanuvchi Yaratish',
+      barEdit: 'Foydalanuvchini O\'zgartirish',
+    },
     thread: {
-      barCreate: 'Ip yaratish',
+      barCreate: 'Ip Yaratish',
       barEdit: 'Ipni O\'zgartirish',
     },
   },
   forms: {
+    user: {
+      fields: {
+        name: {
+          label: 'Ism',
+          validation: {
+            required: 'Ism talab qilinadi.',
+          }
+        },
+        surname: {
+          label: 'Familya',
+          validation: {
+            required: 'Familya talab qilinadi.',
+          }
+        },
+        phone: {
+          label: 'Telefon',
+          validation: {
+            required: 'Telefon talab qilinadi.',
+          }
+        },
+        password: {
+          label: 'Parol',
+          validation: {
+            required: 'Parol talab qilinadi.',
+          }
+        },
+        currency: {
+          label: 'Valyuta',
+          validation: {
+            required: 'Valyuta talab qilinadi.',
+          }
+        },
+        salary: {
+          label: 'Oylik',
+          validation: {
+            required: 'Oylik talab qilinadi.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Foydalanuvchi yaratish',
+        edit: 'Foydalanuvchi o\'zgartirish'
+      },
+      confirmation: {
+        successCreated: 'Foydalanuvchi muvaffaqiyatli yaratildi.',
+        successEdited: 'Foydalanuvchi muvaffaqiyatli o\'zgartirildi.',
+        successDeleted: 'Foydalanuvchi muvaffaqiyatli o\'chirildi.',
+        failure: 'Foydalanuvchi saqlashda xatolik yuz berdi.'
+      }
+    },
     thread: {
       fields: {
         name: {
@@ -91,11 +146,31 @@ export default {
     }
   },
   tables: {
+    users: {
+      header: {
+        title: 'Foydalanuvchilar',
+        searchTitle: 'Ism orqali qidirish',
+        empty: 'Hech qanday foydalanuvchi mavjud emas'
+      },
+      columns: {
+        name: 'Ism',
+        phone: 'Telefon',
+        salary: 'Oylik',
+        currency: 'Valyuta',
+        role: 'Huquq'
+      },
+      buttons: {
+        add: 'Qo\'shish'
+      },
+    },
     thread: {
       header: {
         title: 'Ip turlari',
         empty: 'Hech qanday ip turi mavjud emas'
-      }
+      },
+      buttons: {
+        add: 'Ip Qo\'shish'
+      },
     }
   }
 }

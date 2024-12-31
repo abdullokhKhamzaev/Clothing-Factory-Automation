@@ -90,7 +90,7 @@ function updateThreadAction() {
           timeout: 1000,
           message: t('forms.thread.confirmation.successEdited')
         });
-        // clearAction();
+        clearAction();
         getThreads();
       })
       .catch(() => {
@@ -109,7 +109,7 @@ function updateThreadAction() {
 }
 function deleteThreadAction() {
   if (selectedData.value.id) {
-    showThreadCreateModal.value = false;
+    showThreadCreateModal.value = true;
 
     thread.deleteThread(selectedData.value.id)
       .then(() => {
@@ -174,6 +174,9 @@ onMounted(() => {
           row-key="id"
           hide-bottom
         >
+          <template v-slot:loading>
+            <q-inner-loading showing color="primary" />
+          </template>
           <template v-slot:top>
             <div class="col-12 flex justify-between">
               <div class="q-table__title">{{ $t('threads') }}</div>
@@ -181,15 +184,12 @@ onMounted(() => {
                 <q-btn
                   color="primary"
                   icon-right="add"
-                  :label="$t('add')"
+                  :label="$t('tables.thread.buttons.add')"
                   no-caps
                   @click="showThreadCreateModal = true"
                 />
               </div>
             </div>
-          </template>
-          <template v-slot:loading>
-            <q-inner-loading showing color="primary" />
           </template>
           <template v-slot:body="props">
             <q-tr :props="props">
@@ -277,24 +277,6 @@ onMounted(() => {
             </q-form>
           </div>
         </q-dialog>
-        <q-dialog v-model="showThreadDeleteModal" persistent>
-          <q-card>
-            <q-card-section class="row flex items-center q-pb-none">
-              <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
-              <q-space />
-              <q-icon name="delete" color="grey" size="sm" />
-            </q-card-section>
-
-            <q-card-section>
-              {{ $t('dialogs.delete.info') }}
-            </q-card-section>
-
-            <q-card-actions align="right" class="q-px-md q-mb-sm">
-              <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
-              <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteThreadAction" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
         <q-dialog v-model="showThreadUpdateModal" persistent>
           <div
             class="bg-white shadow-3"
@@ -346,6 +328,24 @@ onMounted(() => {
               </div>
             </q-form>
           </div>
+        </q-dialog>
+        <q-dialog v-model="showThreadDeleteModal" persistent>
+          <q-card>
+            <q-card-section class="row flex items-center q-pb-none">
+              <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
+              <q-space />
+              <q-icon name="delete" color="grey" size="sm" />
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('dialogs.delete.info') }}
+            </q-card-section>
+
+            <q-card-actions align="right" class="q-px-md q-mb-sm">
+              <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+              <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteThreadAction" />
+            </q-card-actions>
+          </q-card>
         </q-dialog>
       </q-tab-panel>
     </q-tab-panels>
