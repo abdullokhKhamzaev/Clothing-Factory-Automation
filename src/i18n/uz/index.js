@@ -5,6 +5,7 @@ export default {
   columns: 'Ustunlar',
   delete: "O'chirish",
   edit: "O'zgartirish",
+  fabrics: "Fabrikalar",
   from: 'Dan',
   language: 'Til',
   materials: 'Materiallar',
@@ -48,11 +49,15 @@ export default {
     },
     thread: {
       barCreate: 'Ip Yaratish',
-      barEdit: 'Ipni O\'zgartirish',
+      barEdit: 'Ip O\'zgartirish',
     },
     material: {
       barCreate: 'Material Yaratish',
-      barEdit: 'Materialni O\'zgartirish',
+      barEdit: 'Material O\'zgartirish',
+    },
+    fabric: {
+      barCreate: 'Bo\'yoq Fabrika Yaratish',
+      barEdit: 'Bo\'yoq Fabrika O\'zgartirish',
     },
   },
   forms: {
@@ -169,6 +174,32 @@ export default {
         successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
         failure: 'Material saqlashda xatolik yuz berdi.'
       }
+    },
+    fabric: {
+      fields: {
+        name: {
+          label: 'Nom',
+          validation: {
+            required: 'Nom talab qilinadi.',
+          }
+        },
+        address: {
+          label: 'Manzil',
+          validation: {
+            required: 'Manzil talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Bo\'yoq Fabrika Yaratish',
+        edit: 'Bo\'yoq Fabrika O\'zgartirish'
+      },
+      confirmation: {
+        successCreated: 'Bo\'yoq Fabrika muvaffaqiyatli yaratildi.',
+        successEdited: 'Bo\'yoq Fabrika muvaffaqiyatli o\'zgartirildi.',
+        successDeleted: 'Bo\'yoq Fabrika muvaffaqiyatli o\'chirildi.',
+        failure: 'Bo\'yoq Fabrika saqlashda xatolik yuz berdi.'
+      }
     }
   },
   tables: {
@@ -213,6 +244,19 @@ export default {
       },
       buttons: {
         add: 'Material Qo\'shish'
+      },
+    },
+    fabric: {
+      header: {
+        title: 'Bo\'yoq Fabrikalar',
+        empty: 'Hech qanday bo\'yoq fabrika mavjud emas'
+      },
+      columns: {
+        name: 'Nomi',
+        address: 'Manzil',
+      },
+      buttons: {
+        add: 'Fabrika Qo\'shish'
       },
     }
   }

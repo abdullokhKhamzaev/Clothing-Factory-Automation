@@ -5,6 +5,7 @@ export default {
   columns: 'Columns',
   delete: 'Delete',
   edit: 'Edit',
+  fabrics: "Fabrics",
   from: 'From',
   language: 'Language',
   materials: 'Materials',
@@ -53,6 +54,10 @@ export default {
     material: {
       barCreate: 'Create Material',
       barEdit: 'Edit Material',
+    },
+    fabric: {
+      barCreate: 'Create Paint Factory',
+      barEdit: 'Edit Paint Factory',
     },
   },
   forms: {
@@ -170,6 +175,32 @@ export default {
         failure: 'There was an error saving material.'
       }
     },
+    fabric: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        address: {
+          label: 'Address',
+          validation: {
+            required: 'Address is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Paint Factory',
+        edit: 'Edit Paint Factory'
+      },
+      confirmation: {
+        successCreated: 'Paint Factory was successfully created.',
+        successEdited: 'Paint Factory was successfully edited.',
+        successDeleted: 'Paint Factory was successfully deleted.',
+        failure: 'There was an error saving paint factory.'
+      }
+    },
   },
   tables: {
     users: {
@@ -213,6 +244,19 @@ export default {
       },
       buttons: {
         add: 'Add Material'
+      },
+    },
+    fabric: {
+      header: {
+        title: 'Paint Factories',
+        empty: 'There is no available paint factory'
+      },
+      columns: {
+        name: 'Name',
+        address: 'Address',
+      },
+      buttons: {
+        add: 'Add Factory'
       },
     }
   }
