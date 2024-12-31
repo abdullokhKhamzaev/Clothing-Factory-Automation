@@ -6,8 +6,9 @@ import { useBudget } from 'src/stores/budget.js'
 const $q = useQuasar();
 const budget = useBudget();
 
-const loading = ref(false)
-const showConvertModal = ref(false)
+const loading = ref(false);
+const showConvertModal = ref(false);
+const showAddModal = ref(false);
 const selectedData = ref({
   from: {
     label: "USD",
@@ -17,8 +18,9 @@ const selectedData = ref({
     label: "SO'M",
     value: '/api/budgets/1'
   }
-})
-const budgets = ref([])
+});
+const addQuantity = ref(0);
+const budgets = ref([]);
 
 function getBudgets (){
   loading.value = true;
@@ -75,6 +77,39 @@ function convertAction() {
       loading.value = false;
     })
 }
+function addAction() {
+  loading.value = true;
+
+  const input = {
+    budget: selectedData.value['@id'],
+    quantity: addQuantity.value,
+    description: 'Hisobga admin orqali pul qo\'shildi',
+    isIncome: true
+  }
+
+  budget.add(input)
+    .then(() => {
+      showAddModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: "Add is done successfully!"
+      });
+      getBudgets();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: "Error while adding"
+      })
+    })
+    .finally(() => {
+      loading.value = false;
+    })
+}
 
 const budgetOptions = computed(() => {
   let options = [];
@@ -112,8 +147,13 @@ onMounted(() => {
         class="col-xs-12 col-sm-6 col-lg-4 col-xl-3"
       >
         <q-card>
-          <div class="flex justify-between bg-primary text-white text-weight-medium q-pa-sm">
-            {{ budget.name }} {{ $t('balance') }}
+          <div class="flex justify-between items-center bg-primary text-white text-weight-medium q-pa-sm">
+            <div>
+              {{ budget.name }} {{ $t('balance') }}
+            </div>
+            <div>
+              <q-btn icon="mdi-cash-plus" round text-color="green" color="white" @click="showAddModal = true; selectedData = budget" />
+            </div>
           </div>
           <q-separator />
           <div class="flex justify-center q-mt-md">
@@ -157,7 +197,7 @@ onMounted(() => {
           <q-input
             type="number"
             v-model.number="selectedData.fromQuantity"
-            :prefix="selectedData.from.label === 'USD' ? '$' : 'U'"
+            :prefix="selectedData?.from?.label === 'USD' ? '$' : 'U'"
             :label="$t('quantity')"
             lazy-rules
             :rules="[ val => val && val > 0 || '' ]"
@@ -175,7 +215,7 @@ onMounted(() => {
           <q-input
             type="number"
             v-model.number="selectedData.toQuantity"
-            :prefix="selectedData.from.label === 'USD' ? 'U' : '$'"
+            :prefix="selectedData?.from?.label === 'USD' ? 'U' : '$'"
             :label="$t('quantity')"
             lazy-rules
             :rules="[ val => val && val > 0 || '' ]"
@@ -187,6 +227,34 @@ onMounted(() => {
 
         <div class="q-px-md q-py-sm text-center">
           <q-btn :label="$t('convert')" type="submit" color="primary" icon-right="mdi-briefcase-arrow-up-down" />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showAddModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="addAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('add') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </div>
+
+        <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
+          <q-input
+            type="number"
+            v-model.number="addQuantity"
+            :label="$t('quantity')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || '' ]"
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn :label="$t('add')" type="submit" color="primary" icon-right="mdi-cash-plus" />
         </div>
       </q-form>
     </div>
