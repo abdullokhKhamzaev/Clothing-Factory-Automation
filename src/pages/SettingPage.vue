@@ -28,8 +28,8 @@ const showThreadUpdateModal = ref(false);
 const showThreadDeleteModal = ref(false);
 
 const columns = [
-  { name: 'name', label: t('forms.thread.fields.name.label'), align: 'left', field: 'name' },
-  { name: 'quantity', label: t('forms.thread.fields.quantity.label'), align: 'left', field: 'quantity' },
+  { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
+  { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 

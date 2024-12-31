@@ -158,6 +158,10 @@ export default {
         title: 'Ip turlari',
         empty: 'Hech qanday ip turi mavjud emas'
       },
+      columns: {
+        name: 'Nomi',
+        quantity: 'Miqdor',
+      },
       buttons: {
         add: 'Ip Qo\'shish'
       },

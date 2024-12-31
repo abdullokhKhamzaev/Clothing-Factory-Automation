@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from "vue";
 import { useQuasar, exportFile } from "quasar";
+import { useI18n } from "vue-i18n";
 
 const $q = useQuasar();
+const { t } = useI18n();
 const emit = defineEmits(['submit']);
 
 defineProps({
@@ -28,9 +30,10 @@ const selectedData = ref({});
 // table settings
 const visibleColumns = ref([ 'name', 'surName', 'phone' ]);
 const columns = [
-  { name: 'name', label: 'Ism', align: 'left', field: 'name', sortable: false, required: true },
-  { name: 'surName', label: 'Familya', align: 'left', field: 'surName' },
-  { name: 'phone', label: 'Telefon', align: 'left', field: 'phone' }
+  { name: 'name', label: t('tables.users.columns.name'), align: 'left', field: 'name' },
+  { name: 'surName', label: t('forms.user.fields.surname.label'), align: 'left', field: 'surName' },
+  { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
 function wrapCsvValue(val, formatFn, row) {
   // If the value is undefined or null, return an empty string
@@ -120,7 +123,7 @@ function deleteAction() {
     bordered
     :rows="data"
     :columns="columns"
-    no-data-label="tables.users.header.empty"
+    :no-data-label="$t('tables.users.header.empty')"
     title="Data"
     color="primary"
     row-key="id"
@@ -132,39 +135,37 @@ function deleteAction() {
     </template>
     <template v-slot:top>
       <div class="col-12 flex">
-          <q-input
+        <q-input
             style="min-width: 225px"
+            dense
             outlined
+            clearable
             v-model="searchTitle"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-            label="Qidirish uchun yozing..."
-            name="Name"
-            clearable
-            @update:model-value="triggerSubmit"
+            :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
-            dense
+            @update:model-value="triggerSubmit"
           >
             <template v-slot:append>
-              <q-icon name="search" />
+              <q-icon name="search" color="primary" />
             </template>
           </q-input>
-          <q-select
-            v-model="visibleColumns"
-            multiple
-            outlined
-            dense
-            options-dense
-            :display-value="$q.lang.table.columns"
-            emit-value
-            map-options
-            :options="columns"
-            option-value="name"
-            label="Ustunlar"
-            options-cover
-            style="min-width: 100px;"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
-          />
-          <div
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
+        />
+        <div
             :class="$q.screen.lt.sm ? 'flex full-width justify-between': 'flex'"
           >
             <q-btn
@@ -183,7 +184,7 @@ function deleteAction() {
               @click="showCreateModal = true"
             />
           </div>
-        </div>
+      </div>
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
@@ -197,22 +198,23 @@ function deleteAction() {
             {{ props.row.name }}
           </div>
 
+          <div v-else-if="col.name === 'action'">
+            <div class="flex no-wrap justify-end q-gutter-x-sm">
+              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = props.row; showUpdateModal = true;">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('edit') }}
+                </q-tooltip>
+              </q-btn>
+              <q-btn size="md" color="red" rounded dense icon='delete' @click="selectedData = props.row; showDeleteModal = true;">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('delete') }}
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+
           <div v-else>
             {{ props.row[col.field] || '-' }}
-          </div>
-        </q-td>
-        <q-td auto-width>
-          <div class="flex no-wrap justify-end q-gutter-x-sm">
-            <q-btn size="md" color="primary" rounded dense icon='edit' @click="showUpdateModal = true; selectedData = props.row">
-              <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                {{ $t('edit') }}
-              </q-tooltip>
-            </q-btn>
-            <q-btn size="md" color="red" rounded dense icon='delete' @click="showDeleteModal = true; selectedData = props.row">
-              <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                {{ $t('delete') }}
-              </q-tooltip>
-            </q-btn>
           </div>
         </q-td>
       </q-tr>
@@ -220,109 +222,116 @@ function deleteAction() {
   </q-table>
 
   <!-- Dialogs -->
+  <q-dialog v-model="showCreateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="createAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('dialogs.user.barCreate') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            v-model="selectedData.name"
+            :label="$t('forms.user.fields.name.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.surName"
+            :label="$t('forms.user.fields.surname.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.phone"
+            :label="$t('forms.user.fields.phone.label')"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.user.buttons.create')" type="submit" color="primary"/>
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showUpdateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="updateAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('dialogs.user.barEdit') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            v-model="selectedData.name"
+            :label="$t('forms.user.fields.name.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.surName"
+            :label="$t('forms.user.fields.surname.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-input
+            filled
+            v-model="selectedData.phone"
+            :label="$t('forms.user.fields.phone.label')"
+            name="First Name"
+            mask="+############"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.user.buttons.edit')" type="submit" color="primary"/>
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
   <q-dialog v-model="showDeleteModal" persistent>
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
-        <div class="text-h6">Confirm Deletion</div>
+        <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
         <q-space />
         <q-icon name="delete" color="grey" size="sm" />
       </q-card-section>
 
       <q-card-section>
-        Are you sure you want to delete this item? This action cannot be undone.
+        {{ $t('dialogs.delete.info') }}
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn label="Cancel" color="primary" v-close-popup @click="clearAction" />
-        <q-btn label="Confirm" color="red" @click="deleteAction" />
+        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteAction" />
       </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showUpdateModal" persistent>
-    <q-card style="width: 900px; max-width: 80vw;">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">{{ $t('edit') }}</div>
-        <q-space />
-        <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
-      </q-card-section>
-
-      <q-card-section>
-        <q-form
-          @submit.prevent="updateAction"
-          class="q-gutter-md"
-        >
-          <q-input
-            filled
-            v-model="selectedData.name"
-            label="Ism *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedData.surName"
-            label="Familya *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedData.phone"
-            label="Telefon *"
-            name="First Name"
-            mask="+############"
-            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
-          />
-          <div>
-            <q-btn :label="$t('edit')" type="submit" color="primary"/>
-          </div>
-        </q-form>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showCreateModal" persistent>
-    <q-card style="width: 900px; max-width: 80vw;">
-      <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">Qo'shish</div>
-        <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
-      </q-card-section>
-
-      <q-card-section>
-        <q-form
-          @submit.prevent="createAction"
-          @reset="clearAction"
-          class="q-gutter-md"
-        >
-          <q-input
-            filled
-            v-model="selectedData.name"
-            label="Ism *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos ismni kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedData.surName"
-            label="Familya *"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Iltimos familyani kiriting']"
-          />
-          <q-input
-            filled
-            v-model="selectedData.phone"
-            label="Telefon *"
-            name="First Name"
-            mask="+############"
-            :rules="[ val => val && val.length > 0 || 'Iltimos telefon raqamni kiriting']"
-          />
-
-          <div>
-            <q-btn label="Qo'shish" type="submit" color="primary" />
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-          </div>
-        </q-form>
-      </q-card-section>
     </q-card>
   </q-dialog>
 </template>

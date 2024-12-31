@@ -158,6 +158,10 @@ export default {
         title: 'Thread types',
         empty: 'There is no available thread'
       },
+      columns: {
+        name: 'Name',
+        quantity: 'Quantity',
+      },
       buttons: {
         add: 'Add Thread'
       },
