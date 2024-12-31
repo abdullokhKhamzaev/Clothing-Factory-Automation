@@ -50,6 +50,10 @@ export default {
       barCreate: 'Create Thread',
       barEdit: 'Edit Thread',
     },
+    material: {
+      barCreate: 'Create Material',
+      barEdit: 'Edit Material',
+    },
   },
   forms: {
     user: {
@@ -133,7 +137,39 @@ export default {
         successDeleted: 'Thread was successfully deleted.',
         failure: 'There was an error saving thread.'
       }
-    }
+    },
+    material: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        measurement: {
+          label: 'Measurement',
+          validation: {
+            required: 'Measurement is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Material',
+        edit: 'Edit Material'
+      },
+      confirmation: {
+        successCreated: 'Material was successfully created.',
+        successEdited: 'Material was successfully edited.',
+        successDeleted: 'Material was successfully deleted.',
+        failure: 'There was an error saving material.'
+      }
+    },
   },
   tables: {
     users: {
@@ -164,6 +200,19 @@ export default {
       },
       buttons: {
         add: 'Add Thread'
+      },
+    },
+    material: {
+      header: {
+        title: 'Material types',
+        empty: 'There is no available material'
+      },
+      columns: {
+        name: 'Name',
+        quantity: 'Quantity',
+      },
+      buttons: {
+        add: 'Add Material'
       },
     }
   }

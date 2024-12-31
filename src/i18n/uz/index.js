@@ -50,6 +50,10 @@ export default {
       barCreate: 'Ip Yaratish',
       barEdit: 'Ipni O\'zgartirish',
     },
+    material: {
+      barCreate: 'Material Yaratish',
+      barEdit: 'Materialni O\'zgartirish',
+    },
   },
   forms: {
     user: {
@@ -133,6 +137,38 @@ export default {
         successDeleted: 'Ip muvaffaqiyatli o\'chirildi.',
         failure: 'Ip saqlashda xatolik yuz berdi.'
       }
+    },
+    material: {
+      fields: {
+        name: {
+          label: 'Nom',
+          validation: {
+            required: 'Nom talab qilinadi.',
+          }
+        },
+        measurement: {
+          label: "O'lchov birlig",
+          validation: {
+            required: 'O\'lchov birlig talab qilinadi.',
+          }
+        },
+        quantity: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Material Yaratish',
+        edit: 'Material O\'zgartirish'
+      },
+      confirmation: {
+        successCreated: 'Material muvaffaqiyatli yaratildi.',
+        successEdited: 'Material muvaffaqiyatli o\'zgartirildi.',
+        successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
+        failure: 'Material saqlashda xatolik yuz berdi.'
+      }
     }
   },
   tables: {
@@ -164,6 +200,19 @@ export default {
       },
       buttons: {
         add: 'Ip Qo\'shish'
+      },
+    },
+    material: {
+      header: {
+        title: 'Material turlari',
+        empty: 'Hech qanday material turi mavjud emas'
+      },
+      columns: {
+        name: 'Nomi',
+        quantity: 'Miqdor',
+      },
+      buttons: {
+        add: 'Material Qo\'shish'
       },
     }
   }

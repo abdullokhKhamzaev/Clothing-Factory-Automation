@@ -10,7 +10,7 @@ export const useThread = defineStore('thread', () => {
     }
   }
 
-  async function createThreads(data) {
+  async function createThread(data) {
     try {
       return client.post('threads', data)
     } catch (e) {
@@ -34,5 +34,5 @@ export const useThread = defineStore('thread', () => {
     }
   }
 
-  return { fetchThreads, createThreads, editThread, deleteThread }
+  return { fetchThreads, createThread, editThread, deleteThread }
 })

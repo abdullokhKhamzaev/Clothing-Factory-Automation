@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useThread } from "stores/thread.js";
+import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 
@@ -8,7 +9,9 @@ const $q = useQuasar();
 const { t } = useI18n();
 const thread = useThread();
 const threads = ref([]);
-const threadMeasurementOptions = ref([
+const material = useMaterial();
+const materials = ref([]);
+const measurementOptions = ref([
   {
     label: 'KG',
     value: 'kg'
@@ -22,10 +25,14 @@ const threadMeasurementOptions = ref([
 const selectedData = ref({});
 const tab = ref('threads');
 const threadLoading = ref(false);
+const materialLoading = ref(false);
 
 const showThreadCreateModal = ref(false);
 const showThreadUpdateModal = ref(false);
 const showThreadDeleteModal = ref(false);
+const showMaterialCreateModal = ref(false);
+const showMaterialUpdateModal = ref(false);
+const showMaterialDeleteModal = ref(false);
 
 const columns = [
   { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
@@ -43,6 +50,16 @@ function getThreads (){
       threadLoading.value = false;
     });
 }
+function getMaterials (){
+  materialLoading.value = true;
+  material.fetchMaterials('?page=1')
+    .then((res) => {
+      materials.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      materialLoading.value = false;
+    });
+}
 function clearAction() {
   selectedData.value = {};
 }
@@ -53,7 +70,7 @@ function createThreadAction() {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  thread.createThreads(selectedData.value)
+  thread.createThread(selectedData.value)
     .then(() => {
       showThreadCreateModal.value = false;
       $q.notify({
@@ -74,6 +91,35 @@ function createThreadAction() {
       })
     })
     .finally(() => threadLoading.value = false);
+}
+function createMaterialAction() {
+  materialLoading.value = true;
+
+  if ( selectedData?.value?.quantity ) {
+    selectedData.value.quantity = String(selectedData.value.quantity);
+  }
+
+  material.createMaterial(selectedData.value)
+    .then(() => {
+      showMaterialCreateModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.material.confirmation.successCreated')
+      })
+      clearAction();
+      getMaterials();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.material.confirmation.failure')
+      })
+    })
+    .finally(() => materialLoading.value = false);
 }
 function updateThreadAction() {
   if (selectedData.value.id) {
@@ -100,6 +146,36 @@ function updateThreadAction() {
         })
       })
       .finally(() => threadLoading.value = false);
+  } else {
+    console.warn('data is empty');
+  }
+  clearAction();
+}
+function updateMaterialAction() {
+  if (selectedData.value.id) {
+    materialLoading.value = true;
+
+    material.editMaterial(selectedData.value.id, selectedData.value)
+      .then(() => {
+        showMaterialUpdateModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.material.confirmation.successEdited')
+        });
+        clearAction();
+        getMaterials();
+      })
+      .catch(() => {
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.material.confirmation.failure')
+        })
+      })
+      .finally(() => materialLoading.value = false);
   } else {
     console.warn('data is empty');
   }
@@ -134,9 +210,39 @@ function deleteThreadAction() {
     console.warn('data is empty');
   }
 }
+function deleteMaterialAction() {
+  if (selectedData.value.id) {
+    materialLoading.value = true;
+
+    material.deleteMaterial(selectedData.value.id)
+      .then(() => {
+        showMaterialDeleteModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.material.confirmation.successDeleted')
+        });
+        clearAction();
+        getMaterials();
+      })
+      .catch(() => {
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.material.confirmation.failure')
+        })
+      })
+      .finally(() => materialLoading.value = false)
+  } else {
+    console.warn('data is empty');
+  }
+}
 
 onMounted(() => {
-  getThreads()
+  getThreads();
+  getMaterials();
 })
 </script>
 
@@ -151,7 +257,7 @@ onMounted(() => {
       class="shadow-2 text-primary"
     >
       <q-tab name="threads" :label="$t('threads')"/>
-      <!--      <q-tab name="materials" :label="$t('materials')"/>-->
+      <q-tab name="materials" :label="$t('materials')"/>
     </q-tabs>
   </div>
 
@@ -174,7 +280,7 @@ onMounted(() => {
           </template>
           <template v-slot:top>
             <div class="col-12 flex justify-between">
-              <div class="q-table__title">{{ $t('threads') }}</div>
+              <div class="q-table__title">{{ $t('tables.thread.header.title') }}</div>
               <div class="text-right">
                 <q-btn
                   color="primary"
@@ -246,7 +352,7 @@ onMounted(() => {
                   emit-value
                   map-options
                   v-model="selectedData.measurement"
-                  :options="threadMeasurementOptions"
+                  :options="measurementOptions"
                   :label="$t('forms.thread.fields.measurement.label')"
                   option-value="value"
                   option-label="label"
@@ -258,7 +364,7 @@ onMounted(() => {
                   type="number"
                   v-model="selectedData.quantity"
                   :label="$t('forms.thread.fields.quantity.label')"
-                  :rules="[ val => val && val > 0 || $t('forms.thread.fields.quantity.validation.required')]"
+                  :rules="[ val => val && val > -1 || $t('forms.thread.fields.quantity.validation.required')]"
                   class="col-9"
                   hide-bottom-space
                 />
@@ -298,7 +404,7 @@ onMounted(() => {
                   emit-value
                   map-options
                   v-model="selectedData.measurement"
-                  :options="threadMeasurementOptions"
+                  :options="measurementOptions"
                   :label="$t('forms.thread.fields.measurement.label')"
                   option-value="value"
                   option-label="label"
@@ -310,7 +416,7 @@ onMounted(() => {
                   type="number"
                   v-model="selectedData.quantity"
                   :label="$t('forms.thread.fields.quantity.label')"
-                  :rules="[ val => val && val > 0 || $t('forms.thread.fields.quantity.validation.required')]"
+                  :rules="[ val => val && val > -1 || $t('forms.thread.fields.quantity.validation.required')]"
                   class="col-9"
                   hide-bottom-space
                 />
@@ -339,6 +445,192 @@ onMounted(() => {
             <q-card-actions align="right" class="q-px-md q-mb-sm">
               <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
               <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteThreadAction" />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-tab-panel>
+      <q-tab-panel name="materials">
+        <q-table
+          flat
+          bordered
+          :rows="materials"
+          :columns="columns"
+          :no-data-label="$t('tables.material.header.empty')"
+          :loading="materialLoading"
+          color="primary"
+          row-key="id"
+          hide-bottom
+        >
+          <template v-slot:loading>
+            <q-inner-loading showing color="primary" />
+          </template>
+          <template v-slot:top>
+            <div class="col-12 flex justify-between">
+              <div class="q-table__title">{{ $t('tables.material.header.title') }}</div>
+              <div class="text-right">
+                <q-btn
+                  color="primary"
+                  icon-right="add"
+                  :label="$t('tables.material.buttons.add')"
+                  no-caps
+                  @click="showMaterialCreateModal = true"
+                />
+              </div>
+            </div>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td v-for="col in columns" :key="col.name" :props="props">
+                <div class="flex justify-end" v-if="col.name === 'action'">
+                  <div class="flex no-wrap q-gutter-x-sm">
+                    <q-btn size="md" color="primary" rounded dense icon="edit" @click="showMaterialUpdateModal = true; selectedData = props.row">
+                      <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                        {{ $t('edit') }}
+                      </q-tooltip>
+                    </q-btn>
+                    <q-btn size="md" color="red" rounded dense icon="delete" @click="showMaterialDeleteModal = true; selectedData = props.row">
+                      <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                        {{ $t('delete') }}
+                      </q-tooltip>
+                    </q-btn>
+                  </div>
+                </div>
+
+                <div
+                  v-else-if="col.name === 'quantity'"
+                  class="flex q-gutter-sm"
+                >
+                  <span> {{ props.row.quantity }} </span>
+                  <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
+                </div>
+
+                <div v-else>
+                  {{ props.row[col.field] || '-' }}
+                </div>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+        <!-- Dialogs -->
+        <q-dialog v-model="showMaterialCreateModal" persistent>
+          <div
+            class="bg-white shadow-3"
+            style="width: 900px; max-width: 80vw;"
+          >
+            <q-form @submit.prevent="createMaterialAction">
+              <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+                <div class="text-h6"> {{ $t('dialogs.material.barCreate') }} </div>
+                <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+              </div>
+              <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+                <q-input
+                  filled
+                  v-model="selectedData.name"
+                  :label="$t('forms.material.fields.name.label')"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || $t('forms.material.fields.name.validation.required')]"
+                  class="col-12"
+                  hide-bottom-space
+                />
+                <q-select
+                  filled
+                  required
+                  emit-value
+                  map-options
+                  v-model="selectedData.measurement"
+                  :options="measurementOptions"
+                  :label="$t('forms.material.fields.measurement.label')"
+                  option-value="value"
+                  option-label="label"
+                  :rules="[val => !!val || $t('forms.material.fields.measurement.validation.required')]"
+                  class="col-3"
+                />
+                <q-input
+                  filled
+                  type="number"
+                  v-model="selectedData.quantity"
+                  :label="$t('forms.thread.fields.quantity.label')"
+                  :rules="[ val => val && val > -1 || $t('forms.material.fields.quantity.validation.required')]"
+                  class="col-9"
+                  hide-bottom-space
+                />
+              </div>
+
+              <q-separator />
+
+              <div class="q-px-md q-py-sm text-center">
+                <q-btn no-caps :label="$t('forms.material.buttons.create')" type="submit" color="primary" />
+              </div>
+            </q-form>
+          </div>
+        </q-dialog>
+        <q-dialog v-model="showMaterialUpdateModal" persistent>
+          <div
+            class="bg-white shadow-3"
+            style="width: 900px; max-width: 80vw;"
+          >
+            <q-form @submit.prevent="updateMaterialAction">
+              <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+                <div class="text-h6"> {{ $t('dialogs.material.barEdit') }} </div>
+                <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+              </div>
+              <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+                <q-input
+                  filled
+                  v-model="selectedData.name"
+                  :label="$t('forms.material.fields.name.label')"
+                  lazy-rules
+                  :rules="[ val => val && val.length > 0 || $t('forms.material.fields.name.validation.required')]"
+                  class="col-12"
+                  hide-bottom-space
+                />
+                <q-select
+                  filled
+                  required
+                  emit-value
+                  map-options
+                  v-model="selectedData.measurement"
+                  :options="measurementOptions"
+                  :label="$t('forms.material.fields.measurement.label')"
+                  option-value="value"
+                  option-label="label"
+                  :rules="[val => !!val || $t('forms.material.fields.measurement.validation.required')]"
+                  class="col-3"
+                />
+                <q-input
+                  filled
+                  type="number"
+                  v-model="selectedData.quantity"
+                  :label="$t('forms.material.fields.quantity.label')"
+                  :rules="[ val => val && val > -1 || $t('forms.material.fields.quantity.validation.required')]"
+                  class="col-9"
+                  hide-bottom-space
+                />
+              </div>
+
+              <q-separator />
+
+              <div class="q-px-md q-py-sm text-center">
+                <q-btn no-caps :label="$t('forms.material.buttons.edit')" type="submit" color="primary" />
+              </div>
+            </q-form>
+          </div>
+        </q-dialog>
+        <q-dialog v-model="showMaterialDeleteModal" persistent>
+          <q-card>
+            <q-card-section class="row flex items-center q-pb-none">
+              <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
+              <q-space />
+              <q-icon name="delete" color="grey" size="sm" />
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('dialogs.delete.info') }}
+            </q-card-section>
+
+            <q-card-actions align="right" class="q-px-md q-mb-sm">
+              <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+              <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteMaterialAction" />
             </q-card-actions>
           </q-card>
         </q-dialog>
