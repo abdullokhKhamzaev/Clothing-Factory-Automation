@@ -89,6 +89,7 @@ function addAction() {
 
   budget.add(input)
     .then(() => {
+      addQuantity.value = 0;
       showAddModal.value = false;
       $q.notify({
         type: 'positive',
@@ -166,7 +167,7 @@ onMounted(() => {
           </div>
           <q-separator />
           <div class="q-pa-sm text-green text-weight-bolder">
-            <div> Balans: {{ budget.quantity }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
+            <div> {{ $t('quantity') }}: {{ budget.quantity }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
           </div>
         </q-card>
       </div>
@@ -239,7 +240,7 @@ onMounted(() => {
       <q-form @submit.prevent="addAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense v-close-popup @click="addQuantity = 0" />
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
