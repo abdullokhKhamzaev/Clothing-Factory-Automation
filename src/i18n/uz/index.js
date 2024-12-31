@@ -112,16 +112,6 @@ export default {
         },
         measurement: {
           label: "O'lchov birlig",
-          options: [
-            {
-              label: 'Image Side',
-              value: 'imageSide'
-            },
-            {
-              label: 'Page Content',
-              value: 'pageContent'
-            }
-          ],
           validation: {
             required: 'O\'lchov birlig talab qilinadi.',
           }
@@ -131,11 +121,11 @@ export default {
           validation: {
             required: 'Miqdor talab qilinadi.',
           }
-        },
-        buttons: {
-          create: 'Ip Yaratish',
-          edit: 'Ip O\'zgartirish'
         }
+      },
+      buttons: {
+        create: 'Ip Yaratish',
+        edit: 'Ip O\'zgartirish'
       },
       confirmation: {
         successCreated: 'Ip muvaffaqiyatli yaratildi.',

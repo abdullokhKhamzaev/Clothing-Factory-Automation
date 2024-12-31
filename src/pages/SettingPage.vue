@@ -73,9 +73,7 @@ function createThreadAction() {
         message: t('forms.thread.confirmation.failure')
       })
     })
-    .finally(() => {
-      threadLoading.value = false;
-    })
+    .finally(() => threadLoading.value = false);
 }
 function updateThreadAction() {
   if (selectedData.value.id) {
@@ -109,18 +107,18 @@ function updateThreadAction() {
 }
 function deleteThreadAction() {
   if (selectedData.value.id) {
-    showThreadCreateModal.value = true;
+    threadLoading.value = true;
 
     thread.deleteThread(selectedData.value.id)
       .then(() => {
+        showThreadDeleteModal.value = false;
         $q.notify({
           type: 'positive',
           position: 'top',
           timeout: 1000,
           message: t('forms.thread.confirmation.successDeleted')
         });
-        selectedData.value = null;
-        showThreadDeleteModal.value = false;
+        clearAction();
         getThreads();
       })
       .catch(() => {
@@ -131,10 +129,7 @@ function deleteThreadAction() {
           message: t('forms.thread.confirmation.failure')
         })
       })
-      .finally(() => {
-        showThreadCreateModal.value = false;
-        clearAction();
-      })
+      .finally(() => threadLoading.value = false)
   } else {
     console.warn('data is empty');
   }
