@@ -52,6 +52,9 @@ export default {
       barCreate: 'Ip Yaratish',
       barEdit: 'Ip O\'zgartirish',
     },
+    threadPurchase: {
+      barCreate: 'Ip Sotib Olish',
+    },
     material: {
       barCreate: 'Material Yaratish',
       barEdit: 'Material O\'zgartirish',
@@ -146,6 +149,47 @@ export default {
         successEdited: 'Ip muvaffaqiyatli o\'zgartirildi.',
         successDeleted: 'Ip muvaffaqiyatli o\'chirildi.',
         failure: 'Ip saqlashda xatolik yuz berdi.'
+      }
+    },
+    threadPurchase: {
+      fields: {
+        thread: {
+          label: 'Ip Nom',
+          validation: {
+            required: 'Ipning Nomi talab qilinadi.',
+          }
+        },
+        budget: {
+          label: 'Qaysi hisobdan?',
+          validation: {
+            required: 'Hisob nomi talab qilinadi.',
+          }
+        },
+        price: {
+          label: '1 KG Narxi?',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        },
+        quantity: {
+          label: 'Necha kg?',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        paidPrice: {
+          label: 'To\'langan Miqdor',
+          validation: {
+            required: 'To\'langan Miqdor talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        buy: 'Sotib olish',
+      },
+      confirmation: {
+        successBought: 'Ip muvaffaqiyatli sotib olindi.',
+        failure: 'Ip sotib olishda xatolik yuz berdi.'
       }
     },
     material: {

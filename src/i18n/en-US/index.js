@@ -52,6 +52,9 @@ export default {
       barCreate: 'Create Thread',
       barEdit: 'Edit Thread',
     },
+    threadPurchase: {
+      barCreate: 'Buy Thread'
+    },
     material: {
       barCreate: 'Create Material',
       barEdit: 'Edit Material',
@@ -146,6 +149,47 @@ export default {
         successEdited: 'Thread was successfully edited.',
         successDeleted: 'Thread was successfully deleted.',
         failure: 'There was an error saving thread.'
+      }
+    },
+    threadPurchase: {
+      fields: {
+        thread: {
+          label: 'Thread Name',
+          validation: {
+            required: 'Thread Name is required.',
+          }
+        },
+        budget: {
+          label: 'From Which Budget?',
+          validation: {
+            required: 'Budget name is required.',
+          }
+        },
+        price: {
+          label: '1kg price?',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        quantity: {
+          label: 'How many kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        paidPrice: {
+          label: 'Paid Price',
+          validation: {
+            required: 'Paid Price',
+          }
+        },
+      },
+      buttons: {
+        buy: 'Buy',
+      },
+      confirmation: {
+        successBought: 'Thread was successfully bought.',
+        failure: 'There was an error buying thread.'
       }
     },
     material: {
