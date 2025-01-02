@@ -4,6 +4,7 @@ export default {
   convert: 'Ayriboshlash',
   columns: 'Ustunlar',
   colors: 'Ranglar',
+  confirm: 'Tasdiqlash',
   delete: "O'chirish",
   edit: "O'zgartirish",
   fabrics: "Fabrikalar",
@@ -11,11 +12,14 @@ export default {
   language: 'Til',
   materials: 'Materiallar',
   noData: "Ma'lumot bo'sh",
+  orders: 'Zakazlar',
+  report: 'Hisobot',
   to: 'Ga',
   threads: 'Iplar',
   thread: 'Ip',
   quantity: 'Miqdor',
   warehouse: 'Ombor',
+  waiting: 'Kutilmoqda',
   menu: {
     sideBar: {
       budget: 'Hisob',
@@ -58,6 +62,13 @@ export default {
     material: {
       barCreate: 'Material Yaratish',
       barEdit: 'Material O\'zgartirish',
+    },
+    unripeMaterialOrder: {
+      barCreate: 'Hom Material Zakaz Yaratish',
+      barEdit: 'Hom Material Zakaz O\'zgartirish',
+    },
+    completedMaterialOrderReport: {
+      barCreate: 'Zakaz Haqida Hisobot Berish',
     },
     fabric: {
       barCreate: 'Bo\'yoq Fabrika Yaratish',
@@ -224,6 +235,89 @@ export default {
         failure: 'Material saqlashda xatolik yuz berdi.'
       }
     },
+    unripeMaterialOrder: {
+      fields: {
+        quantity: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        material: {
+          label: 'Material',
+          validation: {
+            required: 'Material talab qilinadi.',
+          }
+        },
+        expectedConsumeDtos: {
+          title: 'Kutilayotgan masalliq:',
+          thread: {
+            label: 'Ip Turi',
+            validation: {
+              required: 'Ip turi talab qilinadi.',
+            }
+          },
+          quantity: {
+            label: 'Miqdor',
+            validation: {
+              required: 'Miqdor talab qilinadi.',
+            }
+          }
+        }
+      },
+      buttons: {
+        create: 'Zakaz Yaratish'
+      },
+      confirmation: {
+        successCreated: 'Zakaz muvaffaqiyatli yaratildi.',
+        successDeleted: 'Zakaz muvaffaqiyatli o\'chirildi.',
+        failure: 'Zakaz saqlashda xatolik yuz berdi.'
+      }
+    },
+    completedMaterialOrderReport: {
+      fields: {
+        sort: {
+          label: 'Nechinchi sort?',
+          validation: {
+            required: 'Sort talab qilinadi.',
+          }
+        },
+        roll: {
+          label: 'Necha ro\'lon?',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        quantity: {
+          label: 'Necha kg {name} tayyor?',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        consumedDtos: {
+          title: 'Ishlatilgan masalliqlar:',
+          thread: {
+            label: 'Ip turi',
+            validation: {
+              required: 'Ip turi talab qilinadi.',
+            }
+          },
+          quantity: {
+            label: 'Miqdor',
+            validation: {
+              required: 'Miqdor talab qilinadi.',
+            }
+          }
+        },
+      },
+      buttons: {
+        create: 'Xabar berish'
+      },
+      confirmation: {
+        successCreated: 'Hisobot muvaffaqiyatli yaratildi.',
+        failure: 'Hisobot saqlashda xatolik yuz berdi.'
+      }
+    },
     fabric: {
       fields: {
         name: {
@@ -313,6 +407,26 @@ export default {
       },
       buttons: {
         add: 'Material Qo\'shish'
+      },
+    },
+    unripeMaterialOrder: {
+      header: {
+        title: 'Hom Material Zakaz',
+        empty: 'Hech qanday zakaz mavjud emas'
+      },
+      columns: {
+        id: 'Zakaz ID',
+        material: 'Material Nomi',
+        quantity: 'Miqdor',
+        completedQuantity: 'Tugatilgan Miqdor',
+        completedQuantitySort2: 'Miqdor Sort2',
+        expectedConsume: 'Kutilgan Rasxod',
+        consumed: 'Ishlatildi',
+        createdAt: 'Yaratilgan Vaqt',
+        status: 'Holat',
+      },
+      buttons: {
+        add: 'Zakaz Qo\'shish'
       },
     },
     fabric: {

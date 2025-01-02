@@ -4,6 +4,7 @@ export default {
   convert: 'Convert',
   columns: 'Columns',
   colors: 'Colors',
+  confirm: 'Confirm',
   delete: 'Delete',
   edit: 'Edit',
   fabrics: "Fabrics",
@@ -11,11 +12,14 @@ export default {
   language: 'Language',
   materials: 'Materials',
   noData: 'The data is empty',
+  orders: 'Orders',
+  report: 'Report',
   to: 'To',
   thread: 'Thread',
   threads: 'Threads',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
+  waiting: 'Waiting',
   menu: {
     sideBar: {
       budget: 'Budget',
@@ -58,6 +62,13 @@ export default {
     material: {
       barCreate: 'Create Material',
       barEdit: 'Edit Material',
+    },
+    unripeMaterialOrder: {
+      barCreate: 'Create Unripe Material Order',
+      barEdit: 'Edit Unripe Material Order',
+    },
+    completedMaterialOrderReport: {
+      barCreate: 'Report About Order',
     },
     fabric: {
       barCreate: 'Create Paint Factory',
@@ -224,6 +235,89 @@ export default {
         failure: 'There was an error saving material.'
       }
     },
+    unripeMaterialOrder: {
+      fields: {
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        material: {
+          label: 'Material',
+          validation: {
+            required: 'Material is required.',
+          }
+        },
+        expectedConsumeDtos: {
+          title: 'Expected consumes:',
+          thread: {
+            label: 'Thread Type',
+            validation: {
+              required: 'Thread Type is required.',
+            }
+          },
+          quantity: {
+            label: 'Quantity',
+            validation: {
+              required: 'Quantity is required.',
+            }
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Order'
+      },
+      confirmation: {
+        successCreated: 'Unripe material order was successfully created.',
+        successDeleted: 'Unripe material order was successfully deleted.',
+        failure: 'There was an error saving Unripe material order.'
+      }
+    },
+    completedMaterialOrderReport: {
+      fields: {
+        sort: {
+          label: 'Which sort?',
+          validation: {
+            required: 'Sort is required.',
+          }
+        },
+        roll: {
+          label: 'How many rolls?',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        quantity: {
+          label: 'How many kg of {name} ready?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        consumedDtos: {
+          title: 'Used consumes:',
+          thread: {
+            label: 'Thread Type',
+            validation: {
+              required: 'Thread Type is required.',
+            }
+          },
+          quantity: {
+            label: 'Quantity',
+            validation: {
+              required: 'Quantity is required.',
+            }
+          }
+        },
+      },
+      buttons: {
+        create: 'Report'
+      },
+      confirmation: {
+        successCreated: 'Report was successfully created.',
+        failure: 'There was an error saving Report.'
+      }
+    },
     fabric: {
       fields: {
         name: {
@@ -313,6 +407,26 @@ export default {
       },
       buttons: {
         add: 'Add Material'
+      },
+    },
+    unripeMaterialOrder: {
+      header: {
+        title: 'Unripe Material Order',
+        empty: 'There is no available order'
+      },
+      columns: {
+        id: 'Order ID',
+        material: 'Material Name',
+        quantity: 'Quantity',
+        completedQuantity: 'Completed Quantity',
+        completedQuantitySort2: 'Quantity Sort2',
+        expectedConsume: 'Expected Consume',
+        consumed: 'Consumed',
+        createdAt: 'Created At',
+        status: 'Status',
+      },
+      buttons: {
+        add: 'Add Order'
       },
     },
     fabric: {
