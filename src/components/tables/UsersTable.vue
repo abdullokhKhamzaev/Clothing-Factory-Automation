@@ -367,7 +367,10 @@ onMounted(() => {
     </template>
   </q-table>
 
-  <div class="row justify-center q-mt-md">
+  <div
+    v-if="total > pagination.rowsPerPage"
+    class="row justify-center q-mt-md"
+  >
     <q-pagination
       :disable="loading || userLoading"
       v-model="pagination.page"

@@ -5,11 +5,17 @@ import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
+import { PAGINATION_DEFAULTS } from "src/libraries/constants/defaults.js";
+import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
 let props = defineProps({
   threads: {
     type: Array,
+    required: true
+  },
+  total: {
+    type: Number,
     required: true
   },
   loading: {
@@ -19,9 +25,9 @@ let props = defineProps({
   }
 });
 
-const emit = defineEmits(['submit']);
-const { t } = useI18n();
 const $q = useQuasar();
+const { t } = useI18n();
+const emit = defineEmits(['submit']);
 const budget = useBudget();
 const user = useAbout();
 const budgets = ref([]);
@@ -35,8 +41,9 @@ const columns = [
   { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'price', label: t('tables.thread.columns.price'), align: 'left', field: 'price' }
 ];
+const pagination = ref(PAGINATION_DEFAULTS)
 function getThreads() {
-  emit('submit');
+  emit('submit', { page: pagination.value.page });
 }
 function getBudgets() {
   budgetLoading.value = true;
@@ -121,6 +128,7 @@ const threadOptions = computed(() => {
   }
   return options;
 })
+const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
 
 onMounted(() => {
   getBudgets();
@@ -128,15 +136,20 @@ onMounted(() => {
 </script>
 
 <template>
+  <skeleton-table
+    :loading="props.loading"
+  />
   <q-table
+    v-show="!loading"
     flat
     bordered
-    :rows="threads"
+    :rows="props.threads"
     :columns="columns"
     :no-data-label="$t('tables.thread.header.empty')"
-    :loading="loading"
+    :loading="props.loading"
     color="primary"
     row-key="id"
+    :pagination="pagination"
     hide-bottom
   >
     <template v-slot:loading>
@@ -169,6 +182,23 @@ onMounted(() => {
       </template>
   </q-table>
 
+  <div
+    v-if="total > pagination.rowsPerPage"
+    class="row justify-center q-mt-md"
+  >
+    <q-pagination
+      :disable="loading"
+      v-model="pagination.page"
+      input-class="text-bold text-black"
+      :max="pagesNumber"
+      color="primary"
+      input
+      size="md"
+      @update:model-value="getThreads"
+    />
+  </div>
+
+  <!-- Dialogs -->
   <q-dialog v-model="showPurchaseModal" persistent>
     <div
       class="bg-white shadow-3"

@@ -5,13 +5,16 @@ import ThreadWarehouseTable from "components/tables/ThreadWarehouseTable.vue";
 
 const thread = useThread();
 const threads = ref([]);
+const total = ref(0);
 const loading = ref(false);
 
-function getThreads () {
+function getThreads (filterProps) {
   loading.value = true;
-  thread.fetchThreads('')
+
+  thread.fetchThreads(filterProps || '')
     .then((res) => {
       threads.value = res.data['hydra:member'];
+      total.value = res.data['hydra:totalItems'];
     })
     .finally(() => {
       loading.value = false;
@@ -26,6 +29,7 @@ onMounted(() => {
 <template>
   <thread-warehouse-table
     :threads="threads"
+    :total="total"
     :loading="loading"
     @submit="getThreads"
   />
