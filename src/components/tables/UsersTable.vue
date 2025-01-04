@@ -4,11 +4,17 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useCurrency } from "stores/currency.js";
+import { PAGINATION_DEFAULTS } from 'src/libraries/constants/defaults';
+import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
-defineProps({
+let props = defineProps({
   users: {
     type: Array,
+    required: true
+  },
+  total: {
+    type: Number,
     required: true
   },
   loading: {
@@ -39,17 +45,19 @@ const userLoading = ref(false);
 const currencyLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'surName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
+const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
-  { name: 'name', label: t('tables.users.columns.name'), align: 'left', field: 'name', required: true },
+  { name: 'fullName', label: t('tables.users.columns.name'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'salary', label: t('tables.users.columns.salary'), field: 'salary', sortable: true },
   { name: 'salaryCurrency', label: t('tables.users.columns.currency'), align: 'left', field: 'salaryCurrency' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+const pagination = ref(PAGINATION_DEFAULTS)
 
 // computed
+const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
 const currencyOptions = computed(() => {
   let options = [];
   for ( let i in currencies.value ) {
@@ -63,7 +71,7 @@ const currencyOptions = computed(() => {
 
 // functions
 function getUsers() {
-  emit('submit', { name: searchTitle.value });
+  emit('submit', { fullName: searchTitle.value, page: pagination.value.page });
 }
 function getCurrencies () {
   currencyLoading.value = true;
@@ -89,14 +97,22 @@ function adaptCurrencyOption() {
 function createAction() {
   userLoading.value = true
 
-  user.createUser(selectedData.value)
+  const input = {
+    phone: selectedData.value.phone,
+    password: selectedData.value.password,
+    fullName: selectedData.value.fullName,
+    salary: selectedData.value.salary,
+    salaryCurrency: selectedData.value.salaryCurrency
+  }
+
+  user.createUser(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.users.confirmation.successCreated')
+        message: t('forms.user.confirmation.successCreated')
       })
       clearAction();
       getUsers();
@@ -106,7 +122,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.users.confirmation.failure')
+        message: t('forms.user.confirmation.failure')
       })
     })
     .finally(() => {
@@ -115,8 +131,15 @@ function createAction() {
 }
 function updateAction() {
   if (selectedData?.value?.id) {
+    const input = {
+      phone: selectedData.value.phone,
+      fullName: selectedData.value.fullName,
+      salary: selectedData.value.salary,
+      salaryCurrency: selectedData.value.salaryCurrency
+    }
+
     userLoading.value = true;
-    user.editUser(selectedData.value.id, selectedData.value)
+    user.editUser(selectedData.value.id, input)
       .then(() => {
         clearAction();
         showDeleteModal.value = false;
@@ -124,7 +147,7 @@ function updateAction() {
           type: 'positive',
           position: 'top',
           timeout: 1000,
-          message: t('forms.users.confirmation.successEdited')
+          message: t('forms.user.confirmation.successEdited')
         });
         getUsers();
       })
@@ -133,7 +156,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.users.confirmation.failure')
+          message: t('forms.user.confirmation.failure')
         })
       })
       .finally(() => userLoading.value = false);
@@ -150,7 +173,7 @@ function deleteAction() {
           type: 'positive',
           position: 'top',
           timeout: 1000,
-          message: t('forms.users.confirmation.successDeleted')
+          message: t('forms.user.confirmation.successDeleted')
         });
         clearAction();
         getUsers();
@@ -226,20 +249,22 @@ onMounted(() => {
 </script>
 
 <template>
+  <skeleton-table
+    :loading="props.loading || userLoading"
+  />
   <q-table
+    v-show="!loading && !userLoading"
     flat
     bordered
-    :rows="users"
+    :rows="props.users"
     :columns="columns"
     :no-data-label="$t('tables.users.header.empty')"
-    :loading="loading"
-    color="primary"
-    row-key="id"
+    :loading="props.loading || userLoading"
     :visible-columns="visibleColumns"
+    color="primary"
+    :pagination="pagination"
+    hide-pagination
   >
-    <template v-slot:loading>
-      <q-inner-loading showing color="primary" />
-    </template>
     <template v-slot:top>
       <div class="col-12 flex">
           <q-input
@@ -301,9 +326,8 @@ onMounted(() => {
           :key="col.name"
           :props="props"
         >
-          <div v-if="col.name === 'name'">
-            {{ props.row.name }}
-            {{ props.row.surName }}
+          <div v-if="col.name === 'fullName'">
+            {{ props.row.fullName }}
           </div>
 
           <div v-else-if="col.name === 'salaryCurrency'">
@@ -343,6 +367,19 @@ onMounted(() => {
     </template>
   </q-table>
 
+  <div class="row justify-center q-mt-md">
+    <q-pagination
+      :disable="loading || userLoading"
+      v-model="pagination.page"
+      input-class="text-bold text-black"
+      :max="pagesNumber"
+      color="primary"
+      input
+      size="md"
+      @update:model-value="getUsers"
+    />
+  </div>
+
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent>
     <div
@@ -357,19 +394,10 @@ onMounted(() => {
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             filled
-            v-model="selectedData.name"
+            v-model="selectedData.fullName"
             :label="$t('forms.user.fields.name.label')"
             lazy-rules
             :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-          <q-input
-            filled
-            v-model="selectedData.surName"
-            :label="$t('forms.user.fields.surname.label')"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -442,19 +470,10 @@ onMounted(() => {
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             filled
-            v-model="selectedData.name"
+            v-model="selectedData.fullName"
             :label="$t('forms.user.fields.name.label')"
             lazy-rules
             :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-          <q-input
-            filled
-            v-model="selectedData.surName"
-            :label="$t('forms.user.fields.surname.label')"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.surname.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -468,23 +487,6 @@ onMounted(() => {
             hide-bottom-space
             class="col-12"
           />
-          <q-input
-            :type="isPwd ? 'password' : 'text'"
-            filled
-            v-model="selectedData.password"
-            :label="$t('forms.user.fields.password.label')"
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.password.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          >
-            <template v-slot:append>
-              <q-icon
-                :name="isPwd ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="isPwd = !isPwd"
-              />
-            </template>
-          </q-input>
           <q-select
             filled
             emit-value

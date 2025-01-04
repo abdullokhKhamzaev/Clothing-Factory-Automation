@@ -2,7 +2,19 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useUser = defineStore('user', () => {
-  async function fetchUsers(url) {
+  async function fetchUsers(filterProps) {
+    let url = ''
+
+    if (filterProps?.page) {
+      url += '?page=' + filterProps.page
+    } else {
+      url += '?page=1'
+    }
+
+    if (filterProps?.fullName) {
+      url += '&fullName=' + filterProps.fullName
+    }
+
     try {
       return client.get('users' + url)
     } catch (e) {
