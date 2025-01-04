@@ -1,14 +1,18 @@
 import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
+import { ref } from "vue";
 
 export const useAbout = defineStore('about', () => {
-  async function fetchAbout(url) {
+  let about = ref([]);
+
+  async function fetchAbout() {
     try {
-      return client.get('users/about_me' + url)
+      const { data } = await client.get('users/about_me')
+      about.value = data
     } catch (e) {
       console.log(e)
     }
   }
 
-  return { fetchAbout }
+  return { fetchAbout, about }
 })
