@@ -1,6 +1,8 @@
 export default {
   add: 'Add',
+  accept: 'Accept',
   balance: 'Balance',
+  confirmed: 'Confirmed',
   convert: 'Convert',
   columns: 'Columns',
   colors: 'Colors',
@@ -9,10 +11,14 @@ export default {
   edit: 'Edit',
   fabrics: "Fabrics",
   from: 'From',
+  inProgress: 'In Progress',
   language: 'Language',
   materials: 'Materials',
   noData: 'The data is empty',
+  notAccepted: 'Not Accepted',
   orders: 'Orders',
+  pending: 'Pending',
+  reject: 'Reject',
   report: 'Report',
   to: 'To',
   thread: 'Thread',
@@ -20,6 +26,7 @@ export default {
   quantity: 'Quantity',
   warehouse: 'Warehouse',
   waiting: 'Waiting',
+  waitingOrders: 'Waiting orders',
   menu: {
     sideBar: {
       budget: 'Budget',
@@ -45,6 +52,30 @@ export default {
       info: 'Are you sure you want to delete this item? This action cannot be undone.',
       buttons: {
         confirm: 'Confirm',
+        cancel: 'Cancel'
+      }
+    },
+    accept: {
+      bar: 'Confirm Accept',
+      info: 'Are you sure you want to accept? This action cannot be undone.',
+      buttons: {
+        accept: 'Accept',
+        cancel: 'Cancel'
+      }
+    },
+    complete: {
+      bar: 'Complete order',
+      info: 'Are you sure you want to complete order? This action cannot be undone.',
+      buttons: {
+        complete: 'Complete',
+        cancel: 'Cancel'
+      }
+    },
+    reject: {
+      bar: 'Confirm Reject',
+      info: 'Are you sure you want to reject? This action cannot be undone.',
+      buttons: {
+        reject: 'Reject',
         cancel: 'Cancel'
       }
     },
@@ -88,10 +119,10 @@ export default {
             required: 'Name is required.',
           }
         },
-        surname: {
-          label: 'Surname',
+        fullName: {
+          label: 'Name & Surname',
           validation: {
-            required: 'Surname is required.',
+            required: 'Name & Surname is required.',
           }
         },
         phone: {
@@ -116,6 +147,12 @@ export default {
           label: 'Salary',
           validation: {
             required: 'Salary is required.',
+          }
+        },
+        roles: {
+          label: 'Roles',
+          validation: {
+            required: 'Roles required',
           }
         },
       },
@@ -270,6 +307,7 @@ export default {
       },
       confirmation: {
         successCreated: 'Unripe material order was successfully created.',
+        successCompleted: 'Unripe material order was successfully completed.',
         successDeleted: 'Unripe material order was successfully deleted.',
         failure: 'There was an error saving Unripe material order.'
       }
@@ -315,6 +353,8 @@ export default {
       },
       confirmation: {
         successCreated: 'Report was successfully created.',
+        successAccepted: 'Successfully accepted.',
+        successRejected: 'Successfully rejected.',
         failure: 'There was an error saving Report.'
       }
     },
@@ -373,7 +413,7 @@ export default {
         empty: 'There is no available user'
       },
       columns: {
-        name: 'Name',
+        fullName: 'Name & Surname',
         phone: 'Phone',
         salary: 'Salary',
         currency: 'Currency',
@@ -391,6 +431,7 @@ export default {
       columns: {
         name: 'Name',
         quantity: 'Quantity',
+        price: 'Price',
       },
       buttons: {
         add: 'Add Thread'
@@ -419,15 +460,37 @@ export default {
         material: 'Material Name',
         quantity: 'Quantity',
         completedQuantity: 'Completed Quantity',
+        completedRoll: 'Roll',
         completedQuantitySort2: 'Quantity Sort2',
+        completedRollSort2: 'Roll Sort2',
         expectedConsume: 'Expected Consume',
         consumed: 'Consumed',
         createdAt: 'Created At',
+        createdBy: 'Created By',
         status: 'Status',
       },
       buttons: {
-        add: 'Add Order'
+        add: 'Add Order',
+        complete: 'Complete'
       },
+    },
+    completedUnripeMaterialOrder: {
+      header: {
+        title: 'Completed Unripe Material',
+        empty: 'There is no available order'
+      },
+      columns: {
+        material: 'Material Name',
+        quantity: 'Quantity',
+        quantitySort2: 'Quantity Sort-2',
+        roll: 'Roll',
+        rollSort2: 'Roll Sort-2',
+        consumed: 'Consumed',
+        status: 'Status',
+        receivedBy: 'Received By',
+        confirmedBy: 'Confirmed By',
+        createdAt: 'Created At'
+      }
     },
     fabric: {
       header: {

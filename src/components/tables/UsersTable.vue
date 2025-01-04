@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useCurrency } from "stores/currency.js";
-import { PAGINATION_DEFAULTS } from 'src/libraries/constants/defaults';
+import { PAGINATION_DEFAULTS, ROLES } from 'src/libraries/constants/defaults';
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
@@ -36,6 +36,8 @@ const currencies = ref([]);
 const showCreateModal = ref(false);
 const showUpdateModal = ref(false);
 const showDeleteModal = ref(false);
+const createActionErr = ref(null);
+const updateActionErr = ref(null);
 
 const isPwd = ref(false);
 const searchTitle = ref('');
@@ -47,7 +49,7 @@ const currencyLoading = ref(false);
 // table settings
 const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
 const columns = [
-  { name: 'fullName', label: t('tables.users.columns.name'), align: 'left', field: 'fullName', required: true },
+  { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'salary', label: t('tables.users.columns.salary'), field: 'salary', sortable: true },
   { name: 'salaryCurrency', label: t('tables.users.columns.currency'), align: 'left', field: 'salaryCurrency' },
@@ -85,6 +87,8 @@ function getCurrencies () {
 }
 function clearAction() {
   selectedData.value = {};
+  createActionErr.value = null;
+  updateActionErr.value = null;
 }
 function adaptCurrencyOption() {
   if (selectedData.value?.salaryCurrency?.id) {
@@ -102,7 +106,8 @@ function createAction() {
     password: selectedData.value.password,
     fullName: selectedData.value.fullName,
     salary: selectedData.value.salary,
-    salaryCurrency: selectedData.value.salaryCurrency
+    salaryCurrency: selectedData.value.salaryCurrency,
+    roles: selectedData.value.roles,
   }
 
   user.createUser(input)
@@ -117,7 +122,8 @@ function createAction() {
       clearAction();
       getUsers();
     })
-    .catch(() => {
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
       $q.notify({
         type: 'negative',
         position: 'top',
@@ -151,7 +157,8 @@ function updateAction() {
         });
         getUsers();
       })
-      .catch(() => {
+      .catch((res) => {
+        updateActionErr.value = res.response.data['hydra:description'];
         $q.notify({
           type: 'negative',
           position: 'top',
@@ -276,7 +283,7 @@ onMounted(() => {
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
-            @update:model-value="getUsers"
+            @update:model-value="pagination.page = 1; emit('submit', { fullName: searchTitle, page: pagination.page });"
           >
             <template v-slot:append>
               <q-icon name="search" color="primary" />
@@ -390,17 +397,33 @@ onMounted(() => {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="createAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.user.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             filled
             v-model="selectedData.fullName"
-            :label="$t('forms.user.fields.name.label')"
+            :label="$t('forms.user.fields.fullName.label')"
             lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.fullName.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -435,12 +458,27 @@ onMounted(() => {
             filled
             emit-value
             map-options
+            multiple
+            v-model="selectedData.roles"
+            :options="ROLES"
+            :label="$t('forms.user.fields.roles.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.user.fields.roles.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+          <q-select
+            filled
+            emit-value
+            map-options
             v-model="selectedData.salaryCurrency"
             :options="currencyOptions"
             :label="$t('forms.user.fields.currency.label')"
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
+            hide-bottom-space
             class="col-12"
           />
           <q-input
@@ -466,17 +504,33 @@ onMounted(() => {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.user.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             filled
             v-model="selectedData.fullName"
-            :label="$t('forms.user.fields.name.label')"
+            :label="$t('forms.user.fields.fullName.label')"
             lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.name.validation.required')]"
+            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.fullName.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -500,6 +554,7 @@ onMounted(() => {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
+            hide-bottom-space
             class="col-12"
           />
           <q-input

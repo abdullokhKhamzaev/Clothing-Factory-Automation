@@ -1,6 +1,8 @@
 export default {
   add: "Qo'shish",
+  accept: 'Tasdiqlash',
   balance: 'Hisob',
+  confirmed: 'Tasdiqlangan',
   convert: 'Ayriboshlash',
   columns: 'Ustunlar',
   colors: 'Ranglar',
@@ -9,10 +11,14 @@ export default {
   edit: "O'zgartirish",
   fabrics: "Fabrikalar",
   from: 'Dan',
+  inProgress: 'Jarayonda',
   language: 'Til',
   materials: 'Materiallar',
   noData: "Ma'lumot bo'sh",
   orders: 'Zakazlar',
+  notAccepted: 'Tasdiqlanmagan',
+  pending: 'Kutilmoqda',
+  reject: 'Raq etish',
   report: 'Hisobot',
   to: 'Ga',
   threads: 'Iplar',
@@ -20,6 +26,7 @@ export default {
   quantity: 'Miqdor',
   warehouse: 'Ombor',
   waiting: 'Kutilmoqda',
+  waitingOrders: 'Kutilayotgan zakazlar',
   menu: {
     sideBar: {
       budget: 'Hisob',
@@ -45,6 +52,30 @@ export default {
       info: 'Haqiqatan ham bu elementni oʻchirib tashlamoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.',
       buttons: {
         confirm: 'Tasdiqlash',
+        cancel: 'Bekor qilish'
+      }
+    },
+    accept: {
+      bar: 'Qabul qilishni tasdiqlang',
+      info: 'Haqiqatan ham qabul qilmoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.',
+      buttons: {
+        accept: 'Qabul qilish',
+        cancel: 'Bekor qilish'
+      }
+    },
+    complete: {
+      bar: 'Zakazni yakunlash',
+      info: 'Haqiqatan ham zakazni yakunlamoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.',
+      buttons: {
+        complete: 'Yakunlash',
+        cancel: 'Bekor qilish'
+      }
+    },
+    reject: {
+      bar: 'Rad etishni tasdiqlang',
+      info: 'Haqiqatan ham rad etmoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.',
+      buttons: {
+        reject: 'Rad etish',
         cancel: 'Bekor qilish'
       }
     },
@@ -82,16 +113,10 @@ export default {
   forms: {
     user: {
       fields: {
-        name: {
-          label: 'Ism',
+        fullName: {
+          label: 'Ism & Familya',
           validation: {
-            required: 'Ism talab qilinadi.',
-          }
-        },
-        surname: {
-          label: 'Familya',
-          validation: {
-            required: 'Familya talab qilinadi.',
+            required: 'Ism & Familya talab qilinadi.',
           }
         },
         phone: {
@@ -116,6 +141,12 @@ export default {
           label: 'Oylik',
           validation: {
             required: 'Oylik talab qilinadi.',
+          }
+        },
+        roles: {
+          label: 'Huquqlar',
+          validation: {
+            required: 'Huquqlar talab qilinadi.',
           }
         },
       },
@@ -270,6 +301,7 @@ export default {
       },
       confirmation: {
         successCreated: 'Zakaz muvaffaqiyatli yaratildi.',
+        successCompleted: 'Zakaz muvaffaqiyatli yakunlandi.',
         successDeleted: 'Zakaz muvaffaqiyatli o\'chirildi.',
         failure: 'Zakaz saqlashda xatolik yuz berdi.'
       }
@@ -315,6 +347,8 @@ export default {
       },
       confirmation: {
         successCreated: 'Hisobot muvaffaqiyatli yaratildi.',
+        successAccepted: 'Muvaffaqiyatli qabul qilindi.',
+        successRejected: 'Muvaffaqiyatli rad etildi.',
         failure: 'Hisobot saqlashda xatolik yuz berdi.'
       }
     },
@@ -373,7 +407,7 @@ export default {
         empty: 'Hech qanday foydalanuvchi mavjud emas'
       },
       columns: {
-        name: 'Ism',
+        fullName: 'Ism & Familya',
         phone: 'Telefon',
         salary: 'Oylik',
         currency: 'Valyuta',
@@ -391,6 +425,7 @@ export default {
       columns: {
         name: 'Nomi',
         quantity: 'Miqdor',
+        price: 'Narx',
       },
       buttons: {
         add: 'Ip Qo\'shish'
@@ -418,16 +453,38 @@ export default {
         id: 'Zakaz ID',
         material: 'Material Nomi',
         quantity: 'Miqdor',
+        completedRoll: 'Ro\'lon',
         completedQuantity: 'Tugatilgan Miqdor',
         completedQuantitySort2: 'Miqdor Sort2',
+        completedRollSort2: 'Ro\'lon Sort2',
         expectedConsume: 'Kutilgan Rasxod',
         consumed: 'Ishlatildi',
         createdAt: 'Yaratilgan Vaqt',
+        createdBy: 'Tomonidan yaratildi',
         status: 'Holat',
       },
       buttons: {
-        add: 'Zakaz Qo\'shish'
+        add: 'Zakaz Qo\'shish',
+        complete: 'Yakunlash'
       },
+    },
+    completedUnripeMaterialOrder: {
+      header: {
+        title: 'Tugatilgan Hom Material',
+        empty: 'Hech qanday zakaz mavjud emas'
+      },
+      columns: {
+        material: 'Material Nomi',
+        quantity: 'Miqdor',
+        quantitySort2: 'Miqdor Sort-2',
+        roll: 'Ro\'lon',
+        rollSort2: 'Ro\'lon Sort-2',
+        consumed: 'Ishlatildi',
+        status: 'Holat',
+        receivedBy: 'Tomonidan Qabul qilindi',
+        confirmedBy: 'Tomonidan Tasdiqlandi',
+        createdAt: 'Yaratilgan Vaqt',
+      }
     },
     fabric: {
       header: {
