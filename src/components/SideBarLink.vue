@@ -16,7 +16,7 @@
 
     <q-item-section>
       <q-item-label class="text-subtitle1">
-        {{ $t(`menu.sideBar.${props.title}`) }}
+        {{ $t(`menus.${menuRoute}.${props.title}`) }}
       </q-item-label>
       <q-item-label
         v-if="props.caption"
@@ -34,20 +34,17 @@ const props = defineProps({
     type: String,
     required: true
   },
-
   caption: {
     type: String,
     default: ''
   },
-
-  link: {
-    type: String,
-    default: '#'
-  },
-
   icon: {
     type: String,
     default: ''
+  },
+  menuRoute: {
+    type: String,
+    default: 'sideBar'
   }
 })
 </script>

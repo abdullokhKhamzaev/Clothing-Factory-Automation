@@ -1,14 +1,16 @@
 export default {
   add: "Qo'shish",
-  accept: 'Tasdiqlash',
+  accept: 'Qabul qilish',
   balance: 'Hisob',
   confirmed: 'Tasdiqlangan',
+  completedOrders: 'Yakunlangan Zakazlar',
   convert: 'Ayriboshlash',
   columns: 'Ustunlar',
   colors: 'Ranglar',
   confirm: 'Tasdiqlash',
   delete: "O'chirish",
   edit: "O'zgartirish",
+  finish: 'Yakunlash',
   fabrics: "Fabrikalar",
   from: 'Dan',
   inProgress: 'Jarayonda',
@@ -16,7 +18,6 @@ export default {
   materials: 'Materiallar',
   noData: "Ma'lumot bo'sh",
   orders: 'Zakazlar',
-  notAccepted: 'Tasdiqlanmagan',
   pending: 'Kutilmoqda',
   reject: 'Raq etish',
   report: 'Hisobot',
@@ -27,7 +28,15 @@ export default {
   warehouse: 'Ombor',
   waiting: 'Kutilmoqda',
   waitingOrders: 'Kutilayotgan zakazlar',
-  menu: {
+  statuses: {
+    accepted: 'Qabul qilingan',
+    notAccepted: 'Qabul qilinmagan',
+    rejected: 'Rad etilgan',
+    confirmed: 'Tasdiqlangan',
+    pending: 'Kutilmoqda',
+    completed: 'Tugatilgan',
+  },
+  menus: {
     sideBar: {
       budget: 'Hisob',
       customers: 'Mijozlar',
@@ -44,6 +53,9 @@ export default {
       threadWarehouse: 'Ip Ombor',
       users: 'Foydalanuvchilar',
       weaving: "To'quv"
+    },
+    weaver: {
+      orders: 'Zakazlar'
     }
   },
   dialogs: {
@@ -297,7 +309,8 @@ export default {
         }
       },
       buttons: {
-        create: 'Zakaz Yaratish'
+        create: 'Zakaz Yaratish',
+        edit: 'Zakaz O\'zgartirish'
       },
       confirmation: {
         successCreated: 'Zakaz muvaffaqiyatli yaratildi.',
@@ -431,6 +444,17 @@ export default {
         add: 'Ip Qo\'shish'
       },
     },
+    unripeMaterial: {
+      header: {
+        title: 'Hom Materiallar',
+        empty: 'Hech qanday Hom Material mavjud emas'
+      },
+      columns: {
+        name: 'Nomi',
+        quantity: 'Miqdor',
+        price: 'Narx',
+      }
+    },
     material: {
       header: {
         title: 'Materiallar',
@@ -458,6 +482,7 @@ export default {
         completedQuantitySort2: 'Miqdor Sort2',
         completedRollSort2: 'Ro\'lon Sort2',
         expectedConsume: 'Kutilgan Rasxod',
+        completedUnripeMaterialOrders: 'Tavsif',
         consumed: 'Ishlatildi',
         createdAt: 'Yaratilgan Vaqt',
         createdBy: 'Tomonidan yaratildi',
@@ -474,16 +499,22 @@ export default {
         empty: 'Hech qanday zakaz mavjud emas'
       },
       columns: {
-        material: 'Material Nomi',
+        material: 'Material nomi',
         quantity: 'Miqdor',
-        quantitySort2: 'Miqdor Sort-2',
+        confirmedBy: 'Tomonidan tasdiqlangan',
+        completedQuantity: 'Tugatilgan miqdor',
+        completedQuantitySort2: 'Tugatilgan sort-2 miqdor',
+        quantitySort2: 'Miqdor sort-2',
         roll: 'Ro\'lon',
-        rollSort2: 'Ro\'lon Sort-2',
+        completedRoll: 'Tugatilgan ro\'lon',
+        completedRollSort2: 'Tugatilgan ro\'lon sort-2',
+        rollSort2: 'Ro\'lon sort-2',
+        expectedConsume: 'Kutilgan rasxod',
         consumed: 'Ishlatildi',
+        createdBy: 'Yaratdi',
+        createdAt: 'Yaratilgan sana',
         status: 'Holat',
-        receivedBy: 'Tomonidan Qabul qilindi',
-        confirmedBy: 'Tomonidan Tasdiqlandi',
-        createdAt: 'Yaratilgan Vaqt',
+        completedUnripeMaterialOrders: 'Tasnif',
       }
     },
     fabric: {

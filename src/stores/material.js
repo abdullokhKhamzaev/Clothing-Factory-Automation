@@ -2,7 +2,15 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useMaterial = defineStore('material', () => {
-  async function fetchMaterials(url) {
+  async function fetchMaterials(filterProps) {
+    let url = ''
+
+    if (filterProps?.page) {
+      url += '?page=' + filterProps.page
+    } else {
+      url += '?page=1'
+    }
+
     try {
       return client.get('materials' + url)
     } catch (e) {

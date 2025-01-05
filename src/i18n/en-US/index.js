@@ -3,19 +3,20 @@ export default {
   accept: 'Accept',
   balance: 'Balance',
   confirmed: 'Confirmed',
+  completedOrders: 'Completed Orders',
   convert: 'Convert',
   columns: 'Columns',
   colors: 'Colors',
   confirm: 'Confirm',
   delete: 'Delete',
   edit: 'Edit',
+  finish: 'Finish',
   fabrics: "Fabrics",
   from: 'From',
   inProgress: 'In Progress',
   language: 'Language',
   materials: 'Materials',
   noData: 'The data is empty',
-  notAccepted: 'Not Accepted',
   orders: 'Orders',
   pending: 'Pending',
   reject: 'Reject',
@@ -27,7 +28,15 @@ export default {
   warehouse: 'Warehouse',
   waiting: 'Waiting',
   waitingOrders: 'Waiting orders',
-  menu: {
+  statuses: {
+    accepted: 'Accepted',
+    notAccepted: 'Not Accepted',
+    rejected: 'Rejected',
+    confirmed: 'Confirmed',
+    pending: 'Pending',
+    completed: 'Completed',
+  },
+  menus: {
     sideBar: {
       budget: 'Budget',
       customers: 'Customers',
@@ -44,6 +53,9 @@ export default {
       threadWarehouse: 'Thread Warehouse',
       users: 'Users',
       weaving: 'Weaving'
+    },
+    weaver: {
+      orders: 'Orders'
     }
   },
   dialogs: {
@@ -113,12 +125,6 @@ export default {
   forms: {
     user: {
       fields: {
-        name: {
-          label: 'Name',
-          validation: {
-            required: 'Name is required.',
-          }
-        },
         fullName: {
           label: 'Name & Surname',
           validation: {
@@ -303,7 +309,8 @@ export default {
         }
       },
       buttons: {
-        create: 'Create Order'
+        create: 'Create Order',
+        edit: 'Edit Order'
       },
       confirmation: {
         successCreated: 'Unripe material order was successfully created.',
@@ -437,6 +444,17 @@ export default {
         add: 'Add Thread'
       },
     },
+    unripeMaterial: {
+      header: {
+        title: 'Unripe Materials',
+        empty: 'There is no available Unripe Materials'
+      },
+      columns: {
+        name: 'Name',
+        quantity: 'Quantity',
+        price: 'Price',
+      }
+    },
     material: {
       header: {
         title: 'Material',
@@ -464,6 +482,7 @@ export default {
         completedQuantitySort2: 'Quantity Sort2',
         completedRollSort2: 'Roll Sort2',
         expectedConsume: 'Expected Consume',
+        completedUnripeMaterialOrders: 'Description',
         consumed: 'Consumed',
         createdAt: 'Created At',
         createdBy: 'Created By',
@@ -480,16 +499,22 @@ export default {
         empty: 'There is no available order'
       },
       columns: {
-        material: 'Material Name',
+        material: 'Material name',
         quantity: 'Quantity',
-        quantitySort2: 'Quantity Sort-2',
+        confirmedBy: 'Confirmed by',
+        completedQuantity: 'Completed quantity',
+        completedQuantitySort2: 'Completed quantity sort2',
+        quantitySort2: 'Quantity sort2',
         roll: 'Roll',
-        rollSort2: 'Roll Sort-2',
+        completedRoll: 'Completed roll',
+        completedRollSort2: 'Completed roll sort2',
+        rollSort2: 'Roll sort2',
+        expectedConsume: 'Expected consume',
         consumed: 'Consumed',
+        createdBy: 'Created by',
+        createdAt: 'Created at',
         status: 'Status',
-        receivedBy: 'Received By',
-        confirmedBy: 'Confirmed By',
-        createdAt: 'Created At'
+        completedUnripeMaterialOrders: 'Description',
       }
     },
     fabric: {

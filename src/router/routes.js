@@ -1,17 +1,21 @@
-// let isAdmin = () => JSON.parse(atob(localStorage.getItem('token').split('.')[1])).roles.includes('ROLE_ADMIN')
+function isAdmin() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_ADMIN')
+  }
+  return false
+}
+
+function isWeaver() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_WEAVER')
+  }
+  return false
+}
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
-    next()
+    next('/aaa')
   } else {
     next('/login')
-  }
-}
-//
-const ifNotAuthorized = (to, from, next) => {
-  if (localStorage.getItem('accessToken') === null) {
-    next()
-  } else {
-    next('/')
   }
 }
 
@@ -19,13 +23,13 @@ const routes = [
   {
     path: '/login',
     component: () => import('pages/LoginPage.vue'),
-    beforeEnter: ifNotAuthorized
+    beforeEnter: !ifAuthorized
   },
   {
-    path: '/',
+    path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
     name: 'club.home',
-    beforeEnter: ifAuthorized,
+    beforeEnter: ifAuthorized && isAdmin,
     children: [
       {
         path: 'users',
@@ -101,6 +105,19 @@ const routes = [
         path: 'setting',
         name: 'club.setting',
         component: () => import('pages/SettingPage.vue')
+      }
+    ]
+  },
+  {
+    path: '/weaver',
+    component: () => import('layouts/weaver/MainLayout.vue'),
+    name: 'club.weaver.home',
+    beforeEnter: ifAuthorized && isWeaver || isAdmin,
+    children: [
+      {
+        path: 'orders',
+        name: 'club.weaver.orders',
+        component: () => import('pages/role-weaver/WeavePageRoleWeaver.vue')
       }
     ]
   },

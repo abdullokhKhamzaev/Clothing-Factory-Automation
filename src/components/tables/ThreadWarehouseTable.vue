@@ -8,6 +8,8 @@ import { useQuasar } from "quasar";
 import { PAGINATION_DEFAULTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
+const emit = defineEmits(['submit']);
+
 // Props
 let props = defineProps({
   threads: {
@@ -27,10 +29,9 @@ let props = defineProps({
 
 const $q = useQuasar();
 const { t } = useI18n();
-const emit = defineEmits(['submit']);
 const budget = useBudget();
-const user = useAbout();
 const budgets = ref([]);
+const user = useAbout();
 const showPurchaseModal = ref(false);
 const createActionErr = ref(null);
 
@@ -146,15 +147,11 @@ onMounted(() => {
     :rows="props.threads"
     :columns="columns"
     :no-data-label="$t('tables.thread.header.empty')"
-    :loading="props.loading"
     color="primary"
     row-key="id"
     :pagination="pagination"
     hide-bottom
   >
-    <template v-slot:loading>
-      <q-inner-loading showing color="primary"/>
-    </template>
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
         <div class="q-table__title">{{ $t('tables.thread.header.title') }}</div>
@@ -204,9 +201,6 @@ onMounted(() => {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <div class="">
-
-      </div>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
