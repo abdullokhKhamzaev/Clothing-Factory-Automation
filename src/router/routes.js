@@ -1,21 +1,30 @@
-function isAdmin() {
+export function isAdmin() {
   if (localStorage.getItem('accessToken')) {
-    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_ADMIN')
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_ADMIN');
   }
-  return false
+  return false;
 }
 
-function isWeaver() {
+export function isWeaver() {
   if (localStorage.getItem('accessToken')) {
-    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_WEAVER')
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_WEAVER');
   }
-  return false
+  return false;
 }
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
-    next('/aaa')
+    next()
   } else {
     next('/login')
+  }
+}
+
+const ifNotAuthorized = (to, from, next) => {
+  if (localStorage.getItem('accessToken') === null) {
+    next()
+  } else {
+    next('/')
   }
 }
 
@@ -23,13 +32,18 @@ const routes = [
   {
     path: '/login',
     component: () => import('pages/LoginPage.vue'),
-    beforeEnter: !ifAuthorized
+    beforeEnter: ifNotAuthorized
+  },
+  {
+    path: '/',
+    component: () => import('pages/HomePage.vue'),
+    beforeEnter: ifAuthorized
   },
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
     name: 'club.home',
-    beforeEnter: ifAuthorized && isAdmin,
+    beforeEnter: ifAuthorized,
     children: [
       {
         path: 'users',
@@ -112,7 +126,7 @@ const routes = [
     path: '/weaver',
     component: () => import('layouts/weaver/MainLayout.vue'),
     name: 'club.weaver.home',
-    beforeEnter: ifAuthorized && isWeaver || isAdmin,
+    beforeEnter: ifAuthorized || isWeaver,
     children: [
       {
         path: 'orders',
