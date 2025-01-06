@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import UnripeMaterialOrderTable from "components/tables/UnripeMaterialOrderTable.vue";
@@ -12,15 +12,36 @@ const order = useUnripeMaterialOrder();
 const orders = ref([]);
 const total = ref(0);
 const loading = ref(false);
+const pagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage));
 
 const completedNotAcceptedUnripeMaterialOrder = useCompletedUnripeMaterialOrders();
 const completedNotAcceptedUnripeMaterialOrders = ref([]);
 const completedNotAcceptedUnripeMaterialOrderTotal = ref(0);
 const completedNotAcceptedUnripeMaterialOrderLoading = ref(false);
+const completedNotAcceptedPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const completedNotAcceptedPagesNumber = computed(() => Math.ceil(completedNotAcceptedUnripeMaterialOrderTotal.value / completedNotAcceptedPagination.value.rowsPerPage));
 
 const completedOrders = ref([]);
 const completedOrdersTotal = ref(0);
 const completedOrdersLoading = ref(false);
+const completedPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const completedPagesNumber = computed(() => Math.ceil(completedOrdersTotal.value / completedPagination.value.rowsPerPage));
 
 function getOrders (filterProps) {
   let props = filterProps || {};
@@ -68,10 +89,28 @@ function getCompletedOrders (filterProps) {
     });
 }
 
-function refresh (filteredProps) {
-  getOrders(filteredProps);
-  getNotAcceptedCompletedUnripeMaterialOrders(filteredProps);
-  getCompletedOrders(filteredProps);
+function refresh () {
+  pagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  completedNotAcceptedPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  completedPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  getOrders();
+  getNotAcceptedCompletedUnripeMaterialOrders();
+  getCompletedOrders();
 }
 
 onMounted(() => {
@@ -106,26 +145,70 @@ onMounted(() => {
       <q-tab-panel name="orders" class="q-pa-none">
         <unripe-material-order-table
           :orders="orders"
-          :total="total"
+          :pagination="pagination"
           :loading="loading"
           @submit="refresh"
         />
+        <div
+          v-if="total > pagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="loading"
+            v-model="pagination.page"
+            input-class="text-bold text-black"
+            :max="pagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getOrders({ page: pagination.page })"
+          />
+        </div>
       </q-tab-panel>
       <q-tab-panel name="pending" class="q-pa-none">
         <completed-unripe-material-order-table
           :orders="completedNotAcceptedUnripeMaterialOrders"
-          :total="completedNotAcceptedUnripeMaterialOrderTotal"
+          :pagination="completedNotAcceptedPagination"
           :loading="completedNotAcceptedUnripeMaterialOrderLoading"
           @submit="refresh"
         />
+        <div
+          v-if="completedNotAcceptedUnripeMaterialOrderTotal > completedNotAcceptedPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="completedNotAcceptedUnripeMaterialOrderLoading"
+            v-model="completedNotAcceptedPagination.page"
+            input-class="text-bold text-black"
+            :max="completedNotAcceptedPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getNotAcceptedCompletedUnripeMaterialOrders({ page: completedNotAcceptedPagination.page })"
+          />
+        </div>
       </q-tab-panel>
       <q-tab-panel name="completedOrders" class="q-pa-none">
         <unripe-material-order-completed-table
           :orders="completedOrders"
-          :total="completedOrdersTotal"
+          :pagination="completedPagination"
           :loading="completedOrdersLoading"
-          @submit="refresh"
         />
+        <div
+          v-if="completedNotAcceptedUnripeMaterialOrderTotal > completedNotAcceptedPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="completedOrdersLoading"
+            v-model="completedPagination.page"
+            input-class="text-bold text-black"
+            :max="completedPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getCompletedOrders({ page: completedPagination.page })"
+          />
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </div>

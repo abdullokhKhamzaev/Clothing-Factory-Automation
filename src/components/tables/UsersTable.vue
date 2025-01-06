@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useCurrency } from "stores/currency.js";
-import { PAGINATION_DEFAULTS, ROLES } from 'src/libraries/constants/defaults';
+import { ROLES } from 'src/libraries/constants/defaults';
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
@@ -56,7 +56,12 @@ const columns = [
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
-const pagination = ref(PAGINATION_DEFAULTS)
+const pagination = ref({
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+})
 
 // computed
 const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))

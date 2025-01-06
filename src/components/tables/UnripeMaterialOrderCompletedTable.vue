@@ -1,7 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { PAGINATION_DEFAULTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
 
@@ -11,8 +9,8 @@ let props = defineProps({
     type: Array,
     required: true
   },
-  total: {
-    type: Number,
+  pagination: {
+    type: Object,
     required: true
   },
   loading: {
@@ -21,7 +19,6 @@ let props = defineProps({
     default: false
   }
 });
-const emit = defineEmits(['submit']);
 const { t } = useI18n();
 
 const columns = [
@@ -39,13 +36,6 @@ const columns = [
   { name: 'completedUnripeMaterialOrders', label: t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders'), align: 'left', field: 'completedUnripeMaterialOrders' },
   { name: 'status', label: t('tables.unripeMaterialOrder.columns.status'), align: 'left', field: 'status' },
 ];
-const pagination = ref(PAGINATION_DEFAULTS)
-
-function getOrders () {
-  emit('submit', { page: pagination.value.page });
-}
-
-const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
 </script>
 
 <template>
@@ -61,7 +51,7 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
     :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
     color="primary"
     row-key="id"
-    :pagination="pagination"
+    :pagination="props.pagination"
     hide-bottom
   >
     <template v-slot:top>
@@ -126,19 +116,4 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
       </q-tr>
     </template>
   </q-table>
-  <div
-    v-if="total > pagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="loading"
-      v-model="pagination.page"
-      input-class="text-bold text-black"
-      :max="pagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getOrders"
-    />
-  </div>
 </template>

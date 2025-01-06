@@ -5,7 +5,6 @@ import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { PAGINATION_DEFAULTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 const emit = defineEmits(['submit']);
@@ -42,7 +41,12 @@ const columns = [
   { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'price', label: t('tables.thread.columns.price'), align: 'left', field: 'price' }
 ];
-const pagination = ref(PAGINATION_DEFAULTS)
+const pagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+})
 function getThreads() {
   emit('submit', { page: pagination.value.page });
 }
