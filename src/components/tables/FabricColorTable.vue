@@ -30,7 +30,9 @@ const color = useColor();
 const colorLoading = ref(false);
 const selectedData = ref({});
 const showColorCreateModal = ref(false);
+const createActionErr = ref(null);
 const showColorUpdateModal = ref(false);
+const updateActionErr = ref(null);
 const showColorDeleteModal = ref(false);
 
 const columns = [
@@ -56,7 +58,9 @@ function createColorAction() {
       clearAction();
       getColors();
     })
-    .catch(() => {
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
@@ -82,7 +86,9 @@ function updateColorAction() {
         clearAction();
         getColors();
       })
-      .catch(() => {
+      .catch((res) => {
+        updateActionErr.value = res.response.data['hydra:description'];
+
         $q.notify({
           type: 'negative',
           position: 'top',
@@ -128,6 +134,8 @@ function deleteColorAction() {
 
 function clearAction() {
   selectedData.value = {};
+  createActionErr.value = null;
+  updateActionErr.value = null;
 }
 </script>
 
@@ -193,9 +201,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="createColorAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.color.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -221,9 +245,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateColorAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.color.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input

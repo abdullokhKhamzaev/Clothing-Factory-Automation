@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { useBudget } from "stores/budget.js";
 
 // Props
 let props = defineProps({
@@ -28,9 +29,35 @@ const $q = useQuasar();
 const { t } = useI18n();
 const thread = useThread();
 
+const budget = useBudget();
+const budgets = ref([]);
+const budgetLoading = ref(false);
+const budgetOptions = computed(() => {
+  let options = [];
+  for (let i in budgets.value) {
+    options.push({
+      label: budgets.value[i].name,
+      value: budgets.value[i]
+    });
+  }
+  return options
+})
+function getBudgets() {
+  budgetLoading.value = true;
+
+  budget.fetchBudgets('')
+    .then((res) => {
+      budgets.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      budgetLoading.value = false;
+    });
+}
+
 const threadLoading = ref(false);
 const selectedData = ref({});
 const showThreadCreateModal = ref(false);
+const createActionErr = ref(null);
 const showThreadUpdateModal = ref(false);
 const showThreadDeleteModal = ref(false);
 
@@ -50,8 +77,9 @@ function createThreadAction() {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  selectedData.value.budget = '/api/budgets/2';
-  selectedData.value.price = '1';
+  if ( selectedData?.value?.budget['@id'] ) {
+    selectedData.value.budget = selectedData.value.budget['@id'];
+  }
 
   thread.createThread(selectedData.value)
     .then(() => {
@@ -65,7 +93,9 @@ function createThreadAction() {
       clearAction();
       getThreads();
     })
-    .catch(() => {
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
@@ -136,7 +166,12 @@ function deleteThreadAction() {
 }
 function clearAction() {
   selectedData.value = {};
+  createActionErr.value = null;
 }
+
+onMounted(() => {
+  getBudgets();
+})
 </script>
 
 <template>
@@ -209,9 +244,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="createThreadAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.thread.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -244,6 +295,31 @@ function clearAction() {
             :rules="[ val => val && val > -1 || $t('forms.thread.fields.quantity.validation.required')]"
             class="col-9"
             hide-bottom-space
+          />
+          <q-select
+            v-model="selectedData.budget"
+            filled
+            emit-value
+            map-options
+            :loading="budgetLoading"
+            :options="budgetOptions"
+            :label="$t('forms.thread.fields.budget.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.thread.fields.budget.validation.required')]"
+            class="col-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.price"
+            type="number"
+            filled
+            :disable="!selectedData.budget"
+            :label="$t('forms.thread.fields.price.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 || $t('forms.thread.fields.price.validation.required')]"
+            hide-bottom-space
+            class="col-6"
           />
         </div>
 

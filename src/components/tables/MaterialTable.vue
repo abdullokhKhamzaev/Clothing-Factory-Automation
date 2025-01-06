@@ -3,8 +3,8 @@ import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useMaterial } from "stores/material.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
 let props = defineProps({
@@ -31,7 +31,9 @@ const material = useMaterial();
 const materialLoading = ref(false);
 const selectedData = ref({});
 const showMaterialCreateModal = ref(false);
+const createActionErr = ref(null);
 const showMaterialUpdateModal = ref(false);
+const updateActionErr = ref(null);
 const showMaterialDeleteModal = ref(false);
 
 const columns = [
@@ -62,7 +64,9 @@ function createMaterialAction() {
       clearAction();
       getMaterials();
     })
-    .catch(() => {
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
@@ -88,7 +92,9 @@ function updateMaterialAction() {
         clearAction();
         getMaterials();
       })
-      .catch(() => {
+      .catch((res) => {
+        updateActionErr.value = res.response.data['hydra:description'];
+
         $q.notify({
           type: 'negative',
           position: 'top',
@@ -133,6 +139,8 @@ function deleteMaterialAction() {
 }
 function clearAction() {
   selectedData.value = {};
+  createActionErr.value = null;
+  updateActionErr.value = null;
 }
 </script>
 
@@ -206,9 +214,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="createMaterialAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.material.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -258,9 +282,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateMaterialAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.material.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
