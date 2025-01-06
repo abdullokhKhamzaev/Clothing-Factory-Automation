@@ -11,6 +11,17 @@ export const LANGUAGES = [
     value: 'uz'
   },
 ]
+
+export const MEASUREMENTS = [
+  {
+    label: 'KG',
+    value: 'kg'
+  },
+  {
+    label: 'Dona',
+    value: 'piece'
+  }
+]
 export const PAGINATION_DEFAULTS = {
   rowsPerPage: 10,
   page: 1,

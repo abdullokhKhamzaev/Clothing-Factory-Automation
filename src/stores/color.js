@@ -2,7 +2,15 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useColor = defineStore('paint_fabric_colors', () => {
-  async function fetchColors(url) {
+  async function fetchColors(filterProps) {
+    let url = ''
+
+    if (filterProps?.page) {
+      url += '?page=' + filterProps.page
+    } else {
+      url += '?page=1'
+    }
+
     try {
       return client.get('paint_fabric_colors' + url)
     } catch (e) {
