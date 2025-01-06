@@ -24,7 +24,7 @@ let props = defineProps({
     default: false
   }
 });
-const emit = defineEmits(['submit', 'page']);
+const emit = defineEmits(['submit']);
 
 const $q = useQuasar();
 const { t } = useI18n();

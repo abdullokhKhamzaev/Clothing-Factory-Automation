@@ -1,8 +1,7 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { PAGINATION_DEFAULTS } from "src/libraries/constants/defaults.js";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useThread } from "stores/thread.js";
@@ -15,8 +14,8 @@ let props = defineProps({
     type: Array,
     required: true
   },
-  total: {
-    type: Number,
+  pagination: {
+    type: Object,
     required: true
   },
   loading: {
@@ -55,13 +54,12 @@ const columns = [
   { name: 'completedUnripeMaterialOrders', label: t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders'), align: 'left', field: 'completedUnripeMaterialOrders' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
-const pagination = ref(PAGINATION_DEFAULTS)
 
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'notAccepted');
 }
 function getOrders () {
-  emit('submit', { page: pagination.value.page });
+  emit('submit');
 }
 function clearAction() {
   selectedData.value = {};
@@ -170,18 +168,6 @@ function prefilling () {
   rows.value = consumes;
 }
 
-const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage));
-const threadOptions = computed(() => {
-  let options = [];
-  for ( let i in threads.value ) {
-    options.push( {
-      label: threads.value[i].name,
-      value: threads.value[i]['@id']
-    } );
-  }
-  return options
-});
-
 onMounted(() => {
   getThreads();
 })
@@ -200,7 +186,7 @@ onMounted(() => {
     :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
     color="primary"
     row-key="id"
-    :pagination="pagination"
+    :pagination="props.pagination"
     hide-bottom
   >
     <template v-slot:body="props">
@@ -276,22 +262,6 @@ onMounted(() => {
       </q-tr>
     </template>
   </q-table>
-  <!-- Pagination -->
-  <div
-    v-if="total > pagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="loading && orderLoading"
-      v-model="pagination.page"
-      input-class="text-bold text-black"
-      :max="pagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getOrders"
-    />
-  </div>
   <!-- Dialogs -->
   <q-dialog v-model="showAcceptModal" persistent>
     <q-card>

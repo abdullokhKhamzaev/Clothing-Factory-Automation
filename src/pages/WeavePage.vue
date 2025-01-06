@@ -195,7 +195,7 @@ onMounted(() => {
           :loading="completedOrdersLoading"
         />
         <div
-          v-if="completedNotAcceptedUnripeMaterialOrderTotal > completedNotAcceptedPagination.rowsPerPage"
+          v-if="completedOrdersTotal > completedPagination.rowsPerPage"
           class="row justify-center q-mt-md"
         >
           <q-pagination

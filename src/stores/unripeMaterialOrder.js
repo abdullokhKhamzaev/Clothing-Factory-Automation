@@ -21,7 +21,7 @@ export const useUnripeMaterialOrder = defineStore('unripe_material_order', () =>
       })
     }
     try {
-      return client.get('unripe_material_orders' + url)
+      return await client.get('unripe_material_orders' + url);
     } catch (e) {
       console.log(e)
     }
