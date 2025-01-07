@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import {computed, onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
@@ -38,6 +38,16 @@ const reportActionErr = ref(null);
 
 const threads = ref([]);
 const threadLoading = ref(false);
+const threadOptions = computed(() => {
+  let options = [];
+  for (let i in threads.value) {
+    options.push({
+      label: threads.value[i].name,
+      value: threads.value[i]['@id']
+    });
+  }
+  return options;
+})
 
 const order = useUnripeMaterialOrder();
 const orderLoading = ref(false);
