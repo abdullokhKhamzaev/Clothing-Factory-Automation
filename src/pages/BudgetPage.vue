@@ -2,11 +2,11 @@
 import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
+import { useTransaction } from 'src/stores/transaction.js'
+import TransactionTable from "components/tables/TransactionTable.vue";
+import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
 
 const $q = useQuasar();
-const budget = useBudget();
-
-const loading = ref(false);
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
 const selectedData = ref({
@@ -20,9 +20,21 @@ const selectedData = ref({
   }
 });
 const addQuantity = ref(0);
-const budgets = ref([]);
 
-function getBudgets (){
+const budget = useBudget();
+const budgets = ref([]);
+const loading = ref(false);
+const budgetOptions = computed(() => {
+  let options = [];
+  for ( let i in budgets.value ) {
+    options.push( {
+      label: budgets.value[i].name,
+      value: budgets.value[i]['@id']
+    } );
+  }
+  return options
+});
+function getBudgets () {
   loading.value = true;
   budget.fetchBudgets('?page=1')
     .then((res) => {
@@ -32,7 +44,34 @@ function getBudgets (){
       loading.value = false;
     });
 }
-function updateSelectedData(property) {
+
+const transaction = useTransaction();
+const transactions = ref([]);
+const transactionTotal = ref([]);
+const transactionLoading = ref(false);
+const transactionPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const transactionPagesNumber = computed(() => Math.ceil(transactionTotal.value / transactionPagination.value.rowsPerPage));
+function getTransactions (filterProps) {
+  let props = filterProps || {};
+
+  transactionLoading.value = true;
+
+  transaction.fetchTransactions(props || '')
+    .then((res) => {
+      transactions.value = res.data['hydra:member'];
+      transactionTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      transactionLoading.value = false;
+    });
+}
+
+function updateSelectedData (property) {
   const oppositeProperty = property === 'from' ? 'to' : 'from';
   selectedData.value[property] = budgetOptions.value.filter(option => option.value !== selectedData.value[oppositeProperty].value)[0];
 }
@@ -43,13 +82,13 @@ function convertAction() {
     fromBudget: {
       budget: selectedData.value.from.value,
       quantity: selectedData.value.fromQuantity,
-      description: `${selectedData.value.from.label} hisobdan dan ${selectedData.value.from.to} hisobga ${selectedData.value.fromQuantity} ayriboshlash uchun yuborildi`,
+      description: `${selectedData.value.from.label} hisobdan dan ${selectedData.value.to.label} hisobga ${selectedData.value.fromQuantity} ayriboshlash uchun yuborildi`,
       isIncome: false
     },
     toBudget: {
       budget: selectedData.value.to.value,
       quantity: selectedData.value.toQuantity,
-      description: `${selectedData.value.from.label} hisobdan dan ${selectedData.value.from.to} hisobga ${selectedData.value.fromQuantity} ayriboshlash orqali mablag' kiritildi`,
+      description: `${selectedData.value.from.label} hisobdan dan ${selectedData.value.to.label} hisobga ${selectedData.value.toQuantity} ayriboshlash orqali mablag' kiritildi`,
       isIncome: true
     }
   }
@@ -112,67 +151,82 @@ function addAction() {
     })
 }
 
-const budgetOptions = computed(() => {
-  let options = [];
-  for ( let i in budgets.value ) {
-    options.push( {
-      label: budgets.value[i].name,
-      value: budgets.value[i]['@id']
-    } );
-  }
-  return options
-})
-
 onMounted(() => {
   getBudgets();
+  getTransactions();
 })
 </script>
 
 <template>
-  <section class="q-pa-md">
-    <div class="q-pa-md q-mb-md shadow-3 text-center">
-      <q-btn
-        icon-right="mdi-swap-horizontal"
-        :label="$t('convert')"
-        size="md"
-        color="green"
-        no-caps
-        @click="showConvertModal = true"
-      />
+  <div class="q-pa-md q-mb-md shadow-3 text-center">
+    <q-btn
+      icon-right="mdi-swap-horizontal"
+      :label="$t('convert')"
+      size="md"
+      color="green"
+      no-caps
+      @click="showConvertModal = true"
+    />
+  </div>
+  <div class="row q-col-gutter-md q-mb-lg">
+    <div
+      v-for="budget in budgets"
+      :key="budget.id"
+      class="col-xs-12 col-sm-6 col-lg-4 col-xl-3"
+    >
+      <q-card>
+        <div class="flex justify-between items-center bg-primary text-white text-weight-medium q-pa-sm">
+          <div>
+            {{ budget.name }} {{ $t('balance') }}
+          </div>
+          <div>
+            <q-btn icon="mdi-cash-plus" round text-color="green" color="white" @click="showAddModal = true; selectedData = budget" />
+          </div>
+        </div>
+        <q-separator />
+        <div class="flex justify-center q-mt-md">
+          <span class="bg-grey-2 q-pa-sm rounded">
+            <q-icon name="mdi-bank-outline" color="primary" size="xl" />
+          </span>
+        </div>
+        <div class="flex justify-center text-weight-medium q-mb-md">
+          {{ budget.name }}
+        </div>
+        <q-separator />
+        <div class="q-pa-sm text-green text-weight-bolder">
+          <div> {{ $t('quantity') }}: {{ formatFloatToInteger(budget.quantity) }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
+        </div>
+        <q-separator />
+        <div
+          class="q-pa-sm text-weight-bolder"
+          :class="budget.debts <= 0 ? 'text-green' : 'text-red'"
+        >
+          <div> {{ $t('debts') }}: {{ formatFloatToInteger(budget.debts) }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
+        </div>
+      </q-card>
     </div>
+  </div>
 
-    <div class="row q-col-gutter-md">
-      <div
-        v-for="budget in budgets"
-        :key="budget.id"
-        class="col-xs-12 col-sm-6 col-lg-4 col-xl-3"
-      >
-        <q-card>
-          <div class="flex justify-between items-center bg-primary text-white text-weight-medium q-pa-sm">
-            <div>
-              {{ budget.name }} {{ $t('balance') }}
-            </div>
-            <div>
-              <q-btn icon="mdi-cash-plus" round text-color="green" color="white" @click="showAddModal = true; selectedData = budget" />
-            </div>
-          </div>
-          <q-separator />
-          <div class="flex justify-center q-mt-md">
-            <span class="bg-grey-2 q-pa-sm rounded">
-              <q-icon name="mdi-bank-outline" color="primary" size="xl" />
-            </span>
-          </div>
-          <div class="flex justify-center text-weight-medium q-mb-md">
-            {{ budget.name }}
-          </div>
-          <q-separator />
-          <div class="q-pa-sm text-green text-weight-bolder">
-            <div> {{ $t('quantity') }}: {{ budget.quantity }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
-          </div>
-        </q-card>
-      </div>
-    </div>
-  </section>
+  <transaction-table
+    :transactions="transactions"
+    :pagination="transactionPagination"
+    :loading="transactionLoading"
+  />
+  <div
+    v-if="transactionTotal > transactionPagination.rowsPerPage"
+    class="row justify-center q-mt-md"
+  >
+    <q-pagination
+      :disable="transactionLoading"
+      v-model="transactionPagination.page"
+      input-class="text-bold text-black"
+      :max="transactionPagesNumber"
+      color="primary"
+      input
+      size="md"
+      @update:model-value="getTransactions({ page: transactionPagination.page })"
+    />
+  </div>
 
   <!-- Dialogs -->
   <q-dialog v-model="showConvertModal" persistent>

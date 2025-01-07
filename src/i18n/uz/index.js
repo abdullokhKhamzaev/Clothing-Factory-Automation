@@ -9,6 +9,7 @@ export default {
   colors: 'Ranglar',
   confirm: 'Tasdiqlash',
   delete: "O'chirish",
+  debts: 'Qarzlar',
   edit: "O'zgartirish",
   finish: 'Yakunlash',
   fabrics: "Fabrikalar",
@@ -439,6 +440,24 @@ export default {
         name: 'Nomi',
         quantity: 'Miqdor',
         price: 'Narx',
+      },
+      buttons: {
+        add: 'Ip Qo\'shish'
+      },
+    },
+    transaction: {
+      header: {
+        title: 'Tranzaksiyalar',
+        empty: 'Hech qanday tranzaksiya mavjud emas'
+      },
+      columns: {
+        id: 'ID',
+        createdAt: 'Sana',
+        paidPrice: 'To\'langan suma',
+        createdBy: 'Kim',
+        description: 'Sabab',
+        budget: 'Hisob',
+        price: 'Narx'
       },
       buttons: {
         add: 'Ip Qo\'shish'

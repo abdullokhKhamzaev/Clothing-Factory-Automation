@@ -9,6 +9,7 @@ export default {
   colors: 'Colors',
   confirm: 'Confirm',
   delete: 'Delete',
+  debts: 'Debts',
   edit: 'Edit',
   finish: 'Finish',
   fabrics: "Fabrics",
@@ -439,6 +440,24 @@ export default {
         name: 'Name',
         quantity: 'Quantity',
         price: 'Price',
+      },
+      buttons: {
+        add: 'Add Thread'
+      },
+    },
+    transaction: {
+      header: {
+        title: 'Transactions',
+        empty: 'There is no available transaction'
+      },
+      columns: {
+        id: 'ID',
+        createdAt: 'Date',
+        paidPrice: 'Paid Price',
+        createdBy: 'Created By',
+        description: 'Reason',
+        budget: 'Budget',
+        price: 'Price'
       },
       buttons: {
         add: 'Add Thread'

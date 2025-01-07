@@ -5,3 +5,7 @@
 .q-table thead * {
     font-size: 1rem;
 }
+
+.text-underline {
+    text-decoration: underline;
+}

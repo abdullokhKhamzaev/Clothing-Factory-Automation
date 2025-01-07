@@ -35,3 +35,18 @@ export const ROLES = [
   { label: 'User', value: 'ROLE_USER' },
   { label: 'Weaver', value: 'ROLE_WEAVER' },
 ];
+
+export const formatFloatToInteger = (number) => {
+  // Split the number into integer and decimal parts
+  const [integerPart, decimalPart] = number.toString().split('.');
+
+  // Format the integer part with spaces as thousands separators
+  const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  // If there's a decimal part, append it
+  if (decimalPart !== undefined) {
+    return `${formattedIntegerPart}.${decimalPart}`;
+  } else {
+    return formattedIntegerPart;
+  }
+};
