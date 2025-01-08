@@ -352,6 +352,9 @@ onMounted(() => {
               />
             </div>
           </div>
+          <div v-else-if="col.name === 'createdBy'">
+            {{ props.row?.createdBy?.fullName || '-' }}
+          </div>
           <div v-else-if="col.name === 'material'">
             {{ props.row?.material?.name || '-' }}
           </div>
@@ -360,7 +363,7 @@ onMounted(() => {
               v-for="consume in props.row.expectedConsume"
               :key="consume"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'consumed'">
@@ -368,7 +371,7 @@ onMounted(() => {
               v-for="consume in props.row.consumed"
               :key="consume"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'completedUnripeMaterialOrders'">

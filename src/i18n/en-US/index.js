@@ -22,9 +22,12 @@ export default {
   pending: 'Pending',
   reject: 'Reject',
   report: 'Report',
+  pay: 'Pay',
   to: 'To',
   thread: 'Thread',
   threads: 'Threads',
+  threadPurchase: 'Thread Purchase',
+  transactions: 'Transactions',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
   waiting: 'Waiting',
@@ -445,6 +448,25 @@ export default {
         add: 'Add Thread'
       },
     },
+    threadPurchase: {
+      header: {
+        title: 'Thread Purchase',
+        empty: 'There is no available Thread Purchase'
+      },
+      columns: {
+        id: 'Purchase ID',
+        createdAt: 'Created At',
+        thread: 'Thread',
+        quantity: 'Quantity',
+        price: 'Price',
+        paidPrice: 'Paid Price',
+        purchasedBy: 'Purchased By',
+        transaction: 'Description',
+      },
+      buttons: {
+        add: 'Add Thread'
+      },
+    },
     transaction: {
       header: {
         title: 'Transactions',
@@ -518,6 +540,7 @@ export default {
         empty: 'There is no available order'
       },
       columns: {
+        id: 'Order id',
         material: 'Material name',
         quantity: 'Quantity',
         confirmedBy: 'Confirmed by',

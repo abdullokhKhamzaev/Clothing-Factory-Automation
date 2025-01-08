@@ -34,7 +34,7 @@ const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const selectedData = ref({});
 const columns = [
-  { name: 'unripeMaterialOrder', label: t('tables.completedUnripeMaterialOrder.columns.material'), align: 'left', field: 'unripeMaterialOrder' },
+  { name: 'unripeMaterialOrder', label: t('tables.completedUnripeMaterialOrder.columns.id'), align: 'left', field: 'unripeMaterialOrder' },
   { name: 'quantity', label: t('tables.completedUnripeMaterialOrder.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'roll', label: t('tables.completedUnripeMaterialOrder.columns.roll'), align: 'left', field: 'roll' },
   { name: 'quantitySort2', label: t('tables.completedUnripeMaterialOrder.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
@@ -163,8 +163,11 @@ onMounted(() => {
               </q-btn>
             </div>
           </div>
-          <div v-else-if="col.name === 'material'">
-            {{ props.row?.material?.name || '-' }}
+          <div v-else-if="col.name === 'unripeMaterialOrder'">
+            {{ props.row?.unripeMaterialOrder.id || '-' }}
+          </div>
+          <div v-else-if="col.name === 'confirmedBy'">
+            {{ props.row?.confirmedBy?.fullName || '-' }}
           </div>
           <div v-else-if="col.name === 'consumed'">
             <div
@@ -172,7 +175,7 @@ onMounted(() => {
               :key="consume"
               class="q-mr-sm"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'status'">

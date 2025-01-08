@@ -55,13 +55,16 @@ const columns = [
           <div v-if="col.name === 'material'">
             {{ props.row?.material?.name || '-' }} ({{ props.row?.material?.measurement || '-' }})
           </div>
+          <div v-else-if="col.name === 'createdBy'">
+            {{ props.row?.createdBy?.fullName || '-' }}
+          </div>
           <div v-else-if="col.name === 'expectedConsume'">
             <div
               v-for="consume in props.row.expectedConsume"
               :key="consume"
               class="q-mr-sm"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'consumed'">
@@ -70,7 +73,7 @@ const columns = [
               :key="consume"
               class="q-mr-sm"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'completedUnripeMaterialOrders'">

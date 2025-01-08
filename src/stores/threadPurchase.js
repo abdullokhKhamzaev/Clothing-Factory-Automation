@@ -3,11 +3,14 @@ import { client } from "boot/axios.js";
 
 export const useThreadPurchase = defineStore('thread_purchase', () => {
   async function fetchPurchases(filterProps) {
-    let url = '?page=1';
+    let url = ''
 
-    if (filterProps?.thread) {
-      url += '&thread=' + filterProps.thread
+    if (filterProps?.page) {
+      url += '?page=' + filterProps.page
+    } else {
+      url += '?page=1'
     }
+
     try {
       return client.get('thread_purchases' + url)
     } catch (e) {

@@ -3,10 +3,13 @@ import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
 import { useTransaction } from 'src/stores/transaction.js'
+import { useThreadPurchase } from 'src/stores/threadPurchase.js'
 import TransactionTable from "components/tables/TransactionTable.vue";
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import ThreadPurchaseTable from "components/tables/ThreadPurchaseTable.vue";
 
 const $q = useQuasar();
+const tab = ref('transactions')
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
 const selectedData = ref({
@@ -68,6 +71,32 @@ function getTransactions (filterProps) {
     })
     .finally(() => {
       transactionLoading.value = false;
+    });
+}
+
+const threadPurchase = useThreadPurchase();
+const threadPurchases = ref([]);
+const threadPurchaseTotal = ref([]);
+const threadPurchaseLoading = ref(false);
+const threadPurchasePagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const threadPurchasePagesNumber = computed(() => Math.ceil(threadPurchaseTotal.value / threadPurchasePagination.value.rowsPerPage));
+function getThreadPurchases (filterProps) {
+  let props = filterProps || {};
+
+  threadPurchaseLoading.value = true;
+
+  threadPurchase.fetchPurchases(props || '')
+    .then((res) => {
+      threadPurchases.value = res.data['hydra:member'];
+      threadPurchaseTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      threadPurchaseLoading.value = false;
     });
 }
 
@@ -154,6 +183,7 @@ function addAction() {
 onMounted(() => {
   getBudgets();
   getTransactions();
+  getThreadPurchases();
 })
 </script>
 
@@ -205,27 +235,6 @@ onMounted(() => {
         </div>
       </q-card>
     </div>
-  </div>
-
-  <transaction-table
-    :transactions="transactions"
-    :pagination="transactionPagination"
-    :loading="transactionLoading"
-  />
-  <div
-    v-if="transactionTotal > transactionPagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="transactionLoading"
-      v-model="transactionPagination.page"
-      input-class="text-bold text-black"
-      :max="transactionPagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getTransactions({ page: transactionPagination.page })"
-    />
   </div>
 
   <!-- Dialogs -->
@@ -314,6 +323,71 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
+
+  <div class="flex justify-between q-gutter-md">
+    <q-tabs
+      v-model="tab"
+      no-caps
+      dense
+      outside-arrows
+      mobile-arrows
+      class="shadow-2 text-primary"
+      :class="$q.screen.xs ? 'full-width' : ''"
+    >
+      <q-tab name="transactions" :label="$t('transactions')" />
+      <q-tab name="threadPurchase" :label="$t('threadPurchase')" />
+    </q-tabs>
+    <q-btn size="md" icon="mdi-orbit-variant" color="dark" />
+  </div>
+
+  <div class="q-py-md">
+    <q-tab-panels v-model="tab" animated>
+      <q-tab-panel name="transactions" class="q-pa-none">
+        <transaction-table
+          :transactions="transactions"
+          :pagination="transactionPagination"
+          :loading="transactionLoading"
+        />
+        <div
+          v-if="transactionTotal > transactionPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="transactionLoading"
+            v-model="transactionPagination.page"
+            input-class="text-bold text-black"
+            :max="transactionPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getTransactions({ page: transactionPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="threadPurchase" class="q-pa-none">
+        <thread-purchase-table
+          :purchases="threadPurchases"
+          :pagination="threadPurchasePagination"
+          :loading="threadPurchaseLoading"
+        />
+        <div
+          v-if="threadPurchaseTotal > threadPurchasePagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="threadPurchaseLoading"
+            v-model="threadPurchasePagination.page"
+            input-class="text-bold text-black"
+            :max="threadPurchasePagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getTransactions({ page: threadPurchasePagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+    </q-tab-panels>
+  </div>
 </template>
 
 <style scoped>

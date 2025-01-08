@@ -22,9 +22,12 @@ export default {
   pending: 'Kutilmoqda',
   reject: 'Raq etish',
   report: 'Hisobot',
+  pay: 'To\'lash',
   to: 'Ga',
   threads: 'Iplar',
   thread: 'Ip',
+  threadPurchase: 'Ip savdosi',
+  transactions: 'Tranzaksiyalar',
   quantity: 'Miqdor',
   warehouse: 'Ombor',
   waiting: 'Kutilmoqda',
@@ -445,6 +448,25 @@ export default {
         add: 'Ip Qo\'shish'
       },
     },
+    threadPurchase: {
+      header: {
+        title: 'Ip Savdosi',
+        empty: 'Hech qanday Ip Savdosi mavjud emas'
+      },
+      columns: {
+        id: 'Savdo ID',
+        createdAt: 'Sana',
+        thread: 'Ip',
+        quantity: 'Miqdor',
+        price: 'Narx',
+        paidPrice: 'To\'landi',
+        purchasedBy: 'Kim',
+        transaction: 'Tasnif',
+      },
+      buttons: {
+        add: 'Ip Qo\'shish'
+      },
+    },
     transaction: {
       header: {
         title: 'Tranzaksiyalar',
@@ -518,6 +540,7 @@ export default {
         empty: 'Hech qanday zakaz mavjud emas'
       },
       columns: {
+        id: 'Zakaz id',
         material: 'Material nomi',
         quantity: 'Miqdor',
         confirmedBy: 'Tomonidan tasdiqlangan',

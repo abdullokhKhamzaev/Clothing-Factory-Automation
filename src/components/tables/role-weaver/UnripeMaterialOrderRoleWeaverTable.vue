@@ -173,7 +173,7 @@ function reportOrderAction() {
 function prefilling () {
   let consumes = [];
   selectedData.value.expectedConsume.forEach((consume) => {
-    consumes.push({ thread: consume.thread, quantity: 0 })
+    consumes.push({ thread: consume.thread['@id'], quantity: 0 })
   })
   rows.value = consumes;
 }
@@ -226,6 +226,9 @@ onMounted(() => {
           <div v-else-if="col.name === 'material'">
             {{ props.row?.material?.name || '-' }}
           </div>
+          <div v-else-if="col.name === 'createdBy'">
+            {{ props.row?.createdBy?.fullName || '-' }}
+          </div>
           <div v-else-if="col.name === 'status'" class="text-orange">
             <span :class="props.row.status === 'pending' ? 'text-red' : 'text-orange'">
               {{ $t('statuses.' + props.row.status) }}
@@ -236,7 +239,7 @@ onMounted(() => {
               v-for="consume in props.row.expectedConsume"
               :key="consume"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'consumed'">
@@ -244,7 +247,7 @@ onMounted(() => {
               v-for="consume in props.row.consumed"
               :key="consume"
             >
-              {{ consume.thread }}: {{ consume.quantity }}
+              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
           </div>
           <div v-else-if="col.name === 'completedUnripeMaterialOrders'">
