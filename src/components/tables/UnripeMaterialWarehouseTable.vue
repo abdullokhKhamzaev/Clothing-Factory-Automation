@@ -28,6 +28,10 @@ const { t } = useI18n();
 const columns = [
   { name: 'name', label: t('tables.unripeMaterial.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.unripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'roll', label: t('tables.unripeMaterial.columns.roll'), align: 'left', field: 'roll' },
+  { name: 'quantitySort2', label: t('tables.unripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
+  { name: 'rollSort2', label: t('tables.unripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
+  { name: 'payWorker', label: t('tables.unripeMaterial.columns.payWorker'), align: 'left', field: 'payWorker' },
   { name: 'price', label: t('tables.unripeMaterial.columns.price'), align: 'left', field: 'price' }
 ];
 const pagination = ref(PAGINATION_DEFAULTS)
@@ -66,14 +70,17 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
             {{ props.row.name }}
           </div>
 
-          <div v-if="col.name === 'quantity'">
+          <div v-else-if="col.name === 'quantity'">
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
           </div>
 
-          <div v-if="col.name === 'price'">
+          <div v-else-if="col.name === 'price'">
             <span> {{ props.row.price * props.row.quantity }} </span>
-<!--            <span class="text-weight-bolder"> ({{ props.row.budget.currency.symbol }}) </span>-->
+          </div>
+
+          <div v-else>
+            {{ props.row[col.field] || '-' }}
           </div>
         </q-td>
       </q-tr>

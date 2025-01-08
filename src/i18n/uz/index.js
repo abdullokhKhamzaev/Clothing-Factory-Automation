@@ -493,7 +493,11 @@ export default {
       columns: {
         name: 'Nomi',
         quantity: 'Miqdor',
+        roll: 'Ro\'lon',
+        quantitySort2: 'Miqdor sort 2',
+        rollSort2: 'Ro\'lon sort 2',
         price: 'Narx',
+        payWorker: 'Ishchi narx'
       }
     },
     material: {

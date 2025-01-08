@@ -493,7 +493,11 @@ export default {
       columns: {
         name: 'Name',
         quantity: 'Quantity',
+        roll: 'Roll',
+        quantitySort2: 'Quantity sort 2',
+        rollSort2: 'Roll sort 2',
         price: 'Price',
+        payWorker: 'Worker price'
       }
     },
     material: {
