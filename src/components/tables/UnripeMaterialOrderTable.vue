@@ -244,7 +244,7 @@ function removeRow(index) {
     this.rows.splice(index, 1);
   }
 }
-// function prefilling() {
+// function prefill() {
 //   if ( selectedData?.value?.material['@id'] ) {
 //     selectedData.value.material = selectedData.value.material['@id'];
 //   }
@@ -327,7 +327,7 @@ onMounted(() => {
           <div v-if="col.name === 'action'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
 <!--              <q-btn-->
-<!--                size="md" color="primary" rounded dense icon="edit" @click="selectedData = props.row; prefilling(); showOrderEditModal = true;"-->
+<!--                size="md" color="primary" rounded dense icon="edit" @click="selectedData = props.row; prefill(); showOrderEditModal = true;"-->
 <!--              >-->
 <!--                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">-->
 <!--                  {{ $t('edit') }}-->

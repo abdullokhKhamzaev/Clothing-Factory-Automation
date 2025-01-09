@@ -107,13 +107,17 @@ export default {
       barCreate: 'Ip Sotib Olish',
       barPayDebt: 'Ip Savdo Bo\'yicha Qarz To\'lash'
     },
-    material: {
-      barCreate: 'Material Yaratish',
-      barEdit: 'Material O\'zgartirish',
+    unripeMaterial: {
+      barCreate: 'Hom Material Yaratish',
+      barEdit: 'Hom Material O\'zgartirish',
     },
     unripeMaterialOrder: {
       barCreate: 'Hom Material Zakaz Yaratish',
       barEdit: 'Hom Material Zakaz O\'zgartirish',
+    },
+    ripeMaterial: {
+      barCreate: 'Bo\'yalgan Material Yaratish',
+      barEdit: 'Bo\'yalgan Material O\'zgartirish',
     },
     completedMaterialOrderReport: {
       barCreate: 'Zakaz Haqida Hisobot Berish',
@@ -258,7 +262,7 @@ export default {
         failure: 'Ip sotib olishda xatolik yuz berdi.'
       }
     },
-    material: {
+    unripeMaterial: {
       fields: {
         name: {
           label: 'Nom',
@@ -282,6 +286,74 @@ export default {
       buttons: {
         create: 'Material Yaratish',
         edit: 'Material O\'zgartirish'
+      },
+      confirmation: {
+        successCreated: 'Material muvaffaqiyatli yaratildi.',
+        successEdited: 'Material muvaffaqiyatli o\'zgartirildi.',
+        successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
+        failure: 'Material saqlashda xatolik yuz berdi.'
+      }
+    },
+    ripeMaterial: {
+      fields: {
+        name: {
+          label: 'Nom',
+          validation: {
+            required: 'Nom talab qilinadi.',
+          }
+        },
+        color: {
+          label: 'Rang',
+          validation: {
+            required: 'Rang talab qilinadi.',
+          }
+        },
+        measurement: {
+          label: "O'lchov birlig",
+          validation: {
+            required: 'O\'lchov birlig talab qilinadi.',
+          }
+        },
+        quantity: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        roll: {
+          label: 'Ro\'lon',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        quantitySort2: {
+          label: 'Miqdor Sort 2',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        rollSort2: {
+          label: 'Ro\'lon Sort 2',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        price: {
+          label: 'Narx',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        },
+        priceSort2: {
+          label: 'Narx Sort 2',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Yaratish',
+        edit: 'O\'zgartirish'
       },
       confirmation: {
         successCreated: 'Material muvaffaqiyatli yaratildi.',
@@ -506,20 +578,29 @@ export default {
         rollSort2: 'Ro\'lon sort 2',
         price: 'Narx',
         payWorker: 'Ishchi narx'
-      }
-    },
-    material: {
-      header: {
-        title: 'Materiallar',
-        empty: 'Hech qanday material turi mavjud emas'
-      },
-      columns: {
-        name: 'Nomi',
-        quantity: 'Miqdor',
       },
       buttons: {
         add: 'Material Qo\'shish'
       },
+    },
+    ripeMaterial: {
+      header: {
+        title: 'Bo\'yalgan Materiallar',
+        empty: 'Hech qanday Bo\'yalgan Material mavjud emas'
+      },
+      columns: {
+        name: 'Nom',
+        paintFabricColor: 'Rang',
+        quantity: 'Miqdor',
+        roll: 'Ro\'lon',
+        quantitySort2: 'Miqdor sort 2',
+        rollSort2: 'Ro\'lon sort 2',
+        price: 'Narx',
+        priceSort2: 'Price sort 2'
+      },
+      buttons: {
+        add: 'Qp\'shish'
+      }
     },
     unripeMaterialOrder: {
       header: {

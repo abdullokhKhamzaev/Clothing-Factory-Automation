@@ -22,13 +22,12 @@ let props = defineProps({
 const { t } = useI18n();
 
 const columns = [
-  { name: 'name', label: t('tables.unripeMaterial.columns.name'), align: 'left', field: 'name' },
-  { name: 'quantity', label: t('tables.unripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'roll', label: t('tables.unripeMaterial.columns.roll'), align: 'left', field: 'roll' },
-  { name: 'quantitySort2', label: t('tables.unripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
-  { name: 'rollSort2', label: t('tables.unripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
-  { name: 'payWorker', label: t('tables.unripeMaterial.columns.payWorker'), align: 'left', field: 'payWorker' },
-  { name: 'price', label: t('tables.unripeMaterial.columns.price'), align: 'left', field: 'price' }
+  { name: 'name', label: t('tables.ripeMaterial.columns.name'), align: 'left', field: 'name' },
+  { name: 'quantity', label: t('tables.ripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'roll', label: t('tables.ripeMaterial.columns.roll'), align: 'left', field: 'roll' },
+  { name: 'quantitySort2', label: t('tables.ripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
+  { name: 'rollSort2', label: t('tables.ripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
+  { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' }
 ];
 </script>
 
@@ -42,7 +41,7 @@ const columns = [
     bordered
     :rows="props.materials"
     :columns="columns"
-    :no-data-label="$t('tables.unripeMaterial.header.empty')"
+    :no-data-label="$t('tables.ripeMaterial.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
@@ -50,7 +49,7 @@ const columns = [
   >
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
-        <div class="q-table__title">{{ $t('tables.unripeMaterial.header.title') }}</div>
+        <div class="q-table__title">{{ $t('tables.ripeMaterial.header.title') }}</div>
       </div>
     </template>
     <template v-slot:body="props">

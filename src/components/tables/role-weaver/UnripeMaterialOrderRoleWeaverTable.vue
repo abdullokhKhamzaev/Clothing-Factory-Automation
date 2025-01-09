@@ -170,7 +170,7 @@ function reportOrderAction() {
     })
     .finally(() => orderLoading.value = false);
 }
-function prefilling () {
+function prefill () {
   let consumes = [];
   selectedData.value.expectedConsume.forEach((consume) => {
     consumes.push({ thread: consume.thread['@id'], quantity: 0 })
@@ -220,7 +220,7 @@ onMounted(() => {
               size="md"
               color="orange"
               :label="$t('report')"
-              @click="selectedData = props.row; prefilling(); showOrderReportModal = true;"
+              @click="selectedData = props.row; prefill(); showOrderReportModal = true;"
             />
           </div>
           <div v-else-if="col.name === 'material'">

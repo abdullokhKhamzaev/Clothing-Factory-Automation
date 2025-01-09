@@ -37,8 +37,8 @@ const updateActionErr = ref(null);
 const showMaterialDeleteModal = ref(false);
 
 const columns = [
-  { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
-  { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'name', label: t('tables.unripeMaterial.columns.name'), align: 'left', field: 'name' },
+  { name: 'quantity', label: t('tables.unripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
@@ -59,7 +59,7 @@ function createMaterialAction() {
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.material.confirmation.successCreated')
+        message: t('forms.unripeMaterial.confirmation.successCreated')
       })
       clearAction();
       getMaterials();
@@ -71,7 +71,7 @@ function createMaterialAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.material.confirmation.failure')
+        message: t('forms.unripeMaterial.confirmation.failure')
       })
     })
     .finally(() => materialLoading.value = false);
@@ -87,7 +87,7 @@ function updateMaterialAction() {
           type: 'positive',
           position: 'top',
           timeout: 1000,
-          message: t('forms.material.confirmation.successEdited')
+          message: t('forms.unripeMaterial.confirmation.successEdited')
         });
         clearAction();
         getMaterials();
@@ -99,7 +99,7 @@ function updateMaterialAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.material.confirmation.failure')
+          message: t('forms.unripeMaterial.confirmation.failure')
         })
       })
       .finally(() => materialLoading.value = false);
@@ -119,7 +119,7 @@ function deleteMaterialAction() {
           type: 'positive',
           position: 'top',
           timeout: 1000,
-          message: t('forms.material.confirmation.successDeleted')
+          message: t('forms.unripeMaterial.confirmation.successDeleted')
         });
         clearAction();
         getMaterials();
@@ -129,7 +129,7 @@ function deleteMaterialAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.material.confirmation.failure')
+          message: t('forms.unripeMaterial.confirmation.failure')
         })
       })
       .finally(() => materialLoading.value = false)
@@ -154,7 +154,7 @@ function clearAction() {
     bordered
     :rows="props.materials"
     :columns="columns"
-    :no-data-label="$t('tables.material.header.empty')"
+    :no-data-label="$t('tables.unripeMaterial.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
@@ -162,12 +162,12 @@ function clearAction() {
   >
     <template v-slot:top>
       <div class="col-12 flex justify-between">
-        <div class="q-table__title">{{ $t('tables.material.header.title') }}</div>
+        <div class="q-table__title">{{ $t('tables.unripeMaterial.header.title') }}</div>
         <div class="text-right">
           <q-btn
             color="primary"
             icon-right="add"
-            :label="$t('tables.material.buttons.add')"
+            :label="$t('tables.unripeMaterial.buttons.add')"
             no-caps
             @click="showMaterialCreateModal = true"
           />
@@ -218,7 +218,7 @@ function clearAction() {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.material.barCreate') }} </div>
+          <div class="text-h6"> {{ $t('dialogs.unripeMaterial.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
         </div>
         <div v-if="createActionErr">
@@ -238,9 +238,9 @@ function clearAction() {
           <q-input
             filled
             v-model="selectedData.name"
-            :label="$t('forms.material.fields.name.label')"
+            :label="$t('forms.unripeMaterial.fields.name.label')"
             lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.material.fields.name.validation.required')]"
+            :rules="[ val => val && val.length > 0 || $t('forms.unripeMaterial.fields.name.validation.required')]"
             class="col-12"
             hide-bottom-space
           />
@@ -251,18 +251,18 @@ function clearAction() {
             map-options
             v-model="selectedData.measurement"
             :options="MEASUREMENTS"
-            :label="$t('forms.material.fields.measurement.label')"
+            :label="$t('forms.unripeMaterial.fields.measurement.label')"
             option-value="value"
             option-label="label"
-            :rules="[val => !!val || $t('forms.material.fields.measurement.validation.required')]"
+            :rules="[val => !!val || $t('forms.unripeMaterial.fields.measurement.validation.required')]"
             class="col-3"
           />
           <q-input
             filled
             type="number"
             v-model="selectedData.quantity"
-            :label="$t('forms.thread.fields.quantity.label')"
-            :rules="[ val => val && val > -1 || $t('forms.material.fields.quantity.validation.required')]"
+            :label="$t('forms.unripeMaterial.fields.quantity.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
             class="col-9"
             hide-bottom-space
           />
@@ -271,7 +271,7 @@ function clearAction() {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.material.buttons.create')" type="submit" color="primary" />
+          <q-btn no-caps :label="$t('forms.unripeMaterial.buttons.create')" type="submit" color="primary" />
         </div>
       </q-form>
     </div>
@@ -286,7 +286,7 @@ function clearAction() {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.material.barEdit') }} </div>
+          <div class="text-h6"> {{ $t('dialogs.unripeMaterial.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
         </div>
         <div v-if="updateActionErr">
@@ -306,9 +306,9 @@ function clearAction() {
           <q-input
             filled
             v-model="selectedData.name"
-            :label="$t('forms.material.fields.name.label')"
+            :label="$t('forms.unripeMaterial.fields.name.label')"
             lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.material.fields.name.validation.required')]"
+            :rules="[ val => val && val.length > 0 || $t('forms.unripeMaterial.fields.name.validation.required')]"
             class="col-12"
             hide-bottom-space
           />
@@ -319,18 +319,18 @@ function clearAction() {
             map-options
             v-model="selectedData.measurement"
             :options="MEASUREMENTS"
-            :label="$t('forms.material.fields.measurement.label')"
+            :label="$t('forms.unripeMaterial.fields.measurement.label')"
             option-value="value"
             option-label="label"
-            :rules="[val => !!val || $t('forms.material.fields.measurement.validation.required')]"
+            :rules="[val => !!val || $t('forms.unripeMaterial.fields.measurement.validation.required')]"
             class="col-3"
           />
           <q-input
             filled
             type="number"
             v-model="selectedData.quantity"
-            :label="$t('forms.material.fields.quantity.label')"
-            :rules="[ val => val && val > -1 || $t('forms.material.fields.quantity.validation.required')]"
+            :label="$t('forms.unripeMaterial.fields.quantity.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
             class="col-9"
             hide-bottom-space
           />
@@ -339,7 +339,7 @@ function clearAction() {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.material.buttons.edit')" type="submit" color="primary" />
+          <q-btn no-caps :label="$t('forms.unripeMaterial.buttons.edit')" type="submit" color="primary" />
         </div>
       </q-form>
     </div>

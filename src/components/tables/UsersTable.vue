@@ -95,7 +95,7 @@ function clearAction() {
   createActionErr.value = null;
   updateActionErr.value = null;
 }
-function adaptCurrencyOption() {
+function prefill() {
   if (selectedData.value?.salaryCurrency?.id) {
     selectedData.value.salaryCurrency = {
       label: `${selectedData.value.salaryCurrency.symbol} - ${selectedData.value.salaryCurrency.name} (${selectedData.value.salaryCurrency.shortName})`,
@@ -358,7 +358,7 @@ onMounted(() => {
 
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap justify-end q-gutter-x-sm">
-              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = props.row; adaptCurrencyOption(); showUpdateModal = true;">
+              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = props.row; prefill(); showUpdateModal = true;">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('edit') }}
                 </q-tooltip>

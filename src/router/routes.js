@@ -73,7 +73,7 @@ const routes = [
       {
         path: 'material-warehouse',
         name: 'club.material-warehouse',
-        component: () => import('pages/MaterialWarehousePage.vue')
+        component: () => import('pages/RipeMaterialWarehousePage.vue')
       },
       {
         path: 'cut',

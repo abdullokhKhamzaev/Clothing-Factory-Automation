@@ -1,10 +1,10 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
-import { useMaterial } from "stores/material.js";
-import UnripeMaterialWarehouseTable from "components/tables/UnripeMaterialWarehouseTable.vue";
-
-const material = useMaterial();
-const materials = ref([]);
+import { computed, onMounted, ref } from "vue";
+import { useRipeMaterial } from "stores/ripeMaterial.js";
+import RipeMaterialWarehouseTable from "components/tables/RipeMaterialWarehouseTable.vue";
+//
+const ripeMaterial = useRipeMaterial();
+const ripeMaterials = ref([]);
 const total = ref(0);
 const loading = ref(false);
 const pagination = ref({
@@ -15,12 +15,12 @@ const pagination = ref({
 })
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage))
 
-function getMaterials (filterProps) {
+function getRipeMaterials (filterProps) {
   loading.value = true;
 
-  material.fetchMaterials(filterProps || '')
+  ripeMaterial.fetchRipeMaterials(filterProps || '')
     .then((res) => {
-      materials.value = res.data['hydra:member'];
+      ripeMaterials.value = res.data['hydra:member'];
       total.value = res.data['hydra:totalItems'];
     })
     .finally(() => {
@@ -29,13 +29,13 @@ function getMaterials (filterProps) {
 }
 
 onMounted(() => {
-  getMaterials();
+  getRipeMaterials();
 })
 </script>
 
 <template>
-  <unripe-material-warehouse-table
-    :materials="materials"
+  <ripe-material-warehouse-table
+    :materials="ripeMaterials"
     :pagination="pagination"
     :loading="loading"
   />
@@ -51,7 +51,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getMaterials({ page: pagination.page })"
+      @update:model-value="getRipeMaterials({ page: pagination.page })"
     />
   </div>
 </template>

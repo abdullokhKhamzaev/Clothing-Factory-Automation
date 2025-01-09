@@ -2,14 +2,16 @@
 import { computed, onMounted, ref } from "vue";
 import { useThread } from "stores/thread.js";
 import { useMaterial } from "stores/material.js";
+import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useColor } from "stores/color.js";
 import ThreadTable from "components/tables/ThreadTable.vue";
-import MaterialTable from "components/tables/MaterialTable.vue";
+import UnripeMaterialTable from "components/tables/UnripeMaterialTable.vue";
 import FabricTable from "components/tables/FabricTable.vue";
 import FabricColorTable from "components/tables/FabricColorTable.vue";
+import RipeMaterialTable from "components/tables/RipeMaterialTable.vue";
 
-const tab = ref('threads');
+const tab = ref('thread');
 
 const thread = useThread();
 const threads = ref([]);
@@ -58,6 +60,31 @@ function getMaterials (filterProps) {
     })
     .finally(() => {
       materialLoading.value = false;
+    });
+}
+
+const ripeMaterial = useRipeMaterial();
+const ripeMaterials = ref([]);
+const ripeMaterialTotal = ref(0);
+const ripeMaterialLoading = ref(false);
+const ripeMaterialPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const ripeMaterialPagesNumber = computed(() => Math.ceil(ripeMaterialTotal.value / ripeMaterialPagination.value.rowsPerPage));
+function getRipeMaterials (filterProps) {
+  let props = filterProps || {};
+  ripeMaterialLoading.value = true;
+
+  ripeMaterial.fetchRipeMaterials(props || '')
+    .then((res) => {
+      ripeMaterials.value = res.data['hydra:member'];
+      ripeMaterialTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      ripeMaterialLoading.value = false;
     });
 }
 
@@ -122,6 +149,12 @@ function getColors (filterProps) {
      descending: true,
      rowsNumber: 0
    };
+   ripeMaterialPagination.value = {
+     rowsPerPage: 10,
+     page: 1,
+     descending: true,
+     rowsNumber: 0
+   };
    fabricPagination.value = {
      rowsPerPage: 10,
      page: 1,
@@ -136,6 +169,7 @@ function getColors (filterProps) {
    };
    getThreads();
    getMaterials();
+   getRipeMaterials();
    getFabrics();
    getColors();
  }
@@ -156,10 +190,11 @@ onMounted(() => {
       class="shadow-2 text-primary"
       :class="$q.screen.xs ? 'full-width' : ''"
     >
-      <q-tab name="threads" :label="$t('threads')"/>
-      <q-tab name="materials" :label="$t('materials')"/>
-      <q-tab name="fabrics" :label="$t('fabrics')"/>
-      <q-tab name="colors" :label="$t('colors')"/>
+      <q-tab name="thread" :label="$t('tables.thread.header.title')"/>
+      <q-tab name="unripeMaterial" :label="$t('tables.unripeMaterial.header.title')"/>
+      <q-tab name="ripeMaterial" :label="$t('tables.ripeMaterial.header.title')"/>
+      <q-tab name="fabric" :label="$t('tables.fabric.header.title')"/>
+      <q-tab name="color" :label="$t('tables.color.header.title')"/>
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -169,7 +204,7 @@ onMounted(() => {
       v-model="tab"
       animated
     >
-      <q-tab-panel name="threads" class="q-pa-none">
+      <q-tab-panel name="thread" class="q-pa-none">
         <thread-table
           :threads="threads"
           :pagination="threadPagination"
@@ -192,8 +227,8 @@ onMounted(() => {
           />
         </div>
       </q-tab-panel>
-      <q-tab-panel name="materials" class="q-pa-none">
-        <material-table
+      <q-tab-panel name="unripeMaterial" class="q-pa-none">
+        <unripe-material-table
           :materials="materials"
           :pagination="materialPagination"
           :loading="materialLoading"
@@ -215,7 +250,30 @@ onMounted(() => {
           />
         </div>
       </q-tab-panel>
-      <q-tab-panel name="fabrics" class="q-pa-none">
+      <q-tab-panel name="ripeMaterial" class="q-pa-none">
+        <ripe-material-table
+          :materials="ripeMaterials"
+          :pagination="ripeMaterialPagination"
+          :loading="ripeMaterialLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="ripeMaterialTotal > ripeMaterialPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="ripeMaterialLoading"
+            v-model="ripeMaterialPagination.page"
+            input-class="text-bold text-black"
+            :max="ripeMaterialPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getRipeMaterials({ page: ripeMaterialPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="fabric" class="q-pa-none">
         <fabric-table
           :fabrics="fabrics"
           :pagination="fabricPagination"
@@ -238,7 +296,7 @@ onMounted(() => {
           />
         </div>
       </q-tab-panel>
-      <q-tab-panel name="colors" class="q-pa-none">
+      <q-tab-panel name="color" class="q-pa-none">
         <fabric-color-table
           :colors="colors"
           :pagination="colorPagination"

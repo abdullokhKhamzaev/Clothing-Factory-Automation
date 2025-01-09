@@ -107,13 +107,17 @@ export default {
       barCreate: 'Buy Thread',
       barPayDebt: 'Pay Thread Purchase Debt'
     },
-    material: {
-      barCreate: 'Create Material',
-      barEdit: 'Edit Material',
+    unripeMaterial: {
+      barCreate: 'Create Unripe Material',
+      barEdit: 'Edit Unripe Material',
     },
     unripeMaterialOrder: {
       barCreate: 'Create Unripe Material Order',
       barEdit: 'Edit Unripe Material Order',
+    },
+    ripeMaterial: {
+      barCreate: 'Create Ripe Material',
+      barEdit: 'Edit Ripe Material',
     },
     completedMaterialOrderReport: {
       barCreate: 'Report About Order',
@@ -258,7 +262,7 @@ export default {
         failure: 'There was an error buying thread.'
       }
     },
-    material: {
+    unripeMaterial: {
       fields: {
         name: {
           label: 'Name',
@@ -282,6 +286,74 @@ export default {
       buttons: {
         create: 'Create Material',
         edit: 'Edit Material'
+      },
+      confirmation: {
+        successCreated: 'Material was successfully created.',
+        successEdited: 'Material was successfully edited.',
+        successDeleted: 'Material was successfully deleted.',
+        failure: 'There was an error saving material.'
+      }
+    },
+    ripeMaterial: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        color: {
+          label: 'Color',
+          validation: {
+            required: 'Color is required.',
+          }
+        },
+        measurement: {
+          label: 'Measurement',
+          validation: {
+            required: 'Measurement is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        roll: {
+          label: 'Roll',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        quantitySort2: {
+          label: 'Quantity Sort 2',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        rollSort2: {
+          label: 'Roll Sort 2',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        priceSort2: {
+          label: 'Price Sort 2',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Create',
+        edit: 'Edit'
       },
       confirmation: {
         successCreated: 'Material was successfully created.',
@@ -506,20 +578,29 @@ export default {
         rollSort2: 'Roll sort 2',
         price: 'Price',
         payWorker: 'Worker price'
-      }
-    },
-    material: {
-      header: {
-        title: 'Material',
-        empty: 'There is no available material'
-      },
-      columns: {
-        name: 'Name',
-        quantity: 'Quantity',
       },
       buttons: {
         add: 'Add Material'
       },
+    },
+    ripeMaterial: {
+      header: {
+        title: 'Ripe Materials',
+        empty: 'There is no available Ripe Materials'
+      },
+      columns: {
+        name: 'Name',
+        paintFabricColor: 'Color',
+        quantity: 'Quantity',
+        roll: 'Roll',
+        quantitySort2: 'Quantity sort 2',
+        rollSort2: 'Roll sort 2',
+        price: 'Price',
+        priceSort2: 'Price sort 2'
+      },
+      buttons: {
+        add: 'Add'
+      }
     },
     unripeMaterialOrder: {
       header: {
