@@ -105,6 +105,7 @@ export default {
     },
     threadPurchase: {
       barCreate: 'Ip Sotib Olish',
+      barPayDebt: 'Ip Savdo Bo\'yicha Qarz To\'lash'
     },
     material: {
       barCreate: 'Material Yaratish',
@@ -235,6 +236,12 @@ export default {
             required: 'Miqdor talab qilinadi.',
           }
         },
+        debtQuantity: {
+          label: 'To\'lov miqdor',
+          validation: {
+            required: 'To\'lov miqdor talab qilinadi.',
+          }
+        },
         paidPrice: {
           label: 'To\'langan Miqdor',
           validation: {
@@ -244,6 +251,7 @@ export default {
       },
       buttons: {
         buy: 'Sotib olish',
+        payDebt: 'To\'lash'
       },
       confirmation: {
         successBought: 'Ip muvaffaqiyatli sotib olindi.',

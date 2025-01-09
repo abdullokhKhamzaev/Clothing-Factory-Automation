@@ -78,7 +78,7 @@ const columns = [
                 {{ formatFloatToInteger(props.row.paidPrice) }}
               </span>
               <span>
-                {{ props.row.currency.shortName }}
+                {{ props.row.budget.name }}
               </span>
             </span>
           </div>
@@ -94,7 +94,7 @@ const columns = [
                 {{ formatFloatToInteger(props.row.price) }}
               </span>
               <span>
-                {{ props.row.currency.shortName }}
+                {{ props.row.budget.name }}
               </span>
             </span>
           </div>

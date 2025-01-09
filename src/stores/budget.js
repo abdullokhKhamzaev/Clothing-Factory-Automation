@@ -26,5 +26,13 @@ export const useBudget = defineStore('budget', () => {
     }
   }
 
-  return { fetchBudgets, convert, add }
+  async function payDebt(data) {
+    try {
+      return client.post('/budgets/payDebt', data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  return { fetchBudgets, convert, add, payDebt }
 })

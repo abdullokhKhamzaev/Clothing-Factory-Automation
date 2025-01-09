@@ -104,7 +104,8 @@ export default {
       barEdit: 'Edit Thread',
     },
     threadPurchase: {
-      barCreate: 'Buy Thread'
+      barCreate: 'Buy Thread',
+      barPayDebt: 'Pay Thread Purchase Debt'
     },
     material: {
       barCreate: 'Create Material',
@@ -235,6 +236,12 @@ export default {
             required: 'Quantity is required.',
           }
         },
+        debtQuantity: {
+          label: 'Payment quantity',
+          validation: {
+            required: 'Payment quantity is required.',
+          }
+        },
         paidPrice: {
           label: 'Paid Price',
           validation: {
@@ -244,6 +251,7 @@ export default {
       },
       buttons: {
         buy: 'Buy',
+        payDebt: 'Pay'
       },
       confirmation: {
         successBought: 'Thread was successfully bought.',

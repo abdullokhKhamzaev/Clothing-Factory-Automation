@@ -179,11 +179,14 @@ function addAction() {
       loading.value = false;
     })
 }
-
-onMounted(() => {
+function refresh () {
   getBudgets();
   getTransactions();
   getThreadPurchases();
+}
+
+onMounted(() => {
+  refresh();
 })
 </script>
 
@@ -335,9 +338,9 @@ onMounted(() => {
       :class="$q.screen.xs ? 'full-width' : ''"
     >
       <q-tab name="transactions" :label="$t('transactions')" />
-      <q-tab name="threadPurchase" :label="$t('threadPurchase')" />
+      <q-tab name="threadPurchaseTab" :label="$t('threadPurchase')" />
     </q-tabs>
-    <q-btn size="md" icon="mdi-orbit-variant" color="dark" />
+    <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
 
   <div class="q-py-md">
@@ -364,11 +367,12 @@ onMounted(() => {
           />
         </div>
       </q-tab-panel>
-      <q-tab-panel name="threadPurchase" class="q-pa-none">
+      <q-tab-panel name="threadPurchaseTab" class="q-pa-none">
         <thread-purchase-table
           :purchases="threadPurchases"
           :pagination="threadPurchasePagination"
           :loading="threadPurchaseLoading"
+          @refresh="refresh"
         />
         <div
           v-if="threadPurchaseTotal > threadPurchasePagination.rowsPerPage"

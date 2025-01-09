@@ -81,7 +81,6 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      currency: selectedData.value.budget.currency['@id'],
       description: 'Ip sotib olish',
       budget: selectedData.value.budget['@id'],
       isOldInAndOut: false,

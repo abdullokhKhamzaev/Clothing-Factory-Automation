@@ -1,8 +1,11 @@
 <script setup>
+import { computed, onMounted, ref } from "vue";
+import { useBudget } from "stores/budget.js";
+import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
+import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
 let props = defineProps({
@@ -20,8 +23,60 @@ let props = defineProps({
     default: false
   }
 });
+const emit = defineEmits(['refresh']);
 
 const { t } = useI18n();
+const $q = useQuasar();
+const showPayModal = ref(false);
+const payActionErr = ref(null);
+const selectedData = ref({});
+const budgets = ref([]);
+const budgetLoading = ref(false);
+
+function getBudgets () {
+  budgetLoading.value = true;
+  useBudget().fetchBudgets('')
+    .then((res) => {
+      budgets.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      budgetLoading.value = false;
+    });
+}
+function clearAction () {
+  selectedData.value = {};
+  payActionErr.value = null;
+}
+function payAction () {
+  if (!selectedData.value.id) {
+    console.warn('empty data');
+    return;
+  }
+
+  const input = {
+    budget: selectedBudget.value[0]['@id'],
+    quantity: selectedData.value.debtQuantity,
+    description: `Ip savdo #${selectedData.value.id} Qarz to'landi`,
+    isIncome: false,
+    threadPurchase: selectedData.value['@id']
+  }
+
+  useBudget().payDebt(input)
+    .then(() => {
+      showPayModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.threadPurchase.confirmation.successCreated')
+      })
+      clearAction();
+      emit('refresh');
+    })
+    .catch((res) => {
+      payActionErr.value = res.response.data['hydra:description'];
+    })
+}
 
 const columns = [
   { name: 'id', label: t('tables.threadPurchase.columns.id'), align: 'left', field: 'id' },
@@ -34,6 +89,14 @@ const columns = [
   { name: 'transaction', label: t('tables.threadPurchase.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
+
+const selectedBudget = computed(() => {
+  return budgets.value.filter((budget) => budget.currency['@id'] === selectedData?.value?.currency['@id']);
+})
+
+onMounted(() => {
+  getBudgets();
+})
 </script>
 
 <template>
@@ -53,7 +116,7 @@ const columns = [
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.threadPurchase.header.title') }}</div>
       </div>
     </template>
@@ -72,7 +135,10 @@ const columns = [
           <div v-else-if="col.name === 'price'">
             {{ formatFloatToInteger(props.row.price * props.row.quantity) }} {{ props.row.currency.shortName }}
           </div>
-          <div v-else-if="col.name === 'paidPrice'">
+          <div
+            v-else-if="col.name === 'paidPrice'"
+            :class="(props.row.price * props.row.quantity) > props.row.paidPrice ? 'text-red' : 'text-green'"
+          >
             {{ formatFloatToInteger(props.row.paidPrice) }} {{ props.row.currency.shortName }}
           </div>
           <div v-else-if="col.name === 'transaction'">
@@ -96,6 +162,7 @@ const columns = [
               :label="$t('pay')"
               text-color="green"
               icon="mdi-cash"
+              @click="showPayModal = true; selectedData = props.row"
             />
           </div>
           <div v-else>
@@ -110,6 +177,53 @@ const columns = [
       </q-tr>
     </template>
   </q-table>
+  <q-dialog v-model="showPayModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="payAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="payActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.threadPurchase.barPayDebt') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="payActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ payActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            v-model.number="selectedData.debtQuantity"
+            :prefix="$t('debts') + `${((selectedData.price * selectedData.quantity) - selectedData.paidPrice)}`"
+            filled
+            type="number"
+            :label="$t('forms.threadPurchase.fields.debtQuantity.label')"
+            :rules="[ val => val && val <= ((selectedData.price * selectedData.quantity) - selectedData.paidPrice) || $t('forms.threadPurchase.fields.debtQuantity.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+
+        <q-separator />
+
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.threadPurchase.buttons.payDebt')" type="submit" color="primary" />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
 </template>
 
 <style scoped>
