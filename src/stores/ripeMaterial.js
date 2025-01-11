@@ -5,7 +5,9 @@ export const useRipeMaterial = defineStore('ripe_material', () => {
   async function fetchRipeMaterials(filterProps) {
     let url = ''
 
-    if (filterProps?.page) {
+    if (filterProps?.pagination === false) {
+      url = ''
+    } else if (filterProps?.page) {
       url += '?page=' + filterProps.page
     } else {
       url += '?page=1'

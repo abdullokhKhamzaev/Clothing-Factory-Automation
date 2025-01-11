@@ -8,8 +8,6 @@ import { useQuasar } from "quasar";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 const emit = defineEmits(['submit']);
-
-// Props
 let props = defineProps({
   threads: {
     type: Array,
@@ -28,14 +26,37 @@ let props = defineProps({
 
 const $q = useQuasar();
 const { t } = useI18n();
-const budget = useBudget();
-const budgets = ref([]);
-const user = useAbout();
+
+const selectedData = ref({});
 const showPurchaseModal = ref(false);
 const createActionErr = ref(null);
 
-const selectedData = ref({});
+const budget = useBudget();
+const budgets = ref([]);
 const budgetLoading = ref(false);
+function getBudgets() {
+  budgetLoading.value = true;
+  budget.fetchBudgets('')
+    .then((res) => {
+      budgets.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      budgetLoading.value = false;
+    });
+}
+const budgetOptions = computed(() => {
+  let options = [];
+  for (let i in budgets.value) {
+    options.push({
+      label: budgets.value[i].name,
+      value: budgets.value[i]
+    });
+  }
+  return options
+})
+
+const user = useAbout();
+
 const columns = [
   { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
@@ -49,16 +70,6 @@ const pagination = ref({
 })
 function getThreads() {
   emit('submit', { page: pagination.value.page });
-}
-function getBudgets() {
-  budgetLoading.value = true;
-  budget.fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
 }
 function clearAction() {
   selectedData.value = {};
@@ -112,16 +123,6 @@ function createAction() {
     })
 }
 
-const budgetOptions = computed(() => {
-  let options = [];
-  for (let i in budgets.value) {
-    options.push({
-      label: budgets.value[i].name,
-      value: budgets.value[i]
-    });
-  }
-  return options
-})
 const threadOptions = computed(() => {
   let options = [];
   for (let i in props.threads) {
@@ -231,7 +232,6 @@ onMounted(() => {
             filled
             emit-value
             map-options
-            :loading="budgetLoading"
             :options="threadOptions"
             :label="$t('forms.threadPurchase.fields.thread.label')"
             option-value="value"

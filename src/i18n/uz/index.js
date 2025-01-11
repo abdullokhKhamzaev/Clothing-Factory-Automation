@@ -119,6 +119,10 @@ export default {
       barCreate: 'Bo\'yalgan Material Yaratish',
       barEdit: 'Bo\'yalgan Material O\'zgartirish',
     },
+    ripeMaterialPurchase: {
+      barCreate: 'Pishgan Material Sotib Olish',
+      barPayDebt: 'Pishgan Material Savdo Bo\'yicha Qarz To\'lash'
+    },
     completedMaterialOrderReport: {
       barCreate: 'Zakaz Haqida Hisobot Berish',
     },
@@ -360,6 +364,78 @@ export default {
         successEdited: 'Material muvaffaqiyatli o\'zgartirildi.',
         successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
         failure: 'Material saqlashda xatolik yuz berdi.'
+      }
+    },
+    ripeMaterialPurchase: {
+      fields: {
+        ripeMaterial: {
+          label: 'Bo\'yalgan Material Nomi',
+          validation: {
+            required: 'Material Nomi talab qilinadi.',
+          }
+        },
+        budget: {
+          label: 'Qaysi hisobdan?',
+          validation: {
+            required: 'Hisob nomi talab qilinadi.',
+          }
+        },
+        price: {
+          label: '1 KG Narxi?',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        },
+        priceSort2: {
+          label: '1 KG (Sort 2) Narxi?',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        },
+        roll: {
+          label: 'Necha ro\'lon?',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        quantity: {
+          label: 'Necha kg?',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        quantitySort2: {
+          label: 'Necha kg (Sort 2)?',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        rollSort2: {
+          label: 'Necha ro\'lon (Sort 2)?',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        debtQuantity: {
+          label: 'To\'lov miqdor',
+          validation: {
+            required: 'To\'lov miqdor talab qilinadi.',
+          }
+        },
+        paidPrice: {
+          label: 'To\'langan Miqdor',
+          validation: {
+            required: 'To\'langan Miqdor talab qilinadi.',
+          }
+        }
+      },
+      buttons: {
+        buy: 'Sotib olish',
+        payDebt: 'To\'lash'
+      },
+      confirmation: {
+        successBought: 'Bo\'yalgan material muvaffaqiyatli sotib olindi.',
+        failure: 'Bo\'yalgan material sotib olishda xatolik yuz berdi.'
       }
     },
     unripeMaterialOrder: {

@@ -1,8 +1,14 @@
 <script setup>
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useQuasar } from "quasar";
+import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
+import { useAbout } from "stores/user/about.js";
+import { useBudget } from "stores/budget.js";
+import { useRipeMaterial } from "stores/ripeMaterial.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
-// Props
+const emit = defineEmits(['submit']);
 let props = defineProps({
   materials: {
     type: Array,
@@ -20,6 +26,12 @@ let props = defineProps({
 });
 
 const { t } = useI18n();
+const $q = useQuasar();
+const user = useAbout();
+
+const selectedData = ref({});
+const showPurchaseModal = ref(false);
+const createActionErr = ref(null);
 
 const columns = [
   { name: 'name', label: t('tables.ripeMaterial.columns.name'), align: 'left', field: 'name' },
@@ -29,6 +41,136 @@ const columns = [
   { name: 'rollSort2', label: t('tables.ripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
   { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' }
 ];
+
+const ripeMaterials = ref({});
+const materialLoading = ref(false);
+function getRipeMaterials () {
+  materialLoading.value = true;
+
+  useRipeMaterial().fetchRipeMaterials({ pagination: false })
+    .then((res) => {
+      ripeMaterials.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      materialLoading.value = false;
+    });
+}
+const ripeMaterialOptions = computed(() => {
+  let options = [];
+  for (let i in ripeMaterials.value) {
+    options.push({
+      label: ripeMaterials.value[i].name,
+      value: ripeMaterials.value[i]
+    });
+  }
+  return options
+})
+
+const budget = useBudget();
+const budgets = ref([]);
+const budgetLoading = ref(false);
+function getBudgets() {
+  budgetLoading.value = true;
+  budget.fetchBudgets('')
+    .then((res) => {
+      budgets.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      budgetLoading.value = false;
+    });
+}
+const budgetOptions = computed(() => {
+  let options = [];
+  for (let i in budgets.value) {
+    options.push({
+      label: budgets.value[i].name,
+      value: budgets.value[i]
+    });
+  }
+  return options
+})
+
+function clearAction() {
+  selectedData.value = {};
+  createActionErr.value = null;
+}
+function createAction() {
+  if (!user.about['@id']) {
+    console.warn('user not found');
+    return
+  }
+
+  let input;
+
+  if (selectedData.value.whichSort === 'sort1') {
+    input = {
+      ripeMaterial: selectedData.value.ripeMaterial['@id'],
+      quantity: selectedData.value.quantity,
+      price: String(selectedData.value.price),
+      roll: selectedData.value.roll,
+      totalPrice: String(selectedData.value.quantity * selectedData.value.price),
+      paidPrice: selectedData.value.paidPriceSort1,
+      budget: selectedData.value.budget['@id'],
+      purchasedBy: user.about['@id'],
+      transaction: [{
+        paidPrice: selectedData.value.paidPriceSort1,
+        createdBy: user.about['@id'],
+        isIncome: false,
+        description: 'Material sotib olish',
+        budget: selectedData.value.budget['@id'],
+        isOldInAndOut: false,
+        price: String(selectedData.value.quantity * selectedData.value.price)
+      }]
+    }
+  } else if (selectedData.value.whichSort === 'sort2') {
+    input = {
+      ripeMaterial: selectedData.value.ripeMaterial['@id'],
+      quantitySort2: selectedData.value.quantitySort2,
+      priceSort2: selectedData.value.priceSort2,
+      rollSort2: selectedData.value.rollSort2,
+      totalPrice: String(selectedData.value.quantitySort2 * selectedData.value.priceSort2),
+      paidPrice: selectedData.value.paidPriceSort2,
+      budget: selectedData.value.budget['@id'],
+      purchasedBy: user.about['@id'],
+      transaction: [{
+        paidPrice: selectedData.value.paidPriceSort2,
+        createdBy: user.about['@id'],
+        isIncome: false,
+        description: 'Material sotib olish',
+        budget: selectedData.value.budget['@id'],
+        isOldInAndOut: false,
+        price: String(selectedData.value.quantitySort2 * selectedData.value.priceSort2)
+      }]
+    }
+  }
+
+  useRipeMaterialPurchase().createPurchase(input)
+    .then(() => {
+      showPurchaseModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.successBought')
+      })
+      clearAction();
+      emit('submit');
+    })
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.failure')
+      })
+    })
+}
+
+onMounted(() => {
+  getBudgets();
+})
 </script>
 
 <template>
@@ -50,6 +192,7 @@ const columns = [
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
         <div class="q-table__title">{{ $t('tables.ripeMaterial.header.title') }}</div>
+        <q-btn no-caps :label="$t('tables.ripeMaterial.buttons.add')" color="primary" @click="getRipeMaterials(); showPurchaseModal = true" />
       </div>
     </template>
     <template v-slot:body="props">
@@ -75,4 +218,165 @@ const columns = [
       </q-tr>
     </template>
   </q-table>
+  <!-- Dialogs -->
+  <q-dialog v-model="showPurchaseModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="createAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.ripeMaterialPurchase.barCreate') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-select
+            v-model="selectedData.ripeMaterial"
+            filled
+            emit-value
+            map-options
+            :loading="materialLoading"
+            :options="ripeMaterialOptions"
+            :label="$t('forms.ripeMaterialPurchase.fields.ripeMaterial.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.ripeMaterialPurchase.fields.ripeMaterial.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+          <div class="col-12 q-gutter-sm">
+            <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort1" label="Sort 1" />
+            <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort2" label="Sort 2" />
+          </div>
+          <q-input
+            v-if="selectedData.whichSort === 'sort1'"
+            v-model="selectedData.quantity"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.quantity.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort1'"
+            v-model="selectedData.price"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.price.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.price.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort1'"
+            v-model.number="selectedData.roll"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.roll.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 || $t('forms.ripeMaterialPurchase.fields.roll.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-model="selectedData.paidPriceSort1"
+            v-if="selectedData.whichSort === 'sort1'"
+            :prefix="Number(selectedData.quantity * selectedData.price) + ':'"
+            :disable="!selectedData.budget || !selectedData.quantity || !selectedData.price"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.paidPrice.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantity * selectedData.price) || $t('forms.ripeMaterialPurchase.fields.paidPrice.validation.required')]"
+            hide-bottom-space
+            :class="selectedData.whichSort ? 'col-6' : 'col-12'"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort2'"
+            v-model="selectedData.quantitySort2"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.quantitySort2.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.quantitySort2.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort2'"
+            v-model="selectedData.priceSort2"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.priceSort2.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.priceSort2.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-model.number="selectedData.rollSort2"
+            v-if="selectedData.whichSort === 'sort2'"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.rollSort2.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 || $t('forms.ripeMaterialPurchase.fields.rollSort2.validation.required')]"
+            hide-bottom-space
+            class="col-6"
+          />
+          <q-input
+            v-model="selectedData.paidPriceSort2"
+            v-if="selectedData.whichSort === 'sort2'"
+            :prefix="Number(selectedData.quantitySort2 * selectedData.priceSort2) + ':'"
+            :disable="!selectedData.budget || !selectedData.quantitySort2 || !selectedData.priceSort2"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.paidPrice.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantitySort2 * selectedData.priceSort2) || $t('forms.ripeMaterialPurchase.fields.paidPrice.validation.required')]"
+            hide-bottom-space
+            :class="selectedData.whichSort ? 'col-6' : 'col-12'"
+          />
+          <q-select
+            v-model="selectedData.budget"
+            :disable="!selectedData.whichSort"
+            filled
+            emit-value
+            map-options
+            :loading="budgetLoading"
+            :options="budgetOptions"
+            :label="$t('forms.threadPurchase.fields.budget.label')"
+            option-value="value"
+            option-label="label"
+            :rules="[val => !!val || $t('forms.threadPurchase.fields.budget.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn no-caps :label="$t('forms.threadPurchase.buttons.buy')" type="submit" color="primary"/>
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
 </template>

@@ -119,6 +119,10 @@ export default {
       barCreate: 'Create Ripe Material',
       barEdit: 'Edit Ripe Material',
     },
+    ripeMaterialPurchase: {
+      barCreate: 'Buy Ripe Material',
+      barPayDebt: 'Pay Ripe Material Purchase Debt'
+    },
     completedMaterialOrderReport: {
       barCreate: 'Report About Order',
     },
@@ -360,6 +364,78 @@ export default {
         successEdited: 'Material was successfully edited.',
         successDeleted: 'Material was successfully deleted.',
         failure: 'There was an error saving material.'
+      }
+    },
+    ripeMaterialPurchase: {
+      fields: {
+        ripeMaterial: {
+          label: 'Ripe material name',
+          validation: {
+            required: 'name is required.',
+          }
+        },
+        budget: {
+          label: 'From Which Budget?',
+          validation: {
+            required: 'Budget name is required.',
+          }
+        },
+        price: {
+          label: '1kg price?',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        priceSort2: {
+          label: '1kg price sort 2?',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        roll: {
+          label: 'How many roll?',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        quantity: {
+          label: 'How many kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        quantitySort2: {
+          label: 'How many sort-2 kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        rollSort2: {
+          label: 'How many sort-2 roll?',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        debtQuantity: {
+          label: 'Payment quantity',
+          validation: {
+            required: 'Payment quantity is required.',
+          }
+        },
+        paidPrice: {
+          label: 'Paid Price',
+          validation: {
+            required: 'Paid Price',
+          }
+        },
+      },
+      buttons: {
+        buy: 'Buy',
+        payDebt: 'Pay'
+      },
+      confirmation: {
+        successBought: 'Ripe Material was successfully bought.',
+        failure: 'There was an error buying Ripe Material.'
       }
     },
     unripeMaterialOrder: {

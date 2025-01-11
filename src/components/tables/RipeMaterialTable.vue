@@ -269,7 +269,6 @@ onMounted(() => {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="createAction">
-        {{ selectedData }}
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"

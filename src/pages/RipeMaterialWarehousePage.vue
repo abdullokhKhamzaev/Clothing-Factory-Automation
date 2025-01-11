@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import RipeMaterialWarehouseTable from "components/tables/RipeMaterialWarehouseTable.vue";
-//
+
 const ripeMaterial = useRipeMaterial();
 const ripeMaterials = ref([]);
 const total = ref(0);
@@ -38,6 +38,7 @@ onMounted(() => {
     :materials="ripeMaterials"
     :pagination="pagination"
     :loading="loading"
+    @submit="getRipeMaterials"
   />
   <div
     v-if="total > pagination.rowsPerPage"
