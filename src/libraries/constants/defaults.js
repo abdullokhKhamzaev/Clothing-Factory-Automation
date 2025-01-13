@@ -1,5 +1,5 @@
 // export const TIMESTAMP_FORMAT = 'YYYY-MM-DD hh:mm A';
-// export const DATE_FORMAT = 'MM-DD-YYYY';
+export const DATE_FORMAT = 'YYYY-MM-DD';
 
 export const LANGUAGES = [
   {

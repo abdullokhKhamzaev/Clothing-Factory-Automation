@@ -123,6 +123,10 @@ export default {
       barCreate: 'Buy Ripe Material',
       barPayDebt: 'Pay Ripe Material Purchase Debt'
     },
+    paint: {
+      barCreate: 'Create Paint Order',
+      barEdit: 'Edit Paint Order',
+    },
     completedMaterialOrderReport: {
       barCreate: 'Report About Order',
     },
@@ -364,6 +368,62 @@ export default {
         successEdited: 'Material was successfully edited.',
         successDeleted: 'Material was successfully deleted.',
         failure: 'There was an error saving material.'
+      }
+    },
+    paint: {
+      fields: {
+        unripeMaterial: {
+          label: 'Unripe material',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        paintFabric: {
+          label: 'Choose fabric',
+          validation: {
+            required: 'Fabric is required.',
+          }
+        },
+        sentQuantitySort1: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        sentQuantitySort2: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        sentRollSort1: {
+          label: 'Roll',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        sentRollSort2: {
+          label: 'Roll',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        dealDate: {
+          label: 'Deal Date',
+          validation: {
+            required: 'Date is required.',
+          }
+        },
+      },
+      buttons: {
+        order: 'Create Order',
+        edit: 'Edit'
+      },
+      confirmation: {
+        successOrderCreated: 'Order was successfully created.',
+        successOrderEdited: 'Order was successfully edited.',
+        successOrderDeleted: 'Order was successfully deleted.',
+        failure: 'There was an error saving Order.'
       }
     },
     ripeMaterialPurchase: {
@@ -676,6 +736,30 @@ export default {
       },
       buttons: {
         add: 'Add'
+      }
+    },
+    paint: {
+      header: {
+        title: 'Paint Orders',
+        empty: 'There is no available Paint Orders'
+      },
+      columns: {
+        sentQuantitySort1: 'Quantity sort 1',
+        sentRollSort1: 'Roll sort 1',
+        sentQuantitySort2: 'Quantity sort 2',
+        sentRollSort2: 'Roll sort 2',
+        status: 'Status',
+        createdBy: 'Created By',
+        receivedBy: 'Received By',
+        paintFabric: 'Fabric',
+        createdAt: 'Created At',
+        receivedAt: 'Received At',
+        dealDate: 'Deal Date',
+        unripeMaterial: 'Unripe Material',
+        ripeMaterialOrderAccepteds: 'Description'
+      },
+      buttons: {
+        add: 'Add Order'
       }
     },
     unripeMaterialOrder: {

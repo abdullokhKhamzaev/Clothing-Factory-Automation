@@ -123,6 +123,10 @@ export default {
       barCreate: 'Pishgan Material Sotib Olish',
       barPayDebt: 'Pishgan Material Savdo Bo\'yicha Qarz To\'lash'
     },
+    paint: {
+      barCreate: 'Bo\'yoq zakaz yaratish',
+      barEdit: 'Zakaz o\'zgartirish',
+    },
     completedMaterialOrderReport: {
       barCreate: 'Zakaz Haqida Hisobot Berish',
     },
@@ -364,6 +368,62 @@ export default {
         successEdited: 'Material muvaffaqiyatli o\'zgartirildi.',
         successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
         failure: 'Material saqlashda xatolik yuz berdi.'
+      }
+    },
+    paint: {
+      fields: {
+        unripeMaterial: {
+          label: 'Hom material',
+          validation: {
+            required: 'Nom talab qilinadi.',
+          }
+        },
+        paintFabric: {
+          label: 'Fabrikani tanlang',
+          validation: {
+            required: 'Fabrika talab qilinadi.',
+          }
+        },
+        sentQuantitySort1: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        sentQuantitySort2: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        sentRollSort1: {
+          label: 'Ro\'lon',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        sentRollSort2: {
+          label: 'Ro\'lon',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        dealDate: {
+          label: 'Kelishilgan vaqt',
+          validation: {
+            required: 'Muddat talab qilinadi.',
+          }
+        },
+      },
+      buttons: {
+        order: 'Zakaz Yaratish',
+        edit: 'O\'zgartirish'
+      },
+      confirmation: {
+        successOrderCreated: 'Zakaz muvaffaqiyatli yaratildi.',
+        successOrderEdited: 'Zakaz muvaffaqiyatli o\'zgartirildi.',
+        successOrderDeleted: 'Zakaz muvaffaqiyatli o\'chirildi.',
+        failure: 'Zakaz saqlashda xatolik yuz berdi.'
       }
     },
     ripeMaterialPurchase: {
@@ -676,6 +736,30 @@ export default {
       },
       buttons: {
         add: 'Qp\'shish'
+      }
+    },
+    paint: {
+      header: {
+        title: 'Bo\'yoq Zakazlar',
+        empty: 'Hech qanday Zakaz mavjud emas'
+      },
+      columns: {
+        sentQuantitySort1: 'Miqdor sort 1',
+        sentRollSort1: 'Ro\'lon sort 1',
+        sentQuantitySort2: 'Miqdor sort 2',
+        sentRollSort2: 'Ro\'lon sort 2',
+        status: 'Holat',
+        createdBy: 'Yaratgan',
+        receivedBy: 'Qabul qilgan',
+        paintFabric: 'Fabrika',
+        createdAt: 'Yaratilgan vaqt',
+        receivedAt: 'Qabul vaqt',
+        dealDate: 'Kelishilgan vaqt',
+        unripeMaterial: 'Hom material',
+        ripeMaterialOrderAccepteds: 'Tasnif'
+      },
+      buttons: {
+        add: 'Zakaz qo\'shish'
       }
     },
     unripeMaterialOrder: {
