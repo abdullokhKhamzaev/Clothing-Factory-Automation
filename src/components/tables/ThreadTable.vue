@@ -209,12 +209,12 @@ onMounted(() => {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div class="flex justify-end" v-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn size="md" color="primary" rounded dense icon="edit" @click="showThreadUpdateModal = true; selectedData = props.row">
+              <q-btn size="md" color="primary" rounded dense icon="edit" @click="showThreadUpdateModal = true; selectedData = {...props.row}">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('edit') }}
                 </q-tooltip>
               </q-btn>
-              <q-btn size="md" color="red" rounded dense icon="delete" @click="showThreadDeleteModal = true; selectedData = props.row">
+              <q-btn size="md" color="red" rounded dense icon="delete" @click="showThreadDeleteModal = true; selectedData = {...props.row}">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('delete') }}
                 </q-tooltip>

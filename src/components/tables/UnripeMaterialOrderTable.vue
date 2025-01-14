@@ -327,7 +327,7 @@ onMounted(() => {
           <div v-if="col.name === 'action'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
 <!--              <q-btn-->
-<!--                size="md" color="primary" rounded dense icon="edit" @click="selectedData = props.row; prefill(); showOrderEditModal = true;"-->
+<!--                size="md" color="primary" rounded dense icon="edit" @click="selectedData = {...props.row}; prefill(); showOrderEditModal = true;"-->
 <!--              >-->
 <!--                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">-->
 <!--                  {{ $t('edit') }}-->
@@ -335,7 +335,7 @@ onMounted(() => {
 <!--              </q-btn>-->
               <q-btn
                 v-if="props.row.status === 'pending'"
-                size="md" color="red" rounded dense icon="delete" @click="showOrderDeleteModal = true; selectedData = props.row"
+                size="md" color="red" rounded dense icon="delete" @click="showOrderDeleteModal = true; selectedData = {...props.row}"
               >
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('delete') }}
@@ -348,7 +348,7 @@ onMounted(() => {
                 :label="$t('finish')"
                 size="md"
                 color="primary"
-                @click="showOrderFinishModal = true; selectedData = props.row"
+                @click="showOrderFinishModal = true; selectedData = {...props.row}"
               />
             </div>
           </div>

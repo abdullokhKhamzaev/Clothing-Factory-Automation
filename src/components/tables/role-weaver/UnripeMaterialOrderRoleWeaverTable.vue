@@ -210,7 +210,7 @@ onMounted(() => {
               :label="$t('accept')"
               size="md"
               color="green"
-              @click="selectedData = props.row; showAcceptModal = true"
+              @click="selectedData = {...props.row}; showAcceptModal = true"
             />
             <q-btn
               v-else-if="shouldShowAction(props.row.completedUnripeMaterialOrders)"
@@ -220,7 +220,7 @@ onMounted(() => {
               size="md"
               color="orange"
               :label="$t('report')"
-              @click="selectedData = props.row; prefill(); showOrderReportModal = true;"
+              @click="selectedData = {...props.row}; prefill(); showOrderReportModal = true;"
             />
           </div>
           <div v-else-if="col.name === 'material'">

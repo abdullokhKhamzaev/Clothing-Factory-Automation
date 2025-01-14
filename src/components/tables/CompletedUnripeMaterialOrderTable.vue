@@ -142,7 +142,7 @@ onMounted(() => {
                 no-wrap
                 color="green"
                 icon-right="mdi-check"
-                @click="selectedData = props.row; showAcceptModal = true;"
+                @click="selectedData = {...props.row}; showAcceptModal = true;"
               >
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('accept') }}
@@ -155,7 +155,7 @@ onMounted(() => {
                 size="md"
                 color="red"
                 icon-right="mdi-cancel"
-                @click="selectedData = props.row; showRejectModal = true;"
+                @click="selectedData = {...props.row}; showRejectModal = true;"
               >
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('reject') }}

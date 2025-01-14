@@ -162,7 +162,7 @@ onMounted(() => {
               :label="$t('pay')"
               text-color="green"
               icon="mdi-cash"
-              @click="showPayModal = true; selectedData = props.row"
+              @click="showPayModal = true; selectedData = {...props.row}"
             />
           </div>
           <div v-else>

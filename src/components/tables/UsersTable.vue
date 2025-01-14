@@ -358,12 +358,12 @@ onMounted(() => {
 
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap justify-end q-gutter-x-sm">
-              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = props.row; prefill(); showUpdateModal = true;">
+              <q-btn size="md" color="primary" rounded dense icon='edit' @click="selectedData = {...props.row}; prefill(); showUpdateModal = true;">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('edit') }}
                 </q-tooltip>
               </q-btn>
-              <q-btn size="md" color="red" rounded dense icon='delete' @click="selectedData = props.row; showDeleteModal = true;">
+              <q-btn size="md" color="red" rounded dense icon='delete' @click="selectedData = {...props.row}; showDeleteModal = true;">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('delete') }}
                 </q-tooltip>
