@@ -32,6 +32,7 @@ export default {
   warehouse: 'Warehouse',
   waiting: 'Waiting',
   waitingOrders: 'Waiting orders',
+  receive: 'Receive',
   statuses: {
     accepted: 'Accepted',
     notAccepted: 'Not Accepted',
@@ -118,6 +119,9 @@ export default {
     ripeMaterial: {
       barCreate: 'Create Ripe Material',
       barEdit: 'Edit Ripe Material',
+    },
+    ripeMaterialAccepted: {
+      barAccept: 'Accept Ripe Material',
     },
     ripeMaterialPurchase: {
       barCreate: 'Buy Ripe Material',
@@ -368,6 +372,71 @@ export default {
         successEdited: 'Material was successfully edited.',
         successDeleted: 'Material was successfully deleted.',
         failure: 'There was an error saving material.'
+      }
+    },
+    ripeMaterialAccepted: {
+      fields: {
+        ripeMaterial: {
+          label: 'Select ripe material',
+          validation: {
+            required: 'Material is required.',
+          }
+        },
+        receivedQuantitySort1: {
+          label: 'Quantity Sort 1',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        receivedRollSort1: {
+          label: 'Roll Sort 1',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        receivedQuantitySort2: {
+          label: 'Quantity Sort 2',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        receivedRollSort2: {
+          label: 'Roll Sort 2',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        budget: {
+          label: 'Select budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
+        servicePrice: {
+          label: 'Service Price',
+          validation: {
+            required: 'Service Price is required.',
+          }
+        },
+        price: {
+          label: 'How much for 1 kg?',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        payedPrice: {
+          label: 'Payed Price',
+          validation: {
+            required: 'Payed Price is required.',
+          }
+        },
+      },
+      buttons: {
+        accept: 'Accept'
+      },
+      confirmation: {
+        successAccepted: 'Ripe Material was successfully accepted.',
+        failure: 'There was an error saving Ripe Material.'
       }
     },
     paint: {

@@ -32,6 +32,7 @@ export default {
   warehouse: 'Ombor',
   waiting: 'Kutilmoqda',
   waitingOrders: 'Kutilayotgan zakazlar',
+  receive: 'Qabul qilish',
   statuses: {
     accepted: 'Qabul qilingan',
     notAccepted: 'Qabul qilinmagan',
@@ -118,6 +119,9 @@ export default {
     ripeMaterial: {
       barCreate: 'Bo\'yalgan Material Yaratish',
       barEdit: 'Bo\'yalgan Material O\'zgartirish',
+    },
+    ripeMaterialAccepted: {
+      barAccept: 'Material Qabul Qilish',
     },
     ripeMaterialPurchase: {
       barCreate: 'Pishgan Material Sotib Olish',
@@ -367,6 +371,71 @@ export default {
         successCreated: 'Material muvaffaqiyatli yaratildi.',
         successEdited: 'Material muvaffaqiyatli o\'zgartirildi.',
         successDeleted: 'Material muvaffaqiyatli o\'chirildi.',
+        failure: 'Material saqlashda xatolik yuz berdi.'
+      }
+    },
+    ripeMaterialAccepted: {
+      fields: {
+        ripeMaterial: {
+          label: 'Materialni tanlash',
+          validation: {
+            required: 'Material talab qilinadi.',
+          }
+        },
+        receivedQuantitySort1: {
+          label: 'Miqdor Sort 1',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        receivedRollSort1: {
+          label: 'Ro\'lon Sort 1',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        receivedQuantitySort2: {
+          label: 'Miqdor Sort 2',
+          validation: {
+            required: 'Miqdor talab qilinadi.',
+          }
+        },
+        receivedRollSort2: {
+          label: 'Ro\'lon Sort 2',
+          validation: {
+            required: 'Ro\'lon talab qilinadi.',
+          }
+        },
+        budget: {
+          label: 'Hisobni tanlang',
+          validation: {
+            required: 'Hisobni talab qilinadi.',
+          }
+        },
+        servicePrice: {
+          label: 'Xizmat narxi',
+          validation: {
+            required: 'Xizmat narxi talab qilinadi.',
+          }
+        },
+        price: {
+          label: '1 kg qancha?',
+          validation: {
+            required: 'Narx talab qilinadi.',
+          }
+        },
+        payedPrice: {
+          label: 'To\'langan summa',
+          validation: {
+            required: 'Summa talab qilinadi.',
+          }
+        },
+      },
+      buttons: {
+        accept: 'Qabul qilish'
+      },
+      confirmation: {
+        successAccepted: 'Material muvaffaqiyatli qabul qilindi.',
         failure: 'Material saqlashda xatolik yuz berdi.'
       }
     },

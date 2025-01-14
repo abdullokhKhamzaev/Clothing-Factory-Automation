@@ -133,13 +133,13 @@ onMounted(() => {
             {{ formatFloatToInteger(props.row.quantity) }} {{ props.row.thread.measurement }}
           </div>
           <div v-else-if="col.name === 'price'">
-            {{ formatFloatToInteger(props.row.price * props.row.quantity) }} {{ props.row.currency.shortName }}
+            {{ formatFloatToInteger(props.row.price * props.row.quantity) }}
           </div>
           <div
             v-else-if="col.name === 'paidPrice'"
             :class="(props.row.price * props.row.quantity) > props.row.paidPrice ? 'text-red' : 'text-green'"
           >
-            {{ formatFloatToInteger(props.row.paidPrice) }} {{ props.row.currency.shortName }}
+            {{ formatFloatToInteger(props.row.paidPrice) }}
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
