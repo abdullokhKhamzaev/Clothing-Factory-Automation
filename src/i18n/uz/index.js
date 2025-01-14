@@ -805,7 +805,7 @@ export default {
         priceSort2: 'Price sort 2'
       },
       buttons: {
-        add: 'Qp\'shish'
+        add: 'Qo\'shish'
       }
     },
     paint: {

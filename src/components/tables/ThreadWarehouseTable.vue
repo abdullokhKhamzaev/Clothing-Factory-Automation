@@ -85,6 +85,7 @@ function createAction() {
     thread: selectedData.value.thread,
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
+    totalPrice: String(selectedData.value.quantity * selectedData.value.price),
     currency: selectedData.value.budget.currency['@id'],
     paidPrice: selectedData.value.paidPrice,
     purchasedBy: user.about['@id'],
@@ -98,6 +99,8 @@ function createAction() {
       price: String(selectedData.value.quantity * selectedData.value.price)
     }]
   }
+
+  input.isPayed = selectedData.value.paidPrice === selectedData.value.price;
 
   useThreadPurchase().createPurchase(input)
     .then(() => {
@@ -176,7 +179,6 @@ onMounted(() => {
 
             <div v-if="col.name === 'price'">
               <span> {{ props.row.price * props.row.quantity }} </span>
-              <span class="text-weight-bolder"> ({{ props.row.budget.currency.symbol }}) </span>
             </div>
           </q-td>
         </q-tr>
