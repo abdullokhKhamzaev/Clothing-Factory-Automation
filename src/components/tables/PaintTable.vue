@@ -39,6 +39,7 @@ const showDeleteModal = ref(false);
 const showReceiveModal = ref(false);
 const createActionErr = ref(null);
 const receiveActionErr = ref(null);
+const showOrderFinishModal = ref(false);
 const paintLoading = ref(false);
 
 const unripeMaterials = ref({});
@@ -302,6 +303,41 @@ function deleteAction() {
     })
     .finally(() => paintLoading.value = false)
 }
+function finishOrderAction() {
+  if (!selectedData.value.id || !user.about['@id']) {
+    console.warn('data is empty');
+    return
+  }
+
+  paintLoading.value = true;
+
+  const input = {
+    status: 'accepted',
+    receivedBy: user.about['@id']
+  }
+
+  useRipeMaterialOrder().completeRipeMaterialOrder(selectedData.value.id, input)
+    .then(() => {
+      showOrderFinishModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.paint.confirmation.successOrderCompleted')
+      })
+      clearAction();
+      emit('submit');
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.paint.confirmation.failure')
+      })
+    })
+    .finally(() => paintLoading.value = false);
+}
 
 onMounted(() => {
   getUnRipeMaterials();
@@ -336,20 +372,38 @@ onMounted(() => {
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div v-if="col.name === 'action'" class="flex justify-end">
+          <div v-if="col.name === 'action' && props.row.status === 'expected'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
-                v-if="props.row.status === 'expected'"
-                no-caps
-                no-wrap
                 size="md"
-                :label="$t('receive')"
+                rounded dense
+                icon="mdi-arrow-down-bold"
                 color="green"
                 @click="showReceiveModal = true; selectedData = {...props.row}"
-              />
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('receive') }}
+                </q-tooltip>
+              </q-btn>
               <q-btn
-                v-if="props.row.status === 'expected' && !props.row.ripeMaterialOrderAccepteds.length"
-                size="md" color="red" rounded dense icon="delete"
+                v-if="props.row.ripeMaterialOrderAccepteds.length"
+                size="md"
+                rounded dense
+                icon="mdi-store-check"
+                color="primary"
+                @click="showOrderFinishModal = true; selectedData = {...props.row}"
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('finish') }}
+                </q-tooltip>
+              </q-btn>
+              <q-btn
+                v-else
+                size="md"
+                color="red"
+                rounded
+                dense
+                icon="delete"
                 @click="showDeleteModal = true; selectedData = {...props.row}"
               >
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
@@ -682,6 +736,22 @@ onMounted(() => {
         </div>
       </q-form>
     </div>
+  </q-dialog>
+  <q-dialog v-model="showOrderFinishModal" persistent>
+    <q-card>
+      <q-card-section class="row q-pb-none">
+        <div class="text-h6"> {{ $t('dialogs.complete.bar') }}</div>
+      </q-card-section>
+
+      <q-card-section>
+        {{ $t('dialogs.complete.info') }}
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-px-md q-mb-sm">
+        <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup @click="clearAction"/>
+        <q-btn :label="$t('dialogs.complete.buttons.complete')" color="primary" @click="finishOrderAction"/>
+      </q-card-actions>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showDeleteModal" persistent>
     <q-card>

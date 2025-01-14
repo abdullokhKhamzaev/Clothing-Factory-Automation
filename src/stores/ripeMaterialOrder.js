@@ -35,6 +35,14 @@ export const useRipeMaterialOrder = defineStore('ripe_material_order', () => {
     }
   }
 
+  function completeRipeMaterialOrder(id, data) {
+    try {
+      return client.put('ripe_material_orders/' + id, data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   function deleteRipeMaterialOrder(id) {
     try {
       return client.delete('ripe_material_orders/' + id)
@@ -43,5 +51,5 @@ export const useRipeMaterialOrder = defineStore('ripe_material_order', () => {
     }
   }
 
-  return { fetchRipeMaterialOrder, createRipeMaterialOrder, deleteRipeMaterialOrder }
+  return { fetchRipeMaterialOrder, createRipeMaterialOrder, completeRipeMaterialOrder, deleteRipeMaterialOrder }
 })

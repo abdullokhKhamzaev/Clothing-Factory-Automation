@@ -490,6 +490,7 @@ export default {
       },
       confirmation: {
         successOrderCreated: 'Zakaz muvaffaqiyatli yaratildi.',
+        successOrderCompleted: 'Zakaz muvaffaqiyatli yakunlandi.',
         successOrderEdited: 'Zakaz muvaffaqiyatli o\'zgartirildi.',
         successOrderDeleted: 'Zakaz muvaffaqiyatli o\'chirildi.',
         failure: 'Zakaz saqlashda xatolik yuz berdi.'

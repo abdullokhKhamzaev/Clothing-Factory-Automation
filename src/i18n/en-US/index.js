@@ -490,6 +490,7 @@ export default {
       },
       confirmation: {
         successOrderCreated: 'Order was successfully created.',
+        successOrderCompleted: 'Order was successfully completed.',
         successOrderEdited: 'Order was successfully edited.',
         successOrderDeleted: 'Order was successfully deleted.',
         failure: 'There was an error saving Order.'
