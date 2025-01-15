@@ -27,6 +27,7 @@ export default {
   threads: 'Iplar',
   thread: 'Ip',
   threadPurchase: 'Ip savdosi',
+  ripeMaterialPurchase: 'Bo\'yalgan material savdosi',
   transactions: 'Tranzaksiyalar',
   quantity: 'Miqdor',
   warehouse: 'Ombor',
@@ -807,6 +808,30 @@ export default {
       buttons: {
         add: 'Qo\'shish'
       }
+    },
+    ripeMaterialPurchase: {
+      header: {
+        title: 'Pishgan Material Savdosi',
+        empty: 'Hech qanday Material Savdosi mavjud emas'
+      },
+      columns: {
+        id: 'Savdo ID',
+        createdAt: 'Sana',
+        ripeMaterial: 'Material',
+        quantity: 'Miqdor',
+        quantitySort2: 'Miqdor sort 2',
+        price: 'Narx',
+        priceSort2: 'Narx sort 2',
+        roll: 'Ro\'lon',
+        rollSort2: 'Ro\'lon sort 2',
+        paidPrice: 'To\'landi',
+        totalPrice: 'Umumiy narx',
+        purchasedBy: 'Kim',
+        transaction: 'Tasnif',
+      },
+      buttons: {
+        add: 'Ip Qo\'shish'
+      },
     },
     paint: {
       header: {

@@ -56,9 +56,9 @@ function payAction () {
   const input = {
     budget: selectedBudget.value[0]['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: `Ip savdo #${selectedData.value.id} Qarz to'landi`,
+    description: `Bo'yalgan material savdo #${selectedData.value.id} Qarz to'landi`,
     isIncome: false,
-    threadPurchase: selectedData.value['@id']
+    ripeMaterialPurchase: selectedData.value['@id']
   }
 
   useBudget().payDebt(input)
@@ -68,7 +68,7 @@ function payAction () {
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.threadPurchase.confirmation.successCreated')
+        message: t('forms.ripeMaterialPurchase.confirmation.successCreated')
       })
       clearAction();
       emit('refresh');
@@ -79,14 +79,19 @@ function payAction () {
 }
 
 const columns = [
-  { name: 'id', label: t('tables.threadPurchase.columns.id'), align: 'left', field: 'id' },
-  { name: 'createdAt', label: t('tables.threadPurchase.columns.createdAt'), align: 'left', field: 'createdAt' },
-  { name: 'purchasedBy', label: t('tables.threadPurchase.columns.purchasedBy'), align: 'left', field: 'purchasedBy' },
-  { name: 'thread', label: t('tables.threadPurchase.columns.thread'), align: 'left', field: 'thread' },
-  { name: 'quantity', label: t('tables.threadPurchase.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'price', label: t('tables.threadPurchase.columns.price'), align: 'left', field: 'price' },
-  { name: 'paidPrice', label: t('tables.threadPurchase.columns.paidPrice'), align: 'left', field: 'paidPrice' },
-  { name: 'transaction', label: t('tables.threadPurchase.columns.transaction'), align: 'left', field: 'transaction' },
+  { name: 'id', label: t('tables.ripeMaterialPurchase.columns.id'), align: 'left', field: 'id' },
+  { name: 'createdAt', label: t('tables.ripeMaterialPurchase.columns.createdAt'), align: 'left', field: 'createdAt' },
+  { name: 'purchasedBy', label: t('tables.ripeMaterialPurchase.columns.purchasedBy'), align: 'left', field: 'purchasedBy' },
+  { name: 'ripeMaterial', label: t('tables.ripeMaterialPurchase.columns.ripeMaterial'), align: 'left', field: 'ripeMaterial' },
+  { name: 'quantity', label: t('tables.ripeMaterialPurchase.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'quantitySort2', label: t('tables.ripeMaterialPurchase.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
+  { name: 'price', label: t('tables.ripeMaterialPurchase.columns.price'), align: 'left', field: 'price' },
+  { name: 'priceSort2', label: t('tables.ripeMaterialPurchase.columns.priceSort2'), align: 'left', field: 'priceSort2' },
+  { name: 'roll', label: t('tables.ripeMaterialPurchase.columns.roll'), align: 'left', field: 'roll' },
+  { name: 'rollSort2', label: t('tables.ripeMaterialPurchase.columns.rollSort2'), align: 'left', field: 'rollSort2' },
+  { name: 'totalPrice', label: t('tables.ripeMaterialPurchase.columns.totalPrice'), align: 'left', field: 'totalPrice' },
+  { name: 'paidPrice', label: t('tables.ripeMaterialPurchase.columns.paidPrice'), align: 'left', field: 'paidPrice' },
+  { name: 'transaction', label: t('tables.ripeMaterialPurchase.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
 
@@ -109,7 +114,7 @@ onMounted(() => {
     bordered
     :rows="props.purchases"
     :columns="columns"
-    :no-data-label="$t('tables.threadPurchase.header.empty')"
+    :no-data-label="$t('tables.ripeMaterialPurchase.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
@@ -117,20 +122,20 @@ onMounted(() => {
   >
     <template v-slot:top>
       <div class="col-12">
-        <div class="q-table__title">{{ $t('tables.threadPurchase.header.title') }}</div>
+        <div class="q-table__title">{{ $t('tables.ripeMaterialPurchase.header.title') }}</div>
       </div>
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'purchasedBy'">
-            {{ props.row.purchasedBy.fullName }}
+            {{ props.row.purchasedBy }}
           </div>
-          <div v-else-if="col.name === 'thread'">
-            {{ props.row.thread.name }}
+          <div v-else-if="col.name === 'ripeMaterial'">
+            {{ props.row.ripeMaterial }}
           </div>
           <div v-else-if="col.name === 'quantity'">
-            {{ formatFloatToInteger(props.row.quantity) }} {{ props.row.thread.measurement }}
+            {{ formatFloatToInteger(props.row.quantity) }}
           </div>
           <div v-else-if="col.name === 'price'">
             {{ formatFloatToInteger(props.row.price * props.row.quantity) }}
@@ -157,9 +162,9 @@ onMounted(() => {
             <q-btn
               class="q-px-sm"
               outline
+              no-wrap
               dense
               no-caps
-              no-wrap
               :label="$t('pay')"
               text-color="green"
               icon="mdi-cash"
@@ -183,9 +188,6 @@ onMounted(() => {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <pre>
-        {{ selectedData }}
-      </pre>
       <q-form @submit.prevent="payAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"

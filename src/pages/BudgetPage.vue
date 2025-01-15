@@ -4,9 +4,11 @@ import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
 import { useTransaction } from 'src/stores/transaction.js'
 import { useThreadPurchase } from 'src/stores/threadPurchase.js'
+import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
 import TransactionTable from "components/tables/TransactionTable.vue";
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
 import ThreadPurchaseTable from "components/tables/ThreadPurchaseTable.vue";
+import RipeMaterialPurchaseTable from "components/tables/RipeMaterialPurchaseTable.vue";
 
 const $q = useQuasar();
 const tab = ref('transactions')
@@ -100,6 +102,32 @@ function getThreadPurchases (filterProps) {
     });
 }
 
+const ripeMaterialPurchase = useRipeMaterialPurchase();
+const ripeMaterialPurchases = ref([]);
+const ripeMaterialPurchaseTotal = ref([]);
+const ripeMaterialPurchaseLoading = ref(false);
+const ripeMaterialPurchasePagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const ripeMaterialPurchasePagesNumber = computed(() => Math.ceil(ripeMaterialPurchaseTotal.value / ripeMaterialPurchasePagination.value.rowsPerPage));
+function getRipeMaterialPurchases (filterProps) {
+  let props = filterProps || {};
+
+  ripeMaterialPurchaseLoading.value = true;
+
+  ripeMaterialPurchase.fetchPurchases(props || '')
+    .then((res) => {
+      ripeMaterialPurchases.value = res.data['hydra:member'];
+      ripeMaterialPurchaseTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      ripeMaterialPurchaseLoading.value = false;
+    });
+}
+
 function updateSelectedData (property) {
   const oppositeProperty = property === 'from' ? 'to' : 'from';
   selectedData.value[property] = budgetOptions.value.filter(option => option.value !== selectedData.value[oppositeProperty].value)[0];
@@ -180,9 +208,28 @@ function addAction() {
     })
 }
 function refresh () {
+  transactionPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  threadPurchasePagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  ripeMaterialPurchasePagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
   getBudgets();
   getTransactions();
   getThreadPurchases();
+  getRipeMaterialPurchases();
 }
 
 onMounted(() => {
@@ -339,6 +386,7 @@ onMounted(() => {
     >
       <q-tab name="transactions" :label="$t('transactions')" />
       <q-tab name="threadPurchaseTab" :label="$t('threadPurchase')" />
+      <q-tab name="ripeMaterialPurchaseTab" :label="$t('ripeMaterialPurchase')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -386,7 +434,30 @@ onMounted(() => {
             color="primary"
             input
             size="md"
-            @update:model-value="getTransactions({ page: threadPurchasePagination.page })"
+            @update:model-value="getThreadPurchases({ page: threadPurchasePagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="ripeMaterialPurchaseTab" class="q-pa-none">
+        <ripe-material-purchase-table
+          :purchases="ripeMaterialPurchases"
+          :pagination="ripeMaterialPurchasePagination"
+          :loading="ripeMaterialPurchaseLoading"
+          @refresh="refresh"
+        />
+        <div
+          v-if="ripeMaterialPurchaseTotal > ripeMaterialPurchasePagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="ripeMaterialPurchaseLoading"
+            v-model="ripeMaterialPurchasePagination.page"
+            input-class="text-bold text-black"
+            :max="ripeMaterialPurchasePagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getRipeMaterialPurchases({ page: ripeMaterialPurchasePagination.page })"
           />
         </div>
       </q-tab-panel>

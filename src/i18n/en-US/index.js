@@ -27,6 +27,7 @@ export default {
   thread: 'Thread',
   threads: 'Threads',
   threadPurchase: 'Thread Purchase',
+  ripeMaterialPurchase: 'Ripe Material Purchase',
   transactions: 'Transactions',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
@@ -807,6 +808,30 @@ export default {
       buttons: {
         add: 'Add'
       }
+    },
+    ripeMaterialPurchase: {
+      header: {
+        title: 'Ripe Material Purchase',
+        empty: 'There is no available Thread Purchase'
+      },
+      columns: {
+        id: 'Purchase ID',
+        createdAt: 'Created At',
+        ripeMaterial: 'Material',
+        quantity: 'Quantity',
+        quantitySort2: 'Quantity sort 2',
+        price: 'Price',
+        priceSort2: 'Price sort 2',
+        roll: 'Roll',
+        rollSort2: 'Roll sort 2',
+        paidPrice: 'Paid price',
+        totalPrice: 'Total Price',
+        purchasedBy: 'Purchased By',
+        transaction: 'Description',
+      },
+      buttons: {
+        add: 'Add Thread'
+      },
     },
     paint: {
       header: {
