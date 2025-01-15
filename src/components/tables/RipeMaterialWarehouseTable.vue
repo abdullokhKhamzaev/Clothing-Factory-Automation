@@ -102,46 +102,38 @@ function createAction() {
 
   let input;
 
-  if (selectedData.value.whichSort === 'sort1') {
+  const isSort1 = selectedData.value.whichSort === 'sort1';
+  const isSort2 = selectedData.value.whichSort === 'sort2';
+
+  if (isSort1 || isSort2) {
+    const quantity = isSort1 ? selectedData.value.quantity : selectedData.value.quantitySort2;
+    const price = isSort1 ? selectedData.value.price : selectedData.value.priceSort2;
+    const roll = isSort1 ? selectedData.value.roll : selectedData.value.rollSort2;
+    const paidPrice = isSort1 ? selectedData.value.paidPriceSort1 : selectedData.value.paidPriceSort2;
+    const totalPrice = String(quantity * price);
+
     input = {
       ripeMaterial: selectedData.value.ripeMaterial['@id'],
-      quantity: selectedData.value.quantity,
-      price: String(selectedData.value.price),
-      roll: selectedData.value.roll,
-      totalPrice: String(selectedData.value.quantity * selectedData.value.price),
-      paidPrice: selectedData.value.paidPriceSort1,
+      quantity: quantity,
+      price: String(price),
+      roll: roll,
+      totalPrice: totalPrice,
+      paidPrice: paidPrice,
       budget: selectedData.value.budget['@id'],
       purchasedBy: user.about['@id'],
       transaction: [{
-        paidPrice: selectedData.value.paidPriceSort1,
+        paidPrice: paidPrice,
         createdBy: user.about['@id'],
         isIncome: false,
         description: 'Material sotib olish',
         budget: selectedData.value.budget['@id'],
         isOldInAndOut: false,
-        price: String(selectedData.value.quantity * selectedData.value.price)
-      }]
-    }
-  } else if (selectedData.value.whichSort === 'sort2') {
-    input = {
-      ripeMaterial: selectedData.value.ripeMaterial['@id'],
-      quantitySort2: selectedData.value.quantitySort2,
-      priceSort2: selectedData.value.priceSort2,
-      rollSort2: selectedData.value.rollSort2,
-      totalPrice: String(selectedData.value.quantitySort2 * selectedData.value.priceSort2),
-      paidPrice: selectedData.value.paidPriceSort2,
-      budget: selectedData.value.budget['@id'],
-      purchasedBy: user.about['@id'],
-      transaction: [{
-        paidPrice: selectedData.value.paidPriceSort2,
-        createdBy: user.about['@id'],
-        isIncome: false,
-        description: 'Material sotib olish',
-        budget: selectedData.value.budget['@id'],
-        isOldInAndOut: false,
-        price: String(selectedData.value.quantitySort2 * selectedData.value.priceSort2)
-      }]
-    }
+        price: totalPrice
+      }],
+      isPayed: Number(paidPrice) === Number(totalPrice)
+    };
+  } else {
+    console.warn('sort is not found');
   }
 
   useRipeMaterialPurchase().createPurchase(input)
@@ -293,7 +285,7 @@ onMounted(() => {
             filled
             :label="$t('forms.ripeMaterialPurchase.fields.roll.label')"
             lazy-rules
-            :rules="[ val => val && val >= 0 || $t('forms.ripeMaterialPurchase.fields.roll.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.roll.validation.required')]"
             hide-bottom-space
             class="col-6"
           />
@@ -339,7 +331,7 @@ onMounted(() => {
             filled
             :label="$t('forms.ripeMaterialPurchase.fields.rollSort2.label')"
             lazy-rules
-            :rules="[ val => val && val >= 0 || $t('forms.ripeMaterialPurchase.fields.rollSort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.rollSort2.validation.required')]"
             hide-bottom-space
             class="col-6"
           />

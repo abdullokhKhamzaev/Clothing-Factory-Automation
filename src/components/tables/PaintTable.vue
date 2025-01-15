@@ -241,7 +241,7 @@ function receiveAction() {
     ]
   };
 
-  input.isPayed = selectedData.value.payedPrice === selectedData.value.servicePrice;
+  input.isPayed = Number(selectedData.value.payedPrice) === Number(selectedData.value.servicePrice);
 
   if (selectedData.value.whichSort === 1) {
     input.receivedQuantitySort1 = selectedData.value.receivedQuantitySort1;

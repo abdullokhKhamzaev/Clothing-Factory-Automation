@@ -86,7 +86,7 @@ function createAction() {
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
     totalPrice: String(selectedData.value.quantity * selectedData.value.price),
-    currency: selectedData.value.budget.currency['@id'],
+    budget: selectedData.value.budget['@id'],
     paidPrice: selectedData.value.paidPrice,
     purchasedBy: user.about['@id'],
     transaction: [{
@@ -100,7 +100,7 @@ function createAction() {
     }]
   }
 
-  input.isPayed = selectedData.value.paidPrice === selectedData.value.price;
+  input.isPayed = Number(selectedData.value.paidPrice) === Number(selectedData.value.quantity * selectedData.value.price);
 
   useThreadPurchase().createPurchase(input)
     .then(() => {
@@ -242,17 +242,6 @@ onMounted(() => {
             class="col-12"
             hide-bottom-space
           />
-          <q-input
-            v-model="selectedData.quantity"
-            type="number"
-            filled
-            :disable="!selectedData.thread"
-            :label="$t('forms.threadPurchase.fields.quantity.label')"
-            lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.quantity.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
           <q-select
             v-model="selectedData.budget"
             filled
@@ -264,8 +253,19 @@ onMounted(() => {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.threadPurchase.fields.budget.validation.required')]"
-            class="col-6"
+            class="col-12"
             hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.quantity"
+            type="number"
+            filled
+            :disable="!selectedData.thread"
+            :label="$t('forms.threadPurchase.fields.quantity.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-6"
           />
           <q-input
             v-model="selectedData.price"
