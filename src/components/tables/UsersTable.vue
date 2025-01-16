@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useCurrency } from "stores/currency.js";
 import { ROLES } from 'src/libraries/constants/defaults';
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -27,10 +28,9 @@ let props = defineProps({
 const $q = useQuasar();
 const { t } = useI18n();
 const emit = defineEmits(['submit']);
-const user = useUser();
 
+const user = useUser();
 const currency = useCurrency();
-const currencies = ref([]);
 
 // Dialogs
 const showCreateModal = ref(false);
@@ -44,7 +44,6 @@ const searchTitle = ref('');
 const selectedData = ref({});
 
 const userLoading = ref(false);
-const currencyLoading = ref(false);
 
 // table settings
 const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
@@ -65,30 +64,10 @@ const pagination = ref({
 
 // computed
 const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
-const currencyOptions = computed(() => {
-  let options = [];
-  for ( let i in currencies.value ) {
-    options.push( {
-      label: `${currencies.value[i].symbol} - ${currencies.value[i].name} (${currencies.value[i].shortName})`,
-      value: currencies.value[i]['@id']
-    } );
-  }
-  return options
-})
 
 // functions
 function getUsers() {
   emit('submit', { fullName: searchTitle.value, page: pagination.value.page });
-}
-function getCurrencies () {
-  currencyLoading.value = true;
-  currency.fetchCurrencies('?page=1')
-    .then((res) => {
-      currencies.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      currencyLoading.value = false;
-    });
 }
 function clearAction() {
   selectedData.value = {};
@@ -254,10 +233,6 @@ function exportTable(users) {
     });
   }
 }
-
-onMounted(() => {
-  getCurrencies();
-})
 </script>
 
 <template>
@@ -473,17 +448,14 @@ onMounted(() => {
             hide-bottom-space
             class="col-12"
           />
-          <q-select
-            filled
-            emit-value
-            map-options
+          <selectable-list
             v-model="selectedData.salaryCurrency"
-            :options="currencyOptions"
             :label="$t('forms.user.fields.currency.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
-            hide-bottom-space
+            :store="currency"
+            fetch-method="fetchCurrencies"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.user.fields.currency.validation.required')"
             class="col-12"
           />
           <q-input
@@ -549,17 +521,14 @@ onMounted(() => {
             hide-bottom-space
             class="col-12"
           />
-          <q-select
-            filled
-            emit-value
-            map-options
+          <selectable-list
             v-model="selectedData.salaryCurrency"
-            :options="currencyOptions"
             :label="$t('forms.user.fields.currency.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.user.fields.currency.validation.required')]"
-            hide-bottom-space
+            :store="currency"
+            fetch-method="fetchCurrencies"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.user.fields.currency.validation.required')"
             class="col-12"
           />
           <q-input

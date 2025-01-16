@@ -1,11 +1,13 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useThreadPurchase } from "stores/threadPurchase.js";
+import { useThread } from "stores/thread.js";
 import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 const emit = defineEmits(['submit']);
 let props = defineProps({
@@ -31,30 +33,8 @@ const selectedData = ref({});
 const showPurchaseModal = ref(false);
 const createActionErr = ref(null);
 
+const thread = useThread();
 const budget = useBudget();
-const budgets = ref([]);
-const budgetLoading = ref(false);
-function getBudgets() {
-  budgetLoading.value = true;
-  budget.fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
-}
-const budgetOptions = computed(() => {
-  let options = [];
-  for (let i in budgets.value) {
-    options.push({
-      label: budgets.value[i].name,
-      value: budgets.value[i]
-    });
-  }
-  return options
-})
-
 const user = useAbout();
 
 const columns = [
@@ -86,7 +66,7 @@ function createAction() {
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
     totalPrice: String(selectedData.value.quantity * selectedData.value.price),
-    budget: selectedData.value.budget['@id'],
+    budget: selectedData.value.budget,
     paidPrice: selectedData.value.paidPrice,
     purchasedBy: user.about['@id'],
     transaction: [{
@@ -94,7 +74,7 @@ function createAction() {
       createdBy: user.about['@id'],
       isIncome: false,
       description: 'Ip sotib olish',
-      budget: selectedData.value.budget['@id'],
+      budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)
     }]
@@ -125,22 +105,7 @@ function createAction() {
       })
     })
 }
-
-const threadOptions = computed(() => {
-  let options = [];
-  for (let i in props.threads) {
-    options.push({
-      label: props.threads[i].name,
-      value: props.threads[i]['@id']
-    });
-  }
-  return options;
-})
 const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
-
-onMounted(() => {
-  getBudgets();
-});
 </script>
 
 <template>
@@ -229,32 +194,25 @@ onMounted(() => {
           <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-select
+          <selectable-list
             v-model="selectedData.thread"
-            filled
-            emit-value
-            map-options
-            :options="threadOptions"
             :label="$t('forms.threadPurchase.fields.thread.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.threadPurchase.fields.thread.validation.required')]"
+            :store="thread"
+            fetch-method="fetchThreads"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.thread.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.budget"
-            filled
-            emit-value
-            map-options
-            :loading="budgetLoading"
-            :options="budgetOptions"
             :label="$t('forms.threadPurchase.fields.budget.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.threadPurchase.fields.budget.validation.required')]"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <q-input
             v-model="selectedData.quantity"

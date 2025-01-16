@@ -2,7 +2,15 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useBudget = defineStore('budget', () => {
-  async function fetchBudgets(url) {
+  async function fetchBudgets(filterProps) {
+    let url = ''
+
+    if (filterProps?.page) {
+      url += '?page=' + filterProps.page
+    } else {
+      url += '?page=1'
+    }
+
     try {
       return client.get('budgets' + url)
     } catch (e) {
