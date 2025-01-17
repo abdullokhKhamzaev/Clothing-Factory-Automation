@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
+import { useBudget } from "stores/budget.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import { useBudget } from "stores/budget.js";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -28,31 +29,7 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const thread = useThread();
-
 const budget = useBudget();
-const budgets = ref([]);
-const budgetLoading = ref(false);
-const budgetOptions = computed(() => {
-  let options = [];
-  for (let i in budgets.value) {
-    options.push({
-      label: budgets.value[i].name,
-      value: budgets.value[i]
-    });
-  }
-  return options
-})
-function getBudgets() {
-  budgetLoading.value = true;
-
-  budget.fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
-}
 
 const threadLoading = ref(false);
 const selectedData = ref({});
@@ -75,10 +52,6 @@ function createThreadAction() {
 
   if ( selectedData?.value?.quantity ) {
     selectedData.value.quantity = String(selectedData.value.quantity);
-  }
-
-  if ( selectedData?.value?.budget['@id'] ) {
-    selectedData.value.budget = selectedData.value.budget['@id'];
   }
 
   thread.createThread(selectedData.value)
@@ -168,10 +141,6 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
 }
-
-onMounted(() => {
-  getBudgets();
-})
 </script>
 
 <template>
@@ -296,19 +265,15 @@ onMounted(() => {
             class="col-9"
             hide-bottom-space
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.budget"
-            filled
-            emit-value
-            map-options
-            :loading="budgetLoading"
-            :options="budgetOptions"
             :label="$t('forms.thread.fields.budget.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.thread.fields.budget.validation.required')]"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.thread.fields.budget.validation.required')"
             class="col-6"
-            hide-bottom-space
           />
           <q-input
             v-model="selectedData.price"

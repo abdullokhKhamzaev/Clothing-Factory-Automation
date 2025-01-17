@@ -6,6 +6,11 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  disable: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   fetchMethod: {
     type: String,
     required: true
@@ -83,6 +88,7 @@ onMounted(() => {
 <template>
   <q-select
     v-model="selectedItem"
+    :disable="disable"
     filled
     emit-value
     map-options

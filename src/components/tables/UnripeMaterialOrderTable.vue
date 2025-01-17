@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -29,13 +30,12 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const order = useUnripeMaterialOrder();
-const materials = ref([]);
+const unripeMaterial = useMaterial();
 const threads = ref([]);
 
 const selectedData = ref({});
 const whichSort = ref(null);
 const orderLoading = ref(false);
-const materialLoading = ref(false);
 const threadLoading = ref(false);
 const rows = ref([
   { thread: '', quantity: '' }
@@ -67,16 +67,6 @@ const columns = [
 
 function getOrders () {
   emit('submit');
-}
-function getMaterials () {
-  materialLoading.value = true;
-  useMaterial().fetchMaterials('')
-    .then((res) => {
-      materials.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      materialLoading.value = false;
-    });
 }
 function getThreads () {
   threadLoading.value = true;
@@ -259,17 +249,6 @@ function removeRow(index) {
 //   });
 //   rows.value = consumes;
 // }
-
-const materialOptions = computed(() => {
-  let options = [];
-  for (let i in materials.value) {
-    options.push({
-      label: materials.value[i].name,
-      value: materials.value[i]['@id']
-    });
-  }
-  return options
-})
 const threadOptions = computed(() => {
   let options = [];
   for (let i in threads.value) {
@@ -286,7 +265,6 @@ const filteredThreadOptions = computed(() => {
   return threadOptions.value.filter(option => !selectedThreads.includes(option.value))
 });
 onMounted(() => {
-  getMaterials();
   getThreads();
 })
 </script>
@@ -430,19 +408,15 @@ onMounted(() => {
           <q-separator color="white"/>
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-select
+          <selectable-list
             v-model="selectedData.material"
-            filled
-            emit-value
-            map-options
-            :loading="materialLoading"
-            :options="materialOptions"
             :label="$t('forms.unripeMaterialOrder.fields.material.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.threadPurchase.fields.thread.validation.required')]"
+            :store="unripeMaterial"
+            fetch-method="fetchMaterials"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.thread.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <q-input
             filled

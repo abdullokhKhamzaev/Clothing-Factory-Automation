@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAbout } from "stores/user/about.js";
@@ -11,6 +11,7 @@ import { useBudget } from "stores/budget.js";
 import { DATE_FORMAT } from "src/libraries/constants/defaults.js"
 import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 const emit = defineEmits(['submit']);
 let props = defineProps({
@@ -32,111 +33,19 @@ let props = defineProps({
 const { t } = useI18n();
 const $q = useQuasar();
 const user = useAbout();
+const unripeMaterial = useMaterial();
+const ripeMaterial = useRipeMaterial();
+const fabric = usePaintFabric();
+const budget = useBudget();
 
 const selectedData = ref({});
-const showPurchaseModal = ref(false);
+const showCreateModal = ref(false);
 const showDeleteModal = ref(false);
 const showReceiveModal = ref(false);
 const createActionErr = ref(null);
 const receiveActionErr = ref(null);
 const showOrderFinishModal = ref(false);
 const paintLoading = ref(false);
-
-const unripeMaterials = ref({});
-const unripeMaterialLoading = ref(false);
-function getUnRipeMaterials () {
-  unripeMaterialLoading.value = true;
-
-  useMaterial().fetchMaterials('')
-    .then((res) => {
-      unripeMaterials.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      unripeMaterialLoading.value = false;
-    });
-}
-const unripeMaterialOptions = computed(() => {
-  let options = [];
-  for (let i in unripeMaterials.value) {
-    options.push({
-      label: unripeMaterials.value[i].name,
-      value: unripeMaterials.value[i]
-    });
-  }
-  return options
-});
-
-const fabrics = ref({});
-const fabricLoading = ref(false);
-function getFabrics () {
-  fabricLoading.value = true;
-
-  usePaintFabric().fetchFabrics('')
-    .then((res) => {
-      fabrics.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      fabricLoading.value = false;
-    });
-}
-const fabricOptions = computed(() => {
-  let options = [];
-  for (let i in fabrics.value) {
-    options.push({
-      label: fabrics.value[i].name,
-      value: fabrics.value[i]
-    });
-  }
-  return options
-});
-
-const ripeMaterials = ref({});
-const ripeMaterialLoading = ref(false);
-function getRipeMaterials () {
-  unripeMaterialLoading.value = true;
-
-  useRipeMaterial().fetchRipeMaterials('')
-    .then((res) => {
-      ripeMaterials.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      ripeMaterialLoading.value = false;
-    });
-}
-const ripeMaterialOptions = computed(() => {
-  let options = [];
-  for (let i in ripeMaterials.value) {
-    options.push({
-      label: ripeMaterials.value[i].name,
-      value: ripeMaterials.value[i]
-    });
-  }
-  return options
-});
-
-const budgets = ref({});
-const budgetLoading = ref(false);
-function getBudgets () {
-  budgetLoading.value = true;
-
-  useBudget().fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
-}
-const budgetOptions = computed(() => {
-  let options = [];
-  for (let i in budgets.value) {
-    options.push({
-      label: budgets.value[i].name,
-      value: budgets.value[i]
-    });
-  }
-  return options
-});
 
 const columns = [
   { name: 'id', label: "#ID", align: 'left', field: 'id' },
@@ -173,24 +82,24 @@ function createAction() {
       sentQuantitySort1: selectedData.value.sentQuantitySort1,
       sentRollSort1: selectedData.value.sentRollSort1,
       createdBy: user.about['@id'],
-      paintFabric: selectedData.value.paintFabric['@id'],
+      paintFabric: selectedData.value.paintFabric,
       dealDate: selectedData.value.dealDate,
-      unripeMaterial: selectedData.value.unripeMaterial['@id']
+      unripeMaterial: selectedData.value.unripeMaterial
     }
   } else if (selectedData.value.whichSort === 2) {
     input = {
       sentQuantitySort2: selectedData.value.sentQuantitySort2,
       sentRollSort2: selectedData.value.sentRollSort2,
       createdBy: user.about['@id'],
-      paintFabric: selectedData.value.paintFabric['@id'],
+      paintFabric: selectedData.value.paintFabric,
       dealDate: selectedData.value.dealDate,
-      unripeMaterial: selectedData.value.unripeMaterial['@id']
+      unripeMaterial: selectedData.value.unripeMaterial
     }
   }
 
   useRipeMaterialOrder().createRipeMaterialOrder(input)
     .then(() => {
-      showPurchaseModal.value = false;
+      showCreateModal.value = false;
       $q.notify({
         type: 'positive',
         position: 'top',
@@ -221,8 +130,8 @@ function receiveAction() {
   paintLoading.value = true;
 
   let input = {
-    ripeMaterial: selectedData.value.ripeMaterial['@id'],
-    budget: selectedData.value.budget['@id'],
+    ripeMaterial: selectedData.value.ripeMaterial,
+    budget: selectedData.value.budget,
     price: selectedData.value.price,
     servicePrice: selectedData.value.servicePrice,
     payedPrice: selectedData.value.payedPrice,
@@ -234,7 +143,7 @@ function receiveAction() {
         createdBy: user.about['@id'],
         isIncome: false,
         description: 'Material bo\'yoq uchun.',
-        budget: selectedData.value.budget['@id'],
+        budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: selectedData.value.price
       }
@@ -338,13 +247,6 @@ function finishOrderAction() {
     })
     .finally(() => paintLoading.value = false);
 }
-
-onMounted(() => {
-  getUnRipeMaterials();
-  getFabrics();
-  getRipeMaterials();
-  getBudgets();
-})
 </script>
 
 <template>
@@ -366,7 +268,7 @@ onMounted(() => {
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
         <div class="q-table__title">{{ $t('tables.paint.header.title') }}</div>
-        <q-btn no-caps :label="$t('tables.paint.buttons.add')" color="primary" @click="showPurchaseModal = true" />
+        <q-btn no-caps :label="$t('tables.paint.buttons.add')" color="primary" @click="showCreateModal = true" />
       </div>
     </template>
     <template v-slot:body="props">
@@ -439,7 +341,7 @@ onMounted(() => {
   </q-table>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showPurchaseModal" persistent @before-hide="clearAction">
+  <q-dialog v-model="showCreateModal" persistent @before-hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -466,33 +368,25 @@ onMounted(() => {
           <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-select
+          <selectable-list
             v-model="selectedData.unripeMaterial"
-            filled
-            emit-value
-            map-options
-            :loading="unripeMaterialLoading"
-            :options="unripeMaterialOptions"
             :label="$t('forms.paint.fields.unripeMaterial.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.paint.fields.unripeMaterial.validation.required')]"
+            :store="unripeMaterial"
+            fetch-method="fetchMaterials"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.paint.fields.unripeMaterial.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.paintFabric"
-            filled
-            emit-value
-            map-options
-            :loading="fabricLoading"
-            :options="fabricOptions"
             :label="$t('forms.paint.fields.paintFabric.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.paint.fields.paintFabric.validation.required')]"
+            :store="fabric"
+            fetch-method="fetchFabrics"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.paint.fields.paintFabric.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <div class="col-12 q-gutter-sm">
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" :val="1" label="Sort 1" />
@@ -605,19 +499,15 @@ onMounted(() => {
           <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-select
+          <selectable-list
             v-model="selectedData.ripeMaterial"
-            filled
-            emit-value
-            map-options
-            :loading="ripeMaterialLoading"
-            :options="ripeMaterialOptions"
             :label="$t('forms.ripeMaterialAccepted.fields.ripeMaterial.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.ripeMaterialAccepted.fields.ripeMaterial.validation.required')]"
+            :store="ripeMaterial"
+            fetch-method="fetchRipeMaterials"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterialAccepted.fields.ripeMaterial.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <div class="col-12 q-gutter-sm">
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" :val="1" label="Sort 1" />
@@ -678,20 +568,16 @@ onMounted(() => {
               />
             </div>
           </div>
-          <q-select
+          <selectable-list
             v-model="selectedData.budget"
             v-if="selectedData.whichSort"
-            filled
-            emit-value
-            map-options
-            :loading="budgetLoading"
-            :options="budgetOptions"
             :label="$t('forms.ripeMaterialAccepted.fields.budget.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.ripeMaterialAccepted.fields.budget.validation.required')]"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterialAccepted.fields.budget.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <q-input
             v-model="selectedData.servicePrice"
@@ -725,7 +611,7 @@ onMounted(() => {
             filled
             :label="$t('forms.ripeMaterialAccepted.fields.payedPrice.label')"
             lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.ripeMaterialAccepted.fields.payedPrice.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialAccepted.fields.payedPrice.validation.required')]"
             hide-bottom-space
             class="col-12"
           />

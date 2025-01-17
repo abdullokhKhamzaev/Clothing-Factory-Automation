@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { useColor } from "stores/color.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -154,29 +155,6 @@ function clearAction() {
 }
 
 const color = useColor();
-const colors = ref([]);
-const colorLoading = ref(false);
-const colorOptions = computed(() => {
-  let options = [];
-  for (let i in colors.value) {
-    options.push({
-      label: colors.value[i].name,
-      value: colors.value[i]
-    });
-  }
-  return options
-})
-function getColors () {
-  colorLoading.value = true;
-
-  color.fetchColors('')
-    .then((res) => {
-      colors.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      colorLoading.value = false;
-    });
-}
 function prefill () {
   if (selectedData.value?.paintFabricColor['@id']) {
     selectedData.value.paintFabricColor = {
@@ -185,10 +163,6 @@ function prefill () {
     }
   }
 }
-
-onMounted(() => {
-  getColors();
-})
 </script>
 
 <template>
@@ -312,18 +286,14 @@ onMounted(() => {
             :rules="[val => !!val || $t('forms.ripeMaterial.fields.measurement.validation.required')]"
             class="col-6"
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.paintFabricColor"
-            :loading="colorLoading"
-            filled
-            required
-            emit-value
-            map-options
-            :options="colorOptions"
             :label="$t('forms.ripeMaterial.fields.color.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.ripeMaterial.fields.color.validation.required')]"
+            :store="color"
+            fetch-method="fetchColors"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
             class="col-6"
           />
           <q-input
@@ -439,18 +409,14 @@ onMounted(() => {
             :rules="[val => !!val || $t('forms.ripeMaterial.fields.measurement.validation.required')]"
             class="col-6"
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.paintFabricColor"
-            :loading="colorLoading"
-            filled
-            required
-            emit-value
-            map-options
-            :options="colorOptions"
             :label="$t('forms.ripeMaterial.fields.color.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.ripeMaterial.fields.color.validation.required')]"
+            :store="color"
+            fetch-method="fetchColors"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
             class="col-6"
           />
           <q-input

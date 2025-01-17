@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
@@ -7,6 +7,7 @@ import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 const emit = defineEmits(['submit']);
 let props = defineProps({
@@ -28,11 +29,12 @@ let props = defineProps({
 const { t } = useI18n();
 const $q = useQuasar();
 const user = useAbout();
+const ripeMaterial = useRipeMaterial();
+const budget = useBudget();
 
 const selectedData = ref({});
 const showPurchaseModal = ref(false);
 const createActionErr = ref(null);
-
 const columns = [
   { name: 'name', label: t('tables.ripeMaterial.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.ripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
@@ -41,54 +43,6 @@ const columns = [
   { name: 'rollSort2', label: t('tables.ripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
   { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' }
 ];
-
-const ripeMaterials = ref({});
-const materialLoading = ref(false);
-function getRipeMaterials () {
-  materialLoading.value = true;
-
-  useRipeMaterial().fetchRipeMaterials({ pagination: false })
-    .then((res) => {
-      ripeMaterials.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      materialLoading.value = false;
-    });
-}
-const ripeMaterialOptions = computed(() => {
-  let options = [];
-  for (let i in ripeMaterials.value) {
-    options.push({
-      label: ripeMaterials.value[i].name,
-      value: ripeMaterials.value[i]
-    });
-  }
-  return options
-})
-
-const budget = useBudget();
-const budgets = ref([]);
-const budgetLoading = ref(false);
-function getBudgets() {
-  budgetLoading.value = true;
-  budget.fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
-}
-const budgetOptions = computed(() => {
-  let options = [];
-  for (let i in budgets.value) {
-    options.push({
-      label: budgets.value[i].name,
-      value: budgets.value[i]
-    });
-  }
-  return options
-})
 
 function clearAction() {
   selectedData.value = {};
@@ -113,20 +67,20 @@ function createAction() {
     const totalPrice = String(quantity * price);
 
     input = {
-      ripeMaterial: selectedData.value.ripeMaterial['@id'],
+      ripeMaterial: selectedData.value.ripeMaterial,
       quantity: quantity,
       price: String(price),
       roll: roll,
       totalPrice: totalPrice,
       paidPrice: paidPrice,
-      budget: selectedData.value.budget['@id'],
+      budget: selectedData.value.budget,
       purchasedBy: user.about['@id'],
       transaction: [{
         paidPrice: paidPrice,
         createdBy: user.about['@id'],
         isIncome: false,
         description: 'Material sotib olish',
-        budget: selectedData.value.budget['@id'],
+        budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: totalPrice
       }],
@@ -159,10 +113,6 @@ function createAction() {
       })
     })
 }
-
-onMounted(() => {
-  getBudgets();
-})
 </script>
 
 <template>
@@ -184,7 +134,7 @@ onMounted(() => {
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
         <div class="q-table__title">{{ $t('tables.ripeMaterial.header.title') }}</div>
-        <q-btn no-caps :label="$t('tables.ripeMaterial.buttons.add')" color="primary" @click="getRipeMaterials(); showPurchaseModal = true" />
+        <q-btn no-caps :label="$t('tables.ripeMaterial.buttons.add')" color="primary" @click="showPurchaseModal = true" />
       </div>
     </template>
     <template v-slot:body="props">
@@ -238,19 +188,15 @@ onMounted(() => {
           <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-select
+          <selectable-list
             v-model="selectedData.ripeMaterial"
-            filled
-            emit-value
-            map-options
-            :loading="materialLoading"
-            :options="ripeMaterialOptions"
             :label="$t('forms.ripeMaterialPurchase.fields.ripeMaterial.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.ripeMaterialPurchase.fields.ripeMaterial.validation.required')]"
+            :store="ripeMaterial"
+            fetch-method="fetchRipeMaterials"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterialPurchase.fields.ripeMaterial.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
           <div class="col-12 q-gutter-sm">
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort1" label="Sort 1" />
@@ -348,20 +294,16 @@ onMounted(() => {
             hide-bottom-space
             :class="selectedData.whichSort ? 'col-6' : 'col-12'"
           />
-          <q-select
+          <selectable-list
             v-model="selectedData.budget"
-            :disable="!selectedData.whichSort"
-            filled
-            emit-value
-            map-options
-            :loading="budgetLoading"
-            :options="budgetOptions"
+            v-if="selectedData.whichSort"
             :label="$t('forms.threadPurchase.fields.budget.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.threadPurchase.fields.budget.validation.required')]"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
             class="col-12"
-            hide-bottom-space
           />
         </div>
         <q-separator/>

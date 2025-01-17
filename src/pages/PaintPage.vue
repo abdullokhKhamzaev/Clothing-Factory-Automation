@@ -130,7 +130,6 @@ onMounted(() => {
           :orders="completedOrders"
           :pagination="completedPagination"
           :loading="completedLoading"
-          @submit="refresh"
         />
         <div
           v-if="completedTotal > completedPagination.rowsPerPage"

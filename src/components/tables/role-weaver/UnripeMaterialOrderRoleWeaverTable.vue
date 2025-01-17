@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
@@ -7,6 +7,7 @@ import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterial
 import { useThread } from "stores/thread.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -28,6 +29,8 @@ const emit = defineEmits(['submit']);
 
 const $q = useQuasar();
 const { t } = useI18n();
+const thread = useThread();
+const order = useUnripeMaterialOrder();
 const selectedData = ref({});
 const whichSort = ref(null);
 const rows = ref([{ thread: '', quantity: '' }]);
@@ -35,21 +38,6 @@ const rows = ref([{ thread: '', quantity: '' }]);
 const showAcceptModal = ref(false);
 const showOrderReportModal = ref(false);
 const reportActionErr = ref(null);
-
-const threads = ref([]);
-const threadLoading = ref(false);
-const threadOptions = computed(() => {
-  let options = [];
-  for (let i in threads.value) {
-    options.push({
-      label: threads.value[i].name,
-      value: threads.value[i]['@id']
-    });
-  }
-  return options;
-})
-
-const order = useUnripeMaterialOrder();
 const orderLoading = ref(false);
 
 const columns = [
@@ -76,16 +64,6 @@ function clearAction() {
   rows.value = [{ thread: '', quantity: '' }];
   whichSort.value = null;
   reportActionErr.value = null;
-}
-function getThreads () {
-  threadLoading.value = true;
-  useThread().fetchThreads('')
-    .then((res) => {
-      threads.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      threadLoading.value = false;
-    });
 }
 function confirmOrder() {
   if (!selectedData.value.id) {
@@ -177,10 +155,6 @@ function prefill () {
   })
   rows.value = consumes;
 }
-
-onMounted(() => {
-  getThreads();
-})
 </script>
 
 <template>
@@ -354,26 +328,23 @@ onMounted(() => {
           />
         </div>
         <div class="q-pl-md text-subtitle1 text-primary">
-          {{ $t('forms.completedMaterialOrderReport.fields.consumedDtos.title') }}:
+          {{ $t('forms.completedMaterialOrderReport.fields.consumedDtos.title') }}
         </div>
         <q-separator class="q-mb-md" />
         <div
           v-for="(row, index) in rows" :key="index"
           class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg"
         >
-          <q-select
+          <selectable-list
             v-model="row.thread"
             :disable="true"
-            filled
-            map-options
-            :loading="threadLoading"
-            :options="threadOptions"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.thread.label')"
-            option-value="value"
-            option-label="label"
-            :rules="[val => !!val || $t('forms.completedMaterialOrderReport.fields.consumedDtos.thread.validation.required')]"
-            class="col"
-            hide-bottom-space
+            :store="thread"
+            fetch-method="fetchThreads"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
+            class="col-6"
           />
           <q-input
             filled
