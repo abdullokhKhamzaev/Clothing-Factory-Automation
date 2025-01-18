@@ -28,6 +28,7 @@ export default {
   thread: 'Ip',
   threadPurchase: 'Ip savdosi',
   ripeMaterialPurchase: 'Bo\'yalgan material savdosi',
+  ripeMaterialPaintPurchase: 'Bo\'yoq savdosi',
   transactions: 'Tranzaksiyalar',
   quantity: 'Miqdor',
   warehouse: 'Ombor',
@@ -131,6 +132,10 @@ export default {
     paint: {
       barCreate: 'Bo\'yoq zakaz yaratish',
       barEdit: 'Zakaz o\'zgartirish',
+    },
+    paintPurchase: {
+      barCreate: 'Pishgan Material Sotib Olish',
+      barPayDebt: 'Bo\'yoq Savdo Bo\'yicha Qarz To\'lash'
     },
     completedMaterialOrderReport: {
       barCreate: 'Zakaz Haqida Hisobot Berish',
@@ -855,6 +860,25 @@ export default {
       },
       buttons: {
         add: 'Zakaz qo\'shish'
+      }
+    },
+    paintPurchase: {
+      header: {
+        title: 'Bo\'yoq Savdosi',
+        empty: 'Hech qanday Bo\'yoq Savdo mavjud emas'
+      },
+      columns: {
+        id: 'Savdo ID',
+        receivedAt: 'Qabul vaqt',
+        receivedBy: 'Qabul qilgan',
+        ripeMaterial: 'Material',
+        receivedQuantitySort1: 'Miqdor sort 1',
+        receivedRollSort1: 'Ro\'lon sort 1',
+        receivedQuantitySort2: 'Miqdor sort 2',
+        receivedRollSort2: 'Ro\'lon sort 2',
+        servicePrice: 'Service price',
+        payedPrice: 'To\'langan summa',
+        transaction: 'Tasnif'
       }
     },
     unripeMaterialOrder: {

@@ -28,6 +28,7 @@ export default {
   threads: 'Threads',
   threadPurchase: 'Thread Purchase',
   ripeMaterialPurchase: 'Ripe Material Purchase',
+  ripeMaterialPaintPurchase: 'Paint Purchase',
   transactions: 'Transactions',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
@@ -131,6 +132,9 @@ export default {
     paint: {
       barCreate: 'Create Paint Order',
       barEdit: 'Edit Paint Order',
+    },
+    paintPurchase: {
+      barPayDebt: 'Pay Paint Purchase Debt'
     },
     completedMaterialOrderReport: {
       barCreate: 'Report About Order',
@@ -746,6 +750,7 @@ export default {
         thread: 'Thread',
         quantity: 'Quantity',
         price: 'Price',
+        totalPrice: 'Total Price',
         paidPrice: 'Paid Price',
         purchasedBy: 'Purchased By',
         transaction: 'Description',
@@ -855,6 +860,25 @@ export default {
       },
       buttons: {
         add: 'Add Order'
+      }
+    },
+    paintPurchase: {
+      header: {
+        title: 'Paint Purchase',
+        empty: 'There is no available Paint Purchase'
+      },
+      columns: {
+        id: 'Purchase ID',
+        receivedAt: 'Received At',
+        receivedBy: 'Received By',
+        ripeMaterial: 'Material',
+        receivedQuantitySort1: 'Quantity sort 1',
+        receivedRollSort1: 'Roll sort 1',
+        receivedQuantitySort2: 'Quantity sort 2',
+        receivedRollSort2: 'Roll sort 2',
+        servicePrice: 'Service price',
+        payedPrice: 'Paid price',
+        transaction: 'Description',
       }
     },
     unripeMaterialOrder: {

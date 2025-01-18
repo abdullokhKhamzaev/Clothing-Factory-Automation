@@ -5,10 +5,12 @@ import { useBudget } from 'src/stores/budget.js'
 import { useTransaction } from 'src/stores/transaction.js'
 import { useThreadPurchase } from 'src/stores/threadPurchase.js'
 import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
-import TransactionTable from "components/tables/TransactionTable.vue";
+import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import TransactionTable from "components/tables/TransactionTable.vue";
 import ThreadPurchaseTable from "components/tables/ThreadPurchaseTable.vue";
 import RipeMaterialPurchaseTable from "components/tables/RipeMaterialPurchaseTable.vue";
+import RipeMaterialPaintPurchaseTable from "components/tables/RipeMaterialPaintPurchaseTable.vue";
 
 const $q = useQuasar();
 const tab = ref('transactions')
@@ -128,6 +130,33 @@ function getRipeMaterialPurchases (filterProps) {
     });
 }
 
+
+const ripeMaterialPaintPurchase = useRipeMaterialOrderAccept();
+const ripeMaterialPaintPurchases = ref([]);
+const ripeMaterialPaintPurchaseTotal = ref([]);
+const ripeMaterialPaintPurchaseLoading = ref(false);
+const ripeMaterialPaintPurchasePagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const ripeMaterialPaintPurchasePagesNumber = computed(() => Math.ceil(ripeMaterialPaintPurchaseTotal.value / ripeMaterialPaintPurchasePagination.value.rowsPerPage));
+function getRipeMaterialPaintPurchases (filterProps) {
+  let props = filterProps || {};
+
+  ripeMaterialPaintPurchaseLoading.value = true;
+
+  ripeMaterialPaintPurchase.fetchPurchases(props || '')
+    .then((res) => {
+      ripeMaterialPaintPurchases.value = res.data['hydra:member'];
+      ripeMaterialPaintPurchaseTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      ripeMaterialPaintPurchaseLoading.value = false;
+    });
+}
+
 function updateSelectedData (property) {
   const oppositeProperty = property === 'from' ? 'to' : 'from';
   selectedData.value[property] = budgetOptions.value.filter(option => option.value !== selectedData.value[oppositeProperty].value)[0];
@@ -226,10 +255,17 @@ function refresh () {
     descending: true,
     rowsNumber: 0
   };
+  ripeMaterialPaintPurchasePagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
   getBudgets();
   getTransactions();
   getThreadPurchases();
   getRipeMaterialPurchases();
+  getRipeMaterialPaintPurchases();
 }
 
 onMounted(() => {
@@ -387,6 +423,7 @@ onMounted(() => {
       <q-tab name="transactions" :label="$t('transactions')" />
       <q-tab name="threadPurchaseTab" :label="$t('threadPurchase')" />
       <q-tab name="ripeMaterialPurchaseTab" :label="$t('ripeMaterialPurchase')" />
+      <q-tab name="ripeMaterialPaintPurchaseTab" :label="$t('ripeMaterialPaintPurchase')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -458,6 +495,29 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getRipeMaterialPurchases({ page: ripeMaterialPurchasePagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="ripeMaterialPaintPurchaseTab" class="q-pa-none">
+        <ripe-material-paint-purchase-table
+          :purchases="ripeMaterialPaintPurchases"
+          :pagination="ripeMaterialPaintPurchasePagination"
+          :loading="ripeMaterialPaintPurchaseLoading"
+          @refresh="refresh"
+        />
+        <div
+          v-if="ripeMaterialPaintPurchaseTotal > ripeMaterialPaintPurchasePagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="ripeMaterialPaintPurchaseLoading"
+            v-model="ripeMaterialPaintPurchasePagination.page"
+            input-class="text-bold text-black"
+            :max="ripeMaterialPaintPurchasePagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getRipeMaterialPaintPurchases({ page: ripeMaterialPaintPurchasePagination.page })"
           />
         </div>
       </q-tab-panel>

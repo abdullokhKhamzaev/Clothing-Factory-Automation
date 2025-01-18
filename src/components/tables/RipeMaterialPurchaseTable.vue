@@ -129,22 +129,31 @@ onMounted(() => {
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'purchasedBy'">
-            {{ props.row.purchasedBy }}
+            {{ props.row.purchasedBy.fullName }}
           </div>
           <div v-else-if="col.name === 'ripeMaterial'">
-            {{ props.row.ripeMaterial }}
+            {{ props.row.ripeMaterial.name }}
           </div>
           <div v-else-if="col.name === 'quantity'">
-            {{ formatFloatToInteger(props.row.quantity) }}
+            {{ Number(props.row.quantity) > 0 ? `${formatFloatToInteger(props.row.quantity)} ${props.row.ripeMaterial.measurement}` : '-' }}
+          </div>
+          <div v-else-if="col.name === 'quantitySort2'">
+            {{ Number(props.row.quantitySort2) > 0 ? `${props.row.quantitySort2} ${props.row.ripeMaterial.measurement}` : '-' }}
           </div>
           <div v-else-if="col.name === 'price'">
-            {{ formatFloatToInteger(props.row.price * props.row.quantity) }}
+            {{ formatFloatToInteger(props.row.price) }} {{ props.row.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'priceSort2'">
+            {{ formatFloatToInteger(props.row.priceSort2) }} {{ props.row.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'totalPrice'">
+            {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
           </div>
           <div
             v-else-if="col.name === 'paidPrice'"
-            :class="(props.row.price * props.row.quantity) > props.row.paidPrice ? 'text-red' : 'text-green'"
+            :class="Number(props.row.totalPrice) > Number(props.row.paidPrice) ? 'text-red' : 'text-green'"
           >
-            {{ formatFloatToInteger(props.row.paidPrice) }}
+            {{ formatFloatToInteger(props.row.paidPrice) }} {{ props.row.budget.name }}
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
@@ -152,7 +161,7 @@ onMounted(() => {
               dense
               color="primary"
               :icon="props.expand ? 'add' : 'remove'"
-              :label="$t('tables.threadPurchase.columns.transaction')"
+              :label="$t('tables.ripeMaterialPurchase.columns.transaction')"
             />
           </div>
           <div
@@ -193,7 +202,7 @@ onMounted(() => {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="payActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.threadPurchase.barPayDebt') }} </div>
+          <div class="text-h6"> {{ $t('dialogs.ripeMaterialPurchase.barPayDebt') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
         </div>
         <div v-if="payActionErr">
@@ -212,7 +221,7 @@ onMounted(() => {
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             v-model.number="selectedData.debtQuantity"
-            :prefix="$t('debts') + `${((selectedData.price * selectedData.quantity) - selectedData.paidPrice)}`"
+            :prefix="$t('debts') + ': ' + `${(selectedData.totalPrice - selectedData.paidPrice)}`"
             filled
             type="number"
             :label="$t('forms.threadPurchase.fields.debtQuantity.label')"
