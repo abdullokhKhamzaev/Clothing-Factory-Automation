@@ -39,13 +39,18 @@ const showMaterialDeleteModal = ref(false);
 const columns = [
   { name: 'name', label: t('tables.unripeMaterial.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.unripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'roll', label: t('tables.unripeMaterial.columns.roll'), align: 'left', field: 'roll' },
+  { name: 'quantitySort2', label: t('tables.unripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
+  { name: 'rollSort2', label: t('tables.unripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
+  { name: 'payWorker', label: t('tables.unripeMaterial.columns.payWorker'), align: 'left', field: 'payWorker' },
+  { name: 'price', label: t('tables.unripeMaterial.columns.price'), align: 'left', field: 'price' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
 function getMaterials () {
   emit('submit');
 }
-function createMaterialAction() {
+function createMaterialAction () {
   materialLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -191,17 +196,19 @@ function clearAction() {
               </q-btn>
             </div>
           </div>
-
           <div
             v-else-if="col.name === 'quantity'"
-            class="flex q-gutter-sm"
+            class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
           </div>
+          <div v-else-if="col.name === 'price'">
+            {{ props.row.price }} $
+          </div>
 
           <div v-else>
-            {{ props.row[col.field] || '-' }}
+            {{ props.row[col.field] }}
           </div>
         </q-td>
       </q-tr>
@@ -255,7 +262,18 @@ function clearAction() {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.unripeMaterial.fields.measurement.validation.required')]"
-            class="col-3"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.payWorker"
+            prefix="so'm:"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.payWorker.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.payWorker.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
           />
           <q-input
             filled
@@ -263,13 +281,47 @@ function clearAction() {
             v-model="selectedData.quantity"
             :label="$t('forms.unripeMaterial.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
-            class="col-9"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model.number="selectedData.roll"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.roll.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.quantitySort2"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.quantitySort2.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantitySort2.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model.number="selectedData.rollSort2"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.rollSort2.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.unripeMaterial.fields.rollSort2.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.price"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.price.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.price.validation.required')]"
+            class="col-12"
             hide-bottom-space
           />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.unripeMaterial.buttons.create')" type="submit" color="primary" />
         </div>
@@ -323,7 +375,18 @@ function clearAction() {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.unripeMaterial.fields.measurement.validation.required')]"
-            class="col-3"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.payWorker"
+            prefix="so'm:"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.payWorker.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.payWorker.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
           />
           <q-input
             filled
@@ -331,13 +394,48 @@ function clearAction() {
             v-model="selectedData.quantity"
             :label="$t('forms.unripeMaterial.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
-            class="col-9"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model.number="selectedData.roll"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.roll.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.unripeMaterial.fields.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.quantitySort2"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.quantitySort2.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.quantitySort2.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model.number="selectedData.rollSort2"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.rollSort2.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.unripeMaterial.fields.rollSort2.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.price"
+            prefix="$"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.price.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.price.validation.required')]"
+            class="col-12"
             hide-bottom-space
           />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.unripeMaterial.buttons.edit')" type="submit" color="primary" />
         </div>
