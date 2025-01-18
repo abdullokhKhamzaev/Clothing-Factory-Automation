@@ -40,6 +40,7 @@ const createActionErr = ref(null);
 const updateActionErr = ref(null);
 
 const isPwd = ref(false);
+const section = ref('user');
 const searchTitle = ref('');
 const selectedData = ref({});
 
@@ -74,12 +75,10 @@ function clearAction() {
   createActionErr.value = null;
   updateActionErr.value = null;
 }
-function prefill() {
-  if (selectedData.value?.salaryCurrency?.id) {
-    selectedData.value.salaryCurrency = {
-      label: `${selectedData.value.salaryCurrency.symbol} - ${selectedData.value.salaryCurrency.name} (${selectedData.value.salaryCurrency.shortName})`,
-      value: selectedData.value.salaryCurrency['@id']
-    }
+
+function prefill () {
+  if (selectedData.value?.salaryCurrency['@id']) {
+    selectedData.value.salaryCurrency = selectedData.value.salaryCurrency['@id']
   }
 }
 function createAction() {
@@ -121,24 +120,31 @@ function createAction() {
 }
 function updateAction() {
   if (selectedData?.value?.id) {
-    const input = {
-      phone: selectedData.value.phone,
-      fullName: selectedData.value.fullName,
-      salary: selectedData.value.salary,
-      salaryCurrency: selectedData.value.salaryCurrency
+
+    let input = {};
+
+    if ( section.value === 'password' ) {
+      input.password = selectedData.value.password
+    } else {
+      input = {
+        phone: selectedData.value.phone,
+        fullName: selectedData.value.fullName,
+        salary: selectedData.value.salary,
+        salaryCurrency: selectedData.value.salaryCurrency
+      }
     }
 
     userLoading.value = true;
     user.editUser(selectedData.value.id, input)
       .then(() => {
-        clearAction();
-        showDeleteModal.value = false;
+        showUpdateModal.value = false;
         $q.notify({
           type: 'positive',
           position: 'top',
           timeout: 1000,
           message: t('forms.user.confirmation.successEdited')
         });
+        clearAction();
         getUsers();
       })
       .catch((res) => {
@@ -481,6 +487,7 @@ function exportTable(users) {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateAction">
+        {{ selectedData?.salaryCurrency || 'aa' }}
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
@@ -502,44 +509,89 @@ function exportTable(users) {
           <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-input
-            filled
-            v-model="selectedData.fullName"
-            :label="$t('forms.user.fields.fullName.label')"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.fullName.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-          <q-input
-            filled
-            v-model="selectedData.phone"
-            :label="$t('forms.user.fields.phone.label')"
-            name="First Name"
-            mask="+############"
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-          <selectable-list
-            v-model="selectedData.salaryCurrency"
-            :label="$t('forms.user.fields.currency.label')"
-            :store="currency"
-            fetch-method="fetchCurrencies"
-            item-value="@id"
-            item-label="name"
-            :rule-message="$t('forms.user.fields.currency.validation.required')"
-            class="col-12"
-          />
-          <q-input
-            filled
-            type="number"
-            v-model="selectedData.salary"
-            :label="$t('forms.user.fields.salary.label')"
-            :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
+          <div class="col-12 q-gutter-sm">
+            <q-radio v-model="section" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="user" label="User" />
+            <q-radio v-model="section" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="password" label="Password" />
+          </div>
+
+          <div class="col-12" v-if="section === 'password'">
+            <div class="row q-col-gutter-x-lg q-col-gutter-y-md">
+              <q-input
+                :type="isPwd ? 'password' : 'text'"
+                filled
+                v-model="selectedData.password"
+                :label="$t('forms.user.fields.password.label')"
+                :rules="[ val => val && val.length > 0 || $t('forms.user.fields.password.validation.required')]"
+                hide-bottom-space
+                class="col-12"
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
+            </div>
+          </div>
+
+          <div class="col-12" v-else>
+            <div class="row q-col-gutter-x-lg q-col-gutter-y-md">
+              <q-input
+                filled
+                v-model="selectedData.fullName"
+                :label="$t('forms.user.fields.fullName.label')"
+                lazy-rules
+                :rules="[ val => val && val.length > 0 || $t('forms.user.fields.fullName.validation.required')]"
+                hide-bottom-space
+                class="col-12"
+              />
+              <q-input
+                filled
+                v-model="selectedData.phone"
+                :label="$t('forms.user.fields.phone.label')"
+                name="First Name"
+                mask="+############"
+                :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
+                hide-bottom-space
+                class="col-12"
+              />
+              <q-select
+                filled
+                emit-value
+                map-options
+                multiple
+                v-model="selectedData.roles"
+                :options="ROLES"
+                :label="$t('forms.user.fields.roles.label')"
+                option-value="value"
+                option-label="label"
+                :rules="[val => !!val || $t('forms.user.fields.roles.validation.required')]"
+                hide-bottom-space
+                class="col-12"
+              />
+              <selectable-list
+                v-model="selectedData.salaryCurrency"
+                :label="$t('forms.user.fields.currency.label')"
+                :store="currency"
+                fetch-method="fetchCurrencies"
+                item-value="@id"
+                item-label="name"
+                :rule-message="$t('forms.user.fields.currency.validation.required')"
+                class="col-12"
+              />
+              <q-input
+                filled
+                type="number"
+                v-model="selectedData.salary"
+                :label="$t('forms.user.fields.salary.label')"
+                :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
+                hide-bottom-space
+                class="col-12"
+              />
+            </div>
+          </div>
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
