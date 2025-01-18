@@ -12,6 +12,7 @@ import { DATE_FORMAT } from "src/libraries/constants/defaults.js"
 import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import PaintReportList from "components/PaintReportList.vue";
 
 const emit = defineEmits(['submit']);
 let props = defineProps({
@@ -314,6 +315,27 @@ function finishOrderAction() {
               </q-btn>
             </div>
           </div>
+          <div v-else-if="col.name === 'unripeMaterial'">
+            {{ props.row.unripeMaterial.name }}
+          </div>
+          <div v-else-if="col.name === 'createdBy'">
+            {{ props.row.createdBy.fullName }}
+          </div>
+          <div v-else-if="col.name === 'paintFabric'">
+            {{ props.row.paintFabric.name }}
+          </div>
+          <div v-else-if="col.name === 'sentQuantitySort1'">
+            {{ props.row.sentQuantitySort1 }} {{ props.row.unripeMaterial.measurement }}
+          </div>
+          <div v-else-if="col.name === 'sentRollSort1'">
+            {{ Number(props.row.sentRollSort1) > 0 ? props.row.sentRollSort1 : '-' }}
+          </div>
+          <div v-else-if="col.name === 'sentQuantitySort2'">
+            {{ Number(props.row.sentQuantitySort2) > 0 ? `${props.row.sentQuantitySort2} ${props.row.unripeMaterial.measurement}` : '-' }}
+          </div>
+          <div v-else-if="col.name === 'sentRollSort2'">
+            {{ Number(props.row.sentRollSort2) > 0 ? props.row.sentRollSort2 : '-' }}
+          </div>
           <div v-else-if="col.name === 'ripeMaterialOrderAccepteds'">
             <q-toggle
               v-if="props.row?.ripeMaterialOrderAccepteds.length"
@@ -323,9 +345,7 @@ function finishOrderAction() {
               :icon="props.expand ? 'add' : 'remove'"
               :label="$t('tables.paint.columns.ripeMaterialOrderAccepteds')"
             />
-            <span v-else>
-            -
-          </span>
+            <span v-else> - </span>
           </div>
           <div v-else>
             {{ props.row[col.field] }}
@@ -334,7 +354,7 @@ function finishOrderAction() {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          {{ props.row.ripeMaterialOrderAccepteds }}
+          <paint-report-list :lists="props.row.ripeMaterialOrderAccepteds" />
         </q-td>
       </q-tr>
     </template>

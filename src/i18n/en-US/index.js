@@ -17,6 +17,7 @@ export default {
   inProgress: 'In Progress',
   language: 'Language',
   materials: 'Materials',
+  roll: 'Roll',
   noData: 'The data is empty',
   orders: 'Orders',
   pending: 'Pending',

@@ -17,6 +17,7 @@ export default {
   inProgress: 'Jarayonda',
   language: 'Til',
   materials: 'Materiallar',
+  roll: 'Ro\'lon',
   noData: "Ma'lumot bo'sh",
   orders: 'Zakazlar',
   pending: 'Kutilmoqda',
