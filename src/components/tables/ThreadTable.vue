@@ -36,6 +36,7 @@ const selectedData = ref({});
 const showThreadCreateModal = ref(false);
 const createActionErr = ref(null);
 const showThreadUpdateModal = ref(false);
+const updateActionErr = ref(null);
 const showThreadDeleteModal = ref(false);
 
 const columns = [
@@ -94,7 +95,8 @@ function updateThreadAction() {
         clearAction();
         getThreads();
       })
-      .catch(() => {
+      .catch((res) => {
+        updateActionErr.value = res.response.data['hydra:description'];
         $q.notify({
           type: 'negative',
           position: 'top',
@@ -137,9 +139,15 @@ function deleteThreadAction() {
     console.warn('data is empty');
   }
 }
+function prefill () {
+  if (selectedData.value?.budget['@id']) {
+    selectedData.value.budget = selectedData.value.budget['@id']
+  }
+}
 function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
+  updateActionErr.value = null;
 }
 </script>
 
@@ -178,7 +186,7 @@ function clearAction() {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div class="flex justify-end" v-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn size="md" color="primary" rounded dense icon="edit" @click="showThreadUpdateModal = true; selectedData = {...props.row}">
+              <q-btn size="md" color="primary" rounded dense icon="edit" @click="selectedData = {...props.row}; prefill(); showThreadUpdateModal = true">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('edit') }}
                 </q-tooltip>
@@ -254,7 +262,8 @@ function clearAction() {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.thread.fields.measurement.validation.required')]"
-            class="col-3"
+            class="col-12 col-sm-6"
+            hide-bottom-space
           />
           <q-input
             filled
@@ -262,7 +271,7 @@ function clearAction() {
             v-model="selectedData.quantity"
             :label="$t('forms.thread.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.thread.fields.quantity.validation.required')]"
-            class="col-9"
+            class="col-12 col-sm-6"
             hide-bottom-space
           />
           <selectable-list
@@ -273,7 +282,7 @@ function clearAction() {
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.thread.fields.budget.validation.required')"
-            class="col-6"
+            class="col-12 col-sm-6"
           />
           <q-input
             v-model="selectedData.price"
@@ -284,12 +293,10 @@ function clearAction() {
             lazy-rules
             :rules="[ val => val && val >= 0 || $t('forms.thread.fields.price.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-sm-6"
           />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.thread.buttons.create')" type="submit" color="primary" />
         </div>
@@ -302,9 +309,25 @@ function clearAction() {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateThreadAction">
-        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
           <div class="text-h6"> {{ $t('dialogs.thread.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -327,7 +350,8 @@ function clearAction() {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.thread.fields.measurement.validation.required')]"
-            class="col-3"
+            class="col-12 col-sm-6"
+            hide-bottom-space
           />
           <q-input
             filled
@@ -335,13 +359,32 @@ function clearAction() {
             v-model="selectedData.quantity"
             :label="$t('forms.thread.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.thread.fields.quantity.validation.required')]"
-            class="col-9"
+            class="col-12 col-sm-6"
             hide-bottom-space
           />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.thread.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.thread.fields.budget.validation.required')"
+            class="col-12 col-sm-6"
+          />
+          <q-input
+            v-model="selectedData.price"
+            type="number"
+            filled
+            :disable="!selectedData.budget"
+            :label="$t('forms.thread.fields.price.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 || $t('forms.thread.fields.price.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-sm-6"
+          />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.thread.buttons.edit')" type="submit" color="primary" />
         </div>

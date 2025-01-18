@@ -157,7 +157,7 @@ onMounted(() => {
             />
           </div>
           <div
-            v-else-if="col.name === 'action' && props.row.servicePrice > props.row.payedPrice"
+            v-else-if="col.name === 'action' && !props.row.isPayed"
             class="flex justify-end"
           >
             <q-btn

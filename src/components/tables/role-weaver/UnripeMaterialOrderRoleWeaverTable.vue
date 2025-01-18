@@ -313,7 +313,7 @@ function prefill () {
             type="number"
             :label="$t('forms.completedMaterialOrderReport.fields.quantity.label')"
             :rules="[ val => val && val > 0 || $t('forms.completedMaterialOrderReport.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -323,7 +323,7 @@ function prefill () {
             type="number"
             :label="$t('forms.completedMaterialOrderReport.fields.roll.label')"
             :rules="[val => val !== false && val >= 0 || $t('forms.completedMaterialOrderReport.fields.roll.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
         </div>
@@ -344,7 +344,7 @@ function prefill () {
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             filled
@@ -352,7 +352,7 @@ function prefill () {
             v-model="row.quantity"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
             :rules="[ val => val && val > 0 || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
-            class="col"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
         </div>

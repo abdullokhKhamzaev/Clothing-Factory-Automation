@@ -143,7 +143,7 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
             </div>
 
             <div v-if="col.name === 'price'">
-              <span> {{ props.row.price * props.row.quantity }} </span>
+              <span> {{ props.row.price * props.row.quantity }} {{ props.row.budget.name }} </span>
             </div>
           </q-td>
         </q-tr>
@@ -223,7 +223,7 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.price"
@@ -235,7 +235,7 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.price.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.paidPrice"

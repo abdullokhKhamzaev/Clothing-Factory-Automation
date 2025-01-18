@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
+import { useBudget } from "stores/budget.js";
 import { useColor } from "stores/color.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
@@ -29,6 +30,7 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const material = useRipeMaterial();
+const budget = useBudget();
 
 const materialLoading = ref(false);
 const selectedData = ref({});
@@ -157,10 +159,7 @@ function clearAction() {
 const color = useColor();
 function prefill () {
   if (selectedData.value?.paintFabricColor['@id']) {
-    selectedData.value.paintFabricColor = {
-      label: selectedData.value.paintFabricColor.name,
-      value: selectedData.value.paintFabricColor['@id']
-    }
+    selectedData.value.paintFabricColor = selectedData.value.paintFabricColor['@id']
   }
 }
 </script>
@@ -215,7 +214,7 @@ function prefill () {
 
           <div
             v-else-if="col.name === 'paintFabricColor'"
-            class="flex q-gutter-sm"
+            class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
@@ -223,7 +222,7 @@ function prefill () {
 
           <div
             v-else-if="col.name === 'quantity'"
-            class="flex q-gutter-sm"
+            class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
@@ -284,7 +283,8 @@ function prefill () {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.ripeMaterial.fields.measurement.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
+            hide-bottom-space
           />
           <selectable-list
             v-model="selectedData.paintFabricColor"
@@ -294,7 +294,7 @@ function prefill () {
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.quantity"
@@ -302,7 +302,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -311,7 +311,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.roll.label')"
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterial.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -320,7 +320,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.quantitySort2.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.quantitySort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -329,8 +329,18 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.rollSort2.label')"
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterial.fields.rollSort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.ripeMaterial.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterial.fields.budget.validation.required')"
+            class="col-12"
           />
           <q-input
             v-model="selectedData.price"
@@ -338,7 +348,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.price.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.price.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -347,13 +357,11 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.priceSort2.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.priceSort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.ripeMaterial.buttons.create')" type="submit" color="primary" />
         </div>
@@ -407,7 +415,8 @@ function prefill () {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.ripeMaterial.fields.measurement.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
+            hide-bottom-space
           />
           <selectable-list
             v-model="selectedData.paintFabricColor"
@@ -417,7 +426,7 @@ function prefill () {
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.ripeMaterial.fields.color.validation.required')"
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.quantity"
@@ -425,7 +434,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.quantity.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -434,7 +443,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.roll.label')"
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterial.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -443,7 +452,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.quantitySort2.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.quantitySort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -452,8 +461,18 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.rollSort2.label')"
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterial.fields.rollSort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.ripeMaterial.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.ripeMaterial.fields.budget.validation.required')"
+            class="col-12"
           />
           <q-input
             v-model="selectedData.price"
@@ -461,7 +480,7 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.price.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.price.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
@@ -470,12 +489,11 @@ function prefill () {
             type="number"
             :label="$t('forms.ripeMaterial.fields.priceSort2.label')"
             :rules="[ val => val && val > -1 || $t('forms.ripeMaterial.fields.priceSort2.validation.required')]"
-            class="col-6"
+            class="col-12 col-md-6"
             hide-bottom-space
           />
         </div>
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn no-caps :label="$t('forms.ripeMaterial.buttons.edit')" type="submit" color="primary" />
         </div>

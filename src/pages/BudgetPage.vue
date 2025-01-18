@@ -341,7 +341,7 @@ onMounted(() => {
             :options="budgetOptions"
             :label="$t('balance') + ' ' + $t('from')"
             name="budget"
-            class="col-6"
+            class="col-12 col-md-6"
             @update:model-value="() => updateSelectedData('to')"
           />
           <q-input
@@ -351,7 +351,7 @@ onMounted(() => {
             :label="$t('quantity')"
             lazy-rules
             :rules="[ val => val && val > 0 || '' ]"
-            class="col-6"
+            class="col-12 col-md-6"
           />
 
           <q-select
@@ -359,7 +359,7 @@ onMounted(() => {
             :options="budgetOptions"
             :label="$t('balance') + ' ' + $t('to')"
             name="budget"
-            class="col-6"
+            class="col-12 col-md-6"
             @update:model-value="() => updateSelectedData('from')"
           />
           <q-input
@@ -369,7 +369,7 @@ onMounted(() => {
             :label="$t('quantity')"
             lazy-rules
             :rules="[ val => val && val > 0 || '' ]"
-            class="col-6"
+            class="col-12 col-md-6"
           />
         </div>
 

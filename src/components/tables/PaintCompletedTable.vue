@@ -26,7 +26,6 @@ const columns = [
   { name: 'createdAt', label: t('tables.paint.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'createdBy', label: t('tables.paint.columns.createdBy'), align: 'left', field: 'createdBy' },
   { name: 'receivedBy', label: t('tables.paint.columns.receivedBy'), align: 'left', field: 'receivedBy' },
-  { name: 'receivedAt', label: t('tables.paint.columns.receivedAt'), align: 'left', field: 'receivedAt' },
   { name: 'unripeMaterial', label: t('tables.paint.columns.unripeMaterial'), align: 'left', field: 'unripeMaterial' },
   { name: 'paintFabric', label: t('tables.paint.columns.paintFabric'), align: 'left', field: 'paintFabric' },
   { name: 'sentQuantitySort1', label: t('tables.paint.columns.sentQuantitySort1'), align: 'left', field: 'sentQuantitySort1' },

@@ -155,7 +155,7 @@ onMounted(() => {
             />
           </div>
           <div
-            v-else-if="col.name === 'action' && (props.row.price * props.row.quantity) > props.row.paidPrice"
+            v-else-if="col.name === 'action' && !props.row.isPayed"
             class="flex justify-end"
           >
             <q-btn

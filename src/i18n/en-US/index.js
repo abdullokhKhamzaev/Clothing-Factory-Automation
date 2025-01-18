@@ -219,6 +219,18 @@ export default {
           validation: {
             required: 'Quantity is required.',
           }
+        },
+        budget: {
+          label: 'Select the budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
+          }
         }
       },
       buttons: {
@@ -288,6 +300,12 @@ export default {
             required: 'Name is required.',
           }
         },
+        payWorker: {
+          label: 'Worker price',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
         measurement: {
           label: 'Measurement',
           validation: {
@@ -298,6 +316,30 @@ export default {
           label: 'Quantity',
           validation: {
             required: 'Quantity is required.',
+          }
+        },
+        quantitySort2: {
+          label: 'Quantity sort 2',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        roll: {
+          label: 'Roll',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        rollSort2: {
+          label: 'Roll sort 2',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
           }
         }
       },
@@ -354,6 +396,12 @@ export default {
           label: 'Roll Sort 2',
           validation: {
             required: 'Roll is required.',
+          }
+        },
+        budget: {
+          label: 'Select the budget',
+          validation: {
+            required: 'Budget is required.',
           }
         },
         price: {
@@ -496,6 +544,7 @@ export default {
       },
       confirmation: {
         successOrderCreated: 'Order was successfully created.',
+        successOrderReceived: 'Order was successfully received.',
         successOrderCompleted: 'Order was successfully completed.',
         successOrderEdited: 'Order was successfully edited.',
         successOrderDeleted: 'Order was successfully deleted.',

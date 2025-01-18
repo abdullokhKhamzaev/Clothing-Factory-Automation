@@ -211,7 +211,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-if="selectedData.whichSort === 'sort1'"
@@ -222,7 +222,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.price.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-if="selectedData.whichSort === 'sort1'"
@@ -233,7 +233,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.roll.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.paidPriceSort1"
@@ -257,7 +257,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.quantitySort2.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-if="selectedData.whichSort === 'sort2'"
@@ -268,7 +268,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val && val > 0 || $t('forms.ripeMaterialPurchase.fields.priceSort2.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model.number="selectedData.rollSort2"
@@ -279,7 +279,7 @@ function createAction() {
             lazy-rules
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.rollSort2.validation.required')]"
             hide-bottom-space
-            class="col-6"
+            class="col-12 col-md-6"
           />
           <q-input
             v-model="selectedData.paidPriceSort2"
