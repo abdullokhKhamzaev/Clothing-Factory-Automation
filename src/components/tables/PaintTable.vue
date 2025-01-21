@@ -146,7 +146,7 @@ function receiveAction() {
         description: 'Material bo\'yoq uchun.',
         budget: selectedData.value.budget,
         isOldInAndOut: false,
-        price: selectedData.value.price
+        price: selectedData.value.servicePrice
       }
     ]
   };
@@ -626,12 +626,13 @@ function finishOrderAction() {
           <q-input
             v-model="selectedData.payedPrice"
             v-if="selectedData.whichSort"
-            :disable="!selectedData.budget"
+            :disable="!selectedData.budget || !selectedData.servicePrice"
+            :prefix="`max: ${selectedData.servicePrice}:`"
             type="number"
             filled
             :label="$t('forms.ripeMaterialAccepted.fields.payedPrice.label')"
             lazy-rules
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialAccepted.fields.payedPrice.validation.required')]"
+            :rules="[ val => val && val <= Number(selectedData.servicePrice) || $t('forms.ripeMaterialAccepted.fields.payedPrice.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
