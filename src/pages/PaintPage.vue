@@ -1,8 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useRipeMaterialOrder } from "stores/ripeMaterialOrder.js";
+import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
 import PaintTable from "components/tables/PaintTable.vue";
 import PaintCompletedTable from "components/tables/PaintCompletedTable.vue";
+import RepaintTable from "components/tables/RepaintTable.vue";
 
 const tab = ref('orders');
 
@@ -18,6 +20,31 @@ const pagination = ref({
 });
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage));
 
+const repaintOrder = useRipeMaterialRepaint();
+const repaintOrders = ref([]);
+const repaintTotal = ref(0);
+const repaintLoading = ref(false);
+const repaintPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const repaintPagesNumber = computed(() => Math.ceil(repaintTotal.value / repaintPagination.value.rowsPerPage));
+function getRepaintOrders (filterProps) {
+  let props = filterProps || {};
+
+  repaintLoading.value = true;
+  repaintOrder.fetchRepaintOrders(props || '')
+    .then((res) => {
+      repaintOrders.value = res.data['hydra:member'];
+      repaintTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      repaintLoading.value = false;
+    });
+}
+
 const completedOrders = ref([]);
 const completedTotal = ref(0);
 const completedLoading = ref(false);
@@ -28,22 +55,6 @@ const completedPagination = ref({
   rowsNumber: 0
 });
 const completedPagesNumber = computed(() => Math.ceil(completedTotal.value / completedPagination.value.rowsPerPage));
-
-function getOrders (filterProps) {
-  let props = filterProps || {};
-
-  props.status = 'expected';
-
-  loading.value = true;
-  order.fetchRipeMaterialOrder(props || '')
-    .then((res) => {
-      orders.value = res.data['hydra:member'];
-      total.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
 function getCompletedOrders (filterProps) {
   let props = filterProps || {};
 
@@ -60,6 +71,22 @@ function getCompletedOrders (filterProps) {
     });
 }
 
+function getOrders (filterProps) {
+  let props = filterProps || {};
+
+  props.status = 'expected';
+
+  loading.value = true;
+  order.fetchRipeMaterialOrder(props || '')
+    .then((res) => {
+      orders.value = res.data['hydra:member'];
+      total.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
 function refresh() {
   pagination.value = {
     rowsPerPage: 10,
@@ -73,7 +100,14 @@ function refresh() {
     descending: true,
     rowsNumber: 0
   }
+  repaintPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  }
   getOrders();
+  getRepaintOrders();
   getCompletedOrders();
 }
 
@@ -95,6 +129,9 @@ onMounted(() => {
     >
       <q-tab name="orders" :label="$t('orders')">
         <q-badge v-if="total" color="red" floating>{{ total }}</q-badge>
+      </q-tab>
+      <q-tab name="repaintOrders" :label="$t('repaintOrders')">
+        <q-badge v-if="repaintTotal" color="red" floating>{{ repaintTotal }}</q-badge>
       </q-tab>
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
     </q-tabs>
@@ -122,6 +159,29 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getOrders({ page: pagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="repaintOrders" class="q-pa-none">
+        <repaint-table
+          :orders="repaintOrders"
+          :pagination="repaintPagination"
+          :loading="repaintLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="repaintTotal > repaintPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="repaintLoading"
+            v-model="repaintPagination.page"
+            input-class="text-bold text-black"
+            :max="repaintPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getRepaintOrders({ page: repaintPagination.page })"
           />
         </div>
       </q-tab-panel>
