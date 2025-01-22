@@ -36,13 +36,5 @@ export const useRipeMaterialRepaint = defineStore('ripe_material_repaint', () =>
     }
   }
 
-  function deleteOrder(id) {
-    try {
-      return client.delete('ripe_material_repaints/' + id)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  return { fetchRepaintOrders, receive, createOrder, deleteOrder }
+  return { fetchRepaintOrders, receive, createOrder }
 })
