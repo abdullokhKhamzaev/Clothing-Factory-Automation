@@ -53,7 +53,7 @@ function auth() {
             <q-input v-model="authorization.password" label="Password" name="password" type="password"/>
 
             <div>
-              <q-btn class="full-width" color="primary" label="Login" type="submit" :loading="isLoading" />
+              <q-btn class="full-width" color="primary" label="Login" type="submit" :loading="isLoading" :disable="isLoading" />
             </div>
           </q-form>
         </q-card-section>

@@ -471,7 +471,14 @@ onMounted(() => {
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.unripeMaterialOrder.buttons.create')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || orderLoading"
+            :loading="props.loading || orderLoading"
+            no-caps
+            :label="$t('forms.unripeMaterialOrder.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
         <q-separator/>
       </q-form>
@@ -591,7 +598,13 @@ onMounted(() => {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction"/>
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteOrderAction"/>
+        <q-btn
+          :disable="props.loading || orderLoading"
+          :loading="props.loading || orderLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteOrderAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -607,7 +620,13 @@ onMounted(() => {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup @click="clearAction"/>
-        <q-btn :label="$t('dialogs.complete.buttons.complete')" color="primary" @click="finishOrderAction"/>
+        <q-btn
+          :disable="props.loading || orderLoading"
+          :loading="props.loading || orderLoading"
+          :label="$t('dialogs.complete.buttons.complete')"
+          color="primary"
+          @click="finishOrderAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

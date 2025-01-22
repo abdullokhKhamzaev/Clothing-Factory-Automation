@@ -140,7 +140,7 @@ function deleteThreadAction() {
   }
 }
 function prefill () {
-  if (selectedData.value?.budget['@id']) {
+  if (selectedData?.value?.budget && selectedData.value.budget['@id']) {
     selectedData.value.budget = selectedData.value.budget['@id']
   }
 }
@@ -298,7 +298,14 @@ function clearAction() {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.thread.buttons.create')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || threadLoading"
+            :loading="props.loading || threadLoading"
+            no-caps
+            :label="$t('forms.thread.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -386,7 +393,14 @@ function clearAction() {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.thread.buttons.edit')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || threadLoading"
+            :loading="props.loading || threadLoading"
+            no-caps
+            :label="$t('forms.thread.buttons.edit')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -405,7 +419,13 @@ function clearAction() {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteThreadAction" />
+        <q-btn
+          :disable="props.loading || threadLoading"
+          :loading="props.loading || threadLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteThreadAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

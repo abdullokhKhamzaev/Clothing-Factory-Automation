@@ -262,7 +262,10 @@ function prefill () {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.accept')" color="green" @click="confirmOrder();" />
+        <q-btn
+          :disable="props.loading || orderLoading"
+          :loading="props.loading || orderLoading"
+          no-caps :label="$t('dialogs.accept.buttons.accept')" color="green" @click="confirmOrder();" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -358,7 +361,14 @@ function prefill () {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.completedMaterialOrderReport.buttons.create')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || orderLoading"
+            :loading="props.loading || orderLoading"
+            no-caps
+            :label="$t('forms.completedMaterialOrderReport.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
         <q-separator />
       </q-form>

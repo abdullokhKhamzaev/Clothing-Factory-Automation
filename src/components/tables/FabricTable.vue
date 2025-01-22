@@ -252,7 +252,14 @@ function clearAction() {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.fabric.buttons.create')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || fabricLoading"
+            :loading="props.loading || fabricLoading"
+            no-caps
+            :label="$t('forms.fabric.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -306,7 +313,14 @@ function clearAction() {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.fabric.buttons.edit')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || fabricLoading"
+            :loading="props.loading || fabricLoading"
+            no-caps
+            :label="$t('forms.fabric.buttons.edit')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -325,7 +339,13 @@ function clearAction() {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteFabricAction" />
+        <q-btn
+          :disable="props.loading || fabricLoading"
+          :loading="props.loading || fabricLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteFabricAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

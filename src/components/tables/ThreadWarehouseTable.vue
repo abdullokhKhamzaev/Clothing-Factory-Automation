@@ -31,6 +31,7 @@ const { t } = useI18n();
 
 const selectedData = ref({});
 const showPurchaseModal = ref(false);
+const purchaseLoading = ref(false);
 const createActionErr = ref(null);
 
 const thread = useThread();
@@ -60,6 +61,8 @@ function createAction() {
     console.warn('user not found');
     return
   }
+
+  purchaseLoading.value = true;
 
   let input = {
     thread: selectedData.value.thread,
@@ -104,16 +107,17 @@ function createAction() {
         message: t('forms.threadPurchase.confirmation.failure')
       })
     })
+    .finally(() => purchaseLoading.value = false)
 }
 const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
 </script>
 
 <template>
   <skeleton-table
-    :loading="props.loading"
+    :loading="props.loading || purchaseLoading"
   />
   <q-table
-    v-show="!loading"
+    v-show="!props.loading && !purchaseLoading"
     flat
     bordered
     :rows="props.threads"
@@ -252,7 +256,14 @@ const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rows
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.threadPurchase.buttons.buy')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || purchaseLoading"
+            :loading="props.loading || purchaseLoading"
+            no-caps
+            :label="$t('forms.threadPurchase.buttons.buy')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>

@@ -34,6 +34,7 @@ const budget = useBudget();
 
 const selectedData = ref({});
 const showPurchaseModal = ref(false);
+const purchaseLoading = ref(false);
 const createActionErr = ref(null);
 const columns = [
   { name: 'name', label: t('tables.ripeMaterial.columns.name'), align: 'left', field: 'name' },
@@ -54,6 +55,7 @@ function createAction() {
     return
   }
 
+  purchaseLoading.value = true;
   let input;
 
   const isSort1 = selectedData.value.whichSort === 'sort1';
@@ -112,15 +114,16 @@ function createAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failure')
       })
     })
+    .finally(() => purchaseLoading.value = false)
 }
 </script>
 
 <template>
   <skeleton-table
-    :loading="props.loading"
+    :loading="props.loading || purchaseLoading"
   />
   <q-table
-    v-show="!loading"
+    v-show="!loading && !purchaseLoading"
     flat
     bordered
     :rows="props.materials"
@@ -308,7 +311,14 @@ function createAction() {
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.threadPurchase.buttons.buy')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || purchaseLoading"
+            :loading="props.loading || purchaseLoading"
+            no-caps
+            :label="$t('forms.threadPurchase.buttons.buy')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>

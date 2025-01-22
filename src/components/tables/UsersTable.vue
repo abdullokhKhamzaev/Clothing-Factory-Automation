@@ -77,7 +77,7 @@ function clearAction() {
 }
 
 function prefill () {
-  if (selectedData.value?.salaryCurrency['@id']) {
+  if (selectedData?.value?.salaryCurrency && selectedData.value.salaryCurrency['@id']) {
     selectedData.value.salaryCurrency = selectedData.value.salaryCurrency['@id']
   }
 }
@@ -120,6 +120,7 @@ function createAction() {
 }
 function updateAction() {
   if (selectedData?.value?.id) {
+    userLoading.value = true;
 
     let input = {};
 
@@ -134,7 +135,6 @@ function updateAction() {
       }
     }
 
-    userLoading.value = true;
     user.editUser(selectedData.value.id, input)
       .then(() => {
         showUpdateModal.value = false;
@@ -163,6 +163,7 @@ function updateAction() {
 }
 function deleteAction() {
   if ( selectedData?.value?.id ) {
+    userLoading.value = true;
     user.deleteUser(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
@@ -175,6 +176,7 @@ function deleteAction() {
         clearAction();
         getUsers();
       })
+      .finally(() => userLoading.value = false)
   } else {
     console.warn('data is empty');
   }
@@ -476,7 +478,14 @@ function exportTable(users) {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.user.buttons.create')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || userLoading"
+            :loading="props.loading || userLoading"
+            no-caps
+            :label="$t('forms.user.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -487,7 +496,6 @@ function exportTable(users) {
       style="width: 900px; max-width: 80vw;"
     >
       <q-form @submit.prevent="updateAction">
-        {{ selectedData?.salaryCurrency || 'aa' }}
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
@@ -595,7 +603,14 @@ function exportTable(users) {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.user.buttons.edit')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || userLoading"
+            :loading="props.loading || userLoading"
+            no-caps
+            :label="$t('forms.user.buttons.edit')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -614,7 +629,13 @@ function exportTable(users) {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteAction" />
+        <q-btn
+          :disable="props.loading || userLoading"
+          :loading="props.loading || userLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

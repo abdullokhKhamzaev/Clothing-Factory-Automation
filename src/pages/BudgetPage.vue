@@ -376,7 +376,14 @@ onMounted(() => {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn :label="$t('convert')" type="submit" color="primary" icon-right="mdi-briefcase-arrow-up-down" />
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            :label="$t('convert')"
+            type="submit"
+            color="primary"
+            icon-right="mdi-briefcase-arrow-up-down"
+          />
         </div>
       </q-form>
     </div>
@@ -404,7 +411,14 @@ onMounted(() => {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn :label="$t('add')" type="submit" color="primary" icon-right="mdi-cash-plus" />
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            :label="$t('add')"
+            type="submit"
+            color="primary"
+            icon-right="mdi-cash-plus"
+          />
         </div>
       </q-form>
     </div>

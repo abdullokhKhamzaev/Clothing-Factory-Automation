@@ -234,7 +234,14 @@ function clearAction() {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.color.buttons.create')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || colorLoading"
+            :loading="props.loading || colorLoading"
+            no-caps
+            :label="$t('forms.color.buttons.create')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -278,7 +285,14 @@ function clearAction() {
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.color.buttons.edit')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || colorLoading"
+            :loading="props.loading || colorLoading"
+            no-caps
+            :label="$t('forms.color.buttons.edit')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -297,7 +311,13 @@ function clearAction() {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteColorAction" />
+        <q-btn
+          :disable="props.loading || colorLoading"
+          :loading="props.loading || colorLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteColorAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

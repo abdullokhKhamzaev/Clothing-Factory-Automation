@@ -201,7 +201,14 @@ onMounted(() => {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.accept')" color="green" @click="acceptAction();" />
+        <q-btn
+          :disable="props.loading || orderLoading"
+          :loading="props.loading || orderLoading"
+          no-caps
+          :label="$t('dialogs.accept.buttons.accept')"
+          color="green"
+          @click="acceptAction();"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -217,7 +224,14 @@ onMounted(() => {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.reject')" color="red" @click="rejectAction();" />
+        <q-btn
+          :disable="props.loading || orderLoading"
+          :loading="props.loading || orderLoading"
+          no-caps
+          :label="$t('dialogs.reject.buttons.reject')"
+          color="red"
+          @click="rejectAction()"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

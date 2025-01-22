@@ -28,6 +28,7 @@ const emit = defineEmits(['refresh']);
 const { t } = useI18n();
 const $q = useQuasar();
 const showPayModal = ref(false);
+const paymentLoading = ref(false);
 const payActionErr = ref(null);
 const selectedData = ref({});
 const budgets = ref([]);
@@ -53,6 +54,8 @@ function payAction () {
     return;
   }
 
+  paymentLoading.value = true;
+
   const input = {
     budget: selectedBudget.value[0]['@id'],
     quantity: selectedData.value.debtQuantity,
@@ -76,6 +79,7 @@ function payAction () {
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
     })
+    .finally(() => paymentLoading.value = false)
 }
 
 const columns = [
@@ -102,10 +106,10 @@ onMounted(() => {
 
 <template>
   <skeleton-table
-    :loading="loading"
+    :loading="props.loading || paymentLoading"
   />
   <q-table
-    v-show="!props.loading"
+    v-show="!props.loading && !paymentLoading"
     flat
     bordered
     :rows="props.purchases"
@@ -224,7 +228,14 @@ onMounted(() => {
         <q-separator />
 
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.threadPurchase.buttons.payDebt')" type="submit" color="primary" />
+          <q-btn
+            :disable="props.loading || paymentLoading"
+            :loading="props.loading || paymentLoading"
+            no-caps
+            :label="$t('forms.threadPurchase.buttons.payDebt')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>

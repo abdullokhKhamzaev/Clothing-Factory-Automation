@@ -487,7 +487,14 @@ function finishOrderAction() {
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.paint.buttons.order')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || paintLoading"
+            :loading="props.loading || paintLoading"
+            no-caps
+            :label="$t('forms.paint.buttons.order')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -639,7 +646,14 @@ function finishOrderAction() {
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
-          <q-btn no-caps :label="$t('forms.ripeMaterialAccepted.buttons.accept')" type="submit" color="primary"/>
+          <q-btn
+            :disable="props.loading || paintLoading"
+            :loading="props.loading || paintLoading"
+            no-caps
+            :label="$t('forms.ripeMaterialAccepted.buttons.accept')"
+            type="submit"
+            color="primary"
+          />
         </div>
       </q-form>
     </div>
@@ -656,7 +670,13 @@ function finishOrderAction() {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup @click="clearAction"/>
-        <q-btn :label="$t('dialogs.complete.buttons.complete')" color="primary" @click="finishOrderAction"/>
+        <q-btn
+          :disable="props.loading || paintLoading"
+          :loading="props.loading || paintLoading"
+          :label="$t('dialogs.complete.buttons.complete')"
+          color="primary"
+          @click="finishOrderAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -674,7 +694,13 @@ function finishOrderAction() {
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction"/>
-        <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteAction"/>
+        <q-btn
+          :disable="props.loading || paintLoading"
+          :loading="props.loading || paintLoading"
+          :label="$t('dialogs.delete.buttons.confirm')"
+          color="red"
+          @click="deleteAction"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
