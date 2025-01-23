@@ -125,6 +125,7 @@ export default {
     },
     ripeMaterial: {
       barCreate: 'Create Ripe Material',
+      barSend: 'Send Ripe Material',
       barEdit: 'Edit Ripe Material',
     },
     ripeMaterialAccepted: {
@@ -696,7 +697,8 @@ export default {
       },
       buttons: {
         buy: 'Buy',
-        payDebt: 'Pay'
+        payDebt: 'Pay',
+        send: 'Send'
       },
       confirmation: {
         successBought: 'Ripe Material was successfully bought.',
@@ -941,7 +943,8 @@ export default {
         priceSort2: 'Price sort 2'
       },
       buttons: {
-        add: 'Add'
+        add: 'Add',
+        sendToCutter: 'Send to Cutter Warehouse'
       }
     },
     ripeMaterialPurchase: {
@@ -965,7 +968,7 @@ export default {
         transaction: 'Description',
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Add Ripe Material'
       },
     },
     paint: {

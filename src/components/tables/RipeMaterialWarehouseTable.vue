@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
+import { useRipeMaterialAction } from "stores/ripeMaterialAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
@@ -34,20 +35,24 @@ const budget = useBudget();
 
 const selectedData = ref({});
 const showPurchaseModal = ref(false);
+const showSendModal = ref(false);
 const purchaseLoading = ref(false);
 const createActionErr = ref(null);
+const sendActionErr = ref(null);
 const columns = [
   { name: 'name', label: t('tables.ripeMaterial.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.ripeMaterial.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'roll', label: t('tables.ripeMaterial.columns.roll'), align: 'left', field: 'roll' },
   { name: 'quantitySort2', label: t('tables.ripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
   { name: 'rollSort2', label: t('tables.ripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
-  { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' }
+  { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' },
+  { name: 'action', label: '', align: 'left', field: 'action' }
 ];
 
 function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
+  sendActionErr.value = null;
 }
 function createAction() {
   if (!user.about['@id']) {
@@ -116,6 +121,50 @@ function createAction() {
     })
     .finally(() => purchaseLoading.value = false)
 }
+function sendAction() {
+  if (!user.about['@id'] || !selectedData.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+  purchaseLoading.value = true;
+  let input = {
+    ripeMaterial: selectedData.value['@id'],
+    sentBy: user.about['@id'],
+    isCutterWarehouse: true
+  };
+
+  if (selectedData.value.whichSort === 'sort1') {
+    input.quantity = selectedData.value.sentQuantity;
+    input.roll = selectedData.value.sentRoll;
+  } else if (selectedData.value.whichSort === 'sort2') {
+    input.quantitySort2 = selectedData.value.sentQuantitySort2;
+    input.rollSort2 = selectedData.value.sentRollSort2;
+  }
+
+  useRipeMaterialAction().create(input)
+    .then(() => {
+      showSendModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.successBought')
+      })
+      clearAction();
+      emit('submit');
+    })
+    .catch((res) => {
+      sendActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.failure')
+      })
+    })
+    .finally(() => purchaseLoading.value = false)
+}
 </script>
 
 <template>
@@ -154,6 +203,55 @@ function createAction() {
 
           <div v-else-if="col.name === 'price'">
             <span> {{ props.row.price * props.row.quantity }} </span>
+          </div>
+          <div v-else-if="col.name === 'action'">
+            <q-btn
+              color="primary"
+              icon="mdi-cogs"
+              size="sm"
+              round
+            >
+              <q-menu>
+                <q-card>
+                  <q-item
+                    v-close-popup
+                    class="text-primary"
+                    clickable
+                    @click="selectedData = {...props.row}; showSendModal = true;"
+                  >
+                    <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                      <q-avatar
+                        icon="mdi-cube-send"
+                        color="primary"
+                        class="text-white"
+                        size="md"
+                      />
+                    </q-item-section>
+                    <q-item-section>
+                      {{ $t('tables.ripeMaterial.buttons.sendToCutter') }}
+                    </q-item-section>
+                  </q-item>
+<!--                  <q-separator />-->
+<!--                  <q-item-->
+<!--                    v-close-popup-->
+<!--                    class="text-negative"-->
+<!--                    clickable-->
+<!--                  >-->
+<!--                    <q-item-section avatar>-->
+<!--                      <q-avatar-->
+<!--                        icon="mdi-delete-empty"-->
+<!--                        color="negative"-->
+<!--                        class="text-white"-->
+<!--                        size="md"-->
+<!--                      />-->
+<!--                    </q-item-section>-->
+<!--                    <q-item-section>-->
+<!--                      Delete-->
+<!--                    </q-item-section>-->
+<!--                  </q-item>-->
+                </q-card>
+              </q-menu>
+            </q-btn>
           </div>
 
           <div v-else>
@@ -316,6 +414,98 @@ function createAction() {
             :loading="props.loading || purchaseLoading"
             no-caps
             :label="$t('forms.threadPurchase.buttons.buy')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showSendModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="sendAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="sendActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="sendActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ sendActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <div class="col-12 q-gutter-sm">
+            <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort1" label="Sort 1" />
+            <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort2" label="Sort 2" />
+          </div>
+          <q-input
+            v-if="selectedData.whichSort === 'sort1'"
+            v-model="selectedData.sentQuantity"
+            :prefix="`max: ${selectedData.quantity} |`"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.quantity.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= selectedData.quantity || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort1'"
+            v-model.number="selectedData.sentRoll"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.roll.label')"
+            lazy-rules
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.roll.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+          <q-input
+            v-if="selectedData.whichSort === 'sort2'"
+            v-model="selectedData.sentQuantitySort2"
+            :prefix="`max: ${selectedData.quantitySort2} |`"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.quantitySort2.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= selectedData.quantitySort2 || $t('forms.ripeMaterialPurchase.fields.quantitySort2.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+          <q-input
+            v-model.number="selectedData.sentRollSort2"
+            v-if="selectedData.whichSort === 'sort2'"
+            type="number"
+            filled
+            :label="$t('forms.ripeMaterialPurchase.fields.rollSort2.label')"
+            lazy-rules
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.ripeMaterialPurchase.fields.rollSort2.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="props.loading || purchaseLoading"
+            :loading="props.loading || purchaseLoading"
+            no-caps
+            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
             color="primary"
           />
