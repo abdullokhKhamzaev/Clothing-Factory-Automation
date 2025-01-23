@@ -5,6 +5,7 @@ import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
 import PaintTable from "components/tables/PaintTable.vue";
 import PaintCompletedTable from "components/tables/PaintCompletedTable.vue";
 import RepaintTable from "components/tables/RepaintTable.vue";
+import CompletedRepaintTable from "components/tables/CompletedRepaintTable.vue";
 
 const tab = ref('orders');
 
@@ -33,6 +34,8 @@ const repaintPagination = ref({
 const repaintPagesNumber = computed(() => Math.ceil(repaintTotal.value / repaintPagination.value.rowsPerPage));
 function getRepaintOrders (filterProps) {
   let props = filterProps || {};
+
+  props.status = 'expected';
 
   repaintLoading.value = true;
   repaintOrder.fetchRepaintOrders(props || '')
@@ -71,6 +74,32 @@ function getCompletedOrders (filterProps) {
     });
 }
 
+const completedRepaintOrders = ref([]);
+const completedRepaintTotal = ref(0);
+const completedRepaintLoading = ref(false);
+const completedRepaintPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const completedRepaintPagesNumber = computed(() => Math.ceil(completedRepaintTotal.value / completedRepaintPagination.value.rowsPerPage));
+function getCompletedRepaintOrders (filterProps) {
+  let props = filterProps || {};
+
+  props.status = 'received';
+
+  completedRepaintLoading.value = true;
+  repaintOrder.fetchRepaintOrders(props || '')
+    .then((res) => {
+      completedRepaintOrders.value = res.data['hydra:member'];
+      completedRepaintTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      completedRepaintLoading.value = false;
+    });
+}
+
 function getOrders (filterProps) {
   let props = filterProps || {};
 
@@ -94,13 +123,19 @@ function refresh() {
     descending: true,
     rowsNumber: 0
   }
+  repaintPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  }
   completedPagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   }
-  repaintPagination.value = {
+  completedRepaintPagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
@@ -109,6 +144,7 @@ function refresh() {
   getOrders();
   getRepaintOrders();
   getCompletedOrders();
+  getCompletedRepaintOrders();
 }
 
 onMounted(() => {
@@ -130,10 +166,9 @@ onMounted(() => {
       <q-tab name="orders" :label="$t('orders')">
         <q-badge v-if="total" color="red" floating>{{ total }}</q-badge>
       </q-tab>
-      <q-tab name="repaintOrders" :label="$t('repaintOrders')">
-        <q-badge v-if="repaintTotal" color="red" floating>{{ repaintTotal }}</q-badge>
-      </q-tab>
+      <q-tab name="repaintOrders" :label="$t('repaintOrders')" />
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
+      <q-tab name="completedRepaintOrders" :label="$t('completedRepaintOrders')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -204,6 +239,28 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getCompletedOrders({ page: completedPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="completedRepaintOrders" class="q-pa-none">
+        <completed-repaint-table
+          :orders="completedRepaintOrders"
+          :pagination="completedRepaintPagination"
+          :loading="completedRepaintLoading"
+        />
+        <div
+          v-if="completedRepaintTotal > completedRepaintPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="completedRepaintLoading"
+            v-model="completedRepaintPagination.page"
+            input-class="text-bold text-black"
+            :max="completedRepaintPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getCompletedRepaintOrders({ page: completedRepaintPagination.page })"
           />
         </div>
       </q-tab-panel>

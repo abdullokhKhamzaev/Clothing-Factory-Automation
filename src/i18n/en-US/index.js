@@ -3,7 +3,9 @@ export default {
   accept: 'Accept',
   balance: 'Balance',
   confirmed: 'Confirmed',
+  repaintOrders: 'Repaint Orders',
   completedOrders: 'Completed Orders',
+  completedRepaintOrders: 'Completed Repaint Orders',
   convert: 'Convert',
   columns: 'Columns',
   colors: 'Colors',
@@ -43,6 +45,8 @@ export default {
     confirmed: 'Confirmed',
     pending: 'Pending',
     completed: 'Completed',
+    expected: 'Expected',
+    received: 'Received'
   },
   menus: {
     sideBar: {
@@ -133,6 +137,9 @@ export default {
     paint: {
       barCreate: 'Create Paint Order',
       barEdit: 'Edit Paint Order',
+    },
+    repaint: {
+      barCreate: 'Create Repaint Order'
     },
     paintPurchase: {
       barPayDebt: 'Pay Paint Purchase Debt'
@@ -551,6 +558,79 @@ export default {
         failure: 'There was an error saving Order.'
       }
     },
+    repaint: {
+      fields: {
+        ripeMaterial: {
+          label: 'Choose Ripe material',
+          validation: {
+            required: 'Material is required.',
+          }
+        },
+        paintFabric: {
+          label: 'Choose fabric',
+          validation: {
+            required: 'Fabric is required.',
+          }
+        },
+        sentQuantitySort1: {
+          label: 'Quantity Sort 1',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        receivedQuantitySort1: {
+          label: 'Receiving Quantity Sort 1',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        sentQuantitySort2: {
+          label: 'Quantity Sort 2',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        receivedQuantitySort2: {
+          label: 'Receiving Quantity Sort 2',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        sentRollSort1: {
+          label: 'Roll Sort 1',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        receivedRollSort1: {
+          label: 'Receiving Roll Sort 1',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        sentRollSort2: {
+          label: 'Roll Sort 2',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+        receivedRollSort2: {
+          label: 'Receiving Roll Sort 2',
+          validation: {
+            required: 'Roll is required.',
+          }
+        },
+      },
+      buttons: {
+        order: 'Create Order',
+        accept: 'Receive Order'
+      },
+      confirmation: {
+        successOrderCreated: 'Order was successfully created.',
+        successOrderReceived: 'Order was successfully received.',
+        failure: 'There was an error saving Order.'
+      }
+    },
     ripeMaterialPurchase: {
       fields: {
         ripeMaterial: {
@@ -910,6 +990,32 @@ export default {
       },
       buttons: {
         add: 'Add Order'
+      }
+    },
+    repaint: {
+      header: {
+        title: 'Repaint Orders',
+        empty: 'There is no available Repaint Orders'
+      },
+      columns: {
+        createdAt: 'Created At',
+        ripeMaterial: 'Ripe Material',
+        createdBy: 'Created By',
+        paintFabric: 'Fabric',
+        sentQuantitySort1: 'Sent Quantity sort 1',
+        receivedQuantitySort1: 'Received Quantity sort 1',
+        sentRollSort1: 'Sent Roll sort 1',
+        receivedRollSort1: 'Received Roll sort 1',
+        sentQuantitySort2: 'Sent Quantity sort 2',
+        receivedQuantitySort2: 'Received Quantity sort 2',
+        sentRollSort2: 'Sent Roll sort 2',
+        receivedRollSort2: 'Received Roll sort 2',
+        status: 'Status',
+        receivedBy: 'Received By',
+        receivedAt: 'Received At'
+      },
+      buttons: {
+        add: 'Add repaint order'
       }
     },
     paintPurchase: {

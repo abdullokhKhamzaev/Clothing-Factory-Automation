@@ -121,6 +121,7 @@ function receiveAction() {
   let input = {
     status: "received",
     receivedBy: user.about['@id'],
+    receivedAt: new Date().toISOString(),
     receivedQuantitySort1: selectedData.value.receivedQuantitySort1,
     receivedRollSort1: selectedData.value.receivedRollSort1,
     receivedQuantitySort2: selectedData.value.receivedQuantitySort2,
@@ -191,34 +192,29 @@ function receiveAction() {
             </div>
           </div>
           <div v-else-if="col.name === 'ripeMaterial'">
-<!--            {{props.row.unripeMaterial.name }}-->
-            {{ props.row.ripeMaterial }}
+            {{props.row.ripeMaterial.name }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
-<!--            {{ props.row.createdBy.fullName }}-->
-            {{ props.row.createdBy }}
+            {{ props.row.createdBy.fullName }}
           </div>
           <div v-else-if="col.name === 'paintFabric'">
-<!--            {{ props.row.paintFabric.name }}-->
-            {{ props.row.paintFabric }}
+            {{ props.row.paintFabric.name }}
           </div>
           <div v-else-if="col.name === 'sentQuantitySort1'">
-            {{ props.row.sentQuantitySort1 }}
-<!--            {{ props.row.unripeMaterial.measurement }}-->
+            {{ Number(props.row.sentQuantitySort1) > 0 ? `${props.row.sentQuantitySort1} ${props.row.ripeMaterial.measurement}` : '-' }}
           </div>
           <div v-else-if="col.name === 'sentRollSort1'">
             {{ Number(props.row.sentRollSort1) > 0 ? props.row.sentRollSort1 : '-' }}
           </div>
           <div v-else-if="col.name === 'sentQuantitySort2'">
-<!--            {{ Number(props.row.sentQuantitySort2) > 0 ? `${props.row.sentQuantitySort2} ${props.row.unripeMaterial.measurement}` : '-' }}-->
-            {{ Number(props.row.sentQuantitySort2) > 0 ? `${props.row.sentQuantitySort2} ${props.row.ripeMaterial}` : '-' }}
+            {{ Number(props.row.sentQuantitySort2) > 0 ? `${props.row.sentQuantitySort2} ${props.row.ripeMaterial.measurement}` : '-' }}
           </div>
           <div v-else-if="col.name === 'sentRollSort2'">
             {{ Number(props.row.sentRollSort2) > 0 ? props.row.sentRollSort2 : '-' }}
           </div>
           <div v-else-if="col.name === 'status'">
             <span class="text-bold" :class="props.row.status === 'expected' ? 'text-warning' : 'text-green'">
-              {{ $t(props.row.status) }}
+              {{ $t('statuses.' + props.row.status) }}
             </span>
           </div>
           <div v-else>
@@ -240,7 +236,7 @@ function receiveAction() {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.paint.barCreate') }}</div>
+          <div class="text-h6"> {{ $t('dialogs.repaint.barCreate') }}</div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">

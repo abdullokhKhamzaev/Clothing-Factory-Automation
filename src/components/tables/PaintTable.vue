@@ -41,7 +41,6 @@ const budget = useBudget();
 
 const selectedData = ref({});
 const showCreateModal = ref(false);
-const showDeleteModal = ref(false);
 const showReceiveModal = ref(false);
 const createActionErr = ref(null);
 const receiveActionErr = ref(null);
@@ -185,34 +184,6 @@ function receiveAction() {
     })
     .finally(() => paintLoading.value = false)
 }
-function deleteAction() {
-  if (!selectedData.value.id) {
-    console.warn('data is empty');
-    return;
-  }
-  paintLoading.value = true;
-  useRipeMaterialOrder().deleteRipeMaterialOrder(selectedData.value.id)
-    .then(() => {
-      showDeleteModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.paint.confirmation.successOrderDeleted')
-      });
-      clearAction();
-      emit('submit');
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.paint.confirmation.failure')
-      })
-    })
-    .finally(() => paintLoading.value = false)
-}
 function finishOrderAction() {
   if (!selectedData.value.id || !user.about['@id']) {
     console.warn('data is empty');
@@ -298,19 +269,6 @@ function finishOrderAction() {
               >
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
                   {{ $t('finish') }}
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                v-else
-                size="md"
-                color="red"
-                rounded
-                dense
-                icon="delete"
-                @click="showDeleteModal = true; selectedData = {...props.row}"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('delete') }}
                 </q-tooltip>
               </q-btn>
             </div>
@@ -676,30 +634,6 @@ function finishOrderAction() {
           :label="$t('dialogs.complete.buttons.complete')"
           color="primary"
           @click="finishOrderAction"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showDeleteModal" persistent>
-    <q-card>
-      <q-card-section class="row flex items-center q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
-        <q-space/>
-        <q-icon name="delete" color="grey" size="sm"/>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.delete.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction"/>
-        <q-btn
-          :disable="props.loading || paintLoading"
-          :loading="props.loading || paintLoading"
-          :label="$t('dialogs.delete.buttons.confirm')"
-          color="red"
-          @click="deleteAction"
         />
       </q-card-actions>
     </q-card>
