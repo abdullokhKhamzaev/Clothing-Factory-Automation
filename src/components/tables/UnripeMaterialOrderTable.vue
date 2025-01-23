@@ -430,7 +430,7 @@ onMounted(() => {
         </div>
 
         <div class="q-pl-md text-subtitle1 text-primary">
-          {{ $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.title') }}:
+          {{ $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.title') }}
         </div>
         <q-separator class="q-mb-md"/>
         <div

@@ -156,6 +156,10 @@ export default {
       barCreate: 'Create Color',
       barEdit: 'Edit Color',
     },
+    model: {
+      barCreate: 'Create Model',
+      barEdit: 'Edit Model'
+    },
   },
   forms: {
     user: {
@@ -840,6 +844,53 @@ export default {
         failure: 'There was an error saving paint color.'
       }
     },
+    model: {
+      fields: {
+        name: {
+          label: 'Model name',
+          validation: {
+            required: 'Model name is required.',
+          }
+        },
+        description: {
+          label: 'Model description',
+          validation: {
+            required: 'Description is required.',
+          }
+        },
+        sizes: {
+          title: 'Create model sizes:',
+        },
+        size: {
+          label: 'Model size name',
+          validation: {
+            required: 'Model size name is required.',
+          }
+        },
+        quantity: {
+          label: 'Model quantity',
+          validation: {
+            required: 'Model quantity is required.',
+          }
+        },
+        price: {
+          label: 'Model price',
+          validation: {
+            required: 'Model price is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Color',
+        edit: 'Edit Color'
+      },
+      confirmation: {
+        successCreated: 'Model was successfully created.',
+        successEdited: 'Model was successfully edited.',
+        successDeleted: 'Model was successfully deleted.',
+        failure: 'There was an error saving model.'
+      }
+    },
   },
   tables: {
     users: {
@@ -1133,6 +1184,20 @@ export default {
       },
       buttons: {
         add: 'Add Color'
+      },
+    },
+    model: {
+      header: {
+        title: 'Models',
+        empty: 'There is no available model'
+      },
+      columns: {
+        name: 'Name',
+        description: 'Description',
+        sizes: 'Sizes'
+      },
+      buttons: {
+        add: 'Add Model'
       },
     }
   }

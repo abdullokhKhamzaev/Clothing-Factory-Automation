@@ -5,11 +5,13 @@ import { useMaterial } from "stores/material.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useColor } from "stores/color.js";
+import { useProductModels } from "stores/productModel.js";
 import ThreadTable from "components/tables/ThreadTable.vue";
 import UnripeMaterialTable from "components/tables/UnripeMaterialTable.vue";
 import FabricTable from "components/tables/FabricTable.vue";
 import FabricColorTable from "components/tables/FabricColorTable.vue";
 import RipeMaterialTable from "components/tables/RipeMaterialTable.vue";
+import ModelTable from "components/tables/modelTable.vue";
 
 const tab = ref('thread');
 
@@ -136,6 +138,30 @@ function getColors (filterProps) {
     });
 }
 
+const model = useProductModels();
+const models = ref([]);
+const modelTotal = ref(0);
+const modelLoading = ref(false);
+const modelPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const modelPagesNumber = computed(() => Math.ceil(modelTotal.value / modelPagination.value.rowsPerPage));
+function getModels (filterProps) {
+  let props = filterProps || {};
+  modelLoading.value = true;
+  model.fetchProductModels(props || '')
+    .then((res) => {
+      models.value = res.data['hydra:member'];
+      modelTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      modelLoading.value = false;
+    });
+}
+
  function refresh () {
    threadPagination.value = {
      rowsPerPage: 10,
@@ -167,11 +193,18 @@ function getColors (filterProps) {
      descending: true,
      rowsNumber: 0
    };
+   modelPagination.value = {
+     rowsPerPage: 10,
+     page: 1,
+     descending: true,
+     rowsNumber: 0
+   };
    getThreads();
    getMaterials();
    getRipeMaterials();
    getFabrics();
    getColors();
+   getModels();
  }
 
 onMounted(() => {
@@ -195,6 +228,7 @@ onMounted(() => {
       <q-tab name="ripeMaterial" :label="$t('tables.ripeMaterial.header.title')"/>
       <q-tab name="fabric" :label="$t('tables.fabric.header.title')"/>
       <q-tab name="color" :label="$t('tables.color.header.title')"/>
+      <q-tab name="model" :label="$t('tables.model.header.title')"/>
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -316,6 +350,29 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getColors({ page: colorPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="model" class="q-pa-none">
+        <model-table
+          :models="models"
+          :pagination="modelPagination"
+          :loading="modelLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="modelTotal > modelPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="modelLoading"
+            v-model="modelPagination.page"
+            input-class="text-bold text-black"
+            :max="modelPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getModels({ page: modelPagination.page })"
           />
         </div>
       </q-tab-panel>
