@@ -702,7 +702,9 @@ export default {
       },
       confirmation: {
         successBought: 'Ripe Material was successfully bought.',
-        failure: 'There was an error buying Ripe Material.'
+        successSent: 'Ripe Material was successfully sent.',
+        failure: 'There was an error buying Ripe Material.',
+        failureSent: 'There was an error sending Ripe Material.'
       }
     },
     unripeMaterialOrder: {
@@ -945,6 +947,24 @@ export default {
       buttons: {
         add: 'Add',
         sendToCutter: 'Send to Cutter Warehouse'
+      }
+    },
+    cutterRipeMaterial: {
+      header: {
+        title: 'Ripe Materials',
+        empty: 'There is no available Ripe Materials'
+      },
+      columns: {
+        ripeMaterial: 'Material name',
+        quantity: 'Quantity',
+        roll: 'Roll',
+        quantitySort2: 'Quantity sort 2',
+        rollSort2: 'Roll sort 2',
+        remainingSort1: 'Remainder sort 1',
+        remainingSort2: 'Remainder sort 2'
+      },
+      buttons: {
+        sendToWarehouse: 'Send to Warehouse'
       }
     },
     ripeMaterialPurchase: {

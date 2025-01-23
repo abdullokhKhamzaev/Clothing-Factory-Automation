@@ -1,11 +1,95 @@
-<template>
-  <q-page class="flex flex-center">
-    <h3>
-      Bichuv
-    </h3>
-  </q-page>
-</template>
-
 <script setup>
-//
+import { computed, onMounted, ref } from "vue";
+import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
+import CutterRipeMaterialWarehouseTable from "components/tables/CutterRipeMaterialWarehouseTable.vue";
+
+const tab = ref('orders');
+
+const ripeMaterials = ref([]);
+const ripeMaterialTotal = ref(0);
+const ripeMaterialLoading = ref(false);
+const ripeMaterialPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const ripeMaterialPagesNumber = computed(() => Math.ceil(ripeMaterialTotal.value / ripeMaterialPagination.value.rowsPerPage));
+function getRipeMaterial (filterProps) {
+  let props = filterProps || {};
+
+  ripeMaterialLoading.value = true;
+  useCutterRipeMaterialWarehouse().getAll(props || '')
+    .then((res) => {
+      ripeMaterials.value = res.data['hydra:member'];
+      ripeMaterialTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      ripeMaterialLoading.value = false;
+    });
+}
+
+function refresh() {
+  ripeMaterialPagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  }
+  getRipeMaterial();
+}
+
+onMounted(() => {
+  refresh()
+})
 </script>
+
+<template>
+  <div class="flex justify-between q-gutter-md">
+    <q-tabs
+      v-model="tab"
+      no-caps
+      dense
+      outside-arrows
+      mobile-arrows
+      class="shadow-2 text-primary"
+      :class="$q.screen.xs ? 'full-width' : ''"
+    >
+      <q-tab name="orders" :label="$t('orders')">
+<!--        <q-badge v-if="total" color="red" floating>{{ total }}</q-badge>-->
+      </q-tab>
+      <q-tab name="materials" :label="$t('materials')" />
+    </q-tabs>
+    <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
+  </div>
+  <div class="q-py-md">
+    <q-tab-panels v-model="tab" animated>
+      <q-tab-panel name="orders" class="q-pa-none">
+        {{ $t('orders') }}
+      </q-tab-panel>
+      <q-tab-panel name="materials" class="q-pa-none">
+        <cutter-ripe-material-warehouse-table
+          :materials="ripeMaterials"
+          :pagination="ripeMaterialPagination"
+          :loading="ripeMaterialLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="ripeMaterialTotal > ripeMaterialPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="ripeMaterialLoading"
+            v-model="ripeMaterialPagination.page"
+            input-class="text-bold text-black"
+            :max="ripeMaterialPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getRipeMaterial({ page: ripeMaterialPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+    </q-tab-panels>
+  </div>
+</template>

@@ -148,7 +148,7 @@ function sendAction() {
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.successBought')
+        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
       emit('submit');
@@ -160,7 +160,7 @@ function sendAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failure')
+        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
     .finally(() => purchaseLoading.value = false)
