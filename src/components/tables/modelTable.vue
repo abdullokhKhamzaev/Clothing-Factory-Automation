@@ -152,6 +152,7 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
+  rows.value = [{ size: '', quantity: '', price: '' }]
 }
 </script>
 

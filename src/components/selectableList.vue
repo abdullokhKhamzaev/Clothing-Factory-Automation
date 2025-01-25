@@ -11,12 +11,17 @@ const props = defineProps({
     required: false,
     default: false
   },
+  multiple: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   fetchMethod: {
     type: String,
     required: true
   },
   itemLabel: {
-    type: String,
+    type: [String, Object],
     required: true,
   },
   itemValue: {
@@ -51,7 +56,7 @@ const page = ref(1);
 
 const options = computed(() => {
   return items.value.map(item => ({
-    label: item[props.itemLabel],
+    label: typeof props.itemLabel === 'string' ? item[props.itemLabel] : item[props.itemLabel.label][props.itemLabel.path],
     value: props.itemValue ? item[props.itemValue] : item
   }));
 });
@@ -89,6 +94,7 @@ onMounted(() => {
   <q-select
     v-model="selectedItem"
     :disable="disable"
+    :multiple="multiple"
     filled
     emit-value
     map-options

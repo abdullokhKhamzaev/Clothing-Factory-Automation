@@ -460,7 +460,7 @@ function sendAction() {
             filled
             :label="$t('forms.ripeMaterialPurchase.fields.quantity.label')"
             lazy-rules
-            :rules="[ val => val && val >= 1 && val <= selectedData.quantity || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
             class="col-12 col-md-6"
           />
