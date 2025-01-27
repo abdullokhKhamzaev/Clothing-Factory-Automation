@@ -1,0 +1,125 @@
+<script setup>
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import SkeletonTable from "components/tables/SkeletonTable.vue";
+import ReportList from "components/ReportList.vue";
+
+// Props
+let props = defineProps({
+  orders: {
+    type: Array,
+    required: true
+  },
+  pagination: {
+    type: Object,
+    required: true
+  },
+  loading: {
+    type: Boolean,
+    required: false,
+    default: false
+  }
+});
+const { t } = useI18n();
+const orderLoading = ref(false);
+
+const columns = [
+  { name: 'id', label: '#ID', align: 'left', field: 'id' },
+  { name: 'productModel', label: t('tables.modelOrder.columns.productModel'), align: 'left', field: 'productModel' },
+  { name: 'createdAt', label: t('tables.modelOrder.columns.createdAt'), align: 'left', field: 'createdAt' },
+  { name: 'createdBy', label: t('tables.modelOrder.columns.createdBy'), align: 'left', field: 'createdBy' },
+  { name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize' },
+  { name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial' },
+  { name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds' },
+  { name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status' },
+];
+</script>
+
+<template>
+  <skeleton-table
+    :loading="props.loading || orderLoading"
+  />
+  <q-table
+    v-show="!props.loading && !orderLoading"
+    flat
+    bordered
+    :rows="props.orders"
+    :columns="columns"
+    :no-data-label="$t('tables.modelOrder.header.empty')"
+    color="primary"
+    row-key="id"
+    :pagination="props.pagination"
+    hide-bottom
+  >
+    <template v-slot:top>
+      <div class="col-12 flex justify-between">
+        <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
+        <div class="text-right">
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.modelOrder.buttons.add')"
+            no-caps
+            @click="showOrderCreateModal = true"
+          />
+        </div>
+      </div>
+    </template>
+    <template v-slot:body="props">
+      <q-tr :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props">
+          <div v-if="col.name === 'productModel'">
+            {{ props.row?.productModel?.name || '-' }}
+          </div>
+          <div v-else-if="col.name === 'createdBy'">
+            {{ props.row?.createdBy?.fullName || '-' }}
+          </div>
+          <div v-else-if="col.name === 'expectedOutlayRipeMaterial'">
+            <div
+              v-for="consume in props.row.expectedOutlayRipeMaterial"
+              :key="consume"
+            >
+              <div>{{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}</div>
+              <div v-if="Number(consume.quantitySort2)">{{$t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label')}}: {{ Number(consume.quantitySort2) }}</div>
+              <div v-if="Number(consume.remainingSort1)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label')}}: {{ Number(consume.remainingSort1) }}</div>
+              <div v-if="Number(consume.remainingSort2)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label')}}: {{ Number(consume.remainingSort2) }}</div>
+            </div>
+          </div>
+          <div v-else-if="col.name === 'productSize'">
+            <div
+              v-for="consume in props.row.productSize"
+              :key="consume"
+            >
+              {{ consume.size }} : {{ consume.quantity }}
+            </div>
+          </div>
+          <div v-else-if="col.name === 'productModelOrderCompleteds'">
+            <q-toggle
+              v-if="props.row?.productModelOrderCompleteds.length"
+              v-model="props.expand"
+              dense
+              color="primary"
+              :icon="props.expand ? 'add' : 'remove'"
+              :label="$t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders')"
+            />
+            <span v-else>
+              -
+            </span>
+          </div>
+          <div v-else-if="col.name === 'status'" :class="props.row.status === 'pending' ? 'text-red' : 'text-orange'">
+            {{ $t('statuses.' + props.row.status) }}
+          </div>
+          <div v-else>
+            {{ props.row[col.field] || '-' }}
+          </div>
+        </q-td>
+      </q-tr>
+      <q-tr v-show="props.expand" :props="props">
+        <q-td colspan="100%">
+          {{ props.row?.productModelOrderCompleteds }}
+          <report-list :lists="[]" />
+        </q-td>
+      </q-tr>
+    </template>
+  </q-table>
+</template>

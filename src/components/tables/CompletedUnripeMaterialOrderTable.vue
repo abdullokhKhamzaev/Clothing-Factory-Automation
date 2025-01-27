@@ -1,6 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useThread } from "stores/thread.js";
+import { ref } from "vue";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
@@ -27,9 +26,7 @@ const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
 const $q = useQuasar();
-const threads = ref([]);
 const orderLoading = ref(false);
-const threadLoading = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const selectedData = ref({});
@@ -50,16 +47,6 @@ function getOrders () {
 }
 function clearAction() {
   selectedData.value = {};
-}
-function getThreads () {
-  threadLoading.value = true;
-  useThread().fetchThreads('')
-    .then((res) => {
-      threads.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      threadLoading.value = false;
-    });
 }
 function acceptAction () {
   orderLoading.value = true;
@@ -109,10 +96,6 @@ function rejectAction () {
     })
     .finally(() => orderLoading.value = false)
 }
-
-onMounted(() => {
-  getThreads();
-})
 </script>
 
 <template>

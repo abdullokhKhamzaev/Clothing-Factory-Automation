@@ -123,6 +123,10 @@ export default {
       barCreate: 'Create Unripe Material Order',
       barEdit: 'Edit Unripe Material Order',
     },
+    modelOrder: {
+      barCreate: 'Create Model Order',
+      barEdit: 'Edit Model Order'
+    },
     ripeMaterial: {
       barCreate: 'Create Ripe Material',
       barSend: 'Send Ripe Material',
@@ -752,6 +756,133 @@ export default {
         failure: 'There was an error saving Unripe material order.'
       }
     },
+    modelOrder: {
+      fields: {
+        productModel: {
+          label: 'Select model',
+          validation: {
+            required: 'Model name is required.',
+          }
+        },
+        expectedOutlayRipeMaterial: {
+          title: 'Expected Consume:',
+        },
+        cutterRipeMaterialWarehouse: {
+          label: 'Select Material',
+          validation: {
+            required: 'Material name is required.',
+          }
+        },
+        size: {
+          label: 'Model size name',
+          validation: {
+            required: 'Model size name is required.',
+          }
+        },
+        quantity: {
+          label: 'Model quantity',
+          validation: {
+            required: 'Model quantity is required.',
+          }
+        },
+        expectedConsumeQuantity: {
+          label: 'Expected consume quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        consumedQuantity: {
+          label: 'How many kg used for products?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        wasteSort1: {
+          label: 'How many kg wasted?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        remainingSort1: {
+          label: 'How many kg remaining material used?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        wasteRemainingSort1: {
+          label: 'How many kg wasted on used remaining material?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        newRemainingSort1: {
+          label: 'How many new remaining kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        expectedConsumeQuantitySort2: {
+          label: 'Consume sort 2 quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        quantitySort2: {
+          label: 'How many sort 2 kg used for products?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        wasteSort2: {
+          label: 'How many sort 2 kg wasted?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        remainingSort2: {
+          label: 'How many sort 2 kg remaining material used?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        wasteRemainingSort2: {
+          label: 'How many sort 2 kg wasted on used remaining material?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        newRemainingSort2: {
+          label: 'How many new sort 2 remaining kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        expectedConsumeRemainingSort1: {
+          label: 'Remaining sort 1 quantity',
+          validation: {
+            required: 'Remaining is required.',
+          }
+        },
+        expectedConsumeRemainingSort2: {
+          label: 'Remaining sort 2 quantity',
+          validation: {
+            required: 'Remaining is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Order',
+        edit: 'Edit Order'
+      },
+      confirmation: {
+        successCreated: 'Model was successfully created.',
+        successEdited: 'Model was successfully edited.',
+        successReceived: 'Model was successfully received.',
+        successCompleted: 'Model was successfully completed.',
+        failure: 'There was an error saving model.',
+        failureReceived: 'There was an error receiving order.'
+      }
+    },
     completedMaterialOrderReport: {
       fields: {
         sort: {
@@ -856,6 +987,12 @@ export default {
           label: 'Model description',
           validation: {
             required: 'Description is required.',
+          }
+        },
+        budget: {
+          label: 'Select budget',
+          validation: {
+            required: 'Budget is required.',
           }
         },
         sizes: {
@@ -1159,6 +1296,41 @@ export default {
         createdAt: 'Created at',
         status: 'Status',
         completedUnripeMaterialOrders: 'Description',
+      }
+    },
+    modelOrder: {
+      header: {
+        title: 'Orders',
+        empty: 'There is no available order'
+      },
+      columns: {
+        description: 'Description',
+        productModel: 'Product Model',
+        createdAt: 'Created At',
+        createdBy: 'Created By',
+        productSize: 'Expected Sizes',
+        expectedOutlayRipeMaterial: 'Expected Consume',
+        productModelOrderCompleteds: 'Description',
+        status: 'Status',
+      },
+      buttons: {
+        add: 'Add order'
+      },
+    },
+    completedProductModelOrder: {
+      header: {
+        title: 'Completed Models',
+        empty: 'There is no available order'
+      },
+      columns: {
+        id: 'Order id',
+        createdAt: 'Created at',
+        createdBy: 'Created by',
+        productModel: 'Model',
+        productSize: 'Product sizes',
+        expectedOutlayRipeMaterial: 'Expected consume',
+        outlayRipeMaterial: 'Consumed',
+        status: 'Status'
       }
     },
     fabric: {

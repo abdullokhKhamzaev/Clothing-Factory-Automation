@@ -15,6 +15,12 @@ export const useProductModelOrder = defineStore('product_model_order', () => {
       url += '&status=' + filterProps.status
     }
 
+    if ( filterProps?.statuses ) {
+      filterProps.statuses.forEach((status) => {
+        url += '&status[]=' + status
+      })
+    }
+
     try {
       return await client.get('product_model_orders' + url);
     } catch (e) {
@@ -30,13 +36,22 @@ export const useProductModelOrder = defineStore('product_model_order', () => {
     }
   }
 
-  // function completeRipeMaterialOrder(id, data) {
-  //   try {
-  //     return client.put('ripe_material_orders/' + id, data)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
+  function confirm(id, data) {
+    try {
+      return client.put('product_model_orders/' + id, data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  function complete(id) {
+    try {
+      return client.put('product_model_orders/' + id, { status: 'completed' })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   function updateOrder(id, data) {
     try {
       return client.put('product_model_orders/' + id, data)
@@ -46,5 +61,5 @@ export const useProductModelOrder = defineStore('product_model_order', () => {
   }
 
 
-  return { fetchOrders, createOrder, updateOrder }
+  return { fetchOrders, createOrder, updateOrder, confirm, complete }
 })

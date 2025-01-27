@@ -12,6 +12,13 @@ export function isWeaver() {
   return false;
 }
 
+export function isCutter() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_CUTTER');
+  }
+  return false;
+}
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
     next()
@@ -132,6 +139,19 @@ const routes = [
         path: 'orders',
         name: 'club.weaver.orders',
         component: () => import('pages/role-weaver/WeavePageRoleWeaver.vue')
+      }
+    ]
+  },
+  {
+    path: '/cutter',
+    component: () => import('layouts/cutter/MainLayout.vue'),
+    name: 'club.cutter.home',
+    beforeEnter: ifAuthorized || isCutter,
+    children: [
+      {
+        path: 'orders',
+        name: 'club.cutter.orders',
+        component: () => import('pages/role-cutter/CutPageRoleCutter.vue')
       }
     ]
   },

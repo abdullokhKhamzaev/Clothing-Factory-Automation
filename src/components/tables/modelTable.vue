@@ -3,7 +3,9 @@ import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
+import { useBudget } from "stores/budget.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -26,6 +28,7 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const model = useProductModels();
+const budget = useBudget();
 
 const modelLoading = ref(false);
 const selectedData = ref({});
@@ -76,7 +79,8 @@ function createAction() {
   const input = {
     name: selectedData.value.name,
     description: selectedData.value.description,
-    sizes: sizes
+    sizes: sizes,
+    budget: selectedData.value.budget,
   }
 
   model.create(input)
@@ -263,6 +267,16 @@ function clearAction() {
             class="col-12"
             hide-bottom-space
           />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.model.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.budget.validation.required')"
+            class="col-12"
+          />
         </div>
 
         <div class="q-pl-md text-subtitle1 text-primary">
@@ -298,7 +312,7 @@ function clearAction() {
             type="number"
             v-model="row.price"
             :label="$t('forms.model.fields.price.label')"
-            :rules="[ val => val && val > -1 || $t('forms.model.fields.price.required')]"
+            :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
             class="col-6"
             hide-bottom-space
           />
@@ -363,6 +377,16 @@ function clearAction() {
             class="col-12"
             hide-bottom-space
           />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.model.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.budget.validation.required')"
+            class="col-12"
+          />
         </div>
 
         <div class="q-pl-md text-subtitle1 text-primary">
@@ -398,7 +422,7 @@ function clearAction() {
             type="number"
             v-model="row.price"
             :label="$t('forms.model.fields.price.label')"
-            :rules="[ val => val && val > -1 || $t('forms.model.fields.price.required')]"
+            :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
             class="col-6"
             hide-bottom-space
           />

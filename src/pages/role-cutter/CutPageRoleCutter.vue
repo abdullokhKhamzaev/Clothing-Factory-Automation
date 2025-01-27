@@ -2,10 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useProductModelOrder } from "stores/productModelOrder.js";
-import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
-import CutterRipeMaterialWarehouseTable from "components/tables/CutterRipeMaterialWarehouseTable.vue";
-import ProductModelOrderTable from "components/tables/ProductModelOrderTable.vue";
-import CompletedProductModelOrderTable from "components/tables/CompletedProductModelOrderTable.vue";
+import ProductModelOrderRoleCutterTable from "components/tables/role-cutter/ProductModelOrderRoleCutterTable.vue";
+import MaterialWarehouseRoleCutterTable from "components/tables/role-cutter/MaterialWarehouseRoleCutterTable.vue";
 import ProductModelOrderCompletedTable from "components/ProductModelOrderCompletedTable.vue";
 
 const tab = ref('orders');
@@ -44,47 +42,6 @@ const orderPagination = ref({
   rowsNumber: 0
 });
 const orderPagesNumber = computed(() => Math.ceil(orderTotal.value / orderPagination.value.rowsPerPage));
-function getOrders (filterProps) {
-  let props = filterProps || {};
-
-  props.statuses = ['pending', 'confirmed']
-
-  orderLoading.value = true;
-  useProductModelOrder().fetchOrders(props || '')
-    .then((res) => {
-      orders.value = res.data['hydra:member'];
-      orderTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      orderLoading.value = false;
-    });
-}
-
-const completedPendingOrders = ref([]);
-const completedPendingTotal = ref(0);
-const completedPendingLoading = ref(false);
-const completedPendingPagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const completedPendingPagesNumber = computed(() => Math.ceil(completedPendingTotal.value / completedPendingPagination.value.rowsPerPage));
-function getCompletedPendingOrders (filterProps) {
-  let props = filterProps || {};
-
-  props.status = 'pending'
-
-  completedPendingLoading.value = true;
-  useProductModelOrderCompleted().getOrders(props || '')
-    .then((res) => {
-      completedPendingOrders.value = res.data['hydra:member'];
-      completedPendingTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      completedPendingLoading.value = false;
-    });
-}
 
 const completedOrders = ref([]);
 const completedTotal = ref(0);
@@ -112,6 +69,22 @@ function getCompletedOrders (filterProps) {
     });
 }
 
+function getOrders (filterProps) {
+  let props = filterProps || {};
+
+  props.statuses = ['confirmed', 'pending']
+
+  orderLoading.value = true;
+  useProductModelOrder().fetchOrders(props || '')
+    .then((res) => {
+      orders.value = res.data['hydra:member'];
+      orderTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      orderLoading.value = false;
+    });
+}
+
 function refresh() {
   ripeMaterialPagination.value = {
     rowsPerPage: 10,
@@ -125,10 +98,9 @@ function refresh() {
     descending: true,
     rowsNumber: 0
   }
-  getOrders();
-  getCompletedPendingOrders();
-  getCompletedOrders();
   getRipeMaterial();
+  getOrders();
+  getCompletedOrders();
 }
 
 onMounted(() => {
@@ -147,9 +119,8 @@ onMounted(() => {
       class="shadow-2 text-primary"
       :class="$q.screen.xs ? 'full-width' : ''"
     >
-      <q-tab name="orders" :label="$t('orders')" />
-      <q-tab name="pending" :label="$t('pending')">
-        <q-badge v-if="completedPendingTotal" color="red" floating>{{ completedTotal }}</q-badge>
+      <q-tab name="orders" :label="$t('orders')">
+        <q-badge v-if="orderTotal" color="red" floating>{{ orderTotal }}</q-badge>
       </q-tab>
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
       <q-tab name="materials" :label="$t('materials')" />
@@ -159,7 +130,7 @@ onMounted(() => {
   <div class="q-py-md">
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="orders" class="q-pa-none">
-        <product-model-order-table
+        <product-model-order-role-cutter-table
           :orders="orders"
           :pagination="orderPagination"
           :loading="orderLoading"
@@ -178,29 +149,6 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getOrders({ page: orderPagination.page })"
-          />
-        </div>
-      </q-tab-panel>
-      <q-tab-panel name="pending" class="q-pa-none">
-        <completed-product-model-order-table
-          :orders="completedPendingOrders"
-          :pagination="completedPendingPagination"
-          :loading="completedPendingLoading"
-          @submit="refresh"
-        />
-        <div
-          v-if="completedPendingTotal > completedPendingPagination.rowsPerPage"
-          class="row justify-center q-mt-md"
-        >
-          <q-pagination
-            :disable="completedPendingLoading"
-            v-model="completedPendingPagination.page"
-            input-class="text-bold text-black"
-            :max="completedPendingPagesNumber"
-            color="primary"
-            input
-            size="md"
-            @update:model-value="getCompletedPendingOrders({ page: completedPendingPagination.page })"
           />
         </div>
       </q-tab-panel>
@@ -227,7 +175,7 @@ onMounted(() => {
         </div>
       </q-tab-panel>
       <q-tab-panel name="materials" class="q-pa-none">
-        <cutter-ripe-material-warehouse-table
+        <material-warehouse-role-cutter-table
           :materials="ripeMaterials"
           :pagination="ripeMaterialPagination"
           :loading="ripeMaterialLoading"

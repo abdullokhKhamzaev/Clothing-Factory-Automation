@@ -14,12 +14,6 @@ export const useRipeMaterialOrder = defineStore('ripe_material_order', () => {
     if ( filterProps?.status ) {
       url += '&status=' + filterProps.status
     }
-    //
-    // if ( filterProps?.statuses ) {
-    //   filterProps.statuses.forEach((status) => {
-    //     url += '&status[]=' + status
-    //   })
-    // }
     try {
       return await client.get('ripe_material_orders' + url);
     } catch (e) {

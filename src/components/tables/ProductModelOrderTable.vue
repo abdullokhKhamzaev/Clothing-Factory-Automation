@@ -43,7 +43,7 @@ const rows = ref([
 ])
 
 const expectedConsumeRows = ref([
-  { quantity: '', quantitySort2: '', remainingSort1: '', remainingSort2: '' }
+  { cutterRipeMaterialWarehouse: '', quantity: '', quantitySort2: '', remainingSort1: '', remainingSort2: '' }
 ]);
 function addRow() {
   expectedConsumeRows.value.push({ cutterRipeMaterialWarehouse: '', quantity: '', quantitySort2: '', remainingSort1: '', remainingSort2: '' });
@@ -67,6 +67,7 @@ const columns = [
   { name: 'createdBy', label: t('tables.modelOrder.columns.createdBy'), align: 'left', field: 'createdBy' },
   { name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial' },
+  { name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds' },
   { name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
@@ -230,7 +231,7 @@ function finishOrderAction() {
 
   orderLoading.value = true;
 
-  order.finishUnripeMaterialOrder(selectedData.value.id)
+  order.complete(selectedData.value.id)
     .then(() => {
       showOrderFinishModal.value = false;
       $q.notify({
@@ -299,14 +300,14 @@ function finishOrderAction() {
                   <q-item
                     v-if="props.row.status === 'confirmed'"
                     v-close-popup
-                    class="text-primary"
+                    class="text-green"
                     clickable
                     @click="showOrderFinishModal = true; selectedData = {...props.row}"
                   >
                     <q-item-section avatar class="q-pr-md" style="min-width: auto">
                       <q-avatar
                         icon="mdi-check-bold"
-                        color="primary"
+                        color="green"
                         class="text-white"
                         size="md"
                       />
@@ -363,20 +364,20 @@ function finishOrderAction() {
               {{ consume.size }} : {{ consume.quantity }}
             </div>
           </div>
-<!--          <div v-else-if="col.name === 'completedUnripeMaterialOrders'">-->
-<!--            <q-toggle-->
-<!--              v-if="props.row?.completedUnripeMaterialOrders.length"-->
-<!--              v-model="props.expand"-->
-<!--              dense-->
-<!--              color="primary"-->
-<!--              :icon="props.expand ? 'add' : 'remove'"-->
-<!--              :label="$t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders')"-->
-<!--            />-->
-<!--            <span v-else>-->
-<!--              - -->
-<!--            </span>-->
-<!--          </div>-->
-          <div v-else-if="col.name === 'status'" class="text-orange">
+          <div v-else-if="col.name === 'productModelOrderCompleteds'">
+            <q-toggle
+              v-if="props.row?.productModelOrderCompleteds.length"
+              v-model="props.expand"
+              dense
+              color="primary"
+              :icon="props.expand ? 'add' : 'remove'"
+              :label="$t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders')"
+            />
+            <span v-else>
+              -
+            </span>
+          </div>
+          <div v-else-if="col.name === 'status'" :class="props.row.status === 'pending' ? 'text-red' : 'text-orange'">
             {{ $t('statuses.' + props.row.status) }}
           </div>
           <div v-else>
@@ -386,6 +387,7 @@ function finishOrderAction() {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
+          {{ props.row?.productModelOrderCompleteds }}
           <report-list :lists="[]" />
         </q-td>
       </q-tr>
