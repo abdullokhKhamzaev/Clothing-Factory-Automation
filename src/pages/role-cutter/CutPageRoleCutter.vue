@@ -5,6 +5,7 @@ import { useProductModelOrder } from "stores/productModelOrder.js";
 import ProductModelOrderRoleCutterTable from "components/tables/role-cutter/ProductModelOrderRoleCutterTable.vue";
 import MaterialWarehouseRoleCutterTable from "components/tables/role-cutter/MaterialWarehouseRoleCutterTable.vue";
 import ProductModelOrderCompletedTable from "components/ProductModelOrderCompletedTable.vue";
+import {useWarehouse} from "stores/warehouse.js";
 
 const tab = ref('orders');
 
@@ -42,6 +43,21 @@ const orderPagination = ref({
   rowsNumber: 0
 });
 const orderPagesNumber = computed(() => Math.ceil(orderTotal.value / orderPagination.value.rowsPerPage));
+function getOrders (filterProps) {
+  let props = filterProps || {};
+
+  props.statuses = ['confirmed', 'pending']
+
+  orderLoading.value = true;
+  useProductModelOrder().fetchOrders(props || '')
+    .then((res) => {
+      orders.value = res.data['hydra:member'];
+      orderTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      orderLoading.value = false;
+    });
+}
 
 const completedOrders = ref([]);
 const completedTotal = ref(0);
@@ -69,20 +85,16 @@ function getCompletedOrders (filterProps) {
     });
 }
 
-function getOrders (filterProps) {
+const warehouses = ref([]);
+function getWarehouse (filterProps) {
   let props = filterProps || {};
 
-  props.statuses = ['confirmed', 'pending']
+  props.name = 'cutterWarehouse';
 
-  orderLoading.value = true;
-  useProductModelOrder().fetchOrders(props || '')
+  useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
-      orders.value = res.data['hydra:member'];
-      orderTotal.value = res.data['hydra:totalItems'];
+      warehouses.value = res.data['hydra:member'];
     })
-    .finally(() => {
-      orderLoading.value = false;
-    });
 }
 
 function refresh() {
@@ -101,6 +113,7 @@ function refresh() {
   getRipeMaterial();
   getOrders();
   getCompletedOrders();
+  getWarehouse();
 }
 
 onMounted(() => {
@@ -124,6 +137,7 @@ onMounted(() => {
       </q-tab>
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
       <q-tab name="materials" :label="$t('materials')" />
+      <q-tab name="warehouse" :label="$t('warehouse')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -196,6 +210,27 @@ onMounted(() => {
             @update:model-value="getRipeMaterial({ page: ripeMaterialPagination.page })"
           />
         </div>
+      </q-tab-panel>
+      <q-tab-panel name="warehouse" class="q-pa-none">
+        <q-list bordered separator>
+          <q-item
+            v-for="item in warehouses[0].productInWarehouses"
+            :key="item"
+          >
+            <q-item-section>
+              <q-item-label class="text-subtitle1 text-weight-bold">{{ item.productModel.name }}</q-item-label>
+              <q-item-label caption>
+                <span
+                  v-for="size in item.productSize"
+                  :key="size"
+                  class="q-pl-xs text-primary text-subtitle2 text-weight-bold"
+                >
+                  {{ size.size }} : {{ size.quantity }},
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </q-tab-panel>
     </q-tab-panels>
   </div>

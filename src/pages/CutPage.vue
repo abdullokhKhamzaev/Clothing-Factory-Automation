@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
+import { useWarehouse } from "stores/warehouse.js";
 import CutterRipeMaterialWarehouseTable from "components/tables/CutterRipeMaterialWarehouseTable.vue";
 import ProductModelOrderTable from "components/tables/ProductModelOrderTable.vue";
 import CompletedProductModelOrderTable from "components/tables/CompletedProductModelOrderTable.vue";
@@ -112,6 +113,18 @@ function getCompletedOrders (filterProps) {
     });
 }
 
+const warehouses = ref([]);
+function getWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'cutterWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      warehouses.value = res.data['hydra:member'];
+    })
+}
+
 function refresh() {
   ripeMaterialPagination.value = {
     rowsPerPage: 10,
@@ -129,6 +142,7 @@ function refresh() {
   getCompletedPendingOrders();
   getCompletedOrders();
   getRipeMaterial();
+  getWarehouse();
 }
 
 onMounted(() => {
@@ -153,6 +167,7 @@ onMounted(() => {
       </q-tab>
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
       <q-tab name="materials" :label="$t('materials')" />
+      <q-tab name="warehouse" :label="$t('warehouse')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -248,6 +263,36 @@ onMounted(() => {
             @update:model-value="getRipeMaterial({ page: ripeMaterialPagination.page })"
           />
         </div>
+      </q-tab-panel>
+      <q-tab-panel name="warehouse" class="q-pa-none">
+        <q-list bordered separator>
+          <q-item
+            v-for="item in warehouses[0].productInWarehouses"
+            :key="item"
+          >
+            <q-item-section>
+              <q-item-label class="text-subtitle1 text-weight-bold">{{ item.productModel.name }}</q-item-label>
+              <q-item-label caption>
+                <span
+                  v-for="size in item.productSize"
+                  :key="size"
+                  class="q-pl-xs text-primary text-subtitle2 text-weight-bold"
+                >
+                  {{ size.size }} : {{ size.quantity }},
+                </span>
+              </q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <div class="flex justify-end">
+                <q-btn size="md" color="primary" rounded dense icon='edit'>
+                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                    {{ $t('edit') }}
+                  </q-tooltip>
+                </q-btn>
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </q-tab-panel>
     </q-tab-panels>
   </div>
