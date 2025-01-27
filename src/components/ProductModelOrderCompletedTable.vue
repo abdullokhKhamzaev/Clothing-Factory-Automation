@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import ReportList from "components/ReportList.vue";
+import CutReportList from "components/CutReportList.vue";
 
 // Props
 let props = defineProps({
@@ -26,10 +26,10 @@ const orderLoading = ref(false);
 const columns = [
   { name: 'id', label: '#ID', align: 'left', field: 'id' },
   { name: 'productModel', label: t('tables.modelOrder.columns.productModel'), align: 'left', field: 'productModel' },
+  { name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'createdAt', label: t('tables.modelOrder.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'createdBy', label: t('tables.modelOrder.columns.createdBy'), align: 'left', field: 'createdBy' },
-  { name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize' },
-  { name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial' },
+  // { name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial' },
   { name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds' },
   { name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status' },
 ];
@@ -116,8 +116,7 @@ const columns = [
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          {{ props.row?.productModelOrderCompleteds }}
-          <report-list :lists="[]" />
+          <cut-report-list :lists="props.row.productModelOrderCompleteds" />
         </q-td>
       </q-tr>
     </template>

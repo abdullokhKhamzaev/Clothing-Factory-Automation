@@ -7,8 +7,8 @@ import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehou
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
+import CutReportList from "components/CutReportList.vue";
 
 // Props
 let props = defineProps({
@@ -80,10 +80,11 @@ const reportActionErr = ref(false);
 const columns = [
   {name: 'id', label: '#ID', align: 'left', field: 'id'},
   {name: 'productModel', label: t('tables.modelOrder.columns.productModel'), align: 'left', field: 'productModel'},
+  {name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize'},
   {name: 'createdAt', label: t('tables.modelOrder.columns.createdAt'), align: 'left', field: 'createdAt'},
   {name: 'createdBy', label: t('tables.modelOrder.columns.createdBy'), align: 'left', field: 'createdBy'},
-  {name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize'},
-  {name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial'},
+  // {name: 'expectedOutlayRipeMaterial', label: t('tables.modelOrder.columns.expectedOutlayRipeMaterial'), align: 'left', field: 'expectedOutlayRipeMaterial'},
+  {name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds'},
   {name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status'},
   {name: 'action', label: '', align: 'right', field: 'action'}
 ];
@@ -296,19 +297,19 @@ function getOrders() {
               {{ consume.size }} : {{ consume.quantity }}
             </div>
           </div>
-          <!--          <div v-else-if="col.name === 'completedUnripeMaterialOrders'">-->
-          <!--            <q-toggle-->
-          <!--              v-if="props.row?.completedUnripeMaterialOrders.length"-->
-          <!--              v-model="props.expand"-->
-          <!--              dense-->
-          <!--              color="primary"-->
-          <!--              :icon="props.expand ? 'add' : 'remove'"-->
-          <!--              :label="$t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders')"-->
-          <!--            />-->
-          <!--            <span v-else>-->
-          <!--              - -->
-          <!--            </span>-->
-          <!--          </div>-->
+          <div v-else-if="col.name === 'productModelOrderCompleteds'">
+            <q-toggle
+              v-if="props.row?.productModelOrderCompleteds.length"
+              v-model="props.expand"
+              dense
+              color="primary"
+              :icon="props.expand ? 'add' : 'remove'"
+              :label="$t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders')"
+            />
+            <span v-else>
+              -
+            </span>
+          </div>
           <div v-else-if="col.name === 'status'" :class="props.row.status === 'pending' ? 'text-red' : 'text-orange'">
             {{ $t('statuses.' + props.row.status) }}
           </div>
@@ -319,7 +320,7 @@ function getOrders() {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          <report-list :lists="[]"/>
+          <cut-report-list :lists="props.row?.productModelOrderCompleteds" />
         </q-td>
       </q-tr>
     </template>
@@ -423,7 +424,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.consumedQuantity.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.quantity || $t('forms.modelOrder.fields.consumedQuantity.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.quantity || $t('forms.modelOrder.fields.consumedQuantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -434,7 +435,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.wasteSort1.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.wasteSort1.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteSort1.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -449,7 +450,7 @@ function getOrders() {
             type="number"
             v-model.number="row.remainingSort1"
             :label="$t('forms.modelOrder.fields.remainingSort1.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.remainingSort1 || $t('forms.modelOrder.fields.remainingSort1.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.remainingSort1 || $t('forms.modelOrder.fields.remainingSort1.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -460,7 +461,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.wasteRemainingSort1.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.wasteRemainingSort1.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteRemainingSort1.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -473,7 +474,7 @@ function getOrders() {
             type="number"
             v-model.number="row.quantitySort2"
             :label="$t('forms.modelOrder.fields.quantitySort2.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.quantitySort2 || $t('forms.modelOrder.fields.quantitySort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.quantitySort2 || $t('forms.modelOrder.fields.quantitySort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -484,7 +485,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.wasteSort2.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.wasteSort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -496,7 +497,7 @@ function getOrders() {
             type="number"
             v-model.number="row.remainingSort2"
             :label="$t('forms.modelOrder.fields.remainingSort2.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.remainingSort2 || $t('forms.modelOrder.fields.remainingSort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.remainingSort2 || $t('forms.modelOrder.fields.remainingSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -507,7 +508,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.wasteRemainingSort2.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.wasteRemainingSort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteRemainingSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -522,7 +523,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.newRemainingSort1.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.newRemainingSort1.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.newRemainingSort1.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -533,7 +534,7 @@ function getOrders() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.newRemainingSort2.label')"
-            :rules="[ val => val && val > -1 || $t('forms.modelOrder.fields.newRemainingSort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.newRemainingSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />

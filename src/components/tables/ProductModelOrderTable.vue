@@ -7,7 +7,7 @@ import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import ReportList from "components/ReportList.vue";
+import CutReportList from "components/CutReportList.vue";
 import SelectableList from "components/selectableList.vue";
 
 // Props
@@ -387,8 +387,7 @@ function finishOrderAction() {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          {{ props.row?.productModelOrderCompleteds }}
-          <report-list :lists="[]" />
+          <cut-report-list :lists="props.row?.productModelOrderCompleteds" />
         </q-td>
       </q-tr>
     </template>
