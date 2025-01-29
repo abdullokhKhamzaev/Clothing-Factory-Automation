@@ -52,17 +52,8 @@ const columns = [
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
-        <div class="text-right">
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.modelOrder.buttons.add')"
-            no-caps
-            @click="showOrderCreateModal = true"
-          />
-        </div>
       </div>
     </template>
     <template v-slot:body="props">

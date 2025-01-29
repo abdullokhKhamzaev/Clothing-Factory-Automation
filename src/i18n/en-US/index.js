@@ -35,6 +35,8 @@ export default {
   transactions: 'Transactions',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
+  defects: 'Defects',
+  sendToEmbroidery: 'Send to embroidery',
   waiting: 'Waiting',
   waitingOrders: 'Waiting orders',
   receive: 'Receive',
@@ -47,6 +49,10 @@ export default {
     completed: 'Completed',
     expected: 'Expected',
     received: 'Received'
+  },
+  warehouses: {
+    cutterWarehouse: 'Cutter Warehouse',
+    embroideryWarehouse: 'Embroidery Warehouse'
   },
   menus: {
     sideBar: {
@@ -1330,6 +1336,22 @@ export default {
         productSize: 'Product sizes',
         expectedOutlayRipeMaterial: 'Expected consume',
         outlayRipeMaterial: 'Consumed',
+        status: 'Status'
+      }
+    },
+    warehouseAction: {
+      header: {
+        title: 'Product in warehouse action',
+        empty: 'There is no available action'
+      },
+      columns: {
+        id: 'id',
+        createdAt: 'Created at',
+        sentBy: 'Sent by',
+        productModel: 'Model',
+        productSize: 'Product sizes',
+        fromWarehouse: 'From',
+        toWarehouse: 'To',
         status: 'Status'
       }
     },
