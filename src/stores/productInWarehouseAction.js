@@ -15,8 +15,11 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
       url += '&toWarehouse=' + filterProps.toWarehouse
     }
 
-    console.log(filterProps);
-    console.log(url);
+    if ( filterProps?.toWarehouses ) {
+      filterProps.toWarehouses.forEach((warehouse) => {
+        url += '&toWarehouse[]=' + warehouse
+      })
+    }
 
     try {
       return await client.get('product_in_warehouse_actions' + url);
@@ -33,14 +36,22 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
     }
   }
 
-  // async function confirmUnripeMaterialOrder(id) {
-  //   try {
-  //     return client.put('unripe_material_orders/' + id, {status: 'confirmed'})
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
+  async function accept(id) {
+    try {
+      return client.put('product_in_warehouse_actions/' + id + '/accept', {status: 'accepted'})
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function reject(id) {
+    try {
+      return client.put('product_in_warehouse_actions/' + id + '/accept', {status: 'rejected'})
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
 
-  return { getAll, send }
+  return { getAll, send, accept, reject }
 })

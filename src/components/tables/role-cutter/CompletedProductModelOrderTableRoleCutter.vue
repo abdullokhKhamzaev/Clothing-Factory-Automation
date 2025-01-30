@@ -1,8 +1,10 @@
 <script setup>
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import ReportList from "components/ReportList.vue";
+import CutReportList from "components/CutReportList.vue";
 
+// Props
 let props = defineProps({
   orders: {
     type: Array,
@@ -18,67 +20,85 @@ let props = defineProps({
     default: false
   }
 });
-
-const { t } = useI18n();
+const {t} = useI18n();
+const orderLoading = ref(false);
 
 const columns = [
-  { name: 'material', label: t('tables.completedUnripeMaterialOrder.columns.material'), align: 'left', field: 'material' },
-  { name: 'quantity', label: t('tables.completedUnripeMaterialOrder.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'completedQuantity', label: t('tables.completedUnripeMaterialOrder.columns.completedQuantity'), align: 'left', field: 'completedQuantity' },
-  { name: 'completedQuantitySort2', label: t('tables.completedUnripeMaterialOrder.columns.completedQuantitySort2'), align: 'left', field: 'completedQuantitySort2' },
-  { name: 'completedRoll', label: t('tables.completedUnripeMaterialOrder.columns.completedRoll'), align: 'left', field: 'completedRoll' },
-  { name: 'completedRollSort2', label: t('tables.completedUnripeMaterialOrder.columns.completedRollSort2'), align: 'left', field: 'completedRollSort2' },
-  { name: 'expectedConsume', label: t('tables.completedUnripeMaterialOrder.columns.expectedConsume'), align: 'left', field: 'expectedConsume' },
-  { name: 'consumed', label: t('tables.completedUnripeMaterialOrder.columns.consumed'), align: 'left', field: 'consumed' },
-  { name: 'createdBy', label: t('tables.completedUnripeMaterialOrder.columns.createdBy'), align: 'left', field: 'createdBy' },
-  { name: 'completedUnripeMaterialOrders', label: t('tables.completedUnripeMaterialOrder.columns.completedUnripeMaterialOrders'), align: 'left', field: 'completedUnripeMaterialOrders' },
+  {name: 'id', label: '#ID', align: 'left', field: 'id'},
+  {name: 'productModel', label: t('tables.modelOrder.columns.productModel'), align: 'left', field: 'productModel'},
+  {name: 'productSize', label: t('tables.modelOrder.columns.productSize'), align: 'left', field: 'productSize'},
+  {name: 'createdAt', label: t('tables.modelOrder.columns.createdAt'), align: 'left', field: 'createdAt'},
+  {name: 'createdBy', label: t('tables.modelOrder.columns.createdBy'), align: 'left', field: 'createdBy'},
+  {name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds'},
+  {name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status'},
 ];
 </script>
 
 <template>
-  <skeleton-table :loading="props.loading"/>
+  <skeleton-table
+    :loading="props.loading || orderLoading"
+  />
   <q-table
-    v-show="!props.loading"
+    v-show="!props.loading && !orderLoading"
     flat
     bordered
     :rows="props.orders"
     :columns="columns"
-    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
+    :no-data-label="$t('tables.modelOrder.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
     hide-bottom
   >
+    <template v-slot:top>
+      <div class="col-12">
+        <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
+      </div>
+    </template>
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div v-if="col.name === 'material'">
-            {{ props.row?.material?.name || '-' }} ({{ props.row?.material?.measurement || '-' }})
+          <div v-if="col.name === 'productModel'">
+            {{ props.row?.productModel?.name || '-' }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}
           </div>
-          <div v-else-if="col.name === 'expectedConsume'">
+          <div v-else-if="col.name === 'outlayRipeMaterial'">
             <div
-              v-for="consume in props.row.expectedConsume"
+              v-for="consume in props.row.outlayRipeMaterial"
               :key="consume"
-              class="q-mr-sm"
             >
-              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
+              {{ consume }}
+<!--              <div>{{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }}-->
+<!--                {{ consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}-->
+<!--              </div>-->
+<!--              <div v-if="Number(consume.quantitySort2)">-->
+<!--                {{ $t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label') }}: {{-->
+<!--                  Number(consume.quantitySort2)-->
+<!--                }}-->
+<!--              </div>-->
+<!--              <div v-if="Number(consume.remainingSort1)">-->
+<!--                {{ $t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label') }}:-->
+<!--                {{ Number(consume.remainingSort1) }}-->
+<!--              </div>-->
+<!--              <div v-if="Number(consume.remainingSort2)">-->
+<!--                {{ $t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label') }}:-->
+<!--                {{ Number(consume.remainingSort2) }}-->
+<!--              </div>-->
             </div>
           </div>
-          <div v-else-if="col.name === 'consumed'">
+          <div v-else-if="col.name === 'productSize'">
             <div
-              v-for="consume in props.row.consumed"
+              v-for="consume in props.row.productSize"
               :key="consume"
-              class="q-mr-sm"
             >
-              {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
+              {{ consume.size }} : {{ consume.quantity }}
             </div>
           </div>
-          <div v-else-if="col.name === 'completedUnripeMaterialOrders'">
+          <div v-else-if="col.name === 'productModelOrderCompleteds'">
             <q-toggle
-              v-if="props.row?.completedUnripeMaterialOrders.length"
+              v-if="props.row?.productModelOrderCompleteds.length"
               v-model="props.expand"
               dense
               color="primary"
@@ -89,6 +109,9 @@ const columns = [
               -
             </span>
           </div>
+          <div v-else-if="col.name === 'status'" :class="props.row.status === 'pending' ? 'text-red' : 'text-orange'">
+            {{ $t('statuses.' + props.row.status) }}
+          </div>
           <div v-else>
             {{ props.row[col.field] || '-' }}
           </div>
@@ -96,7 +119,7 @@ const columns = [
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          <report-list :lists="props.row.completedUnripeMaterialOrders" />
+          <cut-report-list :lists="props.row.productModelOrderCompleteds"/>
         </q-td>
       </q-tr>
     </template>

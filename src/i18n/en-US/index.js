@@ -37,6 +37,7 @@ export default {
   warehouse: 'Warehouse',
   defects: 'Defects',
   sendToEmbroidery: 'Send to embroidery',
+  sendToCutterDefective: 'Send to cutter defective',
   waiting: 'Waiting',
   waitingOrders: 'Waiting orders',
   receive: 'Receive',
@@ -52,7 +53,9 @@ export default {
   },
   warehouses: {
     cutterWarehouse: 'Cutter Warehouse',
-    embroideryWarehouse: 'Embroidery Warehouse'
+    cutterDefectiveWarehouse: 'Defective Warehouse',
+    embroideryWarehouse: 'Embroidery Warehouse',
+    embroideryReadyWarehouse: 'Embroidery Ready Warehouse'
   },
   menus: {
     sideBar: {

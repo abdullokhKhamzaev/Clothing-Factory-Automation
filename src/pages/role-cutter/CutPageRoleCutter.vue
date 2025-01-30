@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from "vue";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useProductModelOrder } from "stores/productModelOrder.js";
+import { useWarehouse } from "stores/warehouse.js";
 import ProductModelOrderRoleCutterTable from "components/tables/role-cutter/ProductModelOrderRoleCutterTable.vue";
 import MaterialWarehouseRoleCutterTable from "components/tables/role-cutter/MaterialWarehouseRoleCutterTable.vue";
-import ProductModelOrderCompletedTable from "components/ProductModelOrderCompletedTable.vue";
-import {useWarehouse} from "stores/warehouse.js";
+import CompletedProductModelOrderTableRoleCutter
+  from "components/tables/role-cutter/CompletedProductModelOrderTableRoleCutter.vue";
 
 const tab = ref('orders');
 
@@ -167,7 +168,7 @@ onMounted(() => {
         </div>
       </q-tab-panel>
       <q-tab-panel name="completedOrders" class="q-pa-none">
-        <product-model-order-completed-table
+        <completed-product-model-order-table-role-cutter
           :orders="completedOrders"
           :pagination="completedPagination"
           :loading="completedLoading"

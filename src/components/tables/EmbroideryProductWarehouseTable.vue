@@ -7,17 +7,17 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
-const user = useAbout();
 const { t } = useI18n();
 const $q = useQuasar();
+const user = useAbout();
 const selectedData = ref({});
-const showSendModal = ref(false);
 const sendActionErr = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
-
+const showSendModal = ref(false);
+const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
-const embroideryWarehouse = ref([]);
+const cutterDefectiveWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -30,7 +30,6 @@ const warehouseActionPagination = ref({
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
 
 const loading = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '' }]);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -94,7 +93,7 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
-  props.name = 'cutterDefectiveWarehouse';
+  props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
@@ -106,7 +105,7 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = embroideryWarehouse.value;
+  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id']];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -117,23 +116,17 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
-function getEmbroideryWarehouse (filterProps) {
+function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
+      cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
     })
     .then(getWarehouseAction)
     .finally(() => loading.value = false)
-}
-
-function clearAction() {
-  selectedData.value = {};
-  sendActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function prefill() {
   let sizes = [];
@@ -143,7 +136,7 @@ function prefill() {
   rows.value = sizes;
 }
 function sendAction() {
-  if (!user.about['@id'] || !selectedData.value['@id'] || !embroideryWarehouse.value || !warehouse.value['@id']) {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !cutterDefectiveWarehouse.value || !warehouse.value['@id']) {
     console.warn('data not found');
     return
   }
@@ -160,8 +153,9 @@ function sendAction() {
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
     fromWarehouse: warehouse.value['@id'],
-    toWarehouse: embroideryWarehouse.value,
-    sentBy: user.about['@id']
+    toWarehouse: cutterDefectiveWarehouse.value,
+    sentBy: user.about['@id'],
+    isDefective: true
   };
 
   useProductWarehouse().send(input)
@@ -188,9 +182,15 @@ function sendAction() {
     })
     .finally(() => loading.value = false)
 }
+
+function clearAction() {
+  selectedData.value = {};
+  sendActionErr.value = null;
+  rows.value = [{ size: '', quantity: '', max: '' }];
+}
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
+  getCutterDefectiveWarehouse();
 }
 
 onMounted(() => {
@@ -200,7 +200,7 @@ onMounted(() => {
 
 <template>
   <q-list
-    v-show="!loading"
+    v-show="!loading && !warehouseActionLoading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -250,20 +250,20 @@ onMounted(() => {
                 </q-item>
                 <q-item
                   v-close-popup
-                  class="text-primary"
+                  class="text-red"
                   clickable
                   @click="selectedData = {...item}; prefill(); showSendModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
                     <q-avatar
                       icon="mdi-cube-send"
-                      color="primary"
+                      color="red"
                       class="text-white"
                       size="md"
                     />
                   </q-item-section>
                   <q-item-section>
-                    {{ $t('sendToEmbroidery') }}
+                    {{ $t('sendToCutterDefective') }}
                   </q-item-section>
                 </q-item>
               </q-card>
@@ -277,7 +277,7 @@ onMounted(() => {
     :loading="loading || warehouseActionLoading"
   />
   <q-table
-    v-show="!loading || !warehouseActionLoading"
+    v-show="!loading && !warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -323,11 +323,11 @@ onMounted(() => {
             <div v-else-if="props.row.status === 'accepted'" class="text-green">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else class="text-orange">
+            <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
             </div>
           </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending'">
+          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
                 dense
@@ -364,6 +364,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >

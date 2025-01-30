@@ -89,6 +89,10 @@ const columns = [
   {name: 'action', label: '', align: 'right', field: 'action'}
 ];
 
+function shouldShowAction(data) {
+  return !data.some(order => order.status === 'pending');
+}
+
 function clearAction() {
   selectedData.value = {};
   reportActionErr.value = false;
@@ -252,7 +256,7 @@ function getOrders() {
               @click="selectedData = {...props.row}; showAcceptModal = true"
             />
             <q-btn
-              v-else
+              v-else-if="shouldShowAction(props.row?.productModelOrderCompleteds)"
               dense
               no-caps
               no-wrap
@@ -380,7 +384,6 @@ function getOrders() {
             disable
             v-model="row.size"
             :label="$t('forms.modelOrder.fields.size.label')"
-            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -389,7 +392,7 @@ function getOrders() {
             type="number"
             v-model.number="row.quantity"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
-            :rules="[ val => val && val > 0 || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            :rules="[ val => val !== undefined && val > -1 || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />

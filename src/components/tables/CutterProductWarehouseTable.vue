@@ -267,9 +267,15 @@ onMounted(() => {
             {{ $t('warehouses.' + props.row.toWarehouse.name) }}
           </div>
           <div v-else-if="col.name === 'status'">
-            <span :class="props.row.status === 'pending' ? 'text-red' : ''">
+            <div v-if="props.row.status === 'pending'" class="text-red">
               {{ $t('statuses.' + props.row.status) }}
-            </span>
+            </div>
+            <div v-else-if="props.row.status === 'accepted'" class="text-green">
+              {{ $t('statuses.' + props.row.status) }}
+            </div>
+            <div v-else class="text-orange">
+              {{ $t('statuses.' + props.row.status) }}
+            </div>
           </div>
           <div v-else>
             {{ props.row[col.field] }}

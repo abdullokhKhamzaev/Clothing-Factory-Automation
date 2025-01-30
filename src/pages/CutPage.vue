@@ -6,7 +6,7 @@ import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted
 import CutterRipeMaterialWarehouseTable from "components/tables/CutterRipeMaterialWarehouseTable.vue";
 import ProductModelOrderTable from "components/tables/ProductModelOrderTable.vue";
 import CompletedProductModelOrderTable from "components/tables/CompletedProductModelOrderTable.vue";
-import ProductModelOrderCompletedTable from "components/ProductModelOrderCompletedTable.vue";
+import ProductModelOrderCompletedTable from "components/tables/ProductModelOrderCompletedTable.vue";
 import { useQuasar } from "quasar";
 import CutterProductWarehouseTable from "components/tables/CutterProductWarehouseTable.vue";
 import CutterDefectiveProductWarehouseTable from "components/tables/CutterDefectiveProductWarehouseTable.vue";

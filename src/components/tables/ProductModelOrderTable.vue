@@ -487,7 +487,7 @@ function finishOrderAction() {
             filled
             type="number"
             :label="$t('forms.modelOrder.fields.expectedConsumeQuantity.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.quantity || $t('forms.modelOrder.fields.expectedConsumeQuantity.validation.required')]"
+            :rules="[ val => val && val > -1 && val <= Number(row.cutterRipeMaterialWarehouse.quantity) || $t('forms.modelOrder.fields.expectedConsumeQuantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -498,7 +498,7 @@ function finishOrderAction() {
             type="number"
             v-model="row.quantitySort2"
             :label="$t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.quantitySort2 || $t('forms.modelOrder.fields.expectedConsumeQuantitySort2.validation.required')]"
+            :rules="[ val => val && val > -1 && val <= Number(row.cutterRipeMaterialWarehouse.quantitySort2) || $t('forms.modelOrder.fields.expectedConsumeQuantitySort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -509,7 +509,7 @@ function finishOrderAction() {
             type="number"
             v-model="row.remainingSort1"
             :label="$t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.remainingSort1 || $t('forms.modelOrder.fields.expectedConsumeRemainingSort1.validation.required')]"
+            :rules="[ val => val && val > -1 && val <= Number(row.cutterRipeMaterialWarehouse.remainingSort1) || $t('forms.modelOrder.fields.expectedConsumeRemainingSort1.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -520,7 +520,7 @@ function finishOrderAction() {
             type="number"
             v-model="row.remainingSort2"
             :label="$t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label')"
-            :rules="[ val => val && val > -1 && val <= row.cutterRipeMaterialWarehouse.remainingSort2 || $t('forms.modelOrder.fields.expectedConsumeRemainingSort2.validation.required')]"
+            :rules="[ val => val && val > -1 && val <= Number(row.cutterRipeMaterialWarehouse.remainingSort2) || $t('forms.modelOrder.fields.expectedConsumeRemainingSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
