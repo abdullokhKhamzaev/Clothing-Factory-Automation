@@ -2,7 +2,7 @@
 import { ref} from "vue";
 import { useQuasar } from "quasar";
 import EmbroideryProductWarehouseTable from "components/tables/EmbroideryProductWarehouseTable.vue";
-import ReadyProductWarehouseTable from "components/tables/ReadyProductWarehouseTable.vue";
+import EmbroideryReadyProductWarehouseTable from "components/tables/EmbroideryReadyProductWarehouseTable.vue";
 
 const $q = useQuasar();
 const tab = ref('warehouse');
@@ -29,7 +29,7 @@ const tab = ref('warehouse');
         <embroidery-product-warehouse-table />
       </q-tab-panel>
       <q-tab-panel name="embroideryReadyWarehouse" class="q-pa-none">
-        <ready-product-warehouse-table />
+        <embroidery-ready-product-warehouse-table />
       </q-tab-panel>
     </q-tab-panels>
   </div>

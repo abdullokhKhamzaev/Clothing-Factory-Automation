@@ -21,6 +21,12 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
       })
     }
 
+    if ( filterProps?.fromWarehouses ) {
+      filterProps.fromWarehouses.forEach((warehouse) => {
+        url += '&fromWarehouse[]=' + warehouse
+      })
+    }
+
     try {
       return await client.get('product_in_warehouse_actions' + url);
     } catch (e) {
