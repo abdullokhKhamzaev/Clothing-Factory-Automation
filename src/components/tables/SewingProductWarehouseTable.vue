@@ -2,17 +2,25 @@
 import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
+import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
+const user = useAbout();
 const selectedData = ref({});
+const defectActionErr = ref(false);
+const reportActionErr = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
+const showDefectModal = ref(false);
+const showReportModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
+const cutterDefectiveWarehouse = ref([]);
+const readyWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -88,20 +96,19 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
-  props.name = 'productsWarehouse';
+  props.name = 'sewerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
     })
-    .then(() => getWarehouseAction())
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = warehouse.value['@id'];
+  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id']];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -112,14 +119,146 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
+function getCutterDefectiveWarehouse (filterProps) {
+  let props = filterProps || {};
 
+  props.name = 'cutterDefectiveWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
+    .then(getWarehouseAction)
+    .finally(() => loading.value = false)
+}
+function getReadyWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'sewerReadyWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
+    .finally(() => loading.value = false)
+}
+function prefill() {
+  let sizes = [];
+  selectedData.value.productSize.forEach((size) => {
+    sizes.push({ size: size.size, quantity: '', max: size.quantity });
+  });
+  rows.value = sizes;
+}
+function defectAction() {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !cutterDefectiveWarehouse.value || !warehouse.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
+  loading.value = true;
+
+  let productSize = [];
+
+  rows.value.forEach((product) => {
+    productSize.push({ size: product.size, quantity: product.quantity })
+  })
+
+  let input = {
+    productModel: selectedData.value.productModel['@id'],
+    productSize: productSize,
+    fromWarehouse: warehouse.value['@id'],
+    toWarehouse: cutterDefectiveWarehouse.value,
+    sentBy: user.about['@id'],
+    isDefective: true
+  };
+
+  useProductWarehouse().send(input)
+    .then(() => {
+      showDefectModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch((res) => {
+      defectActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+      })
+    })
+    .finally(() => loading.value = false)
+}
+function reportAction() {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !readyWarehouse.value || !warehouse.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
+  loading.value = true;
+
+  let productSize = [];
+
+  rows.value.forEach((product) => {
+    productSize.push({ size: product.size, quantity: product.quantity })
+  })
+
+  let input = {
+    productModel: selectedData.value.productModel['@id'],
+    productSize: productSize,
+    fromWarehouse: warehouse.value['@id'],
+    toWarehouse: readyWarehouse.value,
+    sentBy: user.about['@id'],
+    isDefective: false,
+    isReady: true
+  };
+
+  useProductWarehouse().send(input)
+    .then(() => {
+      showReportModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch((res) => {
+      reportActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+      })
+    })
+    .finally(() => loading.value = false)
+}
+function shouldShowAction(data) {
+  return !data.some(order => order.status === 'pending');
+}
 function clearAction() {
   selectedData.value = {};
+  defectActionErr.value = null;
+  reportActionErr.value = null;
   rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
   getWarehouse();
+  getCutterDefectiveWarehouse();
+  getReadyWarehouse();
 }
+
 onMounted(() => {
   refresh()
 })
@@ -173,6 +312,45 @@ onMounted(() => {
                   </q-item-section>
                   <q-item-section>
                     {{ $t('edit') }}
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  v-if="shouldShowAction(warehouseActions)"
+                  v-close-popup
+                  class="text-red"
+                  clickable
+                  @click="selectedData = {...item}; prefill(); showDefectModal = true;"
+                >
+                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                    <q-avatar
+                      icon="mdi-cube-send"
+                      color="red"
+                      class="text-white"
+                      size="md"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ $t('sendToCutterDefective') }}
+                  </q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item
+                  v-if="shouldShowAction(warehouseActions)"
+                  v-close-popup
+                  class="text-primary"
+                  clickable
+                  @click="selectedData = {...item}; prefill(); showReportModal = true;"
+                >
+                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                    <q-avatar
+                      icon="mdi-cube-send"
+                      color="primary"
+                      class="text-white"
+                      size="md"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ $t('report') }}
                   </q-item-section>
                 </q-item>
               </q-card>
@@ -288,6 +466,157 @@ onMounted(() => {
       @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
     />
   </div>
+  <!-- Dialogs -->
+  <q-dialog v-model="showDefectModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="defectAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="defectActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="defectActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ defectActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <div
+          v-for="(row, index) in rows" :key="index"
+          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
+        >
+          <q-input
+            filled
+            disable
+            v-model="row.size"
+            :label="$t('forms.modelOrder.fields.size.label')"
+            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            :prefix="`max: ${row.max}`"
+            type="number"
+            v-model.number="row.quantity"
+            :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
+            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            no-caps
+            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showReportModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="reportAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="reportActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ reportActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <div
+          v-for="(row, index) in rows" :key="index"
+          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
+        >
+          <q-input
+            filled
+            disable
+            v-model="row.size"
+            :label="$t('forms.modelOrder.fields.size.label')"
+            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            :prefix="`max: ${row.max}`"
+            type="number"
+            v-model.number="row.quantity"
+            :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
+            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            no-caps
+            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
   <q-dialog v-model="showAcceptModal" persistent>
     <q-card>
       <q-card-section class="row q-pb-none">
