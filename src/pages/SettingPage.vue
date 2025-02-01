@@ -6,12 +6,16 @@ import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useColor } from "stores/color.js";
 import { useProductModels } from "stores/productModel.js";
+import { useAccessory } from "stores/accessory.js";
+import { useEmbroidery } from "stores/embroidery.js";
 import ThreadTable from "components/tables/ThreadTable.vue";
 import UnripeMaterialTable from "components/tables/UnripeMaterialTable.vue";
 import FabricTable from "components/tables/FabricTable.vue";
 import FabricColorTable from "components/tables/FabricColorTable.vue";
 import RipeMaterialTable from "components/tables/RipeMaterialTable.vue";
-import ModelTable from "components/tables/modelTable.vue";
+import ModelTable from "components/tables/ModelTable.vue";
+import AccessoryTable from "components/tables/AccessoryTable.vue";
+import EmbroideryTable from "components/tables/EmbroideryTable.vue";
 
 const tab = ref('thread');
 
@@ -162,6 +166,54 @@ function getModels (filterProps) {
     });
 }
 
+const accessory = useAccessory();
+const accessories = ref([]);
+const accessoryTotal = ref(0);
+const accessoryLoading = ref(false);
+const accessoryPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const accessoryPagesNumber = computed(() => Math.ceil(accessoryTotal.value / accessoryPagination.value.rowsPerPage));
+function getAccessories (filterProps) {
+  let props = filterProps || {};
+  accessoryLoading.value = true;
+  accessory.fetchAccessories(props || '')
+    .then((res) => {
+      accessories.value = res.data['hydra:member'];
+      accessoryTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      accessoryLoading.value = false;
+    });
+}
+
+const embroidery = useEmbroidery();
+const embroideries = ref([]);
+const embroideryTotal = ref(0);
+const embroideryLoading = ref(false);
+const embroideryPagination = ref({
+  rowsPerPage: 10,
+  page: 1,
+  descending: true,
+  rowsNumber: 0
+});
+const embroideryPagesNumber = computed(() => Math.ceil(embroideryTotal.value / embroideryPagination.value.rowsPerPage));
+function getEmbroideries (filterProps) {
+  let props = filterProps || {};
+  embroideryLoading.value = true;
+  embroidery.fetchEmbroideries(props || '')
+    .then((res) => {
+      embroideries.value = res.data['hydra:member'];
+      embroideryTotal.value = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      embroideryLoading.value = false;
+    });
+}
+
  function refresh () {
    threadPagination.value = {
      rowsPerPage: 10,
@@ -199,12 +251,20 @@ function getModels (filterProps) {
      descending: true,
      rowsNumber: 0
    };
+   accessoryPagination.value = {
+     rowsPerPage: 10,
+     page: 1,
+     descending: true,
+     rowsNumber: 0
+   };
    getThreads();
    getMaterials();
    getRipeMaterials();
    getFabrics();
    getColors();
    getModels();
+   getAccessories();
+   getEmbroideries();
  }
 
 onMounted(() => {
@@ -229,6 +289,8 @@ onMounted(() => {
       <q-tab name="fabric" :label="$t('tables.fabric.header.title')"/>
       <q-tab name="color" :label="$t('tables.color.header.title')"/>
       <q-tab name="model" :label="$t('tables.model.header.title')"/>
+      <q-tab name="accessory" :label="$t('tables.accessory.header.title')"/>
+      <q-tab name="embroidery" :label="$t('tables.embroidery.header.title')"/>
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -373,6 +435,52 @@ onMounted(() => {
             input
             size="md"
             @update:model-value="getModels({ page: modelPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="accessory" class="q-pa-none">
+        <accessory-table
+          :accessories="accessories"
+          :pagination="accessoryPagination"
+          :loading="accessoryLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="accessoryTotal > accessoryPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="accessoryLoading"
+            v-model="accessoryPagination.page"
+            input-class="text-bold text-black"
+            :max="accessoryPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getAccessories({ page: accessoryPagination.page })"
+          />
+        </div>
+      </q-tab-panel>
+      <q-tab-panel name="embroidery" class="q-pa-none">
+        <embroidery-table
+          :embroideries="embroideries"
+          :pagination="embroideryPagination"
+          :loading="embroideryLoading"
+          @submit="refresh"
+        />
+        <div
+          v-if="embroideryTotal > embroideryPagination.rowsPerPage"
+          class="row justify-center q-mt-md"
+        >
+          <q-pagination
+            :disable="embroideryLoading"
+            v-model="embroideryPagination.page"
+            input-class="text-bold text-black"
+            :max="embroideryPagesNumber"
+            color="primary"
+            input
+            size="md"
+            @update:model-value="getEmbroideries({ page: embroideryPagination.page })"
           />
         </div>
       </q-tab-panel>

@@ -136,6 +136,14 @@ export default {
       barCreate: 'Create Unripe Material',
       barEdit: 'Edit Unripe Material',
     },
+    accessory: {
+      barCreate: 'Create Accessory',
+      barEdit: 'Edit Accessory',
+    },
+    embroidery: {
+      barCreate: 'Create Embroidery',
+      barEdit: 'Edit Embroidery',
+    },
     unripeMaterialOrder: {
       barCreate: 'Create Unripe Material Order',
       barEdit: 'Edit Unripe Material Order',
@@ -385,6 +393,88 @@ export default {
         successEdited: 'Material was successfully edited.',
         successDeleted: 'Material was successfully deleted.',
         failure: 'There was an error saving material.'
+      }
+    },
+    accessory: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        measurement: {
+          label: 'Measurement',
+          validation: {
+            required: 'Measurement is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        budget: {
+          label: 'Budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Accessory',
+        edit: 'Edit Accessory'
+      },
+      confirmation: {
+        successCreated: 'Accessory was successfully created.',
+        successEdited: 'Accessory was successfully edited.',
+        successDeleted: 'Accessory was successfully deleted.',
+        failure: 'There was an error saving Accessory.'
+      }
+    },
+    embroidery: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        image: {
+          label: 'Image',
+          validation: {
+            required: 'Measurement is required.',
+          }
+        },
+        workerPrice: {
+          label: 'Worker price',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        budget: {
+          label: 'Budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Embroidery',
+        edit: 'Edit Embroidery'
+      },
+      confirmation: {
+        successCreated: 'Embroidery was successfully created.',
+        successEdited: 'Embroidery was successfully edited.',
+        successDeleted: 'Embroidery was successfully deleted.',
+        failure: 'There was an error saving Embroidery.'
       }
     },
     ripeMaterial: {
@@ -1021,16 +1111,43 @@ export default {
             required: 'Model size name is required.',
           }
         },
-        quantity: {
-          label: 'Model quantity',
-          validation: {
-            required: 'Model quantity is required.',
-          }
-        },
         price: {
           label: 'Model price',
           validation: {
             required: 'Model price is required.',
+          }
+        },
+        embroideries: {
+          label: 'Choose embroideries',
+          validation: {
+            required: 'Embroidery is required.',
+          }
+        },
+        productAccessories: {
+          title: 'Add product consumption/accessory',
+          accessory: {
+            label: 'Choose model accessory',
+            validation: {
+              required: 'Accessory is required.',
+            }
+          },
+          quantity: {
+            label: 'How many?',
+            validation: {
+              required: 'Quantity is required.',
+            }
+          },
+          budget: {
+            label: 'Select budget of worker price',
+            validation: {
+              required: 'Budget is required.',
+            }
+          },
+          workerPrice: {
+            label: 'Worker price',
+            validation: {
+              required: 'Price is required.',
+            }
           }
         }
       },
@@ -1132,6 +1249,34 @@ export default {
       },
       buttons: {
         add: 'Add Material'
+      },
+    },
+    accessory: {
+      header: {
+        title: 'Product Accessory',
+        empty: 'There is no available Accessory'
+      },
+      columns: {
+        name: 'Name',
+        quantity: 'Quantity',
+        price: 'Price',
+      },
+      buttons: {
+        add: 'Add Material'
+      },
+    },
+    embroidery: {
+      header: {
+        title: 'Embroidery',
+        empty: 'There is no available Embroidery'
+      },
+      columns: {
+        name: 'Name',
+        image: 'Image',
+        workerPrice: 'Worker Price',
+      },
+      buttons: {
+        add: 'Add Embroidery'
       },
     },
     ripeMaterial: {

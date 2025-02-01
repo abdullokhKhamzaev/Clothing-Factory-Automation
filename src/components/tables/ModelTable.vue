@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import {reactive, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
 import { useBudget } from "stores/budget.js";
+import { useAccessory } from "stores/accessory.js";
+import { useEmbroidery } from "stores/embroidery.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -29,6 +31,8 @@ const $q = useQuasar();
 const { t } = useI18n();
 const model = useProductModels();
 const budget = useBudget();
+const accessory = useAccessory();
+const embroidery = useEmbroidery();
 
 const modelLoading = ref(false);
 const selectedData = ref({});
@@ -36,8 +40,8 @@ const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
-const rows = ref([
-  { size: '', quantity: '', price: '' }
+let rows = reactive([
+  { size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }] }
 ])
 
 const columns = [
@@ -48,20 +52,36 @@ const columns = [
 ];
 
 function addRow() {
-  rows.value.push({ size: '', quantity: '', price: '' });
+  rows.push({ size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }] });
 }
 function removeRow(index) {
   if (this.rows.length > 1) {
     this.rows.splice(index, 1);
   }
 }
-
+function addAccessoryRow(index) {
+  rows[index].productAccessories.push({ accessory: '', quantity: '', workerPrice: '', budget: '' });
+}
+function removeAccessoryRow(index) {
+  if (rows[index].productAccessories.length > 1) {
+    rows[index].productAccessories.splice(index, 1);
+  }
+}
 function prefill() {
   let sizes = [];
   selectedData.value.sizes.forEach((size) => {
-    sizes.push({ size: size.size, quantity: size.quantity, price: size.price });
+    sizes.push({ size: size.size, price: size.price, productAccessories: size.productAccessories });
   });
-  rows.value = sizes;
+  rows = sizes;
+
+  if ( selectedData?.value?.embroideries?.length && selectedData?.value?.embroideries[0]['@id'] ) {
+    let embroideries = [];
+    selectedData.value.embroideries.forEach(embroidery => {
+      embroideries.push(embroidery['@id'])
+    })
+
+    selectedData.value.embroideries = embroideries;
+  }
 }
 
 function getModels () {
@@ -72,8 +92,8 @@ function createAction() {
 
   let sizes = [];
 
-  rows.value.forEach((row) => {
-    sizes.push({size: row.size, quantity: row.quantity, price: row.price});
+  rows.forEach((row) => {
+    sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories});
   })
 
   const input = {
@@ -81,6 +101,7 @@ function createAction() {
     description: selectedData.value.description,
     sizes: sizes,
     budget: selectedData.value.budget,
+    embroideries: selectedData.value.embroideries
   }
 
   model.create(input)
@@ -113,14 +134,16 @@ function updateAction() {
 
     let sizes = [];
 
-    rows.value.forEach((row) => {
-      sizes.push({size: row.size, quantity: row.quantity, price: row.price});
+    rows.forEach((row) => {
+      sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories});
     })
 
     const input = {
       name: selectedData.value.name,
       description: selectedData.value.description,
-      sizes: sizes
+      sizes: sizes,
+      budget: selectedData.value.budget,
+      embroideries: selectedData.value.embroideries
     }
 
     model.update(selectedData.value.id, input)
@@ -156,7 +179,7 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', price: '' }]
+  rows.value = [{ size: '', quantity: '', price: '', productAccessories: []}]
 }
 </script>
 
@@ -199,7 +222,6 @@ function clearAction() {
               :key="size.id"
             >
               {{ size.size }} |
-              {{ size.quantity }} |
               {{ size.price }}
             </div>
           </div>
@@ -268,6 +290,17 @@ function clearAction() {
             hide-bottom-space
           />
           <selectable-list
+            v-model="selectedData.embroideries"
+            :label="$t('forms.model.fields.embroideries.label')"
+            :store="embroidery"
+            fetch-method="fetchEmbroideries"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
+            multiple
+            class="col-12"
+          />
+          <selectable-list
             v-model="selectedData.budget"
             :label="$t('forms.model.fields.budget.label')"
             :store="budget"
@@ -295,16 +328,7 @@ function clearAction() {
             v-model="row.size"
             :label="$t('forms.model.fields.size.label')"
             :rules="[ val => val && val.length > 0 || $t('forms.model.fields.size.validation.required')]"
-            class="col"
-            hide-bottom-space
-          />
-          <q-input
-            filled
-            type="number"
-            v-model.number="row.quantity"
-            :label="$t('forms.model.fields.quantity.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.model.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12"
             hide-bottom-space
           />
           <q-input
@@ -313,9 +337,67 @@ function clearAction() {
             v-model="row.price"
             :label="$t('forms.model.fields.price.label')"
             :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
-            class="col-6"
+            class="col-12"
             hide-bottom-space
           />
+          <div class="col-12">
+            <div class="row q-card--bordered bg-grey-2 q-pa-md">
+              <div class="col-12">
+                <div class="text-subtitle1 text-primary">
+                  {{ $t('forms.model.fields.productAccessories.title') }}
+                </div>
+                <div
+                  v-for="(consume, i) in row.productAccessories" :key="i"
+                  class="row q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg"
+                >
+                  <div v-if="i" class="flex items-center">
+                    <q-btn icon="mdi-minus" @click="removeAccessoryRow(index)" rounded color="red" dense/>
+                  </div>
+                  <selectable-list
+                    v-model="consume.accessory"
+                    :label="$t('forms.model.fields.productAccessories.accessory.label')"
+                    :store="accessory"
+                    fetch-method="fetchAccessories"
+                    item-value="@id"
+                    item-label="name"
+                    :rule-message="$t('forms.model.fields.productAccessories.accessory.validation.required')"
+                    class="col-12"
+                  />
+                  <q-input
+                    filled
+                    type="number"
+                    v-model="consume.quantity"
+                    :label="$t('forms.model.fields.productAccessories.quantity.label')"
+                    :rules="[ val => val && val > -1 || $t('forms.model.fields.productAccessories.quantity.validation.required')]"
+                    class="col-12"
+                    hide-bottom-space
+                  />
+                  <selectable-list
+                    v-model="consume.budget"
+                    :label="$t('forms.model.fields.productAccessories.budget.label')"
+                    :store="budget"
+                    fetch-method="fetchBudgets"
+                    item-value="@id"
+                    item-label="name"
+                    :rule-message="$t('forms.model.fields.productAccessories.budget.validation.required')"
+                    class="col-12"
+                  />
+                  <q-input
+                    filled
+                    type="number"
+                    v-model="consume.workerPrice"
+                    :label="$t('forms.model.fields.productAccessories.workerPrice.label')"
+                    :rules="[ val => val && val > -1 || $t('forms.model.fields.productAccessories.workerPrice.validation.required')]"
+                    class="col-12"
+                    hide-bottom-space
+                  />
+                  <div class="col-12 text-right">
+                    <q-btn icon="mdi-plus" rounded color="green-10" @click="addAccessoryRow(index)"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="text-right q-ma-md">
           <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>
@@ -374,8 +456,21 @@ function clearAction() {
             filled
             v-model="selectedData.description"
             :label="$t('forms.model.fields.description.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.model.fields.description.validation.required')]"
             class="col-12"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="selectedData.embroideries"
+            :label="$t('forms.model.fields.embroideries.label')"
+            :store="embroidery"
+            fetch-method="fetchEmbroideries"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
+            multiple
+            class="col-12"
           />
           <selectable-list
             v-model="selectedData.budget"
@@ -405,16 +500,7 @@ function clearAction() {
             v-model="row.size"
             :label="$t('forms.model.fields.size.label')"
             :rules="[ val => val && val.length > 0 || $t('forms.model.fields.size.validation.required')]"
-            class="col"
-            hide-bottom-space
-          />
-          <q-input
-            filled
-            type="number"
-            v-model.number="row.quantity"
-            :label="$t('forms.model.fields.quantity.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.model.fields.quantity.validation.required')]"
-            class="col-6"
+            class="col-12"
             hide-bottom-space
           />
           <q-input
@@ -423,9 +509,67 @@ function clearAction() {
             v-model="row.price"
             :label="$t('forms.model.fields.price.label')"
             :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
-            class="col-6"
+            class="col-12"
             hide-bottom-space
           />
+          <div class="col-12">
+            <div class="row q-card--bordered bg-grey-2 q-pa-md">
+              <div class="col-12">
+                <div class="text-subtitle1 text-primary">
+                  {{ $t('forms.model.fields.productAccessories.title') }}
+                </div>
+                <div
+                  v-for="(consume, i) in row.productAccessories" :key="i"
+                  class="row q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg"
+                >
+                  <div v-if="i" class="flex items-center">
+                    <q-btn icon="mdi-minus" @click="removeAccessoryRow(index)" rounded color="red" dense/>
+                  </div>
+                  <selectable-list
+                    v-model="consume.accessory"
+                    :label="$t('forms.model.fields.productAccessories.accessory.label')"
+                    :store="accessory"
+                    fetch-method="fetchAccessories"
+                    item-value="@id"
+                    item-label="name"
+                    :rule-message="$t('forms.model.fields.productAccessories.accessory.validation.required')"
+                    class="col-12"
+                  />
+                  <q-input
+                    filled
+                    type="number"
+                    v-model="consume.quantity"
+                    :label="$t('forms.model.fields.productAccessories.quantity.label')"
+                    :rules="[ val => val && val > -1 || $t('forms.model.fields.productAccessories.quantity.validation.required')]"
+                    class="col-12"
+                    hide-bottom-space
+                  />
+                  <selectable-list
+                    v-model="consume.budget"
+                    :label="$t('forms.model.fields.productAccessories.budget.label')"
+                    :store="budget"
+                    fetch-method="fetchBudgets"
+                    item-value="@id"
+                    item-label="name"
+                    :rule-message="$t('forms.model.fields.productAccessories.budget.validation.required')"
+                    class="col-12"
+                  />
+                  <q-input
+                    filled
+                    type="number"
+                    v-model="consume.workerPrice"
+                    :label="$t('forms.model.fields.productAccessories.workerPrice.label')"
+                    :rules="[ val => val && val > -1 || $t('forms.model.fields.productAccessories.workerPrice.validation.required')]"
+                    class="col-12"
+                    hide-bottom-space
+                  />
+                  <div class="col-12 text-right">
+                    <q-btn icon="mdi-plus" rounded color="green-10" @click="addAccessoryRow(index)"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="text-right q-ma-md">
           <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>
