@@ -257,6 +257,12 @@ function getEmbroideries (filterProps) {
      descending: true,
      rowsNumber: 0
    };
+   embroideryPagination.value = {
+     rowsPerPage: 10,
+     page: 1,
+     descending: true,
+     rowsNumber: 0
+   };
    getThreads();
    getMaterials();
    getRipeMaterials();

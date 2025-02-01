@@ -175,6 +175,24 @@ onMounted(() => {
                     {{ $t('edit') }}
                   </q-item-section>
                 </q-item>
+                <q-separator />
+                <q-item
+                  v-close-popup
+                  class="text-green"
+                  clickable
+                >
+                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                    <q-avatar
+                      icon="edit"
+                      color="green"
+                      class="text-white"
+                      size="md"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ $t('sell') }}
+                  </q-item-section>
+                </q-item>
               </q-card>
             </q-menu>
           </q-btn>

@@ -27,6 +27,7 @@ export default {
   report: 'Report',
   pay: 'Pay',
   to: 'To',
+  sell: 'Sell',
   thread: 'Thread',
   threads: 'Threads',
   threadPurchase: 'Thread Purchase',
@@ -143,6 +144,10 @@ export default {
     embroidery: {
       barCreate: 'Create Embroidery',
       barEdit: 'Edit Embroidery',
+    },
+    customer: {
+      barCreate: 'Create Customer',
+      barEdit: 'Edit Customer',
     },
     unripeMaterialOrder: {
       barCreate: 'Create Unripe Material Order',
@@ -475,6 +480,32 @@ export default {
         successEdited: 'Embroidery was successfully edited.',
         successDeleted: 'Embroidery was successfully deleted.',
         failure: 'There was an error saving Embroidery.'
+      }
+    },
+    customer: {
+      fields: {
+        fullName: {
+          label: 'Name & Surname',
+          validation: {
+            required: 'Name & Surname is required.',
+          }
+        },
+        phone: {
+          label: 'Phone',
+          validation: {
+            required: 'Phone is required.',
+          }
+        }
+      },
+      buttons: {
+        create: 'Create Customer',
+        edit: 'Edit Customer'
+      },
+      confirmation: {
+        successCreated: 'Customer was successfully created.',
+        successEdited: 'Customer was successfully edited.',
+        successDeleted: 'Customer was successfully deleted.',
+        failure: 'There was an error saving Customer.'
       }
     },
     ripeMaterial: {
@@ -1277,6 +1308,19 @@ export default {
       },
       buttons: {
         add: 'Add Embroidery'
+      },
+    },
+    customer: {
+      header: {
+        title: 'Customer',
+        empty: 'There is no available Customer'
+      },
+      columns: {
+        fullName: 'Name',
+        phone: 'Phone'
+      },
+      buttons: {
+        add: 'Add Customer'
       },
     },
     ripeMaterial: {
