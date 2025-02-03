@@ -11,7 +11,6 @@ const $q = useQuasar();
 const selectedData = ref({});
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
@@ -115,7 +114,6 @@ function getWarehouseAction (filterProps) {
 
 function clearAction() {
   selectedData.value = {};
-  rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
   getWarehouse();

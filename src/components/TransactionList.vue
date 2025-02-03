@@ -14,7 +14,12 @@ const props = defineProps({
       :key="order.id"
     >
       <q-item-section>
-        <q-item-label>-{{ order.paidPrice }} {{ order.budget.name }}</q-item-label>
+        <q-item-label :class="order.isIncome ? 'text-green' : 'text-red'">
+          <span>
+            {{ order.isIncome ? '+' : '-' }}
+          </span>
+          {{ order.paidPrice }} {{ order.budget.name }}
+        </q-item-label>
         <q-item-label caption>{{ order.createdBy.fullName }}</q-item-label>
       </q-item-section>
       <q-item-section side top>

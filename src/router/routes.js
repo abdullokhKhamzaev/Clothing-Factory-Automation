@@ -108,9 +108,14 @@ const routes = [
         component: () => import('pages/ProductWarehousePage.vue')
       },
       {
-        path: 'clients',
-        name: 'club.clients',
-        component: () => import('pages/ClientsPage.vue')
+        path: 'customers',
+        name: 'club.customers',
+        component: () => import('pages/CustomerPage.vue')
+      },
+      {
+        path: 'sales',
+        name: 'club.sales',
+        component: () => import('pages/SalePage.vue')
       },
       {
         path: 'statistic',

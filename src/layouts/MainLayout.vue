@@ -162,7 +162,12 @@ const linksList = [
   {
     title: 'customers',
     icon: 'mdi-account-group',
-    to: { name: 'club.clients' }
+    to: { name: 'club.customers' }
+  },
+  {
+    title: 'sales',
+    icon: 'mdi-cart-percent',
+    to: { name: 'club.sales' }
   },
   {
     title: 'statistics',

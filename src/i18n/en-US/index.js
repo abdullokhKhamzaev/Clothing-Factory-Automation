@@ -80,6 +80,7 @@ export default {
       unripeMaterialWarehouse: 'Unripe Material Warehouse',
       sewing: 'Sewing',
       statistics: 'Statistics',
+      sales: 'Sales',
       threadWarehouse: 'Thread Warehouse',
       users: 'Users',
       weaving: 'Weaving'
@@ -148,6 +149,10 @@ export default {
     customer: {
       barCreate: 'Create Customer',
       barEdit: 'Edit Customer',
+    },
+    sale: {
+      barCreate: 'Create Sale Transaction',
+      barReceiveDebt: 'Receive Sale Purchase Debt'
     },
     unripeMaterialOrder: {
       barCreate: 'Create Unripe Material Order',
@@ -506,6 +511,68 @@ export default {
         successEdited: 'Customer was successfully edited.',
         successDeleted: 'Customer was successfully deleted.',
         failure: 'There was an error saving Customer.'
+      }
+    },
+    sale: {
+      fields: {
+        customer: {
+          label: 'Choose customer',
+          validation: {
+            required: 'Customer is required.',
+          }
+        },
+        budget: {
+          label: 'Budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
+        productModel: {
+          label: 'Model',
+          validation: {
+            required: 'Model is required.',
+          }
+        },
+        size: {
+          label: 'Size',
+          validation: {
+            required: 'Size is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        paidPrice: {
+          label: 'Paid Price',
+          validation: {
+            required: 'Paid Price',
+          }
+        },
+        debtQuantity: {
+          label: 'To\'lov miqdor',
+          validation: {
+            required: 'To\'lov miqdor talab qilinadi.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Sell',
+        receiveDebt: 'Receive Debt'
+      },
+      confirmation: {
+        successCreated: 'Sale was successfully created.',
+        successEdited: 'Sale was successfully edited.',
+        successDeleted: 'Sale was successfully deleted.',
+        failure: 'There was an error saving Sale.'
       }
     },
     ripeMaterial: {
@@ -1322,6 +1389,24 @@ export default {
       buttons: {
         add: 'Add Customer'
       },
+    },
+    sale: {
+      header: {
+        title: 'Sale Transactions',
+        empty: 'There is no available Sale Transactions'
+      },
+      columns: {
+        id: 'Sale ID',
+        createdAt: 'Created At',
+        purchasedBy: 'Purchased By',
+        saleProduct: 'Products',
+        totalPrice: 'Total Price',
+        paidPrice: 'Paid price',
+        transaction: 'Description',
+      },
+      buttons: {
+        add: 'Create'
+      }
     },
     ripeMaterial: {
       header: {

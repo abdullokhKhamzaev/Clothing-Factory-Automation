@@ -17,7 +17,8 @@ const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const showDefectModal = ref(false);
 const showReportModal = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '' }]);
+const rows = ref([{ size: '', quantity: '', max: '', productAccessories: [] }]);
+// const attaches = ref([])
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref([]);
 const readyWarehouse = ref([]);
@@ -145,7 +146,7 @@ function getReadyWarehouse (filterProps) {
 function prefill() {
   let sizes = [];
   selectedData.value.productSize.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', max: size.quantity });
+    sizes.push({ size: size.size, quantity: '', productAccessories: size.productAccessories, max: size.quantity });
   });
   rows.value = sizes;
 }
@@ -251,7 +252,7 @@ function clearAction() {
   selectedData.value = {};
   defectActionErr.value = null;
   reportActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', max: '' }];
+  rows.value = [{ size: '', quantity: '', productAccessories: [], max: '' }];
 }
 function refresh() {
   getWarehouse();
@@ -583,6 +584,26 @@ onMounted(() => {
           v-for="(row, index) in rows" :key="index"
           class="row q-px-md q-col-gutter-x-lg q-mb-lg"
         >
+<!--          <q-list>-->
+<!--            <q-item tag="label" v-ripple>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-checkbox v-model="attaches" val="teal" color="teal" />-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>-->
+<!--                <q-item-label>Teal</q-item-label>-->
+<!--              </q-item-section>-->
+<!--            </q-item>-->
+
+<!--            <q-item tag="label" v-ripple>-->
+<!--              <q-item-section avatar>-->
+<!--                <q-checkbox v-model="attaches" val="orange" color="orange" />-->
+<!--              </q-item-section>-->
+<!--              <q-item-section>-->
+<!--                <q-item-label>Orange</q-item-label>-->
+<!--                <q-item-label caption>With description</q-item-label>-->
+<!--              </q-item-section>-->
+<!--            </q-item>-->
+<!--          </q-list>-->
           <q-input
             filled
             disable
