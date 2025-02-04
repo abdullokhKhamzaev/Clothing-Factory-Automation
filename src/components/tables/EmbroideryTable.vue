@@ -4,6 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useEmbroidery } from "stores/embroidery.js";
 import { useBudget } from "stores/budget.js";
+import { useAddFile } from "stores/mediaObject/addFile.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -25,8 +26,10 @@ let props = defineProps({
 });
 
 const emit = defineEmits(['submit']);
+const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
+let file = ref()
 const embroidery = useEmbroidery();
 const budget = useBudget();
 
@@ -55,29 +58,34 @@ function createAction () {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  embroidery.create(selectedData.value)
-    .then(() => {
-      showCreateModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.embroidery.confirmation.successCreated')
-      })
-      clearAction();
-      getEmbroideries();
-    })
-    .catch((res) => {
-      createActionErr.value = res.response.data['hydra:description'];
+  useAddFile().addFile(file.value)
+    .then((res) => {
+      selectedData.value.image = res.data['@id']
 
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.embroidery.confirmation.failure')
-      })
+      embroidery.create(selectedData.value)
+        .then(() => {
+          showCreateModal.value = false;
+          $q.notify({
+            type: 'positive',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.embroidery.confirmation.successCreated')
+          })
+          clearAction();
+          getEmbroideries();
+        })
+        .catch((res) => {
+          createActionErr.value = res.response.data['hydra:description'];
+
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.embroidery.confirmation.failure')
+          })
+        })
+        .finally(() => embroideryLoading.value = false);
     })
-    .finally(() => embroideryLoading.value = false);
 }
 function updateAction() {
   if (selectedData.value.id) {
@@ -201,6 +209,16 @@ function clearAction() {
             <span> {{ props.row.workerPrice }} </span>
             <span class="text-weight-bolder"> ({{ props.row.budget }}) </span>
           </div>
+          <div v-else-if="col.name === 'image'">
+            <q-img
+              v-if="props?.row?.image?.contentUrl"
+              :src="domain + props.row.image.contentUrl"
+              style="max-width: 50px"
+            />
+            <div v-else>
+              -
+            </div>
+          </div>
           <div v-else>
             {{ props.row[col.field] }}
           </div>
@@ -245,6 +263,18 @@ function clearAction() {
             class="col-12"
             hide-bottom-space
           />
+          <q-file
+            v-model="file"
+            :label="$t('forms.embroidery.fields.image.label')"
+            clearable
+            filled
+            accept="image/*"
+            class="col-12"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+          </q-file>
           <selectable-list
             v-model="selectedData.budget"
             :label="$t('forms.embroidery.fields.budget.label')"

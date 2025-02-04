@@ -45,6 +45,10 @@ export default {
   waiting: 'Waiting',
   waitingOrders: 'Waiting orders',
   receive: 'Receive',
+  cutter: 'Cutter',
+  embroidery: 'Embroidery',
+  sewer: 'Sewer',
+  packager: 'Packager',
   statuses: {
     accepted: 'Accepted',
     notAccepted: 'Not Accepted',
@@ -411,6 +415,12 @@ export default {
           label: 'Name',
           validation: {
             required: 'Name is required.',
+          }
+        },
+        type: {
+          label: 'Select type',
+          validation: {
+            required: 'Type is required.',
           }
         },
         measurement: {
@@ -1250,8 +1260,8 @@ export default {
         }
       },
       buttons: {
-        create: 'Create Color',
-        edit: 'Edit Color'
+        create: 'Create Model',
+        edit: 'Edit Model'
       },
       confirmation: {
         successCreated: 'Model was successfully created.',
@@ -1358,9 +1368,10 @@ export default {
         name: 'Name',
         quantity: 'Quantity',
         price: 'Price',
+        type: 'Section',
       },
       buttons: {
-        add: 'Add Material'
+        add: 'Add Accessory'
       },
     },
     embroidery: {
@@ -1673,7 +1684,8 @@ export default {
       columns: {
         name: 'Name',
         description: 'Description',
-        sizes: 'Sizes'
+        sizes: 'Sizes',
+        image: 'Image'
       },
       buttons: {
         add: 'Add Model'

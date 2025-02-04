@@ -16,6 +16,11 @@ const props = defineProps({
     required: false,
     default: false
   },
+  clearable: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   fetchMethod: {
     type: String,
     required: true
@@ -95,6 +100,7 @@ onMounted(() => {
     v-model="selectedItem"
     :disable="disable"
     :multiple="multiple"
+    :clearable="clearable"
     filled
     emit-value
     map-options

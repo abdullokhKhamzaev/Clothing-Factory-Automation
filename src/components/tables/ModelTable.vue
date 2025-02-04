@@ -6,6 +6,7 @@ import { useProductModels } from "stores/productModel.js";
 import { useBudget } from "stores/budget.js";
 import { useAccessory } from "stores/accessory.js";
 import { useEmbroidery } from "stores/embroidery.js";
+import { useAddFile } from "stores/mediaObject/addFile.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -29,6 +30,8 @@ let props = defineProps({
 const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
+const domain = ref(import.meta.env.VITE_API_DOMEN);
+let file = ref();
 const model = useProductModels();
 const budget = useBudget();
 const accessory = useAccessory();
@@ -48,6 +51,7 @@ const columns = [
   { name: 'name', label: t('tables.model.columns.name'), align: 'left', field: 'name' },
   { name: 'description', label: t('tables.model.columns.description'), align: 'left', field: 'description' },
   { name: 'sizes', label: t('tables.model.columns.sizes'), align: 'left', field: 'sizes' },
+  { name: 'image', label: t('tables.model.columns.image'), align: 'left', field: 'image' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
@@ -104,29 +108,34 @@ function createAction() {
     embroideries: selectedData.value.embroideries
   }
 
-  model.create(input)
-    .then(() => {
-      showCreateModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.model.confirmation.successCreated')
-      })
-      clearAction();
-      getModels();
-    })
-    .catch((res) => {
-      createActionErr.value = res.response.data['hydra:description'];
+  useAddFile().addFile(file.value)
+    .then((res) => {
+      input.image = res.data['@id']
 
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.model.confirmation.failure')
-      })
+      model.create(input)
+        .then(() => {
+          showCreateModal.value = false;
+          $q.notify({
+            type: 'positive',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.model.confirmation.successCreated')
+          })
+          clearAction();
+          getModels();
+        })
+        .catch((res) => {
+          createActionErr.value = res.response.data['hydra:description'];
+
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.model.confirmation.failure')
+          })
+        })
+        .finally(() => modelLoading.value = false);
     })
-    .finally(() => modelLoading.value = false);
 }
 function updateAction() {
   if (selectedData.value.id) {
@@ -236,6 +245,16 @@ function clearAction() {
               </q-btn>
             </div>
           </div>
+          <div v-else-if="col.name === 'image'">
+            <q-img
+              v-if="props?.row?.image?.contentUrl"
+              :src="domain + props.row.image.contentUrl"
+              style="max-width: 50px"
+            />
+            <div v-else>
+              -
+            </div>
+          </div>
           <div v-else>
             {{ props.row[col.field] || '-' }}
           </div>
@@ -289,6 +308,18 @@ function clearAction() {
             class="col-12"
             hide-bottom-space
           />
+          <q-file
+            v-model="file"
+            clearable
+            :label="$t('forms.embroidery.fields.image.label')"
+            filled
+            accept="image/*"
+            class="col-12"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+          </q-file>
           <selectable-list
             v-model="selectedData.embroideries"
             :label="$t('forms.model.fields.embroideries.label')"
@@ -298,6 +329,7 @@ function clearAction() {
             item-label="name"
             :rule-message="$t('forms.model.fields.embroideries.validation.required')"
             multiple
+            clearable
             class="col-12"
           />
           <selectable-list

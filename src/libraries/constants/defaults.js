@@ -10,6 +10,10 @@ export const LANGUAGES = [
     label: 'Uzbek',
     value: 'uz'
   },
+  {
+    label: 'Uzbek (Cyrillic)',
+    value: 'uzCyrillic'
+  }
 ]
 
 export const MEASUREMENTS = [
@@ -20,6 +24,25 @@ export const MEASUREMENTS = [
   {
     label: 'Dona',
     value: 'piece'
+  }
+]
+export const SECTION_TYPES = [
+  // cutter', 'embroidery', 'sewer', 'packager
+  {
+    label: 'cutter',
+    value: 'cutter'
+  },
+  {
+    label: 'embroidery',
+    value: 'embroidery'
+  },
+  {
+    label: 'sewer',
+    value: 'sewer'
+  },
+  {
+    label: 'packager',
+    value: 'packager'
   }
 ]
 export const PAGINATION_DEFAULTS = {

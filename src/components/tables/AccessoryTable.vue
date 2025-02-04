@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
-import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import { MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -43,6 +43,7 @@ const columns = [
   { name: 'name', label: t('tables.accessory.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.accessory.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'price', label: t('tables.accessory.columns.price'), align: 'left', field: 'price' },
+  { name: 'type', label: t('tables.accessory.columns.type'), align: 'left', field: 'type' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
@@ -202,6 +203,9 @@ function clearAction() {
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
           </div>
+          <div v-else-if="col.name === 'type'">
+            {{ $t(props.row.type) }}
+          </div>
           <div v-else>
             {{ props.row[col.field] }}
           </div>
@@ -243,6 +247,21 @@ function clearAction() {
             :label="$t('forms.accessory.fields.name.label')"
             lazy-rules
             :rules="[ val => val && val.length > 0 || $t('forms.accessory.fields.name.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+          <q-select
+            clearable
+            filled
+            required
+            emit-value
+            map-options
+            v-model="selectedData.type"
+            :options="SECTION_TYPES"
+            :label="$t('forms.accessory.fields.type.label')"
+            option-value="value"
+            :option-label="option => $t(option.label)"
+            :rules="[val => !!val || $t('forms.accessory.fields.type.validation.required')]"
             class="col-12"
             hide-bottom-space
           />

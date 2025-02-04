@@ -199,7 +199,7 @@ function payAction () {
     quantity: selectedData.value.debtQuantity,
     description: `Maxsulot savdo #${selectedData.value.id} Qarzi qabul qilindi`,
     isIncome: true,
-    saleId: selectedData.value['@id']
+    sale: selectedData.value['@id']
   }
 
   console.log(input);
