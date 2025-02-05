@@ -64,8 +64,9 @@ export const ROLES = [
 ];
 
 export const formatFloatToInteger = (number) => {
+  let num = Number(number)
   // Split the number into integer and decimal parts
-  const [integerPart, decimalPart] = number.toString().split('.');
+  const [integerPart, decimalPart] = num.toString().split('.');
 
   // Format the integer part with spaces as thousands separators
   const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
