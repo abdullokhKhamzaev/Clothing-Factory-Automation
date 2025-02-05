@@ -7,6 +7,7 @@ import ProductModelOrderRoleCutterTable from "components/tables/role-cutter/Prod
 import MaterialWarehouseRoleCutterTable from "components/tables/role-cutter/MaterialWarehouseRoleCutterTable.vue";
 import CompletedProductModelOrderTableRoleCutter
   from "components/tables/role-cutter/CompletedProductModelOrderTableRoleCutter.vue";
+import CutterDefectiveProductWarehouseTable from "components/tables/CutterDefectiveProductWarehouseTable.vue";
 
 const tab = ref('orders');
 
@@ -139,6 +140,7 @@ onMounted(() => {
       <q-tab name="completedOrders" :label="$t('completedOrders')" />
       <q-tab name="materials" :label="$t('materials')" />
       <q-tab name="warehouse" :label="$t('warehouse')" />
+      <q-tab name="defects" :label="$t('defects')" />
     </q-tabs>
     <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
   </div>
@@ -232,6 +234,9 @@ onMounted(() => {
             </q-item-section>
           </q-item>
         </q-list>
+      </q-tab-panel>
+      <q-tab-panel name="defects" class="q-pa-none">
+        <cutter-defective-product-warehouse-table />
       </q-tab-panel>
     </q-tab-panels>
   </div>

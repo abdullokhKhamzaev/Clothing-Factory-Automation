@@ -159,7 +159,7 @@ function rejectAction () {
               {{ consume.size }} : {{ consume.quantity }}
             </div>
           </div>
-          <div v-else-if="col.name === 'productModelOrder'">
+          <div v-else-if="col.name === 'productModelOrder' && props.row.productModelOrder">
             <div
               v-for="consume in props.row.productModelOrder.expectedOutlayRipeMaterial"
               :key="consume"
