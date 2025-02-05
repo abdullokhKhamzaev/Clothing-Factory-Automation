@@ -166,8 +166,49 @@ const routes = [
       },
       {
         path: 'setting',
-        name: 'club.setting',
-        component: () => import('pages/SettingPage.vue')
+        component: () => import('pages/SettingPage.vue'),
+        children: [
+          {
+            path: 'thread',
+            name: 'club.setting.thread',
+            component: () => import('pages/setting/ThreadPage.vue')
+          },
+          {
+            path: 'unripe-material',
+            name: 'club.setting.unripeMaterial',
+            component: () => import('pages/setting/UnripeMaterialPage.vue')
+          },
+          {
+            path: 'ripe-material',
+            name: 'club.setting.ripeMaterial',
+            component: () => import('pages/setting/RipeMaterialPage.vue')
+          },
+          {
+            path: 'paint-factory',
+            name: 'club.setting.paintFactory',
+            component: () => import('pages/setting/PaintFactoryPage.vue')
+          },
+          {
+            path: 'color',
+            name: 'club.setting.color',
+            component: () => import('pages/setting/ColorPage.vue')
+          },
+          {
+            path: 'model',
+            name: 'club.setting.model',
+            component: () => import('pages/setting/ModelPage.vue')
+          },
+          {
+            path: 'accessory',
+            name: 'club.setting.accessory',
+            component: () => import('pages/setting/AccessoryPage.vue')
+          },
+          {
+            path: 'embroidery',
+            name: 'club.setting.embroidery',
+            component: () => import('pages/setting/EmbroideryPage.vue')
+          },
+        ]
       }
     ]
   },

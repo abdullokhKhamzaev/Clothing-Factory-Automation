@@ -172,7 +172,7 @@ const linksList = [
   {
     title: 'settings',
     icon: 'mdi-cog',
-    to: { name: 'club.setting' }
+    to: { name: 'club.setting.thread' }
   },
 ]
 
