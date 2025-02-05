@@ -31,7 +31,7 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const domain = ref(import.meta.env.VITE_API_DOMEN);
-let file = ref();
+const file = ref();
 const model = useProductModels();
 const budget = useBudget();
 const accessory = useAccessory();
@@ -187,7 +187,8 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', price: '', productAccessories: []}]
+  file.value = null;
+  rows.value = [{ size: '', quantity: '', price: '', productAccessories: [], embroidery: []}]
 }
 </script>
 

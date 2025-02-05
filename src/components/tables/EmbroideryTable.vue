@@ -29,7 +29,7 @@ const emit = defineEmits(['submit']);
 const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
-let file = ref()
+const file = ref();
 const embroidery = useEmbroidery();
 const budget = useBudget();
 
@@ -152,6 +152,7 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
+  file.value = null;
 }
 </script>
 

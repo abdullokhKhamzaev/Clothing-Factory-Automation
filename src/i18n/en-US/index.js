@@ -49,6 +49,9 @@ export default {
   embroidery: 'Embroidery',
   sewer: 'Sewer',
   packager: 'Packager',
+  monthly: 'Monthly',
+  daily: 'Daily',
+  made: 'Made',
   statuses: {
     accepted: 'Accepted',
     notAccepted: 'Not Accepted',
@@ -429,6 +432,12 @@ export default {
             required: 'Name is required.',
           }
         },
+        image: {
+          label: 'Image',
+          validation: {
+            required: 'Image is required.',
+          }
+        },
         type: {
           label: 'Select type',
           validation: {
@@ -482,7 +491,7 @@ export default {
         image: {
           label: 'Image',
           validation: {
-            required: 'Measurement is required.',
+            label: 'Image',
           }
         },
         workerPrice: {
@@ -1378,6 +1387,7 @@ export default {
       },
       columns: {
         name: 'Name',
+        image: 'Image',
         quantity: 'Quantity',
         price: 'Price',
         type: 'Section',

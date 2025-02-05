@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
-import { useCurrency } from "stores/currency.js";
+import { useBudget } from "stores/budget.js";
 import { ROLES } from 'src/libraries/constants/defaults';
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
@@ -30,7 +30,7 @@ const { t } = useI18n();
 const emit = defineEmits(['submit']);
 
 const user = useUser();
-const currency = useCurrency();
+const budget = useBudget();
 
 // Dialogs
 const showCreateModal = ref(false);
@@ -47,12 +47,12 @@ const selectedData = ref({});
 const userLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'salaryCurrency', 'roles' ]);
+const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'budget', 'roles' ]);
 const columns = [
   { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'salary', label: t('tables.users.columns.salary'), field: 'salary', sortable: true },
-  { name: 'salaryCurrency', label: t('tables.users.columns.currency'), align: 'left', field: 'salaryCurrency' },
+  { name: 'budget', label: t('tables.users.columns.currency'), align: 'left', field: 'budget' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
@@ -77,8 +77,8 @@ function clearAction() {
 }
 
 function prefill () {
-  if (selectedData?.value?.salaryCurrency && selectedData.value.salaryCurrency['@id']) {
-    selectedData.value.salaryCurrency = selectedData.value.salaryCurrency['@id']
+  if (selectedData?.value?.budget && selectedData.value.budget['@id']) {
+    selectedData.value.budget = selectedData.value.budget['@id']
   }
 }
 function createAction() {
@@ -89,7 +89,8 @@ function createAction() {
     password: selectedData.value.password,
     fullName: selectedData.value.fullName,
     salary: selectedData.value.salary,
-    salaryCurrency: selectedData.value.salaryCurrency,
+    salaryType: selectedData.value.salaryType,
+    budget: selectedData.value.budget,
     roles: selectedData.value.roles,
   }
 
@@ -131,7 +132,8 @@ function updateAction() {
         phone: selectedData.value.phone,
         fullName: selectedData.value.fullName,
         salary: selectedData.value.salary,
-        salaryCurrency: selectedData.value.salaryCurrency
+        salaryType: selectedData.value.salaryType,
+        budget: selectedData.value.budget
       }
     }
 
@@ -325,8 +327,8 @@ function exportTable(users) {
             {{ props.row.fullName }}
           </div>
 
-          <div v-else-if="col.name === 'salaryCurrency'">
-            {{ props.row?.salaryCurrency?.name || '-' }}
+          <div v-else-if="col.name === 'budget'">
+            {{ props.row?.budget?.name || '-' }}
           </div>
 
           <div v-else-if="col.name === 'roles'">
@@ -457,15 +459,21 @@ function exportTable(users) {
             class="col-12"
           />
           <selectable-list
-            v-model="selectedData.salaryCurrency"
-            :label="$t('forms.user.fields.currency.label')"
-            :store="currency"
-            fetch-method="fetchCurrencies"
+            v-model="selectedData.budget"
+            :label="$t('forms.threadPurchase.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.user.fields.currency.validation.required')"
             class="col-12"
           />
+          <div class="col-12 q-gutter-sm">
+            <!-- monthly', 'daily', 'made' -->
+            <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="monthly" :label="$t('monthly')" />
+            <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="daily" :label="$t('daily')" />
+            <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="made" :label="$t('made')" />
+          </div>
           <q-input
             filled
             type="number"
@@ -580,15 +588,21 @@ function exportTable(users) {
                 class="col-12"
               />
               <selectable-list
-                v-model="selectedData.salaryCurrency"
-                :label="$t('forms.user.fields.currency.label')"
-                :store="currency"
-                fetch-method="fetchCurrencies"
+                v-model="selectedData.budget"
+                :label="$t('forms.threadPurchase.fields.budget.label')"
+                :store="budget"
+                fetch-method="fetchBudgets"
                 item-value="@id"
                 item-label="name"
                 :rule-message="$t('forms.user.fields.currency.validation.required')"
                 class="col-12"
               />
+              <div class="col-12 q-gutter-sm">
+                <!-- monthly', 'daily', 'made' -->
+                <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="monthly" :label="$t('monthly')" />
+                <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="daily" :label="$t('daily')" />
+                <q-radio v-model="selectedData.salaryType" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="made" :label="$t('made')" />
+              </div>
               <q-input
                 filled
                 type="number"

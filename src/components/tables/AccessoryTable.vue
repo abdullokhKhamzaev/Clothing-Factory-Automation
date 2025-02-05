@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
 import { MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
+import { useAddFile } from "stores/mediaObject/addFile.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -26,8 +27,10 @@ let props = defineProps({
 });
 
 const emit = defineEmits(['submit']);
+const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
+const file = ref();
 const accessory = useAccessory();
 const budget = useBudget();
 
@@ -41,6 +44,7 @@ const showDeleteModal = ref(false);
 
 const columns = [
   { name: 'name', label: t('tables.accessory.columns.name'), align: 'left', field: 'name' },
+  { name: 'image', label: t('tables.accessory.columns.image'), align: 'left', field: 'image' },
   { name: 'quantity', label: t('tables.accessory.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'price', label: t('tables.accessory.columns.price'), align: 'left', field: 'price' },
   { name: 'type', label: t('tables.accessory.columns.type'), align: 'left', field: 'type' },
@@ -57,29 +61,34 @@ function createAction () {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  accessory.create(selectedData.value)
-    .then(() => {
-      showCreateModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.accessory.confirmation.successCreated')
-      })
-      clearAction();
-      getAccessories();
-    })
-    .catch((res) => {
-      createActionErr.value = res.response.data['hydra:description'];
+  useAddFile().addFile(file.value)
+    .then((res) => {
+      selectedData.value.image = res.data['@id']
 
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.accessory.confirmation.failure')
-      })
-    })
-    .finally(() => accessoryLoading.value = false);
+      accessory.create(selectedData.value)
+        .then(() => {
+          showCreateModal.value = false;
+          $q.notify({
+            type: 'positive',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.accessory.confirmation.successCreated')
+          })
+          clearAction();
+          getAccessories();
+        })
+        .catch((res) => {
+          createActionErr.value = res.response.data['hydra:description'];
+
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.accessory.confirmation.failure')
+          })
+        })
+        .finally(() => accessoryLoading.value = false);
+  })
 }
 function updateAction() {
   if (selectedData.value.id) {
@@ -146,6 +155,7 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
+  file.value = null;
 }
 </script>
 
@@ -203,6 +213,16 @@ function clearAction() {
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
           </div>
+          <div v-else-if="col.name === 'image'">
+            <q-img
+              v-if="props?.row?.image?.contentUrl"
+              :src="domain + props.row.image.contentUrl"
+              style="max-width: 50px"
+            />
+            <div v-else>
+              -
+            </div>
+          </div>
           <div v-else-if="col.name === 'type'">
             {{ $t(props.row.type) }}
           </div>
@@ -250,6 +270,18 @@ function clearAction() {
             class="col-12"
             hide-bottom-space
           />
+          <q-file
+            v-model="file"
+            :label="$t('forms.accessory.fields.image.label')"
+            clearable
+            filled
+            accept="image/*"
+            class="col-12"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+          </q-file>
           <q-select
             clearable
             filled

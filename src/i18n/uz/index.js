@@ -49,6 +49,9 @@ export default {
   embroidery: 'Kashtachi',
   sewer: 'Tikuvchi',
   packager: 'Qadoqlovchi',
+  monthly: 'Oylik',
+  daily: 'Kunlik',
+  made: 'Bajarilgan',
   statuses: {
     accepted: 'Qabul qilindi',
     notAccepted: 'Qabul qilinmadi',
@@ -429,6 +432,12 @@ export default {
             required: 'Nom talab qilinadi.'
           }
         },
+        image: {
+          label: 'Rasm',
+          validation: {
+            required: 'Rasm talab qilinadi.'
+          }
+        },
         type: {
           label: 'Turini tanlang',
           validation: {
@@ -482,7 +491,7 @@ export default {
         image: {
           label: 'Rasm',
             validation: {
-            required: 'O\'lchov talab qilinadi.'
+            required: 'Rasm talab qilinadi.'
           }
         },
         workerPrice: {
@@ -1378,6 +1387,7 @@ export default {
       },
       columns: {
         name: 'Nom',
+        image: 'Rasm',
         quantity: 'Soni',
         price: 'Narx',
         type: 'Bo\'lim',

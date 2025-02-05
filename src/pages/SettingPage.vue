@@ -279,15 +279,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex justify-between q-gutter-md">
+  <div class="flex justify-between q-gutter-y-md">
     <q-tabs
       v-model="tab"
       no-caps
       dense
       outside-arrows
       mobile-arrows
-      class="shadow-2 text-primary"
-      :class="$q.screen.xs ? 'full-width' : ''"
+      class="shadow-2 text-primary full-width"
     >
       <q-tab name="thread" :label="$t('tables.thread.header.title')"/>
       <q-tab name="unripeMaterial" :label="$t('tables.unripeMaterial.header.title')"/>

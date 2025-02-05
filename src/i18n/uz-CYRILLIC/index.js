@@ -49,6 +49,9 @@ export default {
   embroidery: 'Каштачи',
   sewer: 'Тикувчи',
   packager: 'Кадокловчи',
+  monthly: 'Ойлик',
+  daily: 'Кунлик',
+  made: 'Бажарилган',
   statuses: {
     accepted: 'Қабул қилинди',
     notAccepted: 'Қабул қилинмади',
@@ -429,6 +432,12 @@ export default {
             required: 'Ном талаб қилинади.'
           }
         },
+        image: {
+          label: 'Расм',
+          validation: {
+            required: 'Расм талаб қилинади.'
+          }
+        },
         type: {
           label: 'Турини танланг',
           validation: {
@@ -482,7 +491,7 @@ export default {
         image: {
           label: 'Расм',
             validation: {
-            required: 'Ўлчов талаб қилинади.'
+            required: 'Расм талаб қилинади.'
           }
         },
         workerPrice: {
@@ -1378,6 +1387,7 @@ export default {
       },
       columns: {
         name: 'Ном',
+        image: 'Расм',
         quantity: 'Сони',
         price: 'Нарх',
         type: 'Бўлим',
