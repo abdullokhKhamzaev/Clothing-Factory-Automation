@@ -361,6 +361,18 @@ export default {
             required: 'Нарх талаб қилинади.'
           }
         },
+        payWorkerSort2: {
+          label: 'Сорт 2 ишчи нархи',
+          validation: {
+            required: 'Нарх талаб қилинади.'
+          }
+        },
+        budget: {
+          label: 'Бюджет',
+          validation: {
+            required: 'Бюджет талаб қилинади.'
+          }
+        },
         measurement: {
           label: 'Ўлчов',
           validation: {

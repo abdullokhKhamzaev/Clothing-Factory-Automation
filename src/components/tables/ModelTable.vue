@@ -44,7 +44,7 @@ const createActionErr = ref(null);
 const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
 let rows = reactive([
-  { size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }] }
+  { size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] }
 ])
 
 const columns = [
@@ -56,7 +56,7 @@ const columns = [
 ];
 
 function addRow() {
-  rows.push({ size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }] });
+  rows.push({ size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] });
 }
 function removeRow(index) {
   if (this.rows.length > 1) {
@@ -74,18 +74,18 @@ function removeAccessoryRow(index) {
 function prefill() {
   let sizes = [];
   selectedData.value.sizes.forEach((size) => {
-    sizes.push({ size: size.size, price: size.price, productAccessories: size.productAccessories });
+    sizes.push({ size: size.size, price: size.price, productAccessories: size.productAccessories, embroidery: size.embroidery });
   });
   rows = sizes;
 
-  if ( selectedData?.value?.embroideries?.length && selectedData?.value?.embroideries[0]['@id'] ) {
-    let embroideries = [];
-    selectedData.value.embroideries.forEach(embroidery => {
-      embroideries.push(embroidery['@id'])
-    })
-
-    selectedData.value.embroideries = embroideries;
-  }
+  // if ( selectedData?.value?.embroideries?.length && selectedData?.value?.embroideries[0]['@id'] ) {
+  //   let embroideries = [];
+  //   selectedData.value.embroideries.forEach(embroidery => {
+  //     embroideries.push(embroidery['@id'])
+  //   })
+  //
+  //   selectedData.value.embroideries = embroideries;
+  // }
 }
 
 function getModels () {
@@ -97,7 +97,7 @@ function createAction() {
   let sizes = [];
 
   rows.forEach((row) => {
-    sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories});
+    sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories, embroidery: row.embroidery});
   })
 
   const input = {
@@ -105,7 +105,6 @@ function createAction() {
     description: selectedData.value.description,
     sizes: sizes,
     budget: selectedData.value.budget,
-    embroideries: selectedData.value.embroideries
   }
 
   useAddFile().addFile(file.value)
@@ -321,18 +320,6 @@ function clearAction() {
             </template>
           </q-file>
           <selectable-list
-            v-model="selectedData.embroideries"
-            :label="$t('forms.model.fields.embroideries.label')"
-            :store="embroidery"
-            fetch-method="fetchEmbroideries"
-            item-value="@id"
-            item-label="name"
-            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
-            multiple
-            clearable
-            class="col-12"
-          />
-          <selectable-list
             v-model="selectedData.budget"
             :label="$t('forms.model.fields.budget.label')"
             :store="budget"
@@ -371,6 +358,18 @@ function clearAction() {
             :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
             class="col-12"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="row.embroidery"
+            :label="$t('forms.model.fields.embroideries.label')"
+            :store="embroidery"
+            fetch-method="fetchEmbroideries"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
+            multiple
+            clearable
+            class="col-12"
           />
           <div class="col-12">
             <div class="row q-card--bordered bg-grey-2 q-pa-md">

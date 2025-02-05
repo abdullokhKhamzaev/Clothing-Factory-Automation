@@ -4,7 +4,9 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useMaterial } from "stores/material.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import { useBudget } from "stores/budget.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SelectableList from "components/selectableList.vue";
 
 // Props
 let props = defineProps({
@@ -27,6 +29,7 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const material = useMaterial();
+const budget = useBudget();
 
 const materialLoading = ref(false);
 const selectedData = ref({});
@@ -262,7 +265,7 @@ function clearAction() {
             option-value="value"
             option-label="label"
             :rules="[val => !!val || $t('forms.unripeMaterial.fields.measurement.validation.required')]"
-            class="col-12 col-md-6"
+            class="col-12"
             hide-bottom-space
           />
           <q-input
@@ -272,6 +275,16 @@ function clearAction() {
             type="number"
             :label="$t('forms.unripeMaterial.fields.payWorker.label')"
             :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.payWorker.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            v-model="selectedData.payWorkerSort2"
+            prefix="so'm:"
+            filled
+            type="number"
+            :label="$t('forms.unripeMaterial.fields.payWorkerSort2.label')"
+            :rules="[ val => val && val > -1 || $t('forms.unripeMaterial.fields.payWorkerSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -310,6 +323,16 @@ function clearAction() {
             :rules="[ val => val !== undefined && val >= 0 || $t('forms.unripeMaterial.fields.rollSort2.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.unripeMaterial.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.unripeMaterial.fields.budget.validation.required')"
+            class="col-12"
           />
           <q-input
             v-model="selectedData.price"

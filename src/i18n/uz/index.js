@@ -361,6 +361,18 @@ export default {
             required: 'Narx talab qilinadi.'
           }
         },
+        payWorkerSort2: {
+          label: 'Sort 2 ishchi narxi',
+          validation: {
+            required: 'Narx talab qilinadi.'
+          }
+        },
+        budget: {
+          label: 'Byudjet',
+          validation: {
+            required: 'Byudjet talab qilinadi.'
+          }
+        },
         measurement: {
           label: 'O\'lchov',
           validation: {

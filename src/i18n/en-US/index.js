@@ -361,6 +361,18 @@ export default {
             required: 'Price is required.',
           }
         },
+        payWorkerSort2: {
+          label: 'Worker price for sort 2',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        budget: {
+          label: 'Budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
         measurement: {
           label: 'Measurement',
           validation: {
