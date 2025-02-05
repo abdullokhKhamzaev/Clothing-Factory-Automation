@@ -43,10 +43,6 @@ export const SECTION_TYPES = [
   {
     label: 'packager',
     value: 'packager'
-  },
-  {
-    label: 'service',
-    value: 'service'
   }
 ]
 export const PAGINATION_DEFAULTS = {
