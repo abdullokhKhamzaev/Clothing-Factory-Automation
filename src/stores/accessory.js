@@ -11,6 +11,12 @@ export const useAccessory = defineStore('accessory', () => {
       url += '?page=1'
     }
 
+    if ( filterProps?.types ) {
+      filterProps.types.forEach((type) => {
+        url += '&type[]=' + type
+      })
+    }
+
     try {
       return client.get('accessories' + url)
     } catch (e) {

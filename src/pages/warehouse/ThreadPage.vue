@@ -1,10 +1,11 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
-import { useMaterial } from "stores/material.js";
-import UnripeMaterialWarehouseTable from "components/tables/UnripeMaterialWarehouseTable.vue";
+import { useThread } from "stores/thread.js";
+import ThreadWarehouseTable from "components/tables/ThreadWarehouseTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-const material = useMaterial();
-const materials = ref([]);
+const thread = useThread();
+const threads = ref([]);
 const total = ref(0);
 const loading = ref(false);
 const pagination = ref({
@@ -15,12 +16,12 @@ const pagination = ref({
 })
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage))
 
-function getMaterials (filterProps) {
+function getThreads (filterProps) {
   loading.value = true;
 
-  material.fetchMaterials(filterProps || '')
+  thread.fetchThreads(filterProps || '')
     .then((res) => {
-      materials.value = res.data['hydra:member'];
+      threads.value = res.data['hydra:member'];
       total.value = res.data['hydra:totalItems'];
     })
     .finally(() => {
@@ -28,16 +29,30 @@ function getMaterials (filterProps) {
     });
 }
 
+function refresh () {
+  pagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
+  getThreads();
+}
+
 onMounted(() => {
-  getMaterials();
+  getThreads();
 })
 </script>
 
 <template>
-  <unripe-material-warehouse-table
-    :materials="materials"
+  <div class="q-ma-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
+  <thread-warehouse-table
+    :threads="threads"
     :pagination="pagination"
     :loading="loading"
+    @submit="refresh"
   />
   <div
     v-if="total > pagination.rowsPerPage"
@@ -51,7 +66,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getMaterials({ page: pagination.page })"
+      @update:model-value="getThreads({ page: pagination.page })"
     />
   </div>
 </template>

@@ -58,29 +58,14 @@ const routes = [
         component: () => import('pages/UsersPage.vue')
       },
       {
-        path: 'thread',
-        name: 'club.thread',
-        component: () => import('pages/ThreadPage.vue')
-      },
-      {
         path: 'weave',
         name: 'club.weave',
         component: () => import('pages/WeavePage.vue')
       },
       {
-        path: 'unripe-material-warehouse',
-        name: 'club.unripeMaterialWarehouse',
-        component: () => import('pages/UnripeMaterialWarehousePage.vue')
-      },
-      {
         path: 'paint',
         name: 'club.paint',
         component: () => import('pages/PaintPage.vue')
-      },
-      {
-        path: 'material-warehouse',
-        name: 'club.material-warehouse',
-        component: () => import('pages/RipeMaterialWarehousePage.vue')
       },
       {
         path: 'cut',
@@ -116,6 +101,32 @@ const routes = [
         path: 'sales',
         name: 'club.sales',
         component: () => import('pages/SalePage.vue')
+      },
+      {
+        path: 'warehouse',
+        component: () => import('pages/WarehousePage.vue'),
+        children: [
+          {
+            path: 'accessory',
+            name: 'club.warehouse.accessory',
+            component: () => import('pages/warehouse/AccessoryPage.vue')
+          },
+          {
+            path: 'thread',
+            name: 'club.warehouse.thread',
+            component: () => import('pages/warehouse/ThreadPage.vue')
+          },
+          {
+            path: 'unripe-material',
+            name: 'club.warehouse.unripeMaterial',
+            component: () => import('pages/warehouse/UnripeMaterialPage.vue')
+          },
+          {
+            path: 'ripe-material',
+            name: 'club.warehouse.ripeMaterial',
+            component: () => import('pages/warehouse/RipeMaterialPage.vue')
+          }
+        ]
       },
       {
         path: 'statistic',

@@ -6,6 +6,11 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  methodProps: {
+    type: Object,
+    required: false,
+    default: null
+  },
   disable: {
     type: Boolean,
     required: false,
@@ -69,6 +74,10 @@ const options = computed(() => {
 async function getItems(filterProps = {}) {
   if (loading.value || items.value.length >= total.value) {
     return;
+  }
+
+  if ( props.methodProps?.types ) {
+    filterProps.types = props.methodProps.types
   }
 
   loading.value = true;

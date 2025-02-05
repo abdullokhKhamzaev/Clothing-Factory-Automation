@@ -192,7 +192,7 @@ function clearAction() {
             class="flex q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
-            <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
+            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
           </div>
 
           <div v-else>

@@ -61,34 +61,60 @@ function createAction () {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  useAddFile().addFile(file.value)
-    .then((res) => {
-      selectedData.value.image = res.data['@id']
+  if (file.value) {
+    useAddFile().addFile(file.value)
+      .then((res) => {
+        selectedData.value.image = res.data['@id']
 
-      accessory.create(selectedData.value)
-        .then(() => {
-          showCreateModal.value = false;
-          $q.notify({
-            type: 'positive',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.accessory.confirmation.successCreated')
+        accessory.create(selectedData.value)
+          .then(() => {
+            showCreateModal.value = false;
+            $q.notify({
+              type: 'positive',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.accessory.confirmation.successCreated')
+            })
+            clearAction();
+            getAccessories();
           })
-          clearAction();
-          getAccessories();
-        })
-        .catch((res) => {
-          createActionErr.value = res.response.data['hydra:description'];
+          .catch((res) => {
+            createActionErr.value = res.response.data['hydra:description'];
 
-          $q.notify({
-            type: 'negative',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.accessory.confirmation.failure')
+            $q.notify({
+              type: 'negative',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.accessory.confirmation.failure')
+            })
           })
+          .finally(() => accessoryLoading.value = false);
+      })
+  } else {
+    accessory.create(selectedData.value)
+      .then(() => {
+        showCreateModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.accessory.confirmation.successCreated')
         })
-        .finally(() => accessoryLoading.value = false);
-  })
+        clearAction();
+        getAccessories();
+      })
+      .catch((res) => {
+        createActionErr.value = res.response.data['hydra:description'];
+
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.accessory.confirmation.failure')
+        })
+      })
+      .finally(() => accessoryLoading.value = false);
+  }
 }
 function updateAction() {
   if (selectedData.value.id) {
@@ -211,7 +237,7 @@ function clearAction() {
             class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
-            <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
+            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
           </div>
           <div v-else-if="col.name === 'image'">
             <q-img

@@ -217,7 +217,7 @@ function prefill () {
             class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
-            <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
+            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
           </div>
 
           <div
@@ -225,7 +225,7 @@ function prefill () {
             class="flex no-wrap q-gutter-sm"
           >
             <span> {{ props.row.quantity }} </span>
-            <span class="text-weight-bolder"> ({{ props.row.measurement }}) </span>
+            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
           </div>
 
           <div v-else>

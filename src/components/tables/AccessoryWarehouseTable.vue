@@ -1,17 +1,17 @@
 <script setup>
 import { ref } from "vue";
-import { useThreadPurchase } from "stores/threadPurchase.js";
-import { useThread } from "stores/thread.js";
+import { useQuasar } from "quasar";
+import { useI18n } from "vue-i18n";
+import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
-import { useI18n } from "vue-i18n";
-import { useQuasar } from "quasar";
+import { useAccessoryPurchase } from "stores/accessoryPurchase.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
-const emit = defineEmits(['submit']);
+// Props
 let props = defineProps({
-  threads: {
+  accessories: {
     type: Array,
     required: true
   },
@@ -26,29 +26,31 @@ let props = defineProps({
   }
 });
 
+const emit = defineEmits(['submit']);
+const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
+
+const accessory = useAccessory();
+const budget = useBudget();
+const user = useAbout();
 
 const selectedData = ref({});
 const showPurchaseModal = ref(false);
 const purchaseLoading = ref(false);
 const createActionErr = ref(null);
 
-const thread = useThread();
-const budget = useBudget();
-const user = useAbout();
-
 const columns = [
-  { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
-  { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'price', label: t('tables.thread.columns.price'), align: 'left', field: 'price' }
+  { name: 'name', label: t('tables.accessory.columns.name'), align: 'left', field: 'name' },
+  { name: 'image', label: t('tables.accessory.columns.image'), align: 'left', field: 'image' },
+  { name: 'quantity', label: t('tables.accessory.columns.quantity'), align: 'left', field: 'quantity' },
+  { name: 'price', label: t('tables.accessory.columns.price'), align: 'left', field: 'price' },
+  { name: 'type', label: t('tables.accessory.columns.type'), align: 'left', field: 'type' },
+  { name: 'action', label: '', align: 'right', field: 'action' }
 ];
-function getThreads() {
+
+function getAccessories () {
   emit('submit');
-}
-function clearAction() {
-  selectedData.value = {};
-  createActionErr.value = null;
 }
 function createAction() {
   if (!user.about['@id']) {
@@ -59,7 +61,7 @@ function createAction() {
   purchaseLoading.value = true;
 
   let input = {
-    thread: selectedData.value.thread,
+    accessory: selectedData.value.accessory,
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
     totalPrice: String(selectedData.value.quantity * selectedData.value.price),
@@ -70,7 +72,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: 'Ip sotib olish',
+      description: 'Aksessuar sotib olish',
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)
@@ -79,17 +81,17 @@ function createAction() {
 
   input.isPayed = Number(selectedData.value.paidPrice) === Number(selectedData.value.quantity * selectedData.value.price);
 
-  useThreadPurchase().createPurchase(input)
+  useAccessoryPurchase().createPurchase(input)
     .then(() => {
       showPurchaseModal.value = false;
       $q.notify({
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.threadPurchase.confirmation.successBought')
+        message: t('forms.accessoryPurchase.confirmation.successBought')
       })
       clearAction();
-      getThreads();
+      getAccessories();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -98,53 +100,76 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.threadPurchase.confirmation.failure')
+        message: t('forms.accessoryPurchase.confirmation.failure')
       })
     })
     .finally(() => purchaseLoading.value = false)
+}
+function clearAction() {
+  selectedData.value = {};
+  createActionErr.value = null;
 }
 </script>
 
 <template>
   <skeleton-table
-    :loading="props.loading || purchaseLoading"
+    :loading="loading || purchaseLoading"
   />
   <q-table
     v-show="!props.loading && !purchaseLoading"
     flat
     bordered
-    :rows="props.threads"
+    :rows="props.accessories"
     :columns="columns"
-    :no-data-label="$t('tables.thread.header.empty')"
+    :no-data-label="$t('tables.accessory.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex items-md-center justify-between">
-        <div class="q-table__title">{{ $t('tables.thread.header.title') }}</div>
-        <q-btn no-caps :label="$t('tables.thread.buttons.add')" color="primary" @click="showPurchaseModal = true" />
+      <div class="col-12 flex justify-between">
+        <div class="q-table__title">{{ $t('tables.accessory.header.title') }}</div>
+        <div class="text-right">
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.accessory.buttons.purchase')"
+            no-caps
+            @click="showPurchaseModal = true"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td v-for="col in columns" :key="col.name" :props="props">
-            <div v-if="col.name === 'name'">
-              {{ props.row.name }}
+      <q-tr :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props">
+          <div
+            v-if="col.name === 'quantity'"
+            class="flex no-wrap q-gutter-sm"
+          >
+            <span> {{ props.row.quantity }} </span>
+            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
+          </div>
+          <div v-else-if="col.name === 'image'">
+            <q-img
+              v-if="props?.row?.image?.contentUrl"
+              :src="domain + props.row.image.contentUrl"
+              style="max-width: 50px"
+            />
+            <div v-else>
+              -
             </div>
-
-            <div v-if="col.name === 'quantity'">
-              <span> {{ props.row.quantity }} </span>
-              <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
-            </div>
-
-            <div v-if="col.name === 'price'">
-              <span> {{ props.row.price * props.row.quantity }} {{ props.row.budget.name }} </span>
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
+          </div>
+          <div v-else-if="col.name === 'type'">
+            {{ $t(props.row.type) }}
+          </div>
+          <div v-else>
+            {{ props.row[col.field] }}
+          </div>
+        </q-td>
+      </q-tr>
+    </template>
   </q-table>
   <!-- Dialogs -->
   <q-dialog v-model="showPurchaseModal" persistent>
@@ -157,7 +182,7 @@ function createAction() {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.threadPurchase.barCreate') }}</div>
+          <div class="text-h6"> {{ $t('dialogs.accessoryPurchase.barCreate') }}</div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
         </div>
         <div v-if="createActionErr">
@@ -175,33 +200,34 @@ function createAction() {
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <selectable-list
-            v-model="selectedData.thread"
-            :label="$t('forms.threadPurchase.fields.thread.label')"
-            :store="thread"
-            fetch-method="fetchThreads"
+            v-model="selectedData.accessory"
+            :label="$t('forms.accessoryPurchase.fields.accessory.label')"
+            :store="accessory"
+            fetch-method="fetchAccessories"
+            :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager']}"
             item-value="@id"
             item-label="name"
-            :rule-message="$t('forms.threadPurchase.fields.thread.validation.required')"
+            :rule-message="$t('forms.accessoryPurchase.fields.accessory.validation.required')"
             class="col-12"
           />
           <selectable-list
             v-model="selectedData.budget"
-            :label="$t('forms.threadPurchase.fields.budget.label')"
+            :label="$t('forms.accessoryPurchase.fields.budget.label')"
             :store="budget"
             fetch-method="fetchBudgets"
             item-value="@id"
             item-label="name"
-            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
+            :rule-message="$t('forms.accessoryPurchase.fields.budget.validation.required')"
             class="col-12"
           />
           <q-input
             v-model="selectedData.quantity"
             type="number"
             filled
-            :disable="!selectedData.thread"
-            :label="$t('forms.threadPurchase.fields.quantity.label')"
+            :disable="!selectedData.accessory"
+            :label="$t('forms.accessoryPurchase.fields.quantity.label')"
             lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.quantity.validation.required')]"
+            :rules="[ val => val && val > 0 || $t('forms.accessoryPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
             class="col-12 col-md-6"
           />
@@ -209,11 +235,11 @@ function createAction() {
             v-model="selectedData.price"
             type="number"
             filled
-            :disable="!selectedData.budget || !selectedData.thread || !selectedData.quantity > 0"
+            :disable="!selectedData.budget || !selectedData.accessory || !selectedData.quantity > 0"
             :prefix="selectedData?.budget === '/api/budgets/1' ? 'so\'m:' : '$:'"
-            :label="$t('forms.threadPurchase.fields.price.label')"
+            :label="$t('forms.accessoryPurchase.fields.price.label')"
             lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.price.validation.required')]"
+            :rules="[ val => val && val > 0 || $t('forms.accessoryPurchase.fields.price.validation.required')]"
             hide-bottom-space
             class="col-12 col-md-6"
           />
@@ -221,11 +247,11 @@ function createAction() {
             v-model="selectedData.paidPrice"
             type="number"
             filled
-            :disable="!selectedData.price || !selectedData.budget || !selectedData.thread || !selectedData.quantity > 0"
+            :disable="!selectedData.price || !selectedData.budget || !selectedData.accessory || !selectedData.quantity > 0"
             :prefix="selectedData?.budget === '/api/budgets/1' ? `${selectedData.quantity * selectedData.price} so'm ${$t('from')}` : `${selectedData.quantity * selectedData.price} $ ${$t('from')}`"
-            :label="$t('forms.threadPurchase.fields.paidPrice.label')"
+            :label="$t('forms.accessoryPurchase.fields.paidPrice.label')"
             lazy-rules
-            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantity * selectedData.price) || $t('forms.threadPurchase.fields.paidPrice.validation.required')]"
+            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantity * selectedData.price) || $t('forms.accessoryPurchase.fields.paidPrice.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -236,7 +262,7 @@ function createAction() {
             :disable="props.loading || purchaseLoading"
             :loading="props.loading || purchaseLoading"
             no-caps
-            :label="$t('forms.threadPurchase.buttons.buy')"
+            :label="$t('forms.accessoryPurchase.buttons.buy')"
             type="submit"
             color="primary"
           />
@@ -245,3 +271,5 @@ function createAction() {
     </div>
   </q-dialog>
 </template>
+<style scoped>
+</style>

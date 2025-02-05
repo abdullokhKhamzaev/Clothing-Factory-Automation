@@ -110,29 +110,14 @@ const linksList = [
     to: { name: 'club.users' }
   },
   {
-    title: 'threadWarehouse',
-    icon: 'mdi-warehouse',
-    to: { name: 'club.thread' }
-  },
-  {
     title: 'weaving',
     icon: 'mdi-store-cog',
     to: { name: 'club.weave' }
   },
   {
-    title: 'unripeMaterialWarehouse',
-    icon: 'mdi-warehouse',
-    to: { name: 'club.unripeMaterialWarehouse' }
-  },
-  {
     title: 'paint',
     icon: 'mdi-palette-outline',
     to: { name: 'club.paint' }
-  },
-  {
-    title: 'paintedMaterialWarehouse',
-    icon: 'mdi-warehouse',
-    to: { name: 'club.material-warehouse' }
   },
   {
     title: 'cutting',
@@ -168,6 +153,11 @@ const linksList = [
     title: 'sales',
     icon: 'mdi-cart-percent',
     to: { name: 'club.sales' }
+  },
+  {
+    title: 'warehouse',
+    icon: 'mdi-warehouse',
+    to: { name: 'club.warehouse.accessory' }
   },
   {
     title: 'statistics',

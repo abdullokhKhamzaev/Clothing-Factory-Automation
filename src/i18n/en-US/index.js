@@ -1,5 +1,6 @@
 export default {
   add: 'Add',
+  accessory: 'Accessory',
   accept: 'Accept',
   balance: 'Balance',
   confirmed: 'Confirmed',
@@ -36,6 +37,8 @@ export default {
   transactions: 'Transactions',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
+  unripeMaterial: 'Unripe Material',
+  ripeMaterial: 'Ripe Material',
   defects: 'Defects',
   sendToEmbroidery: 'Send to embroidery',
   sendToCutterDefective: 'Send to cutter defective',
@@ -50,8 +53,11 @@ export default {
   sewer: 'Sewer',
   packager: 'Packager',
   monthly: 'Monthly',
+  service: 'Service',
   daily: 'Daily',
   made: 'Made',
+  piece: 'Piece',
+  kg: 'KG',
   statuses: {
     accepted: 'Accepted',
     notAccepted: 'Not Accepted',
@@ -81,16 +87,14 @@ export default {
       embroidery: 'Embroidery',
       package: 'Package',
       paint: 'Paint',
-      paintedMaterialWarehouse: 'Painted Material Warehouse',
       productWarehouse: 'Product Warehouse',
       settings: 'Settings',
-      unripeMaterialWarehouse: 'Unripe Material Warehouse',
       sewing: 'Sewing',
       statistics: 'Statistics',
       sales: 'Sales',
-      threadWarehouse: 'Thread Warehouse',
       users: 'Users',
-      weaving: 'Weaving'
+      weaving: 'Weaving',
+      warehouse: 'Warehouse'
     },
     weaver: {
       orders: 'Orders'
@@ -140,6 +144,10 @@ export default {
     threadPurchase: {
       barCreate: 'Buy Thread',
       barPayDebt: 'Pay Thread Purchase Debt'
+    },
+    accessoryPurchase: {
+      barCreate: 'Buy Accessory',
+      barPayDebt: 'Pay Accessory Purchase Debt'
     },
     unripeMaterial: {
       barCreate: 'Create Unripe Material',
@@ -324,6 +332,54 @@ export default {
         },
         quantity: {
           label: 'How many kg?',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        debtQuantity: {
+          label: 'Payment quantity',
+          validation: {
+            required: 'Payment quantity is required.',
+          }
+        },
+        paidPrice: {
+          label: 'Paid Price',
+          validation: {
+            required: 'Paid Price',
+          }
+        },
+      },
+      buttons: {
+        buy: 'Buy',
+        payDebt: 'Pay'
+      },
+      confirmation: {
+        successBought: 'Thread was successfully bought.',
+        failure: 'There was an error buying thread.'
+      }
+    },
+    accessoryPurchase: {
+      fields: {
+        accessory: {
+          label: 'Accessory Name',
+          validation: {
+            required: 'Accessory Name is required.',
+          }
+        },
+        budget: {
+          label: 'From Which Budget?',
+          validation: {
+            required: 'Budget name is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
           validation: {
             required: 'Quantity is required.',
           }
@@ -1382,7 +1438,7 @@ export default {
     },
     accessory: {
       header: {
-        title: 'Product Accessory',
+        title: 'Accessory',
         empty: 'There is no available Accessory'
       },
       columns: {
@@ -1393,7 +1449,8 @@ export default {
         type: 'Section',
       },
       buttons: {
-        add: 'Add Accessory'
+        add: 'Add Accessory',
+        purchase: 'Purchase'
       },
     },
     embroidery: {

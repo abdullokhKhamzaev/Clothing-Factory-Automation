@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import RipeMaterialWarehouseTable from "components/tables/RipeMaterialWarehouseTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const ripeMaterial = useRipeMaterial();
 const ripeMaterials = ref([]);
@@ -28,12 +29,25 @@ function getRipeMaterials (filterProps) {
     });
 }
 
-onMounted(() => {
+function refresh () {
+  pagination.value = {
+    rowsPerPage: 10,
+    page: 1,
+    descending: true,
+    rowsNumber: 0
+  };
   getRipeMaterials();
+}
+
+onMounted(() => {
+  refresh();
 })
 </script>
 
 <template>
+  <div class="q-ma-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <ripe-material-warehouse-table
     :materials="ripeMaterials"
     :pagination="pagination"
