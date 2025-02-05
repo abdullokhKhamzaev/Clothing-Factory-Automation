@@ -2,18 +2,13 @@
 import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
-import { useTransaction } from 'src/stores/transaction.js'
-import { useThreadPurchase } from 'src/stores/threadPurchase.js'
-import { useRipeMaterialPurchase } from "stores/ripeMaterialPurchase.js";
-import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
-import TransactionTable from "components/tables/TransactionTable.vue";
-import ThreadPurchaseTable from "components/tables/ThreadPurchaseTable.vue";
-import RipeMaterialPurchaseTable from "components/tables/RipeMaterialPurchaseTable.vue";
-import RipeMaterialPaintPurchaseTable from "components/tables/RipeMaterialPaintPurchaseTable.vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import RouteTabs from "components/RouteTabs.vue";
 
 const $q = useQuasar();
-const tab = ref('transactions')
+const { t } = useI18n();
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
 const selectedData = ref({
@@ -49,111 +44,6 @@ function getBudgets () {
     })
     .finally(() => {
       loading.value = false;
-    });
-}
-
-const transaction = useTransaction();
-const transactions = ref([]);
-const transactionTotal = ref([]);
-const transactionLoading = ref(false);
-const transactionPagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const transactionPagesNumber = computed(() => Math.ceil(transactionTotal.value / transactionPagination.value.rowsPerPage));
-function getTransactions (filterProps) {
-  let props = filterProps || {};
-
-  transactionLoading.value = true;
-
-  transaction.fetchTransactions(props || '')
-    .then((res) => {
-      transactions.value = res.data['hydra:member'];
-      transactionTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      transactionLoading.value = false;
-    });
-}
-
-const threadPurchase = useThreadPurchase();
-const threadPurchases = ref([]);
-const threadPurchaseTotal = ref([]);
-const threadPurchaseLoading = ref(false);
-const threadPurchasePagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const threadPurchasePagesNumber = computed(() => Math.ceil(threadPurchaseTotal.value / threadPurchasePagination.value.rowsPerPage));
-function getThreadPurchases (filterProps) {
-  let props = filterProps || {};
-
-  threadPurchaseLoading.value = true;
-
-  threadPurchase.fetchPurchases(props || '')
-    .then((res) => {
-      threadPurchases.value = res.data['hydra:member'];
-      threadPurchaseTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      threadPurchaseLoading.value = false;
-    });
-}
-
-const ripeMaterialPurchase = useRipeMaterialPurchase();
-const ripeMaterialPurchases = ref([]);
-const ripeMaterialPurchaseTotal = ref([]);
-const ripeMaterialPurchaseLoading = ref(false);
-const ripeMaterialPurchasePagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const ripeMaterialPurchasePagesNumber = computed(() => Math.ceil(ripeMaterialPurchaseTotal.value / ripeMaterialPurchasePagination.value.rowsPerPage));
-function getRipeMaterialPurchases (filterProps) {
-  let props = filterProps || {};
-
-  ripeMaterialPurchaseLoading.value = true;
-
-  ripeMaterialPurchase.fetchPurchases(props || '')
-    .then((res) => {
-      ripeMaterialPurchases.value = res.data['hydra:member'];
-      ripeMaterialPurchaseTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      ripeMaterialPurchaseLoading.value = false;
-    });
-}
-
-
-const ripeMaterialPaintPurchase = useRipeMaterialOrderAccept();
-const ripeMaterialPaintPurchases = ref([]);
-const ripeMaterialPaintPurchaseTotal = ref([]);
-const ripeMaterialPaintPurchaseLoading = ref(false);
-const ripeMaterialPaintPurchasePagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const ripeMaterialPaintPurchasePagesNumber = computed(() => Math.ceil(ripeMaterialPaintPurchaseTotal.value / ripeMaterialPaintPurchasePagination.value.rowsPerPage));
-function getRipeMaterialPaintPurchases (filterProps) {
-  let props = filterProps || {};
-
-  ripeMaterialPaintPurchaseLoading.value = true;
-
-  ripeMaterialPaintPurchase.fetchPurchases(props || '')
-    .then((res) => {
-      ripeMaterialPaintPurchases.value = res.data['hydra:member'];
-      ripeMaterialPaintPurchaseTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      ripeMaterialPaintPurchaseLoading.value = false;
     });
 }
 
@@ -237,37 +127,30 @@ function addAction() {
     })
 }
 function refresh () {
-  transactionPagination.value = {
-    rowsPerPage: 10,
-    page: 1,
-    descending: true,
-    rowsNumber: 0
-  };
-  threadPurchasePagination.value = {
-    rowsPerPage: 10,
-    page: 1,
-    descending: true,
-    rowsNumber: 0
-  };
-  ripeMaterialPurchasePagination.value = {
-    rowsPerPage: 10,
-    page: 1,
-    descending: true,
-    rowsNumber: 0
-  };
-  ripeMaterialPaintPurchasePagination.value = {
-    rowsPerPage: 10,
-    page: 1,
-    descending: true,
-    rowsNumber: 0
-  };
   getBudgets();
-  getTransactions();
-  getThreadPurchases();
-  getRipeMaterialPurchases();
-  getRipeMaterialPaintPurchases();
 }
 
+const router = useRouter();
+const routes = computed(() => {
+  return [
+    {
+      label: t('transactions'),
+      value: router.resolve( { name: 'club.budget.transactions' } )
+    },
+    {
+      label: t('thread'),
+      value: router.resolve( { name: 'club.budget.thread' } )
+    },
+    {
+      label: t('ripeMaterial'),
+      value: router.resolve( { name: 'club.budget.ripeMaterial' } )
+    },
+    {
+      label: t('paint'),
+      value: router.resolve( { name: 'club.budget.paint' } )
+    }
+  ];
+})
 onMounted(() => {
   refresh();
 })
@@ -424,119 +307,11 @@ onMounted(() => {
     </div>
   </q-dialog>
 
-  <div class="flex justify-between q-gutter-md">
-    <q-tabs
-      v-model="tab"
-      no-caps
-      dense
-      outside-arrows
-      mobile-arrows
-      class="shadow-2 text-primary"
-      :class="$q.screen.xs ? 'full-width' : ''"
-    >
-      <q-tab name="transactions" :label="$t('transactions')" />
-      <q-tab name="threadPurchaseTab" :label="$t('threadPurchase')" />
-      <q-tab name="ripeMaterialPurchaseTab" :label="$t('ripeMaterialPurchase')" />
-      <q-tab name="ripeMaterialPaintPurchaseTab" :label="$t('ripeMaterialPaintPurchase')" />
-    </q-tabs>
-    <q-btn size="md" icon="mdi-orbit-variant" color="dark" @click="refresh" />
-  </div>
-
-  <div class="q-py-md">
-    <q-tab-panels v-model="tab" animated>
-      <q-tab-panel name="transactions" class="q-pa-none">
-        <transaction-table
-          :transactions="transactions"
-          :pagination="transactionPagination"
-          :loading="transactionLoading"
-        />
-        <div
-          v-if="transactionTotal > transactionPagination.rowsPerPage"
-          class="row justify-center q-mt-md"
-        >
-          <q-pagination
-            :disable="transactionLoading"
-            v-model="transactionPagination.page"
-            input-class="text-bold text-black"
-            :max="transactionPagesNumber"
-            color="primary"
-            input
-            size="md"
-            @update:model-value="getTransactions({ page: transactionPagination.page })"
-          />
-        </div>
-      </q-tab-panel>
-      <q-tab-panel name="threadPurchaseTab" class="q-pa-none">
-        <thread-purchase-table
-          :purchases="threadPurchases"
-          :pagination="threadPurchasePagination"
-          :loading="threadPurchaseLoading"
-          @refresh="refresh"
-        />
-        <div
-          v-if="threadPurchaseTotal > threadPurchasePagination.rowsPerPage"
-          class="row justify-center q-mt-md"
-        >
-          <q-pagination
-            :disable="threadPurchaseLoading"
-            v-model="threadPurchasePagination.page"
-            input-class="text-bold text-black"
-            :max="threadPurchasePagesNumber"
-            color="primary"
-            input
-            size="md"
-            @update:model-value="getThreadPurchases({ page: threadPurchasePagination.page })"
-          />
-        </div>
-      </q-tab-panel>
-      <q-tab-panel name="ripeMaterialPurchaseTab" class="q-pa-none">
-        <ripe-material-purchase-table
-          :purchases="ripeMaterialPurchases"
-          :pagination="ripeMaterialPurchasePagination"
-          :loading="ripeMaterialPurchaseLoading"
-          @refresh="refresh"
-        />
-        <div
-          v-if="ripeMaterialPurchaseTotal > ripeMaterialPurchasePagination.rowsPerPage"
-          class="row justify-center q-mt-md"
-        >
-          <q-pagination
-            :disable="ripeMaterialPurchaseLoading"
-            v-model="ripeMaterialPurchasePagination.page"
-            input-class="text-bold text-black"
-            :max="ripeMaterialPurchasePagesNumber"
-            color="primary"
-            input
-            size="md"
-            @update:model-value="getRipeMaterialPurchases({ page: ripeMaterialPurchasePagination.page })"
-          />
-        </div>
-      </q-tab-panel>
-      <q-tab-panel name="ripeMaterialPaintPurchaseTab" class="q-pa-none">
-        <ripe-material-paint-purchase-table
-          :purchases="ripeMaterialPaintPurchases"
-          :pagination="ripeMaterialPaintPurchasePagination"
-          :loading="ripeMaterialPaintPurchaseLoading"
-          @refresh="refresh"
-        />
-        <div
-          v-if="ripeMaterialPaintPurchaseTotal > ripeMaterialPaintPurchasePagination.rowsPerPage"
-          class="row justify-center q-mt-md"
-        >
-          <q-pagination
-            :disable="ripeMaterialPaintPurchaseLoading"
-            v-model="ripeMaterialPaintPurchasePagination.page"
-            input-class="text-bold text-black"
-            :max="ripeMaterialPaintPurchasePagesNumber"
-            color="primary"
-            input
-            size="md"
-            @update:model-value="getRipeMaterialPaintPurchases({ page: ripeMaterialPaintPurchasePagination.page })"
-          />
-        </div>
-      </q-tab-panel>
-    </q-tab-panels>
-  </div>
+  <route-tabs
+    :routes="routes"
+    class="q-mb-md"
+  />
+  <router-view />
 </template>
 
 <style scoped>

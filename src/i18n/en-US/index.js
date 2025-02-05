@@ -58,6 +58,7 @@ export default {
   made: 'Made',
   piece: 'Piece',
   kg: 'KG',
+  paint: 'Paint',
   statuses: {
     accepted: 'Accepted',
     notAccepted: 'Not Accepted',

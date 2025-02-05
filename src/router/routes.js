@@ -135,8 +135,29 @@ const routes = [
       },
       {
         path: 'budget',
-        name: 'club.budget',
-        component: () => import('pages/BudgetPage.vue')
+        component: () => import('pages/BudgetPage.vue'),
+        children: [
+          {
+            path: 'transactions',
+            name: 'club.budget.transactions',
+            component: () => import('pages/budget/TransactionPage.vue')
+          },
+          {
+            path: 'thread',
+            name: 'club.budget.thread',
+            component: () => import('pages/budget/ThreadPage.vue')
+          },
+          {
+            path: 'ripe-material',
+            name: 'club.budget.ripeMaterial',
+            component: () => import('pages/budget/RipeMaterialPage.vue')
+          },
+          {
+            path: 'paint',
+            name: 'club.budget.paint',
+            component: () => import('pages/budget/PaintPage.vue')
+          },
+        ]
       },
       {
         path: 'setting',
