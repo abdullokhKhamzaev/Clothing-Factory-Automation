@@ -148,6 +148,10 @@ const routes = computed(() => {
     {
       label: t('paint'),
       value: router.resolve( { name: 'club.budget.paint' } )
+    },
+    {
+      label: t('accessory'),
+      value: router.resolve( { name: 'club.budget.accessory' } )
     }
   ];
 })

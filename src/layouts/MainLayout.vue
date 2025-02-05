@@ -167,7 +167,7 @@ const linksList = [
   {
     title: 'budget',
     icon: 'mdi-bank-circle-outline',
-    to: { name: 'club.budget.transaction' }
+    to: { name: 'club.budget.transactions' }
   },
   {
     title: 'settings',

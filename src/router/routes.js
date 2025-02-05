@@ -157,6 +157,11 @@ const routes = [
             name: 'club.budget.paint',
             component: () => import('pages/budget/PaintPage.vue')
           },
+          {
+            path: 'accessory',
+            name: 'club.budget.accessory',
+            component: () => import('pages/budget/AccessoryPage.vue')
+          },
         ]
       },
       {

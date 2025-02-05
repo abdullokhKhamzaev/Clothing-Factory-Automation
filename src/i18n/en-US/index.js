@@ -400,11 +400,11 @@ export default {
       },
       buttons: {
         buy: 'Buy',
-        payDebt: 'Pay'
+        receiveDebt: 'Receive Debt'
       },
       confirmation: {
-        successBought: 'Thread was successfully bought.',
-        failure: 'There was an error buying thread.'
+        successBought: 'Accessory was successfully bought.',
+        failure: 'There was an error buying Accessory.'
       }
     },
     unripeMaterial: {
@@ -1390,6 +1390,26 @@ export default {
         id: 'Purchase ID',
         createdAt: 'Created At',
         thread: 'Thread',
+        quantity: 'Quantity',
+        price: 'Price',
+        totalPrice: 'Total Price',
+        paidPrice: 'Paid Price',
+        purchasedBy: 'Purchased By',
+        transaction: 'Description',
+      },
+      buttons: {
+        add: 'Add Thread'
+      },
+    },
+    accessoryPurchase: {
+      header: {
+        title: 'Accessory Purchase',
+        empty: 'There is no available Accessory Purchase'
+      },
+      columns: {
+        id: 'Purchase ID',
+        createdAt: 'Created At',
+        accessory: 'Accessory',
         quantity: 'Quantity',
         price: 'Price',
         totalPrice: 'Total Price',
