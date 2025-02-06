@@ -16,6 +16,7 @@ const sendActionErr = ref(false);
 
 const warehouse = ref([]);
 const embroideryWarehouse = ref([]);
+const sewerWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -56,7 +57,8 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = embroideryWarehouse.value;
+  props.toWarehouse = warehouse.value['@id'];
+  props.fromWarehouse = warehouse.value['@id'];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -76,7 +78,17 @@ function getEmbroideryWarehouse (filterProps) {
     .then((res) => {
       embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
     })
-    .then(getWarehouseAction)
+    .finally(() => loading.value = false)
+}
+function getSewerWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'sewerWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      sewerWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
     .finally(() => loading.value = false)
 }
 
@@ -114,6 +126,10 @@ function sendAction() {
     sentBy: user.about['@id']
   };
 
+  if (!hasEmbroidery(selectedData.value.productModel.sizes)) {
+    input.toWarehouse = sewerWarehouse.value;
+  }
+
   useProductWarehouse().send(input)
     .then(() => {
       showSendModal.value = false;
@@ -140,12 +156,16 @@ function sendAction() {
 }
 function refresh() {
   getWarehouse();
+  getWarehouseAction();
   getEmbroideryWarehouse();
+  getSewerWarehouse();
 }
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');
 }
-
+function hasEmbroidery(data) {
+  return data.some(size => size.size.length > 0);
+}
 onMounted(() => {
   refresh()
 })
@@ -216,8 +236,11 @@ onMounted(() => {
                       size="md"
                     />
                   </q-item-section>
-                  <q-item-section>
+                  <q-item-section v-if="hasEmbroidery(item.productModel.sizes)">
                     {{ $t('sendToEmbroidery') }}
+                  </q-item-section>
+                  <q-item-section v-else>
+                    {{ $t('sendToSewerWarehouse') }}
                   </q-item-section>
                 </q-item>
               </q-card>
