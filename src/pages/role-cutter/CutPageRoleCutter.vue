@@ -5,12 +5,10 @@ import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useWarehouse } from "stores/warehouse.js";
 import ProductModelOrderRoleCutterTable from "components/tables/role-cutter/ProductModelOrderRoleCutterTable.vue";
 import MaterialWarehouseRoleCutterTable from "components/tables/role-cutter/MaterialWarehouseRoleCutterTable.vue";
-import CompletedProductModelOrderTableRoleCutter
-  from "components/tables/role-cutter/CompletedProductModelOrderTableRoleCutter.vue";
-import CutterDefectiveProductWarehouseTable from "components/tables/CutterDefectiveProductWarehouseTable.vue";
+import CompletedProductModelOrderRoleCutterTable from "components/tables/role-cutter/CompletedProductModelOrderRoleCutterTable.vue";
+import DefectiveProductWarehouseRoleCutterTable from "components/tables/role-cutter/DefectiveProductWarehouseRoleCutterTable.vue";
 
 const tab = ref('orders');
-
 const ripeMaterials = ref([]);
 const ripeMaterialTotal = ref(0);
 const ripeMaterialLoading = ref(false);
@@ -170,7 +168,7 @@ onMounted(() => {
         </div>
       </q-tab-panel>
       <q-tab-panel name="completedOrders" class="q-pa-none">
-        <completed-product-model-order-table-role-cutter
+        <completed-product-model-order-role-cutter-table
           :orders="completedOrders"
           :pagination="completedPagination"
           :loading="completedLoading"
@@ -236,7 +234,7 @@ onMounted(() => {
         </q-list>
       </q-tab-panel>
       <q-tab-panel name="defects" class="q-pa-none">
-        <cutter-defective-product-warehouse-table />
+        <defective-product-warehouse-role-cutter-table />
       </q-tab-panel>
     </q-tab-panels>
   </div>
