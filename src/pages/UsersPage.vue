@@ -1,37 +1,32 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useUser } from "stores/user/user.js";
-import UsersTable from "components/tables/UsersTable.vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import RouteTabs from "components/RouteTabs.vue";
 
-const user = useUser();
-const users = ref([]);
-const total = ref(0);
-const loading = ref(false);
-
-function getUsers (filterProps) {
-  loading.value = true;
-
-  user.fetchUsers(filterProps || '')
-    .then((res) => {
-      users.value = res.data['hydra:member'];
-      total.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
-
-onMounted(() => {
-  getUsers();
+const { t } = useI18n();
+const router = useRouter();
+const routes = computed(() => {
+  return [
+    {
+      label: t('employees'),
+      value: router.resolve( { name: 'club.users.employees' } )
+    },
+    {
+      label: t('attendance'),
+      value: router.resolve( { name: 'club.users.attendance' } )
+    }
+  ];
 })
 </script>
 
 <template>
-  <UsersTable
-    :users="users"
-    :total="total"
-    :loading="loading"
-    @submit="getUsers"
-  />
+  <div>
+    <route-tabs
+      :routes="routes"
+      class="q-mb-md"
+    />
+    <router-view />
+  </div>
 </template>
 

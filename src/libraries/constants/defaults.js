@@ -27,22 +27,42 @@ export const MEASUREMENTS = [
   }
 ]
 export const SECTION_TYPES = [
-  // cutter', 'embroidery', 'sewer', 'packager
+  // 'cutter', 'cutterService', 'embroidery', 'embroideryService', 'sewer', 'sewerService', 'packager', 'packagerService', 'warehouse'
   {
     label: 'cutter',
     value: 'cutter'
+  },
+  {
+    label: 'cutterService',
+    value: 'cutterService'
   },
   {
     label: 'embroidery',
     value: 'embroidery'
   },
   {
+    label: 'embroideryService',
+    value: 'embroideryService'
+  },
+  {
     label: 'sewer',
     value: 'sewer'
   },
   {
+    label: 'sewerService',
+    value: 'sewerService'
+  },
+  {
     label: 'packager',
     value: 'packager'
+  },
+  {
+    label: 'packagerService',
+    value: 'packagerService'
+  },
+  {
+    label: 'warehouse',
+    value: 'warehouse'
   }
 ]
 export const PAGINATION_DEFAULTS = {
@@ -54,9 +74,13 @@ export const PAGINATION_DEFAULTS = {
 };
 
 export const ROLES = [
-  { label: 'Admin', value: 'ROLE_ADMIN' },
-  { label: 'User', value: 'ROLE_USER' },
-  { label: 'Weaver', value: 'ROLE_WEAVER' },
+  { label: 'ROLE_ADMIN', value: 'ROLE_ADMIN' },
+  { label: 'ROLE_USER', value: 'ROLE_USER' },
+  { label: 'ROLE_WEAVER', value: 'ROLE_WEAVER' },
+  { label: 'ROLE_CUTTER', value: 'ROLE_CUTTER' },
+  { label: 'ROLE_EMBROIDERER', value: 'ROLE_EMBROIDERER' },
+  { label: 'ROLE_SEWER', value: 'ROLE_SEWER' },
+  { label: 'ROLE_PACKAGER', value: 'ROLE_PACKAGER' },
 ];
 
 export const formatFloatToInteger = (number) => {

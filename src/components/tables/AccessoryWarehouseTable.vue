@@ -204,7 +204,7 @@ function clearAction() {
             :label="$t('forms.accessoryPurchase.fields.accessory.label')"
             :store="accessory"
             fetch-method="fetchAccessories"
-            :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager']}"
+            :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']}"
             item-value="@id"
             item-label="name"
             :rule-message="$t('forms.accessoryPurchase.fields.accessory.validation.required')"

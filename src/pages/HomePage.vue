@@ -13,7 +13,7 @@ onMounted(() => {
 })
 
 const route = computed(() => {
-  return admin.value ? '/admin/users' : '/weaver'
+  return admin.value ? '/admin/users/employees' : '/weaver'
 })
 </script>
 <template>

@@ -18,7 +18,7 @@ const accessoryPagesNumber = computed(() => Math.ceil(accessoryTotal.value / acc
 function getAccessories (filterProps) {
   let props = filterProps || {};
 
-  props.types = ['cutter', 'embroidery', 'sewer', 'packager']
+  props.types = ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']
 
   accessoryLoading.value = true;
   accessory.fetchAccessories(props || '')

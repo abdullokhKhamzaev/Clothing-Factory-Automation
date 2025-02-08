@@ -54,8 +54,19 @@ const routes = [
     children: [
       {
         path: 'users',
-        name: 'club.users',
-        component: () => import('pages/UsersPage.vue')
+        component: () => import('pages/UsersPage.vue'),
+        children: [
+          {
+            path: 'employees',
+            name: 'club.users.employees',
+            component: () => import('pages/user/WorkersPage.vue')
+          },
+          {
+            path: 'attendance',
+            name: 'club.users.attendance',
+            component: () => import('pages/user/AttendancePage.vue')
+          }
+        ]
       },
       {
         path: 'weave',

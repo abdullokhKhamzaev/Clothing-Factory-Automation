@@ -107,7 +107,7 @@ const linksList = [
   {
     title: 'users',
     icon: 'mdi-account-multiple',
-    to: { name: 'club.users' }
+    to: { name: 'club.users.employees' }
   },
   {
     title: 'weaving',

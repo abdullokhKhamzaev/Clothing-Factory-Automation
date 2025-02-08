@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
@@ -14,8 +14,8 @@ let props = defineProps({
     type: Array,
     required: true
   },
-  total: {
-    type: Number,
+  pagination: {
+    type: Object,
     required: true
   },
   loading: {
@@ -56,19 +56,10 @@ const columns = [
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
-const pagination = ref({
-    rowsPerPage: 10,
-    page: 1,
-    descending: true,
-    rowsNumber: 0
-})
-
-// computed
-const pagesNumber = computed(() => Math.ceil(props.total / pagination.value.rowsPerPage))
 
 // functions
 function getUsers() {
-  emit('submit', { fullName: searchTitle.value, page: pagination.value.page });
+  emit('submit', { fullName: searchTitle.value });
 }
 function clearAction() {
   selectedData.value = {};
@@ -259,7 +250,7 @@ function exportTable(users) {
     :loading="props.loading || userLoading"
     :visible-columns="visibleColumns"
     color="primary"
-    :pagination="pagination"
+    :pagination="props.pagination"
     hide-pagination
   >
     <template v-slot:top>
@@ -273,7 +264,7 @@ function exportTable(users) {
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
-            @update:model-value="pagination.page = 1; emit('submit', { fullName: searchTitle, page: pagination.page });"
+            @update:model-value="emit('submit', { fullName: searchTitle });"
           >
             <template v-slot:append>
               <q-icon name="search" color="primary" />
@@ -337,7 +328,7 @@ function exportTable(users) {
               :key="role"
               class="q-mr-sm"
             >
-              {{ role }}
+              {{ $t('roles.' + role) }}
             </span>
           </div>
 
@@ -363,22 +354,6 @@ function exportTable(users) {
       </q-tr>
     </template>
   </q-table>
-
-  <div
-    v-if="total > pagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="loading || userLoading"
-      v-model="pagination.page"
-      input-class="text-bold text-black"
-      :max="pagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getUsers"
-    />
-  </div>
 
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent>
@@ -453,7 +428,7 @@ function exportTable(users) {
             :options="ROLES"
             :label="$t('forms.user.fields.roles.label')"
             option-value="value"
-            option-label="label"
+            :option-label="option => $t('roles.'+option.label)"
             :rules="[val => !!val || $t('forms.user.fields.roles.validation.required')]"
             hide-bottom-space
             class="col-12"
@@ -582,7 +557,7 @@ function exportTable(users) {
                 :options="ROLES"
                 :label="$t('forms.user.fields.roles.label')"
                 option-value="value"
-                option-label="label"
+                :option-label="option => $t('roles.'+option.label)"
                 :rules="[val => !!val || $t('forms.user.fields.roles.validation.required')]"
                 hide-bottom-space
                 class="col-12"
