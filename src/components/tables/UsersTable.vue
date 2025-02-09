@@ -114,42 +114,61 @@ function updateAction() {
   if (selectedData?.value?.id) {
     userLoading.value = true;
 
-    let input = {};
-
     if ( section.value === 'password' ) {
-      input.password = selectedData.value.password
+      user.editPassword(selectedData.value.id, { password: selectedData.value.password })
+        .then(() => {
+          showUpdateModal.value = false;
+          $q.notify({
+            type: 'positive',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.user.confirmation.successEdited')
+          });
+          clearAction();
+          getUsers();
+        })
+        .catch((res) => {
+          updateActionErr.value = res.response.data['hydra:description'];
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.user.confirmation.failure')
+          })
+        })
+        .finally(() => userLoading.value = false);
     } else {
-      input = {
+      const input = {
         phone: selectedData.value.phone,
         fullName: selectedData.value.fullName,
         salary: selectedData.value.salary,
         salaryType: selectedData.value.salaryType,
         budget: selectedData.value.budget
       }
-    }
 
-    user.editUser(selectedData.value.id, input)
-      .then(() => {
-        showUpdateModal.value = false;
-        $q.notify({
-          type: 'positive',
-          position: 'top',
-          timeout: 1000,
-          message: t('forms.user.confirmation.successEdited')
-        });
-        clearAction();
-        getUsers();
-      })
-      .catch((res) => {
-        updateActionErr.value = res.response.data['hydra:description'];
-        $q.notify({
-          type: 'negative',
-          position: 'top',
-          timeout: 1000,
-          message: t('forms.user.confirmation.failure')
+      user.editUser(selectedData.value.id, input)
+        .then(() => {
+          showUpdateModal.value = false;
+          $q.notify({
+            type: 'positive',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.user.confirmation.successEdited')
+          });
+          clearAction();
+          getUsers();
         })
-      })
-      .finally(() => userLoading.value = false);
+        .catch((res) => {
+          updateActionErr.value = res.response.data['hydra:description'];
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 1000,
+            message: t('forms.user.confirmation.failure')
+          })
+        })
+        .finally(() => userLoading.value = false);
+    }
   } else {
     console.warn('data is empty');
   }

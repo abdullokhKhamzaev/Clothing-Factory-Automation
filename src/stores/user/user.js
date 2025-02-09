@@ -38,13 +38,21 @@ export const useUser = defineStore('user', () => {
     }
   }
 
-  function deleteUser(id) {
+  async function editPassword(id, data) {
     try {
-      return client.delete('users/' + id)
+      return client.patch('users/' + id + '/change_password', data)
     } catch (e) {
       console.log(e)
     }
   }
 
-  return { fetchUsers, createUser, editUser, deleteUser }
+  function deleteUser(id) {
+    try {
+      return client.delete('users/' + id )
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  return { fetchUsers, createUser, editUser, editPassword, deleteUser }
 })
