@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref} from "vue";
+import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
@@ -31,7 +31,6 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const domain = ref(import.meta.env.VITE_API_DOMEN);
-const file = ref();
 const model = useProductModels();
 const budget = useBudget();
 const accessory = useAccessory();
@@ -43,7 +42,7 @@ const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
-let rows = reactive([
+let rows = ref([
   { size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] }
 ])
 
@@ -56,7 +55,9 @@ const columns = [
 ];
 
 function addRow() {
-  rows.push({ size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] });
+  rows.value.push(
+    { size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] }
+  );
 }
 function removeRow(index) {
   if (this.rows.length > 1) {
@@ -64,11 +65,13 @@ function removeRow(index) {
   }
 }
 function addAccessoryRow(index) {
-  rows[index].productAccessories.push({ accessory: '', quantity: '', workerPrice: '', budget: '' });
+  rows.value[index].productAccessories.push(
+    { accessory: '', quantity: '', workerPrice: '', budget: '' }
+  );
 }
 function removeAccessoryRow(index) {
-  if (rows[index].productAccessories.length > 1) {
-    rows[index].productAccessories.splice(index, 1);
+  if ( rows.value[index].productAccessories.length > 1 ) {
+    rows.value[index].productAccessories.splice(index, 1);
   }
 }
 function prefill() {
@@ -76,16 +79,20 @@ function prefill() {
   selectedData.value.sizes.forEach((size) => {
     sizes.push({ size: size.size, price: size.price, productAccessories: size.productAccessories, embroidery: size.embroidery });
   });
-  rows = sizes;
 
-  // if ( selectedData?.value?.embroideries?.length && selectedData?.value?.embroideries[0]['@id'] ) {
-  //   let embroideries = [];
-  //   selectedData.value.embroideries.forEach(embroidery => {
-  //     embroideries.push(embroidery['@id'])
-  //   })
-  //
-  //   selectedData.value.embroideries = embroideries;
-  // }
+  selectedData.value.image ='http://localhost:8888/' + selectedData.value.image.contentUrl;
+
+  sizes.forEach((size) => {
+    let embroideries = [];
+
+    size.embroidery.forEach((embroidery) => {
+      embroideries.push(embroidery['@id'])
+    })
+
+    size.embroidery = embroideries;
+  })
+
+  rows.value = sizes;
 }
 
 function getModels () {
@@ -96,7 +103,7 @@ function createAction() {
 
   let sizes = [];
 
-  rows.forEach((row) => {
+  rows.value.forEach((row) => {
     sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories, embroidery: row.embroidery});
   })
 
@@ -107,7 +114,7 @@ function createAction() {
     budget: selectedData.value.budget,
   }
 
-  useAddFile().addFile(file.value)
+  useAddFile().addFile(selectedData.value.image)
     .then((res) => {
       input.image = res.data['@id']
 
@@ -142,8 +149,8 @@ function updateAction() {
 
     let sizes = [];
 
-    rows.forEach((row) => {
-      sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories});
+    rows.value.forEach((row) => {
+      sizes.push({size: row.size, price: row.price, productAccessories: row.productAccessories, embroidery: row.embroidery});
     })
 
     const input = {
@@ -187,8 +194,7 @@ function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
   updateActionErr.value = null;
-  file.value = null;
-  rows.value = [{ size: '', quantity: '', price: '', productAccessories: [], embroidery: []}]
+  rows.value = [{ size: '', price: '', productAccessories: [{ accessory: '', quantity: '', workerPrice: '', budget: '' }], embroidery: [] }]
 }
 </script>
 
@@ -309,7 +315,7 @@ function clearAction() {
             hide-bottom-space
           />
           <q-file
-            v-model="file"
+            v-model="selectedData.image"
             clearable
             :label="$t('forms.embroidery.fields.image.label')"
             filled
@@ -494,17 +500,6 @@ function clearAction() {
             hide-bottom-space
           />
           <selectable-list
-            v-model="selectedData.embroideries"
-            :label="$t('forms.model.fields.embroideries.label')"
-            :store="embroidery"
-            fetch-method="fetchEmbroideries"
-            item-value="@id"
-            item-label="name"
-            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
-            multiple
-            class="col-12"
-          />
-          <selectable-list
             v-model="selectedData.budget"
             :label="$t('forms.model.fields.budget.label')"
             :store="budget"
@@ -543,6 +538,18 @@ function clearAction() {
             :rules="[ val => val && val > -1 || $t('forms.model.fields.price.validation.required')]"
             class="col-12"
             hide-bottom-space
+          />
+          <selectable-list
+            v-model="row.embroidery"
+            :label="$t('forms.model.fields.embroideries.label')"
+            :store="embroidery"
+            fetch-method="fetchEmbroideries"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
+            multiple
+            clearable
+            class="col-12"
           />
           <div class="col-12">
             <div class="row q-card--bordered bg-grey-2 q-pa-md">
