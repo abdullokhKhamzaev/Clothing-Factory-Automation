@@ -98,3 +98,17 @@ export const formatFloatToInteger = (number) => {
     return formattedIntegerPart;
   }
 };
+
+export const formatDate = (dateString) => {
+  // Split the input date at the 'T' to separate date and time
+  const [datePart, timePart] = dateString.split('T');
+
+  // Split the date part into year, month, and day
+  const [year, month, day] = datePart.split('-');
+
+  // Split the time part at the '+' (to remove the timezone offset)
+  const [time] = timePart.split('+');
+
+  // Return the formatted string
+  return `${year}-${month}-${day} ${time.slice(0, 5)}`;
+};
