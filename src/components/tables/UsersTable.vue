@@ -5,6 +5,7 @@ import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useBudget } from "stores/budget.js";
 import { ROLES } from 'src/libraries/constants/defaults';
+import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -51,8 +52,7 @@ const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'budget', 'r
 const columns = [
   { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
-  { name: 'salary', label: t('tables.users.columns.salary'), field: 'salary', sortable: true },
-  { name: 'budget', label: t('tables.users.columns.currency'), align: 'left', field: 'budget' },
+  { name: 'salary', label: t('tables.users.columns.salary'), align: 'left', field: 'salary' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
@@ -335,6 +335,10 @@ function exportTable(users) {
         >
           <div v-if="col.name === 'fullName'">
             {{ props.row.fullName }}
+          </div>
+
+          <div v-else-if="col.name === 'salary'">
+            {{ Number(formatFloatToInteger(props.row.salary)) === 0 ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
           </div>
 
           <div v-else-if="col.name === 'budget'">

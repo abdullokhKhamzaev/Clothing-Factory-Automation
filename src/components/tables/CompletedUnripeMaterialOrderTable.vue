@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
@@ -160,6 +161,9 @@ function rejectAction () {
             >
               {{ consume.thread.name }}: {{ consume.quantity }} {{ consume.measurement }}
             </div>
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'status'">
             {{ $t('statuses.' + props.row.status) }}

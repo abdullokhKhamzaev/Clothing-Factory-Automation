@@ -15,6 +15,10 @@ const routes = computed(() => {
     {
       label: t('attendance'),
       value: router.resolve( { name: 'club.users.attendance' } )
+    },
+    {
+      label: t('salary'),
+      value: router.resolve( { name: 'club.users.salary' } )
     }
   ];
 })

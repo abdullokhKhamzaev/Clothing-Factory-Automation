@@ -65,6 +65,11 @@ const routes = [
             path: 'attendance',
             name: 'club.users.attendance',
             component: () => import('pages/user/AttendancePage.vue')
+          },
+          {
+            path: 'salary',
+            name: 'club.users.salary',
+            component: () => import('pages/user/SalaryPage.vue')
           }
         ]
       },

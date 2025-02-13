@@ -5,6 +5,7 @@ import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
+import { formatDate } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
@@ -155,49 +156,6 @@ function finishOrderAction() {
     })
     .finally(() => orderLoading.value = false);
 }
-// function editOrderAction() {
-//   if (!selectedData.value.id) {
-//     console.warn('data is empty');
-//     return;
-//   }
-//
-//   orderLoading.value = true;
-//
-//   let expectedData = [];
-//
-//   rows.value.forEach((row) => {
-//     expectedData.push({thread: row.thread.value, quantity: row.quantity})
-//   })
-//
-//   const input = {
-//     quantity: selectedData.value.quantity,
-//     material: selectedData.value.material,
-//     expectedConsumeDtos: expectedData
-//   }
-//
-//   order.editUnripeMaterialOrder(selectedData.value.id, input)
-//     .then(() => {
-//       showOrderEditModal.value = false;
-//       $q.notify({
-//         type: 'positive',
-//         position: 'top',
-//         timeout: 1000,
-//         message: t('forms.unripeMaterialOrder.confirmation.successEdited')
-//       })
-//       clearAction();
-//       getOrders();
-//     })
-//     .catch((res) => {
-//       editOrderErr.value = res.response.data['hydra:description'];
-//       $q.notify({
-//         type: 'negative',
-//         position: 'top',
-//         timeout: 1000,
-//         message: t('forms.unripeMaterialOrder.confirmation.failure')
-//       })
-//     })
-//     .finally(() => orderLoading.value = false);
-// }
 function deleteOrderAction() {
   if (!selectedData.value.id) {
     console.warn('data is empty');
@@ -234,21 +192,6 @@ function removeRow(index) {
     this.rows.splice(index, 1);
   }
 }
-// function prefill() {
-//   if ( selectedData?.value?.material['@id'] ) {
-//     selectedData.value.material = selectedData.value.material['@id'];
-//   }
-//
-//   let consumes = [];
-//   selectedData.value.expectedConsume.forEach((consume) => {
-//     const threadOption = threadOptions.value.find(option => option.value === consume.thread);
-//
-//     if (threadOption) {
-//       consumes.push({ thread: threadOption, quantity: consume.quantity });
-//     }
-//   });
-//   rows.value = consumes;
-// }
 const threadOptions = computed(() => {
   let options = [];
   for (let i in threads.value) {
@@ -304,13 +247,6 @@ onMounted(() => {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'action'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
-<!--              <q-btn-->
-<!--                size="md" color="primary" rounded dense icon="edit" @click="selectedData = {...props.row}; prefill(); showOrderEditModal = true;"-->
-<!--              >-->
-<!--                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">-->
-<!--                  {{ $t('edit') }}-->
-<!--                </q-tooltip>-->
-<!--              </q-btn>-->
               <q-btn
                 v-if="props.row.status === 'pending'"
                 size="md" color="red" rounded dense icon="delete" @click="showOrderDeleteModal = true; selectedData = {...props.row}"
@@ -329,6 +265,9 @@ onMounted(() => {
                 @click="showOrderFinishModal = true; selectedData = {...props.row}"
               />
             </div>
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}

@@ -1374,6 +1374,15 @@ export default {
         empty: 'There is no available user'
       },
       columns: {
+        worker: 'Customer',
+        month: 'Month',
+        baseSalary: 'Base Salary',
+        dailyWage: 'Daily Wage',
+        workedDays: 'Worked Days',
+        pieceworkEarning: 'Piecework Earning',
+        advancePayment: 'Advance Payment',
+        paidAmount: 'Paid Amount',
+        transaction: 'Description',
         fullName: 'Name & Surname',
         phone: 'Phone',
         salary: 'Salary',

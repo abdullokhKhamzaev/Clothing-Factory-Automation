@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useThread } from "stores/thread.js";
@@ -199,6 +200,9 @@ function prefill () {
           </div>
           <div v-else-if="col.name === 'material'">
             {{ props.row?.material?.name || '-' }}
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}

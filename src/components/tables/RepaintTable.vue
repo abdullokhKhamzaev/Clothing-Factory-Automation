@@ -6,6 +6,7 @@ import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
+import { DATE_FORMAT, formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -49,6 +50,7 @@ const columns = [
   { name: 'sentRollSort1', label: t('tables.repaint.columns.sentRollSort1'), align: 'left', field: 'sentRollSort1' },
   { name: 'sentQuantitySort2', label: t('tables.repaint.columns.sentQuantitySort2'), align: 'left', field: 'sentQuantitySort2' },
   { name: 'sentRollSort2', label: t('tables.repaint.columns.sentRollSort2'), align: 'left', field: 'sentRollSort2' },
+  { name: 'dealDate', label: t('tables.repaint.columns.dealDate'), align: 'left', field: 'dealDate' },
   { name: 'status', label: t('tables.repaint.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
@@ -75,6 +77,7 @@ function createAction() {
       sentRollSort1: selectedData.value.sentRollSort1,
       createdBy: user.about['@id'],
       paintFabric: selectedData.value.paintFabric,
+      dealDate: selectedData.value.dealDate
     }
   } else if (selectedData.value.whichSort === 2) {
     input = {
@@ -83,6 +86,7 @@ function createAction() {
       sentRollSort2: selectedData.value.sentRollSort2,
       createdBy: user.about['@id'],
       paintFabric: selectedData.value.paintFabric,
+      dealDate: selectedData.value.dealDate,
     }
   }
 
@@ -192,7 +196,10 @@ function receiveAction() {
             </div>
           </div>
           <div v-else-if="col.name === 'ripeMaterial'">
-            {{props.row.ripeMaterial.name }}
+            {{ props.row.ripeMaterial.name }}
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row.createdBy.fullName }}
@@ -211,6 +218,9 @@ function receiveAction() {
           </div>
           <div v-else-if="col.name === 'sentRollSort2'">
             {{ Number(props.row.sentRollSort2) > 0 ? props.row.sentRollSort2 : '-' }}
+          </div>
+          <div v-else-if="col.name === 'dealDate'">
+            {{ formatDate(props.row.dealDate).slice(0, 10) }}
           </div>
           <div v-else-if="col.name === 'status'">
             <span class="text-bold" :class="props.row.status === 'expected' ? 'text-warning' : 'text-green'">
@@ -273,6 +283,29 @@ function receiveAction() {
             :rule-message="$t('forms.repaint.fields.paintFabric.validation.required')"
             class="col-12"
           />
+          <q-input
+            filled
+            v-model="selectedData.dealDate"
+            mask="####-##-##"
+            :label="$t('forms.paint.fields.dealDate.label')"
+            :rules="[val => val && val.length >= 10 || $t('forms.paint.fields.dealDate.validation.required')]"
+            class="col-12"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date
+                    v-model="selectedData.dealDate"
+                    :mask="DATE_FORMAT"
+                  >
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
           <div class="col-12 q-gutter-sm">
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" :val="1" label="Sort 1" />
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" :val="2" label="Sort 2" />

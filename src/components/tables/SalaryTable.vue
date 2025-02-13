@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
+import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
@@ -37,10 +38,17 @@ const showRejectModal = ref(false);
 const userLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'budget', 'roles' ]);
+const visibleColumns = ref([ 'worker', 'month', 'baseSalary', 'dailyWage', 'workedDays', 'pieceworkEarning', 'advancePayment', 'paidAmount', 'budget', 'isPaid', 'transaction' ]);
 const columns = [
-  { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
-  { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'worker', label: t('tables.users.columns.worker'), align: 'left', field: 'worker', required: true },
+  { name: 'month', label: t('tables.users.columns.month'), align: 'left', field: 'month' },
+  { name: 'baseSalary', label: t('tables.users.columns.baseSalary'), align: 'left', field: 'baseSalary' },
+  { name: 'dailyWage', label: t('tables.users.columns.dailyWage'), align: 'left', field: 'dailyWage' },
+  { name: 'workedDays', label: t('tables.users.columns.workedDays'), align: 'left', field: 'workedDays' },
+  { name: 'pieceworkEarning', label: t('tables.users.columns.pieceworkEarning'), align: 'left', field: 'pieceworkEarning' },
+  { name: 'advancePayment', label: t('tables.users.columns.advancePayment'), align: 'left', field: 'advancePayment' },
+  { name: 'paidAmount', label: t('tables.users.columns.paidAmount'), align: 'left', field: 'paidAmount' },
+  { name: 'transaction', label: t('tables.users.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
 
@@ -67,7 +75,7 @@ function acceptAction (isWork) {
 
   input.isWork = isWork;
 
-  useAttendance().accept(selectedData.value.id, input)
+  useAttendance().accept(input)
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -221,8 +229,35 @@ function exportTable(users) {
           :key="col.name"
           :props="props"
         >
-          <div v-if="col.name === 'fullName'">
-            {{ props.row.fullName }}
+          <div v-if="col.name === 'worker'">
+            {{ props.row.worker.fullName }}
+          </div>
+          <div v-else-if="col.name === 'month'">
+            {{ formatDate(props.row.month).slice(0, 10) }}
+          </div>
+          <div v-else-if="col.name === 'baseSalary'">
+            {{ Number(formatFloatToInteger(props.row.baseSalary)) === 0 ? '-' : formatFloatToInteger(props.row.baseSalary) + ' ' + props.row.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'dailyWage'">
+            {{ Number(formatFloatToInteger(props.row.dailyWage)) === 0 ? '-' : formatFloatToInteger(props.row.dailyWage) + ' ' + props.row.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'pieceworkEarning'">
+            {{ Number(formatFloatToInteger(props.row.pieceworkEarning)) === 0 ? '-' : formatFloatToInteger(props.row.pieceworkEarning  + ' ' + props.row.budget.name )}}
+          </div>
+          <div v-else-if="col.name === 'advancePayment'">
+            {{ Number(formatFloatToInteger(props.row.advancePayment)) === 0 ? '-' : formatFloatToInteger(props.row.advancePayment  + ' ' + props.row.budget.name )}}
+          </div>
+          <div v-else-if="col.name === 'paidAmount'">
+            {{ Number(formatFloatToInteger(props.row.paidAmount)) === 0 ? '-' : formatFloatToInteger(props.row.paidAmount  + ' ' + props.row.budget.name )}}
+          </div>
+          <div v-else-if="col.name === 'transaction'">
+            <q-toggle
+              v-model="props.expand"
+              dense
+              color="primary"
+              :icon="props.expand ? 'add' : 'remove'"
+              :label="$t('tables.users.columns.transaction')"
+            />
           </div>
 
           <div v-else-if="col.name === 'action'">
@@ -258,6 +293,13 @@ function exportTable(users) {
           <div v-else>
             {{ props.row[col.field] || '-' }}
           </div>
+        </q-td>
+      </q-tr>
+      <q-tr v-show="props.expand" :props="props">
+        <q-td colspan="100%">
+          <pre>
+            {{ props.row.transaction }}
+          </pre>
         </q-td>
       </q-tr>
     </template>

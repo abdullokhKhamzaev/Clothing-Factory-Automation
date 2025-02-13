@@ -8,7 +8,7 @@ import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialOrder } from "stores/ripeMaterialOrder.js";
 import { useBudget } from "stores/budget.js";
-import { DATE_FORMAT } from "src/libraries/constants/defaults.js"
+import { DATE_FORMAT, formatDate } from "src/libraries/constants/defaults.js"
 import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
@@ -276,11 +276,17 @@ function finishOrderAction() {
           <div v-else-if="col.name === 'unripeMaterial'">
             {{ props.row.unripeMaterial.name }}
           </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
+          </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row.createdBy.fullName }}
           </div>
           <div v-else-if="col.name === 'paintFabric'">
             {{ props.row.paintFabric.name }}
+          </div>
+          <div v-else-if="col.name === 'dealDate'">
+            {{ formatDate(props.row.dealDate).slice(0,10) }}
           </div>
           <div v-else-if="col.name === 'sentQuantitySort1'">
             {{ props.row.sentQuantitySort1 }} {{ props.row.unripeMaterial.measurement }}

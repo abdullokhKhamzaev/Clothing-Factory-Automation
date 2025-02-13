@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 let props = defineProps({
@@ -42,6 +43,7 @@ const columns = [
   { name: 'receivedQuantitySort2', label: t('tables.repaint.columns.receivedQuantitySort2'), align: 'left', field: 'receivedQuantitySort2' },
   { name: 'sentRollSort2', label: t('tables.repaint.columns.sentRollSort2'), align: 'left', field: 'sentRollSort2' },
   { name: 'receivedRollSort2', label: t('tables.repaint.columns.receivedRollSort2'), align: 'left', field: 'receivedRollSort2' },
+  { name: 'dealDate', label: t('tables.paint.columns.dealDate'), align: 'left', field: 'dealDate' },
   { name: 'status', label: t('tables.repaint.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
@@ -119,6 +121,9 @@ const columns = [
           </div>
           <div v-else-if="col.name === 'receivedRollSort2'">
             {{ Number(props.row.receivedRollSort2) > 0 ? props.row.receivedRollSort2 : '-' }}
+          </div>
+          <div v-else-if="col.name === 'dealDate'">
+            {{ formatDate(props.row.dealDate).slice(0,10) }}
           </div>
           <div v-else-if="col.name === 'status'">
             <span class="text-bold" :class="props.row.status === 'expected' ? 'text-warning' : 'text-green'">

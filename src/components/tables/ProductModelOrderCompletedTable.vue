@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import CutReportList from "components/CutReportList.vue";
 
@@ -61,6 +62,9 @@ const columns = [
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'productModel'">
             {{ props.row?.productModel?.name || '-' }}
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}

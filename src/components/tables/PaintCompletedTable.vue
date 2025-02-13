@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from "vue-i18n";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import PaintReportList from "components/PaintReportList.vue";
 
@@ -64,6 +65,9 @@ const columns = [
           <div v-if="col.name === 'createdBy'">
             {{ props.row.createdBy.fullName }}
           </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
+          </div>
           <div v-else-if="col.name === 'receivedBy'">
             {{ props.row.receivedBy.fullName }}
           </div>
@@ -84,6 +88,9 @@ const columns = [
           </div>
           <div v-else-if="col.name === 'sentRollSort2'">
             {{ Number(props.row.sentRollSort2) > 0 ? props.row.sentRollSort2 : '-' }}
+          </div>
+          <div v-else-if="col.name === 'dealDate'">
+            {{ formatDate(props.row.dealDate).slice(0,10) }}
           </div>
           <div v-else-if="col.name === 'ripeMaterialOrderAccepteds'">
             <q-toggle
