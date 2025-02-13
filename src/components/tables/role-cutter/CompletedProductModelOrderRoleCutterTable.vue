@@ -62,35 +62,11 @@ const columns = [
           <div v-if="col.name === 'productModel'">
             {{ props.row?.productModel?.name || '-' }}
           </div>
-          <div v-if="col.name === 'createdAt'">
+          <div v-else-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}
-          </div>
-          <div v-else-if="col.name === 'outlayRipeMaterial'">
-            <div
-              v-for="consume in props.row.outlayRipeMaterial"
-              :key="consume"
-            >
-              {{ consume }}
-<!--              <div>{{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }}-->
-<!--                {{ consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}-->
-<!--              </div>-->
-<!--              <div v-if="Number(consume.quantitySort2)">-->
-<!--                {{ $t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label') }}: {{-->
-<!--                  Number(consume.quantitySort2)-->
-<!--                }}-->
-<!--              </div>-->
-<!--              <div v-if="Number(consume.remainingSort1)">-->
-<!--                {{ $t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label') }}:-->
-<!--                {{ Number(consume.remainingSort1) }}-->
-<!--              </div>-->
-<!--              <div v-if="Number(consume.remainingSort2)">-->
-<!--                {{ $t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label') }}:-->
-<!--                {{ Number(consume.remainingSort2) }}-->
-<!--              </div>-->
-            </div>
           </div>
           <div v-else-if="col.name === 'productSize'">
             <div
@@ -123,7 +99,7 @@ const columns = [
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          <cut-report-list :lists="props.row.productModelOrderCompleteds"/>
+          <cut-report-list :lists="props.row.productModelOrderCompleteds" />
         </q-td>
       </q-tr>
     </template>

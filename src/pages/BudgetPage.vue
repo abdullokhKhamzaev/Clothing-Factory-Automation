@@ -98,7 +98,7 @@ function addAction() {
   const input = {
     budget: selectedData.value['@id'],
     quantity: addQuantity.value,
-    description: 'Hisobga admin orqali pul qo\'shildi',
+    description: 'balanceIncreased.',
     isIncome: true
   }
 

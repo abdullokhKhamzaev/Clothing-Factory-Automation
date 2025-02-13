@@ -69,17 +69,17 @@ const columns = [
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row?.createdBy?.fullName || '-' }}
           </div>
-          <div v-else-if="col.name === 'expectedOutlayRipeMaterial'">
-            <div
-              v-for="consume in props.row.expectedOutlayRipeMaterial"
-              :key="consume"
-            >
-              <div>{{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}</div>
-              <div v-if="Number(consume.quantitySort2)">{{$t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label')}}: {{ Number(consume.quantitySort2) }}</div>
-              <div v-if="Number(consume.remainingSort1)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label')}}: {{ Number(consume.remainingSort1) }}</div>
-              <div v-if="Number(consume.remainingSort2)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label')}}: {{ Number(consume.remainingSort2) }}</div>
-            </div>
-          </div>
+<!--          <div v-else-if="col.name === 'expectedOutlayRipeMaterial'">-->
+<!--            <div-->
+<!--              v-for="consume in props.row.expectedOutlayRipeMaterial"-->
+<!--              :key="consume"-->
+<!--            >-->
+<!--              <div>{{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}</div>-->
+<!--              <div v-if="Number(consume.quantitySort2)">{{$t('forms.modelOrder.fields.expectedConsumeQuantitySort2.label')}}: {{ Number(consume.quantitySort2) }}</div>-->
+<!--              <div v-if="Number(consume.remainingSort1)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort1.label')}}: {{ Number(consume.remainingSort1) }}</div>-->
+<!--              <div v-if="Number(consume.remainingSort2)">{{$t('forms.modelOrder.fields.expectedConsumeRemainingSort2.label')}}: {{ Number(consume.remainingSort2) }}</div>-->
+<!--            </div>-->
+<!--          </div>-->
           <div v-else-if="col.name === 'productSize'">
             <div
               v-for="consume in props.row.productSize"

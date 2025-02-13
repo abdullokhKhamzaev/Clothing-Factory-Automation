@@ -1,5 +1,5 @@
 <script setup>
-import { formatDate } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   lists: {
@@ -20,7 +20,7 @@ const props = defineProps({
           <span>
             {{ order.isIncome ? '+' : '-' }}
           </span>
-          {{ order.paidPrice }} {{ order.budget.name }}
+          {{ formatFloatToInteger(order.paidPrice) }} {{ order.budget.name }}
         </q-item-label>
         <q-item-label caption>{{ order.createdBy.fullName }}</q-item-label>
       </q-item-section>

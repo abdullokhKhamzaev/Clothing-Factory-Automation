@@ -23,7 +23,6 @@ let props = defineProps({
 const { t } = useI18n();
 
 const selectedData = ref({});
-const showCreateModal = ref(false);
 const showReceiveModal = ref(false);
 const paintLoading = ref(false);
 
@@ -66,9 +65,8 @@ const columns = [
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex items-md-center justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.repaint.header.title') }}</div>
-        <q-btn no-caps :label="$t('tables.repaint.buttons.add')" color="primary" @click="showCreateModal = true" />
       </div>
     </template>
     <template v-slot:body="props">
@@ -86,10 +84,10 @@ const columns = [
               />
             </div>
           </div>
-          <div v-if="col.name === 'createdAt'">
+          <div v-else-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
-          <div v-if="col.name === 'receivedAt'">
+          <div v-else-if="col.name === 'receivedAt'">
             {{ formatDate(props.row.receivedAt) }}
           </div>
           <div v-else-if="col.name === 'ripeMaterial'">

@@ -70,7 +70,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: 'Ip sotib olish',
+      description: 'threadPurchased',
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)

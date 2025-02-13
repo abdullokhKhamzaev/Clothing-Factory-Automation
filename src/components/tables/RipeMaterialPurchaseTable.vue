@@ -59,7 +59,7 @@ function payAction () {
   const input = {
     budget: selectedBudget.value[0]['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: `Bo'yalgan material savdo #${selectedData.value.id} Qarz to'landi`,
+    description: 'payedForMaterialPurchaseDebt',
     isIncome: false,
     ripeMaterialPurchase: selectedData.value['@id']
   }

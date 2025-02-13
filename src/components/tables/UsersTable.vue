@@ -338,7 +338,7 @@ function exportTable(users) {
           </div>
 
           <div v-else-if="col.name === 'salary'">
-            {{ Number(formatFloatToInteger(props.row.salary)) === 0 ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
+            {{ formatFloatToInteger(props.row.salary) === '0' ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
           </div>
 
           <div v-else-if="col.name === 'budget'">

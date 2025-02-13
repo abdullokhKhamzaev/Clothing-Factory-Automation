@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
-import { MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
+import { formatFloatToInteger, MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
 import { useAddFile } from "stores/mediaObject/addFile.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
@@ -238,6 +238,9 @@ function clearAction() {
           >
             <span> {{ props.row.quantity }} </span>
             <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
+          </div>
+          <div v-else-if="col.name === 'price'">
+            {{ formatFloatToInteger(props.row.price) }}
           </div>
           <div v-else-if="col.name === 'image'">
             <q-img

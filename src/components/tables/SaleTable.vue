@@ -111,7 +111,7 @@ function createAction () {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: true,
-      description: 'Maxsulot sotildi',
+      description: 'productSold',
       budget: selectedData.value.budget['@id'],
       isOldInAndOut: false,
       price: String(total.value)
@@ -197,7 +197,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: `Maxsulot savdo #${selectedData.value.id} Qarzi qabul qilindi`,
+    description: 'receivedSaleDebt',
     isIncome: true,
     sale: selectedData.value['@id']
   }

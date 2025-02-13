@@ -1,4 +1,18 @@
 export default {
+  transaction: {
+    balanceIncreased: 'The balance is filled',
+    threadPurchased: 'Thread purchased',
+    accessoryPurchased: 'Accessory purchased',
+    materialPurchased: 'Material purchased',
+    productSold: 'Product Sold',
+    payedForThreadPurchaseDebt: 'Payed for thread purchase debt',
+    payedForMaterialPurchaseDebt: 'Payed for material purchase debt',
+    payedForPaintingDebt: 'Payed for painting debt',
+    payedForAccessoryDebt: 'Payed for accessory debt',
+    payedForPaintMaterial: 'Payed for paint material',
+    receivedSaleDebt: 'Received sale debt',
+  },
+  salary: 'Salary',
   add: 'Add',
   accessory: 'Accessory',
   accept: 'Accept',
@@ -212,7 +226,8 @@ export default {
       barEdit: 'Edit Paint Order',
     },
     repaint: {
-      barCreate: 'Create Repaint Order'
+      barCreate: 'Create Repaint Order',
+      barAccept: 'Accept material from repainting'
     },
     paintPurchase: {
       barPayDebt: 'Pay Paint Purchase Debt'
@@ -1651,7 +1666,8 @@ export default {
         receivedRollSort2: 'Received Roll sort 2',
         status: 'Status',
         receivedBy: 'Received By',
-        receivedAt: 'Received At'
+        receivedAt: 'Received At',
+        dealDate: 'Deal date'
       },
       buttons: {
         add: 'Add repaint order'

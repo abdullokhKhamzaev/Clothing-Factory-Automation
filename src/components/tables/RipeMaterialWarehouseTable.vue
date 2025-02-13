@@ -86,7 +86,7 @@ function createAction() {
         paidPrice: paidPrice,
         createdBy: user.about['@id'],
         isIncome: false,
-        description: 'Material sotib olish',
+        description: 'materialPurchased',
         budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: totalPrice
