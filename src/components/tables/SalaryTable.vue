@@ -236,19 +236,19 @@ function exportTable(users) {
             {{ formatDate(props.row.month).slice(0, 10) }}
           </div>
           <div v-else-if="col.name === 'baseSalary'">
-            {{ Number(formatFloatToInteger(props.row.baseSalary)) === 0 ? '-' : formatFloatToInteger(props.row.baseSalary) + ' ' + props.row.budget.name }}
+            {{ formatFloatToInteger(props.row.baseSalary) === '0' ? '-' : formatFloatToInteger(props.row.baseSalary) + ' ' + props.row.budget.name }}
           </div>
           <div v-else-if="col.name === 'dailyWage'">
-            {{ Number(formatFloatToInteger(props.row.dailyWage)) === 0 ? '-' : formatFloatToInteger(props.row.dailyWage) + ' ' + props.row.budget.name }}
+            {{ formatFloatToInteger(props.row.dailyWage) === '0' ? '-' : formatFloatToInteger(props.row.dailyWage) + ' ' + props.row.budget.name }}
           </div>
           <div v-else-if="col.name === 'pieceworkEarning'">
-            {{ Number(formatFloatToInteger(props.row.pieceworkEarning)) === 0 ? '-' : formatFloatToInteger(props.row.pieceworkEarning  + ' ' + props.row.budget.name )}}
+            {{ formatFloatToInteger(props.row.pieceworkEarning) === '0' ? '-' : formatFloatToInteger(props.row.pieceworkEarning) + ' ' + props.row.budget.name}}
           </div>
           <div v-else-if="col.name === 'advancePayment'">
-            {{ Number(formatFloatToInteger(props.row.advancePayment)) === 0 ? '-' : formatFloatToInteger(props.row.advancePayment  + ' ' + props.row.budget.name )}}
+            {{ formatFloatToInteger(props.row.advancePayment) === '0' ? '-' : formatFloatToInteger(props.row.advancePayment) + ' ' + props.row.budget.name}}
           </div>
           <div v-else-if="col.name === 'paidAmount'">
-            {{ Number(formatFloatToInteger(props.row.paidAmount)) === 0 ? '-' : formatFloatToInteger(props.row.paidAmount  + ' ' + props.row.budget.name )}}
+            {{ formatFloatToInteger(props.row.paidAmount) === '0' ? '-' : formatFloatToInteger(props.row.paidAmount) + ' ' + props.row.budget.name}}
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle

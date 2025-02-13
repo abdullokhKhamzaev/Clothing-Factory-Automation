@@ -142,7 +142,7 @@ function sendAction() {
           <div v-else-if="col.name === 'action'">
             <q-btn
               color="primary"
-              icon="mdi-cogs"
+              icon="mdi-dots-vertical"
               size="sm"
               round
             >

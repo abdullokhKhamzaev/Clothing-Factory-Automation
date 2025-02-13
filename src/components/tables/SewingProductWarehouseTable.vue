@@ -5,6 +5,7 @@ import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 const { t } = useI18n();
@@ -291,7 +292,7 @@ onMounted(() => {
         <div class="flex justify-end">
           <q-btn
             color="primary"
-            icon="mdi-cogs"
+            icon="mdi-dots-vertical"
             size="sm"
             round
           >
@@ -385,6 +386,9 @@ onMounted(() => {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'sentBy'">
             {{ props.row.sentBy.fullName }}
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'productModel'">
             {{ props.row.productModel.name }}

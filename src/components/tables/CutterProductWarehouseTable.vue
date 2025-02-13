@@ -245,7 +245,7 @@ onMounted(() => {
         <div class="flex justify-end">
           <q-btn
             color="primary"
-            icon="mdi-cogs"
+            icon="mdi-dots-vertical"
             size="sm"
             round
           >

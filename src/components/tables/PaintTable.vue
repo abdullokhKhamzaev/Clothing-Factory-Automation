@@ -137,6 +137,7 @@ function receiveAction() {
     payedPrice: selectedData.value.payedPrice,
     ripeMaterialOrder: selectedData.value['@id'],
     receivedBy: user.about['@id'],
+    receivedAt: new Date(),
     transaction: [
       {
         paidPrice: selectedData.value.payedPrice,
@@ -194,7 +195,8 @@ function finishOrderAction() {
 
   const input = {
     status: 'accepted',
-    receivedBy: user.about['@id']
+    receivedBy: user.about['@id'],
+    receivedAt: new Date(),
   }
 
   useRipeMaterialOrder().completeRipeMaterialOrder(selectedData.value.id, input)

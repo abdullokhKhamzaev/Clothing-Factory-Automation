@@ -86,6 +86,12 @@ const columns = [
               />
             </div>
           </div>
+          <div v-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
+          </div>
+          <div v-if="col.name === 'receivedAt'">
+            {{ formatDate(props.row.receivedAt) }}
+          </div>
           <div v-else-if="col.name === 'ripeMaterial'">
             {{props.row.ripeMaterial.name }}
           </div>

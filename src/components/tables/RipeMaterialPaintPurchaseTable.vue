@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
@@ -130,7 +130,10 @@ onMounted(() => {
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div v-if="col.name === 'receivedBy'">
+          <div v-if="col.name === 'receivedAt'">
+            {{ formatDate(props.row.receivedAt) }}
+          </div>
+          <div v-else-if="col.name === 'receivedBy'">
             {{ props.row.receivedBy.fullName }}
           </div>
           <div v-else-if="col.name === 'receivedQuantitySort1'">
