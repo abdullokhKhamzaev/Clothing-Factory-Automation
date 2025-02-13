@@ -1,4 +1,6 @@
 <script setup>
+import { formatDate } from "src/libraries/constants/defaults.js";
+
 const props = defineProps({
   lists: {
     type: Array,
@@ -32,7 +34,7 @@ const props = defineProps({
       </q-item-section>
       <q-item-section side top>
         <q-badge color="teal" :label="'#id ' + order.id" />
-<!--        <q-item-label caption> {{ order.receivedAt }} </q-item-label>-->
+        <q-item-label caption> {{ formatDate(order.receivedAt) }} </q-item-label>
       </q-item-section>
     </q-item>
   </q-list>

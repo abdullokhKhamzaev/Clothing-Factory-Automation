@@ -9,6 +9,7 @@ import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import CutReportList from "components/CutReportList.vue";
+import {formatDate} from "src/libraries/constants/defaults.js";
 
 // Props
 let props = defineProps({
@@ -265,6 +266,9 @@ function getOrders() {
               :label="$t('report')"
               @click="selectedData = {...props.row}; prefill(); showOrderReportModal = true;"
             />
+          </div>
+          <div v-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'productModel'">
             {{ props.row?.productModel?.name || '-' }}
