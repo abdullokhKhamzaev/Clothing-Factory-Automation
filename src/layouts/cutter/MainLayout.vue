@@ -11,6 +11,23 @@
           @click="toggleLeftDrawer"
         />
         <q-space />
+        <q-btn
+          flat
+          dense
+          size="lg"
+          color="white"
+          icon="mdi-logout"
+          @click="logout"
+          class="q-mr-md"
+        >
+          <q-tooltip
+            anchor="bottom middle"
+            self="top middle"
+            :offset="[5, 5]"
+          >
+            {{ $t('logout') }}
+          </q-tooltip>
+        </q-btn>
         <q-select
           v-model="locale"
           :options="LANGUAGES"
@@ -96,13 +113,15 @@
 
 <script setup>
 import { ref } from 'vue'
-import SideBarLink from 'components/SideBarLink.vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from "vue-router";
+import SideBarLink from 'components/SideBarLink.vue'
 import { useAbout } from 'stores/user/about.js';
 import { LANGUAGES } from 'src/libraries/constants/defaults.js';
 
 const { locale } = useI18n();
 const user = useAbout();
+const router = useRouter();
 const leftDrawerOpen = ref(false)
 const linksList = [
   {
@@ -111,6 +130,11 @@ const linksList = [
     to: { name: 'club.cutter.orders' }
   }
 ]
+
+function logout() {
+  localStorage.removeItem('accessToken')
+  router.push('/login')
+}
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value

@@ -12,6 +12,7 @@ export default {
     payedForPaintMaterial: 'Payed for paint material',
     receivedSaleDebt: 'Received sale debt',
   },
+  logout: 'Logout',
   salary: 'Salary',
   add: 'Add',
   accessory: 'Accessory',
