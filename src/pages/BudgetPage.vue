@@ -206,6 +206,13 @@ onMounted(() => {
         >
           <div> {{ $t('debts') }}: {{ formatFloatToInteger(budget.debts) }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
         </div>
+        <q-separator />
+        <div
+          class="q-pa-sm text-weight-bolder"
+          :class="budget.oweUs <= 0 ? 'text-green' : 'text-red'"
+        >
+          <div> {{ $t('oweUs') }}: {{ formatFloatToInteger(budget.oweUs) }} {{ budget.currency.symbol }} ({{ budget.currency.name }}) </div>
+        </div>
       </q-card>
     </div>
   </div>
