@@ -96,8 +96,29 @@ const routes = [
       },
       {
         path: 'paint',
-        name: 'club.paint',
-        component: () => import('pages/PaintPage.vue')
+        component: () => import('pages/PaintPage.vue'),
+        children: [
+          {
+            path: 'orders',
+            name: 'club.paint.orders',
+            component: () => import('pages/paint/OrdersPage.vue')
+          },
+          {
+            path: 'repaint-orders',
+            name: 'club.paint.repaintOrders',
+            component: () => import('pages/paint/RepaintOrdersPage.vue')
+          },
+          {
+            path: 'completed',
+            name: 'club.paint.completedOrders',
+            component: () => import('pages/paint/CompletedOrdersPage.vue')
+          },
+          {
+            path: 'completed-repaint-orders',
+            name: 'club.paint.completedRepaintOrders',
+            component: () => import('pages/paint/CompletedRepaintOrdersPage.vue')
+          }
+        ]
       },
       {
         path: 'cut',

@@ -136,7 +136,7 @@ const linksList = [
   {
     title: 'paint',
     icon: 'mdi-palette-outline',
-    to: { name: 'club.paint' }
+    to: { name: 'club.paint.orders' }
   },
   {
     title: 'cutting',
