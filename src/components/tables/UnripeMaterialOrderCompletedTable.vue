@@ -57,7 +57,7 @@ const columns = [
   >
     <template v-slot:top>
       <div class="col-12 flex justify-between">
-        <div class="q-table__title">{{ $t('tables.unripeMaterialOrder.header.title') }}</div>
+        <div class="q-table__title">{{ $t('tables.completedUnripeMaterialOrder.header.title') }}</div>
       </div>
     </template>
     <template v-slot:body="props">

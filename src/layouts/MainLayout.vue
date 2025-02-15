@@ -131,7 +131,7 @@ const linksList = [
   {
     title: 'weaving',
     icon: 'mdi-store-cog',
-    to: { name: 'club.weave' }
+    to: { name: 'club.weave.orders' }
   },
   {
     title: 'paint',

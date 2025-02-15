@@ -10,15 +10,11 @@ const routes = computed(() => {
   return [
     {
       label: t('orders'),
-      value: router.resolve( { name: 'club.weave.orders' } )
-    },
-    {
-      label: t('pending'),
-      value: router.resolve( { name: 'club.weave.pending' } )
+      value: router.resolve( { name: 'club.weaver.orders' } )
     },
     {
       label: t('completedOrders'),
-      value: router.resolve( { name: 'club.weave.completed' } )
+      value: router.resolve( { name: 'club.weaver.completed' } )
     }
   ];
 })

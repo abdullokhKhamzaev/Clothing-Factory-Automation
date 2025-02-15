@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
+import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
@@ -148,8 +149,11 @@ function clearAction() {
             v-if="col.name === 'quantity'"
             class="flex no-wrap q-gutter-sm"
           >
-            <span> {{ props.row.quantity }} </span>
+            <span> {{ formatFloatToInteger(props.row.quantity) }} </span>
             <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
+          </div>
+          <div v-else-if="col.name === 'price'">
+            {{ formatFloatToInteger(props.row.price) }}
           </div>
           <div v-else-if="col.name === 'image'">
             <q-img

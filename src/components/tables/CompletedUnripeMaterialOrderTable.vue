@@ -115,6 +115,11 @@ function rejectAction () {
     :pagination="props.pagination"
     hide-bottom
   >
+    <template v-slot:top>
+      <div class="col-12">
+        <div class="q-table__title">{{ $t('tables.completedUnripeMaterialOrder.header.title') }}</div>
+      </div>
+    </template>
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">

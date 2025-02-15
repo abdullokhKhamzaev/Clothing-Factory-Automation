@@ -75,8 +75,24 @@ const routes = [
       },
       {
         path: 'weave',
-        name: 'club.weave',
-        component: () => import('pages/WeavePage.vue')
+        component: () => import('pages/WeavePage.vue'),
+        children: [
+          {
+            path: 'orders',
+            name: 'club.weave.orders',
+            component: () => import('pages/weave/OrdersPage.vue')
+          },
+          {
+            path: 'orders',
+            name: 'club.weave.pending',
+            component: () => import('pages/weave/PendingOrdersPage.vue')
+          },
+          {
+            path: 'orders',
+            name: 'club.weave.completed',
+            component: () => import('pages/weave/CompletedOrdersPage.vue')
+          }
+        ]
       },
       {
         path: 'paint',
@@ -231,14 +247,24 @@ const routes = [
   {
     path: '/weaver',
     component: () => import('layouts/weaver/MainLayout.vue'),
-    name: 'club.weaver.home',
     beforeEnter: ifAuthorized || isWeaver,
     children: [
       {
         path: 'orders',
-        name: 'club.weaver.orders',
-        component: () => import('pages/role-weaver/WeavePageRoleWeaver.vue')
-      }
+        component: () => import('pages/role-weaver/Index.vue'),
+        children: [
+          {
+            path: 'pending',
+            name: 'club.weaver.orders',
+            component: () => import('pages/role-weaver/OrdersPage.vue'),
+          },
+          {
+            path: 'completed',
+            name: 'club.weaver.completed',
+            component: () => import('pages/role-weaver/CompletedOrdersPage.vue'),
+          },
+        ]
+      },
     ]
   },
   {
