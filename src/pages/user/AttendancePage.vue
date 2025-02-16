@@ -1,11 +1,12 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { useUser } from "stores/user/user.js";
+import { useAttendance } from "stores/attendance.js";
 import RefreshButton from "components/RefreshButton.vue";
 import AttendanceTable from "components/tables/AttendanceTable.vue";
 
-const user = useUser();
-const users = ref([]);
+const attendance = useAttendance();
+const date = ref(new Date().toISOString().split('T')[0])
+const attendances = ref([]);
 const total = ref(0);
 const loading = ref(false);
 const pagination = ref({
@@ -15,14 +16,19 @@ const pagination = ref({
   rowsNumber: 0
 });
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage));
-const fullName = ref('')
 
-function getUsers (filterProps) {
+function getAttendances (filterProps) {
+  let props = filterProps || {};
+
   loading.value = true;
 
-  user.fetchUsers(filterProps || '')
+  if (!props.date) {
+    props.date = date.value;
+  }
+
+  attendance.fetchAttendances(props || '')
     .then((res) => {
-      users.value = res.data['hydra:member'];
+      attendances.value = res.data['hydra:member'];
       total.value = res.data['hydra:totalItems'];
     })
     .finally(() => {
@@ -30,18 +36,20 @@ function getUsers (filterProps) {
     });
 }
 
-function refresh (fullName) {
-  if (fullName) {
-    fullName.value = fullName;
-  }
-
+function refresh (filter) {
   pagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   };
-  getUsers(fullName);
+
+  if (filter?.date) {
+    date.value = filter.date;
+    getAttendances({ date: filter.date });
+  } else {
+    getAttendances();
+  }
 }
 
 onMounted(() => {
@@ -54,7 +62,7 @@ onMounted(() => {
     <refresh-button :action="refresh" />
   </div>
   <attendance-table
-    :users="users"
+    :attendances="attendances"
     :pagination="pagination"
     :loading="loading"
     @submit="refresh"
@@ -71,7 +79,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getUsers({ fullName: fullName, page: pagination.page })"
+      @update:model-value="getAttendances({ page: pagination.page })"
     />
   </div>
 </template>

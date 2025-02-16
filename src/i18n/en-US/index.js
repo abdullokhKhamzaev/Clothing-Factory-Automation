@@ -1410,6 +1410,19 @@ export default {
         add: 'Add User'
       },
     },
+    attendance: {
+      header: {
+        title: 'Attendance',
+        empty: 'There is no available attendance'
+      },
+      columns: {
+        worker: 'Customer',
+        date: 'Date',
+        isWork: 'At work',
+        cutMoney: 'Cut money',
+        isTimelyDeparture: 'Early departure',
+      }
+    },
     thread: {
       header: {
         title: 'Thread',

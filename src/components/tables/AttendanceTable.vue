@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useQuasar, exportFile } from "quasar";
+import { useQuasar } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import {formatDate} from "../../libraries/constants/defaults.js";
 
 // Props
 let props = defineProps({
-  users: {
+  attendances: {
     type: Array,
     required: true
   },
@@ -30,42 +31,43 @@ const emit = defineEmits(['submit']);
 const user = useAbout();
 
 // Dialogs
-const searchTitle = ref('');
+const date = ref(new Date().toISOString().split('T')[0])
 const selectedData = ref({});
 const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
-const userLoading = ref(false);
+const attendanceLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'budget', 'roles' ]);
+const visibleColumns = ref([ 'date', 'worker', 'isWork', 'cutMoney', 'isTimelyDeparture' ]);
 const columns = [
-  { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
-  { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'date', label: t('tables.attendance.columns.date'), align: 'left', field: 'date' },
+  { name: 'worker', label: t('tables.attendance.columns.worker'), align: 'left', field: 'worker' },
+  { name: 'isWork', label: t('tables.attendance.columns.isWork'), align: 'left', field: 'isWork' },
+  { name: 'cutMoney', label: t('tables.attendance.columns.cutMoney'), align: 'left', field: 'cutMoney' },
+  { name: 'isTimelyDeparture', label: t('tables.attendance.columns.isTimelyDeparture'), align: 'left', field: 'isTimelyDeparture' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
 
 // functions
-function getUsers() {
-  emit('submit', { fullName: searchTitle.value });
+function getAttendances() {
+  emit('submit', { date: date.value });
 }
 function clearAction() {
   selectedData.value = {};
 }
-function acceptAction (isWork) {
+function acceptAction () {
   if (!selectedData.value.id && !user.about['@id']) {
     console.warn('empty data');
     return;
   }
 
-  userLoading.value = true;
+  attendanceLoading.value = true;
 
   const input = {
     worker: selectedData.value['@id'],
-    date: new Date(),
+    arrivalAt: new Date(),
     checkedBy: user.about['@id'],
+    isWork: true
   }
-
-  input.isWork = isWork;
 
   useAttendance().accept(selectedData.value.id, input)
     .then(() => {
@@ -77,7 +79,7 @@ function acceptAction (isWork) {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      getUsers();
+      getAttendances();
     })
     .catch(() => {
       $q.notify({
@@ -87,82 +89,22 @@ function acceptAction (isWork) {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => userLoading.value = false)
-}
-function wrapCsvValue(val, formatFn, row) {
-  // If the value is undefined or null, return an empty string
-  if (val === undefined || val === null) {
-    return '""';
-  }
-
-  let formatted = formatFn ? formatFn(val, row) : val;
-
-  // If the formatted value is still undefined or null, return an empty string
-  if (formatted === undefined || formatted === null) {
-    formatted = '';
-  }
-
-  // Escape quotes by doubling them.
-  formatted = formatted.replace(/"/g, '""');
-
-  // Handle new lines (optional).
-  formatted = formatted.replace(/\r?\n/g, ' '); // Replaces newlines with a space.
-
-  return `"${formatted}"`;
-}
-function exportTable(users) {
-  const content = [
-    // Create header row (column labels)
-    columns.map(col => wrapCsvValue(col.label)).join(','),
-
-    // Create data rows
-    users.map(row =>
-      columns.map(col => {
-        // Access nested data like salaryCurrency.name or roles
-        let value = typeof col.field === 'function'
-          ? col.field(row)
-          : row[col.field ?? col.name];
-
-        // Handle nested fields like salaryCurrency
-        if (col.name === 'salaryCurrency') {
-          value = row.salaryCurrency ? row.salaryCurrency.name : '';
-        } else if (col.name === 'roles') {
-          value = row.roles ? row.roles.join(', ') : ''; // Joining roles into a comma-separated string
-        }
-
-        return wrapCsvValue(value, col.format, row);
-      }).join(',')
-    )
-  ].join('\r\n'); // Use carriage return and newline to separate rows
-
-  const status = exportFile(
-    'table-export.csv',
-    content,
-    'text/csv'
-  );
-
-  if (status !== true) {
-    $q.notify({
-      message: 'Browser denied file download...',
-      color: 'negative',
-      icon: 'warning'
-    });
-  }
+    .finally(() => attendanceLoading.value = false)
 }
 </script>
 
 <template>
   <skeleton-table
-    :loading="props.loading || userLoading"
+    :loading="props.loading || attendanceLoading"
   />
   <q-table
-    v-show="!loading && !userLoading"
+    v-show="!loading && !attendanceLoading"
     flat
     bordered
-    :rows="props.users"
+    :rows="props.attendances"
     :columns="columns"
-    :no-data-label="$t('tables.users.header.empty')"
-    :loading="props.loading || userLoading"
+    :no-data-label="$t('tables.attendance.header.empty')"
+    :loading="props.loading || attendanceLoading"
     :visible-columns="visibleColumns"
     color="primary"
     :pagination="props.pagination"
@@ -171,18 +113,29 @@ function exportTable(users) {
     <template v-slot:top>
       <div class="col-12 flex">
         <q-input
-          style="min-width: 225px"
+          filled
+          v-model="date"
           dense
           outlined
-          clearable
-          v-model="searchTitle"
           :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-          :label="$t('tables.users.header.searchTitle')"
+          mask="####-##-##"
           :debounce="1000"
-          @update:model-value="emit('submit', { fullName: searchTitle });"
+          @update:model-value="emit('submit', { date: date })"
         >
           <template v-slot:append>
-            <q-icon name="search" color="primary" />
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date
+                  v-model="date"
+                  mask="YYYY-MM-DD"
+                  @update:model-value="emit('submit', { date: date })"
+                >
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
           </template>
         </q-input>
         <q-select
@@ -200,17 +153,6 @@ function exportTable(users) {
           :label="$t('columns')"
           :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
         />
-        <div
-          :class="$q.screen.lt.sm ? 'flex full-width justify-between': 'flex'"
-        >
-          <q-btn
-            color="primary"
-            icon-right="outbox"
-            no-caps
-            outline
-            @click="exportTable(users)"
-          />
-        </div>
       </div>
     </template>
     <template v-slot:body="props">
@@ -221,13 +163,16 @@ function exportTable(users) {
           :key="col.name"
           :props="props"
         >
-          <div v-if="col.name === 'fullName'">
-            {{ props.row.fullName }}
+          <div v-if="col.name === 'date'">
+            {{ formatDate(props.row.date).slice(0, 11) }}
           </div>
-
+          <div v-else-if="col.name === 'worker'">
+            {{ props.row.worker.fullName }}
+          </div>
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
+                v-if="!props.row.isWork"
                 dense
                 no-caps
                 no-wrap
@@ -239,24 +184,10 @@ function exportTable(users) {
                   {{ $t('accept') }}
                 </q-tooltip>
               </q-btn>
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
             </div>
           </div>
-
           <div v-else>
-            {{ props.row[col.field] || '-' }}
+            {{ props.row[col.field] }}
           </div>
         </q-td>
       </q-tr>
@@ -276,35 +207,12 @@ function exportTable(users) {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
         <q-btn
-          :disable="loading || userLoading"
-          :loading="loading || userLoading"
+          :disable="loading || attendanceLoading"
+          :loading="loading || attendanceLoading"
           no-caps
           :label="$t('dialogs.accept.buttons.accept')"
           color="green"
-          @click="acceptAction(true);"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn
-          :disable="loading || userLoading"
-          :loading="loading || userLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="acceptAction(false);"
+          @click="acceptAction();"
         />
       </q-card-actions>
     </q-card>
