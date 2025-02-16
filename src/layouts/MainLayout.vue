@@ -141,7 +141,7 @@ const linksList = [
   {
     title: 'cutting',
     icon: 'mdi-scissors-cutting',
-    to: { name: 'club.cut' }
+    to: { name: 'club.cut.orders' }
   },
   {
     title: 'embroidery',

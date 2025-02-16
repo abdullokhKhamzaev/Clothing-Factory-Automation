@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from "vue";
-import RouteTabs from "components/RouteTabs.vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import RouteTabs from "components/RouteTabs.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -10,27 +10,23 @@ const routes = computed(() => {
   return [
     {
       label: t('orders'),
-      value: router.resolve( { name: 'club.cut.orders' } )
-    },
-    {
-      label: t('pending'),
-      value: router.resolve( { name: 'club.cut.pending' } )
+      value: router.resolve( { name: 'club.cutter.orders' } )
     },
     {
       label: t('completedOrders'),
-      value: router.resolve( { name: 'club.cut.completedOrders' } )
+      value: router.resolve( { name: 'club.cutter.completedOrders' } )
     },
     {
       label: t('materials'),
-      value: router.resolve( { name: 'club.cut.materials' } )
+      value: router.resolve( { name: 'club.cutter.materials' } )
     },
     {
       label: t('warehouse'),
-      value: router.resolve( { name: 'club.cut.warehouse' } )
+      value: router.resolve( { name: 'club.cutter.warehouse' } )
     },
     {
       label: t('defects'),
-      value: router.resolve( { name: 'club.cut.defects' } )
+      value: router.resolve( { name: 'club.cutter.defects' } )
     },
   ];
 })

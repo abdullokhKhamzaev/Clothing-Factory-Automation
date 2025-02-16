@@ -102,7 +102,7 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = embroideryWarehouse.value;
+  props.toWarehouse = warehouse.value['@id'];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {

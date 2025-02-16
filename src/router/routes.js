@@ -122,8 +122,39 @@ const routes = [
       },
       {
         path: 'cut',
-        name: 'club.cut',
-        component: () => import('pages/CutPage.vue')
+        component: () => import('pages/CutPage.vue'),
+        children: [
+          {
+            path: 'orders',
+            name: 'club.cut.orders',
+            component: () => import('pages/cut/OrdersPage.vue')
+          },
+          {
+            path: 'pending',
+            name: 'club.cut.pending',
+            component: () => import('pages/cut/PendingOrdersPage.vue')
+          },
+          {
+            path: 'completed-orders',
+            name: 'club.cut.completedOrders',
+            component: () => import('pages/cut/CompletedOrdersPage.vue')
+          },
+          {
+            path: 'materials',
+            name: 'club.cut.materials',
+            component: () => import('pages/cut/MaterialsPage.vue')
+          },
+          {
+            path: 'warehouse',
+            name: 'club.cut.warehouse',
+            component: () => import('pages/cut/WarehousePage.vue')
+          },
+          {
+            path: 'defects',
+            name: 'club.cut.defects',
+            component: () => import('pages/cut/DefectsPage.vue')
+          },
+        ]
       },
       {
         path: 'embroidery',
@@ -272,7 +303,7 @@ const routes = [
     children: [
       {
         path: 'orders',
-        component: () => import('pages/role-weaver/Index.vue'),
+        component: () => import('pages/role-weaver/IndexPage.vue'),
         children: [
           {
             path: 'pending',
@@ -291,13 +322,38 @@ const routes = [
   {
     path: '/cutter',
     component: () => import('layouts/cutter/MainLayout.vue'),
-    name: 'club.cutter.home',
     beforeEnter: ifAuthorized || isCutter,
     children: [
       {
         path: 'orders',
-        name: 'club.cutter.orders',
-        component: () => import('pages/role-cutter/CutPageRoleCutter.vue')
+        component: () => import('pages/role-cutter/IndexPage.vue'),
+        children: [
+          {
+            path: 'pending',
+            name: 'club.cutter.orders',
+            component: () => import('pages/role-cutter/OrdersPage.vue'),
+          },
+          {
+            path: 'completed',
+            name: 'club.cutter.completedOrders',
+            component: () => import('pages/role-cutter/CompletedOrdersPage.vue'),
+          },
+          {
+            path: 'materials',
+            name: 'club.cutter.materials',
+            component: () => import('pages/role-cutter/MaterialsPage.vue'),
+          },
+          {
+            path: 'warehouse',
+            name: 'club.cutter.warehouse',
+            component: () => import('pages/role-cutter/WarehousePage.vue'),
+          },
+          {
+            path: 'defects',
+            name: 'club.cutter.defects',
+            component: () => import('pages/role-cutter/DefectsPage.vue'),
+          },
+        ]
       }
     ]
   },
