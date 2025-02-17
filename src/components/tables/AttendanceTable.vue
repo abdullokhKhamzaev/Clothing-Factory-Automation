@@ -4,8 +4,8 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
+import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import {formatDate} from "../../libraries/constants/defaults.js";
 
 // Props
 let props = defineProps({
@@ -34,6 +34,8 @@ const user = useAbout();
 const date = ref(new Date().toISOString().split('T')[0])
 const selectedData = ref({});
 const showAcceptModal = ref(false);
+const showDepartureModal = ref(false);
+const departureActionErr = ref(false);
 const attendanceLoading = ref(false);
 
 // table settings
@@ -53,6 +55,7 @@ function getAttendances() {
 }
 function clearAction() {
   selectedData.value = {};
+  departureActionErr.value = false;
 }
 function acceptAction () {
   if (!selectedData.value.id && !user.about['@id']) {
@@ -82,6 +85,47 @@ function acceptAction () {
       getAttendances();
     })
     .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+      })
+    })
+    .finally(() => attendanceLoading.value = false)
+}
+function departureAction () {
+  if (!selectedData.value.id && !user.about['@id']) {
+    console.warn('empty data');
+    return;
+  }
+
+  attendanceLoading.value = true;
+
+  const input = {
+    isWork: false,
+    checkedBy: user.about['@id'],
+    departureAt: new Date(),
+    cutMoney: selectedData.value.cutMoney,
+    isTimelyDeparture: true
+  }
+
+  useAttendance().accept(selectedData.value.id, input)
+    .then(() => {
+      showDepartureModal.value = false;
+
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
+      })
+      clearAction();
+      getAttendances();
+    })
+    .catch((res) => {
+      departureActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
@@ -169,10 +213,33 @@ function acceptAction () {
           <div v-else-if="col.name === 'worker'">
             {{ props.row.worker.fullName }}
           </div>
+          <div v-else-if="col.name === 'isWork'">
+            <q-icon
+              v-if="props.row.isWork"
+              name="mdi-plus" size="md" color="green"
+            />
+            <q-icon
+              v-if="!props.row.isWork"
+              name="mdi-minus" size="md" color="red"
+            />
+          </div>
+          <div v-else-if="col.name === 'cutMoney'">
+            {{ formatFloatToInteger(props.row.cutMoney) }} {{ props.row.worker.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'isTimelyDeparture'">
+            <q-icon
+              v-if="props.row.isTimelyDeparture"
+              name="mdi-plus" size="md" color="red"
+            />
+            <q-icon
+              v-if="!props.row.isTimelyDeparture"
+              name="mdi-minus" size="md" color="green"
+            />
+          </div>
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
-                v-if="!props.row.isWork"
+                v-if="!props.row.isWork && !props.row.isTimelyDeparture"
                 dense
                 no-caps
                 no-wrap
@@ -184,6 +251,16 @@ function acceptAction () {
                   {{ $t('accept') }}
                 </q-tooltip>
               </q-btn>
+              <q-btn
+                v-if="props.row.isWork && props.row.worker.salaryType === 'daily'"
+                dense
+                no-caps
+                no-wrap
+                color="orange"
+                icon-right="mdi-exit-run"
+                :label="$t('tables.attendance.columns.isTimelyDeparture')"
+                @click="selectedData = {...props.row}; showDepartureModal = true;"
+              />
             </div>
           </div>
           <div v-else>
@@ -197,11 +274,11 @@ function acceptAction () {
   <q-dialog v-model="showAcceptModal" persistent>
     <q-card>
       <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
+        <div class="text-h6"> {{ $t('dialogs.attendance.bar') }}</div>
       </q-card-section>
 
       <q-card-section>
-        {{ $t('dialogs.accept.info') }}
+        {{ $t('dialogs.attendance.info') }}
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
@@ -216,6 +293,57 @@ function acceptAction () {
         />
       </q-card-actions>
     </q-card>
+  </q-dialog>
+  <q-dialog v-model="showDepartureModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="departureAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="departureActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.departure.barCreate') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="departureActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ departureActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            type="number"
+            v-model="selectedData.cutMoney"
+            :label="$t('forms.accessory.fields.quantity.label')"
+            :rules="[ val => val && val > -1 || $t('forms.accessory.fields.quantity.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="props.loading || attendanceLoading"
+            :loading="props.loading || attendanceLoading"
+            no-caps
+            :label="$t('forms.attendance.buttons.create')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
   </q-dialog>
 </template>
 <style scoped>

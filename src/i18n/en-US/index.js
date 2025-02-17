@@ -12,6 +12,7 @@ export default {
     payedForPaintMaterial: 'Payed for paint material',
     receivedSaleDebt: 'Received sale debt',
   },
+  departure: 'Departure',
   oweUs: 'Owe us',
   logout: 'Logout',
   salary: 'Salary',
@@ -146,6 +147,14 @@ export default {
     accept: {
       bar: 'Confirm Accept',
       info: 'Are you sure you want to accept? This action cannot be undone.',
+      buttons: {
+        accept: 'Accept',
+        cancel: 'Cancel'
+      }
+    },
+    attendance: {
+      bar: 'Confirm Attendance',
+      info: 'Are you sure you want to accept attendance? This action cannot be undone.',
       buttons: {
         accept: 'Accept',
         cancel: 'Cancel'
