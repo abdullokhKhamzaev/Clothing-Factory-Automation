@@ -2,14 +2,14 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
-import { useAttendance } from "stores/attendance.js";
-import { useAbout } from "stores/user/about.js";
+import { useSalary } from "stores/salary.js";
 import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 
 // Props
 let props = defineProps({
-  users: {
+  salaries: {
     type: Array,
     required: true
   },
@@ -28,14 +28,13 @@ const $q = useQuasar();
 const { t } = useI18n();
 const emit = defineEmits(['submit']);
 
-const user = useAbout();
-
 // Dialogs
-const searchTitle = ref('');
 const selectedData = ref({});
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
-const userLoading = ref(false);
+const showSalaryModal = ref(false);
+const showAdvanceModal = ref(false);
+const salaryActionErr = ref(false);
+const advanceActionErr = ref(false);
+const salaryLoading = ref(false);
 
 // table settings
 const visibleColumns = ref([ 'worker', 'month', 'baseSalary', 'dailyWage', 'workedDays', 'pieceworkEarning', 'advancePayment', 'paidAmount', 'budget', 'isPaid', 'transaction' ]);
@@ -53,49 +52,86 @@ const columns = [
 ];
 
 // functions
-function getUsers() {
-  emit('submit', { fullName: searchTitle.value });
+function getSalaries() {
+  emit('submit');
 }
 function clearAction() {
   selectedData.value = {};
+  salaryActionErr.value = false;
+  advanceActionErr.value = false;
 }
-function acceptAction (isWork) {
-  if (!selectedData.value.id && !user.about['@id']) {
+function paySalaryAction () {
+  if (!selectedData.value.id) {
     console.warn('empty data');
     return;
   }
 
-  userLoading.value = true;
+  salaryLoading.value = true;
 
   const input = {
-    worker: selectedData.value['@id'],
-    date: new Date(),
-    checkedBy: user.about['@id'],
+    paidAmount: selectedData.value.quantity,
+    isPaid: false
   }
 
-  input.isWork = isWork;
-
-  useAttendance().accept(input)
+  useSalary().paySalary(selectedData.value.id, input)
     .then(() => {
-      showAcceptModal.value = false;
+      showSalaryModal.value = false;
       $q.notify({
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
+        message: t('forms.salary.confirmation.successPayed')
       })
       clearAction();
-      getUsers();
+      getSalaries();
     })
-    .catch(() => {
+    .catch((res) => {
+      salaryActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: t('forms.salary.confirmation.failure')
       })
     })
-    .finally(() => userLoading.value = false)
+    .finally(() => salaryLoading.value = false)
+}
+function payAdvanceAction () {
+  if (!selectedData.value.id) {
+    console.warn('empty data');
+    return;
+  }
+
+  salaryLoading.value = true;
+
+  const input = {
+    advancePayment: selectedData.value.quantity,
+  }
+
+  useSalary().payAdvance(selectedData.value.id, input)
+    .then(() => {
+      showAdvanceModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.salary.confirmation.successPayed')
+      })
+      clearAction();
+      getSalaries();
+    })
+    .catch((res) => {
+      advanceActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.salary.confirmation.failure')
+      })
+    })
+    .finally(() => salaryLoading.value = false)
 }
 function wrapCsvValue(val, formatFn, row) {
   // If the value is undefined or null, return an empty string
@@ -161,16 +197,16 @@ function exportTable(users) {
 
 <template>
   <skeleton-table
-    :loading="props.loading || userLoading"
+    :loading="props.loading || salaryLoading"
   />
   <q-table
-    v-show="!loading && !userLoading"
+    v-show="!loading && !salaryLoading"
     flat
     bordered
-    :rows="props.users"
+    :rows="props.salaries"
     :columns="columns"
     :no-data-label="$t('tables.users.header.empty')"
-    :loading="props.loading || userLoading"
+    :loading="props.loading || salaryLoading"
     :visible-columns="visibleColumns"
     color="primary"
     :pagination="props.pagination"
@@ -178,21 +214,6 @@ function exportTable(users) {
   >
     <template v-slot:top>
       <div class="col-12 flex">
-        <q-input
-          style="min-width: 225px"
-          dense
-          outlined
-          clearable
-          v-model="searchTitle"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-          :label="$t('tables.users.header.searchTitle')"
-          :debounce="1000"
-          @update:model-value="emit('submit', { fullName: searchTitle });"
-        >
-          <template v-slot:append>
-            <q-icon name="search" color="primary" />
-          </template>
-        </q-input>
         <q-select
           style="min-width: 100px;"
           dense
@@ -252,6 +273,7 @@ function exportTable(users) {
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
+              v-if="props.row?.transaction.length"
               v-model="props.expand"
               dense
               color="primary"
@@ -263,30 +285,27 @@ function exportTable(users) {
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
+                v-if="!Number(props.row.paidAmount)"
                 dense
+                outline
                 no-caps
                 no-wrap
                 color="green"
-                icon-right="mdi-check"
-                @click="selectedData = {...props.row}; showAcceptModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('accept') }}
-                </q-tooltip>
-              </q-btn>
+                icon-right="mdi-cash"
+                :label="$t('paySalary')"
+                @click="selectedData = {...props.row}; showSalaryModal = true;"
+              />
               <q-btn
+                v-if="!Number(props.row.advancePayment)"
                 dense
+                outline
                 no-caps
                 no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
+                color="primary"
+                icon-right="mdi-cash"
+                :label="$t('payAdvance')"
+                @click="selectedData = {...props.row}; showAdvanceModal = true;"
+              />
             </div>
           </div>
 
@@ -297,59 +316,114 @@ function exportTable(users) {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          <pre>
-            {{ props.row.transaction }}
-          </pre>
+          <salary-payments-list :lists="props.row.transaction" />
         </q-td>
       </q-tr>
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showAcceptModal" persistent>
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.accept.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn
-          :disable="loading || userLoading"
-          :loading="loading || userLoading"
-          no-caps
-          :label="$t('dialogs.accept.buttons.accept')"
-          color="green"
-          @click="acceptAction(true);"
-        />
-      </q-card-actions>
-    </q-card>
+  <q-dialog v-model="showSalaryModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="paySalaryAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="salaryActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.salary.bar') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="salaryActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ salaryActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            filled
+            :prefix="selectedData.budget.name"
+            type="number"
+            v-model="selectedData.quantity"
+            :label="$t('forms.salary.fields.quantity.label')"
+            :rules="[ val => val && val > -1 || $t('forms.salary.fields.quantity.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="props.loading || salaryLoading"
+            :loading="props.loading || salaryLoading"
+            no-caps
+            :label="$t('forms.salary.buttons.pay')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
   </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn
-          :disable="loading || userLoading"
-          :loading="loading || userLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="acceptAction(false);"
-        />
-      </q-card-actions>
-    </q-card>
+  <q-dialog v-model="showAdvanceModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="payAdvanceAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="advanceActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.advance.bar') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+        </div>
+        <div v-if="advanceActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ advanceActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            :prefix="selectedData.budget.name"
+            filled
+            v-model="selectedData.quantity"
+            :label="$t('forms.advance.fields.quantity.label')"
+            :rules="[ val => val && val > -1 || $t('forms.advance.fields.quantity.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="props.loading || salaryLoading"
+            :loading="props.loading || salaryLoading"
+            no-caps
+            :label="$t('forms.advance.buttons.pay')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
   </q-dialog>
 </template>
 <style scoped>

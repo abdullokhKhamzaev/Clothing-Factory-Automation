@@ -4,8 +4,8 @@ import { useSalary } from "stores/salary.js";
 import RefreshButton from "components/RefreshButton.vue";
 import SalaryTable from "components/tables/SalaryTable.vue";
 
-const user = useSalary();
-const users = ref([]);
+const salary = useSalary();
+const salaries = ref([]);
 const total = ref(0);
 const loading = ref(false);
 const pagination = ref({
@@ -15,14 +15,13 @@ const pagination = ref({
   rowsNumber: 0
 });
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage));
-const fullName = ref('')
 
-function getUsers (filterProps) {
+function getSalaries (filterProps) {
   loading.value = true;
 
-  user.fetchSalaries(filterProps || '')
+  salary.fetchSalaries(filterProps || '')
     .then((res) => {
-      users.value = res.data['hydra:member'];
+      salaries.value = res.data['hydra:member'];
       total.value = res.data['hydra:totalItems'];
     })
     .finally(() => {
@@ -30,18 +29,14 @@ function getUsers (filterProps) {
     });
 }
 
-function refresh (fullName) {
-  if (fullName) {
-    fullName.value = fullName;
-  }
-
+function refresh () {
   pagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   };
-  getUsers(fullName);
+  getSalaries();
 }
 
 onMounted(() => {
@@ -54,7 +49,7 @@ onMounted(() => {
     <refresh-button :action="refresh" />
   </div>
   <salary-table
-    :users="users"
+    :salaries="salaries"
     :pagination="pagination"
     :loading="loading"
     @submit="refresh"
@@ -71,7 +66,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getUsers({ fullName: fullName, page: pagination.page })"
+      @update:model-value="getSalaries({ page: pagination.page })"
     />
   </div>
 </template>

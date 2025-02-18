@@ -304,7 +304,7 @@ function departureAction () {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="departureActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.departure.barCreate') }} </div>
+          <div class="text-h6"> {{ $t('dialogs.departure.bar') }} </div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
         </div>
         <div v-if="departureActionErr">
@@ -325,8 +325,8 @@ function departureAction () {
             filled
             type="number"
             v-model="selectedData.cutMoney"
-            :label="$t('forms.accessory.fields.quantity.label')"
-            :rules="[ val => val && val > -1 || $t('forms.accessory.fields.quantity.validation.required')]"
+            :label="$t('forms.departure.fields.cutMoney.label')"
+            :rules="[ val => val && val > -1 || $t('forms.departure.fields.cutMoney.validation.required')]"
             class="col-12"
             hide-bottom-space
           />
@@ -337,7 +337,7 @@ function departureAction () {
             :disable="props.loading || attendanceLoading"
             :loading="props.loading || attendanceLoading"
             no-caps
-            :label="$t('forms.attendance.buttons.create')"
+            :label="$t('dialogs.departure.buttons.confirm')"
             type="submit"
             color="primary"
           />

@@ -20,11 +20,19 @@ export const useSalary = defineStore('salaries', () => {
 
   async function payAdvance(id, data) {
     try {
-      return client.put('salaries/' + id + '/advancePayment', data)
+      return client.put('salary/' + id + '/advancePayment', data)
     } catch (e) {
       console.log(e)
     }
   }
 
-  return { fetchSalaries, payAdvance }
+  async function paySalary(id, data) {
+    try {
+      return client.put('salary/' + id + '/payment', data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  return { fetchSalaries, payAdvance, paySalary }
 })

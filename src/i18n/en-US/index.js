@@ -12,6 +12,8 @@ export default {
     payedForPaintMaterial: 'Payed for paint material',
     receivedSaleDebt: 'Received sale debt',
   },
+  paySalary: 'Pay salary',
+  payAdvance: 'Pay advance',
   departure: 'Departure',
   oweUs: 'Owe us',
   logout: 'Logout',
@@ -160,6 +162,18 @@ export default {
         cancel: 'Cancel'
       }
     },
+    departure: {
+      bar: 'Creating Early Departure',
+      buttons: {
+        confirm: 'Confirm',
+      }
+    },
+    salary: {
+      bar: 'Pay Salary'
+    },
+    advance: {
+      bar: 'Give Advance'
+    },
     complete: {
       bar: 'Complete order',
       info: 'Are you sure you want to complete order? This action cannot be undone.',
@@ -298,6 +312,64 @@ export default {
             required: 'Roles required',
           }
         },
+      },
+      buttons: {
+        create: 'Create User',
+        edit: 'Edit User'
+      },
+      confirmation: {
+        successCreated: 'User was successfully created.',
+        successEdited: 'User was successfully edited.',
+        successDeleted: 'User was successfully deleted.',
+        failure: 'There was an error saving user.'
+      }
+    },
+    salary: {
+      fields: {
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+      },
+      buttons: {
+        pay: 'Pay'
+      },
+      confirmation: {
+        successCreated: 'User was successfully created.',
+        successEdited: 'User was successfully edited.',
+        successDeleted: 'User was successfully deleted.',
+        failure: 'There was an error saving user.'
+      }
+    },
+    advance: {
+      fields: {
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+      },
+      buttons: {
+        pay: 'Pay'
+      },
+      confirmation: {
+        successCreated: 'User was successfully created.',
+        successEdited: 'User was successfully edited.',
+        successDeleted: 'User was successfully deleted.',
+        failure: 'There was an error saving user.'
+      }
+    },
+    departure: {
+      fields: {
+        cutMoney: {
+          label: 'Amount of money withheld from salary',
+          validation: {
+            required: 'Quantity is required',
+          }
+        }
       },
       buttons: {
         create: 'Create User',
