@@ -11,6 +11,10 @@ export const useSalary = defineStore('salaries', () => {
       url += '?page=1'
     }
 
+    if (filterProps?.month) {
+      url += '&month=' + filterProps.month
+    }
+
     try {
       return client.get('salaries' + url)
     } catch (e) {

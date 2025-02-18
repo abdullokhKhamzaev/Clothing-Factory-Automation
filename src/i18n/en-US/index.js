@@ -10,6 +10,8 @@ export default {
     payedForPaintingDebt: 'Payed for painting debt',
     payedForAccessoryDebt: 'Payed for accessory debt',
     payedForPaintMaterial: 'Payed for paint material',
+    payedCustomerAdvance: 'Payed advance for customer',
+    payedCustomerSalary: 'Payed salary for customer',
     receivedSaleDebt: 'Received sale debt',
   },
   paySalary: 'Pay salary',

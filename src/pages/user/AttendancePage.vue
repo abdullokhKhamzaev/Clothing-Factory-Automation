@@ -5,7 +5,7 @@ import RefreshButton from "components/RefreshButton.vue";
 import AttendanceTable from "components/tables/AttendanceTable.vue";
 
 const attendance = useAttendance();
-const date = ref(new Date().toISOString().split('T')[0])
+const date = ref(new Date().toISOString().split('T')[0]);
 const attendances = ref([]);
 const total = ref(0);
 const loading = ref(false);

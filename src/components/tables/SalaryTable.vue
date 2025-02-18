@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useQuasar, exportFile } from "quasar";
+import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
 import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
@@ -27,6 +27,7 @@ let props = defineProps({
 const $q = useQuasar();
 const { t } = useI18n();
 const emit = defineEmits(['submit']);
+const month = ref(new Date().toISOString().split('T')[0].slice(0, 7));
 
 // Dialogs
 const selectedData = ref({});
@@ -53,7 +54,7 @@ const columns = [
 
 // functions
 function getSalaries() {
-  emit('submit');
+  emit('submit', { month: month.value });
 }
 function clearAction() {
   selectedData.value = {};
@@ -133,66 +134,6 @@ function payAdvanceAction () {
     })
     .finally(() => salaryLoading.value = false)
 }
-function wrapCsvValue(val, formatFn, row) {
-  // If the value is undefined or null, return an empty string
-  if (val === undefined || val === null) {
-    return '""';
-  }
-
-  let formatted = formatFn ? formatFn(val, row) : val;
-
-  // If the formatted value is still undefined or null, return an empty string
-  if (formatted === undefined || formatted === null) {
-    formatted = '';
-  }
-
-  // Escape quotes by doubling them.
-  formatted = formatted.replace(/"/g, '""');
-
-  // Handle new lines (optional).
-  formatted = formatted.replace(/\r?\n/g, ' '); // Replaces newlines with a space.
-
-  return `"${formatted}"`;
-}
-function exportTable(users) {
-  const content = [
-    // Create header row (column labels)
-    columns.map(col => wrapCsvValue(col.label)).join(','),
-
-    // Create data rows
-    users.map(row =>
-      columns.map(col => {
-        // Access nested data like salaryCurrency.name or roles
-        let value = typeof col.field === 'function'
-          ? col.field(row)
-          : row[col.field ?? col.name];
-
-        // Handle nested fields like salaryCurrency
-        if (col.name === 'salaryCurrency') {
-          value = row.salaryCurrency ? row.salaryCurrency.name : '';
-        } else if (col.name === 'roles') {
-          value = row.roles ? row.roles.join(', ') : ''; // Joining roles into a comma-separated string
-        }
-
-        return wrapCsvValue(value, col.format, row);
-      }).join(',')
-    )
-  ].join('\r\n'); // Use carriage return and newline to separate rows
-
-  const status = exportFile(
-    'table-export.csv',
-    content,
-    'text/csv'
-  );
-
-  if (status !== true) {
-    $q.notify({
-      message: 'Browser denied file download...',
-      color: 'negative',
-      icon: 'warning'
-    });
-  }
-}
 </script>
 
 <template>
@@ -214,6 +155,32 @@ function exportTable(users) {
   >
     <template v-slot:top>
       <div class="col-12 flex">
+        <q-input
+          filled
+          v-model="month"
+          dense
+          outlined
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+          mask="####-##"
+          :debounce="1000"
+          @update:model-value="emit('submit', { month: month })"
+        >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date
+                  v-model="month"
+                  mask="YYYY-MM"
+                  @update:model-value="emit('submit', { month: month })"
+                >
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
         <q-select
           style="min-width: 100px;"
           dense
@@ -229,17 +196,6 @@ function exportTable(users) {
           :label="$t('columns')"
           :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
         />
-        <div
-          :class="$q.screen.lt.sm ? 'flex full-width justify-between': 'flex'"
-        >
-          <q-btn
-            color="primary"
-            icon-right="outbox"
-            no-caps
-            outline
-            @click="exportTable(users)"
-          />
-        </div>
       </div>
     </template>
     <template v-slot:body="props">

@@ -5,6 +5,7 @@ import RefreshButton from "components/RefreshButton.vue";
 import SalaryTable from "components/tables/SalaryTable.vue";
 
 const salary = useSalary();
+const month = ref(new Date().toISOString().split('T')[0].slice(0, 7));
 const salaries = ref([]);
 const total = ref(0);
 const loading = ref(false);
@@ -17,9 +18,15 @@ const pagination = ref({
 const pagesNumber = computed(() => Math.ceil(total.value / pagination.value.rowsPerPage));
 
 function getSalaries (filterProps) {
+  let props = filterProps || {};
+
   loading.value = true;
 
-  salary.fetchSalaries(filterProps || '')
+  if (!props.month) {
+    props.month = month.value;
+  }
+
+  salary.fetchSalaries(props || '')
     .then((res) => {
       salaries.value = res.data['hydra:member'];
       total.value = res.data['hydra:totalItems'];
@@ -29,14 +36,19 @@ function getSalaries (filterProps) {
     });
 }
 
-function refresh () {
+function refresh (filter) {
   pagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   };
-  getSalaries();
+  if (filter?.month) {
+    month.value = filter.month;
+    getSalaries({ month: filter.month });
+  } else {
+    getSalaries();
+  }
 }
 
 onMounted(() => {
