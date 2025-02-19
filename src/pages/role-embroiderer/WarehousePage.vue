@@ -3,26 +3,27 @@ import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
-import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
-import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
+import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
-const user = useAbout();
-const cutterWarehouse = useCutterRipeMaterialWarehouse();
 const { t } = useI18n();
 const $q = useQuasar();
+const user = useAbout();
 const selectedData = ref({});
+const defectActionErr = ref(false);
+const reportActionErr = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
-const showOrderReportModal = ref(false);
-const reportActionErr = ref(false);
-
+const showDefectModal = ref(false);
+const showReportModal = ref(false);
+const rows = ref([{ size: '', quantity: '', max: '', productAccessories: [] }]);
+// const attaches = ref([])
 const warehouse = ref([]);
-const embroideryWarehouse = ref([]);
+const cutterDefectiveWarehouse = ref([]);
+const readyWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -35,42 +36,6 @@ const warehouseActionPagination = ref({
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
 
 const loading = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '' }]);
-const consumedRows = ref([
-  {
-    cutterRipeMaterialWarehouse: '',
-    quantity: '',
-    quantitySort2: '',
-    remainingSort1: '',
-    remainingSort2: '',
-    newRemainingSort1: '',
-    newRemainingSort2: '',
-    wasteSort1: '',
-    wasteSort2: '',
-    wasteRemainingSort1: '',
-    wasteRemainingSort2: ''
-  }
-]);
-function addRow() {
-  consumedRows.value.push({
-    cutterRipeMaterialWarehouse: '',
-    quantity: '',
-    quantitySort2: '',
-    remainingSort1: '',
-    remainingSort2: '',
-    newRemainingSort1: '',
-    newRemainingSort2: '',
-    wasteSort1: '',
-    wasteSort2: '',
-    wasteRemainingSort1: '',
-    wasteRemainingSort2: ''
-  });
-}
-function removeRow(index) {
-  if (this.consumedRows.length > 1) {
-    this.consumedRows.splice(index, 1);
-  }
-}
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -134,7 +99,7 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
-  props.name = 'cutterDefectiveWarehouse';
+  props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
@@ -146,7 +111,7 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = embroideryWarehouse.value;
+  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id']];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -157,25 +122,43 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
-function getEmbroideryWarehouse (filterProps) {
+function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
+      cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
     })
     .then(getWarehouseAction)
     .finally(() => loading.value = false)
 }
-function reportOrderAction() {
-  if (!selectedData.value.productModel['@id']) {
-    console.warn('data is empty');
-    return;
+function getReadyWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'embroideryReadyWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
+    .finally(() => loading.value = false)
+}
+function prefill() {
+  let sizes = [];
+  selectedData.value.productSize.forEach((size) => {
+    sizes.push({ size: size.size, quantity: '', productAccessories: size.productAccessories, max: size.quantity });
+  });
+  rows.value = sizes;
+}
+function defectAction() {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !cutterDefectiveWarehouse.value || !warehouse.value['@id']) {
+    console.warn('data not found');
+    return
   }
 
-  warehouseActionLoading.value = true;
+  loading.value = true;
 
   let productSize = [];
 
@@ -183,71 +166,100 @@ function reportOrderAction() {
     productSize.push({ size: product.size, quantity: product.quantity })
   })
 
-  let consumedMaterials = [];
-
-  consumedRows.value.forEach((row) => {
-    consumedMaterials.push({
-      cutterRipeMaterialWarehouse: row.cutterRipeMaterialWarehouse['@id'],
-      quantity: String(row.quantity) || '0',
-      quantitySort2: String(row.quantitySort2) || '0',
-      remainingSort1: String(row.remainingSort1) || '0',
-      remainingSort2: String(row.remainingSort2) || '0',
-      newRemainingSort1: String(row.newRemainingSort1) || '0',
-      newRemainingSort2: String(row.newRemainingSort2) || '0',
-      wasteSort1: String(row.wasteSort1) || '0',
-      wasteSort2: String(row.wasteSort2) || '0',
-      wasteRemainingSort1: String(row.wasteRemainingSort1) || '0',
-      wasteRemainingSort2: String(row.wasteRemainingSort2) || '0',
-    })
-  })
-
-  let input  = {
-    // productModelOrder: selectedData.value['@id'],
+  let input = {
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
-    outlayRipeMaterial: consumedMaterials,
-    createdBy: user.about['@id'],
+    fromWarehouse: warehouse.value['@id'],
+    toWarehouse: cutterDefectiveWarehouse.value,
+    sentBy: user.about['@id'],
     isDefective: true
-  }
+  };
 
-  useProductModelOrderCompleted().createReport(input)
+  useProductWarehouse().send(input)
     .then(() => {
-      showOrderReportModal.value = false;
+      showDefectModal.value = false;
       $q.notify({
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successCreated')
+        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch((res) => {
+      defectActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+      })
+    })
+    .finally(() => loading.value = false)
+}
+function reportAction() {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !readyWarehouse.value || !warehouse.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
+  loading.value = true;
+
+  let productSize = [];
+
+  rows.value.forEach((product) => {
+    productSize.push({ size: product.size, quantity: product.quantity })
+  })
+
+  let input = {
+    productModel: selectedData.value.productModel['@id'],
+    productSize: productSize,
+    fromWarehouse: warehouse.value['@id'],
+    toWarehouse: readyWarehouse.value,
+    sentBy: user.about['@id'],
+    isDefective: false,
+    isReady: true
+  };
+
+  useProductWarehouse().send(input)
+    .then(() => {
+      showReportModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
       refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
+
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => warehouseActionLoading.value = false);
+    .finally(() => loading.value = false)
 }
-
+function shouldShowAction(data) {
+  return !data.some(order => order.status === 'pending');
+}
 function clearAction() {
   selectedData.value = {};
-  rows.value = [{ size: '', quantity: '', max: '' }];
-}
-function prefill() {
-  let sizes = [];
-  selectedData.value.productSize.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', max: size.quantity });
-  });
-  rows.value = sizes;
+  defectActionErr.value = null;
+  reportActionErr.value = null;
+  rows.value = [{ size: '', quantity: '', productAccessories: [], max: '' }];
 }
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
+  getCutterDefectiveWarehouse();
+  getReadyWarehouse();
 }
 
 onMounted(() => {
@@ -292,15 +304,36 @@ onMounted(() => {
             <q-menu>
               <q-card>
                 <q-item
+                  v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
-                  class="text-orange"
+                  class="text-red"
                   clickable
-                  @click="selectedData = {...item}; prefill(); showOrderReportModal = true;"
+                  @click="selectedData = {...item}; prefill(); showDefectModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
                     <q-avatar
                       icon="mdi-cube-send"
-                      color="orange"
+                      color="red"
+                      class="text-white"
+                      size="md"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ $t('sendToCutterDefective') }}
+                  </q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item
+                  v-if="shouldShowAction(warehouseActions)"
+                  v-close-popup
+                  class="text-primary"
+                  clickable
+                  @click="selectedData = {...item}; prefill(); showReportModal = true;"
+                >
+                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                    <q-avatar
+                      icon="mdi-cube-send"
+                      color="primary"
                       class="text-white"
                       size="md"
                     />
@@ -320,7 +353,7 @@ onMounted(() => {
     :loading="loading || warehouseActionLoading"
   />
   <q-table
-    v-show="!loading || !warehouseActionLoading"
+    v-show="!loading && !warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -341,6 +374,9 @@ onMounted(() => {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'sentBy'">
             {{ props.row.sentBy.fullName }}
+          </div>
+          <div v-else-if="col.name === 'createdAt'">
+            {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'productModel'">
             {{ props.row.productModel.name }}
@@ -366,11 +402,11 @@ onMounted(() => {
             <div v-else-if="props.row.status === 'accepted'" class="text-green">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else class="text-orange">
+            <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
             </div>
           </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending'">
+          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
                 dense
@@ -407,6 +443,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >
@@ -422,18 +459,93 @@ onMounted(() => {
     />
   </div>
   <!-- Dialogs -->
-  <q-dialog v-model="showOrderReportModal" persistent>
+  <q-dialog v-model="showDefectModal" persistent>
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <q-form @submit.prevent="reportOrderAction">
+      <q-form @submit.prevent="defectAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="defectActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="defectActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ defectActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <div
+          v-for="(row, index) in rows" :key="index"
+          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
+        >
+          <q-input
+            filled
+            disable
+            v-model="row.size"
+            :label="$t('forms.modelOrder.fields.size.label')"
+            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            :prefix="`max: ${row.max}`"
+            type="number"
+            v-model.number="row.quantity"
+            :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
+            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            no-caps
+            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showReportModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="reportAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction()" />
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
         </div>
         <div v-if="reportActionErr">
           <q-separator color="white" />
@@ -448,189 +560,72 @@ onMounted(() => {
           </div>
           <q-separator color="white" />
         </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
         <div
           v-for="(row, index) in rows" :key="index"
           class="row q-px-md q-col-gutter-x-lg q-mb-lg"
         >
+          <!--          <q-list>-->
+          <!--            <q-item tag="label" v-ripple>-->
+          <!--              <q-item-section avatar>-->
+          <!--                <q-checkbox v-model="attaches" val="teal" color="teal" />-->
+          <!--              </q-item-section>-->
+          <!--              <q-item-section>-->
+          <!--                <q-item-label>Teal</q-item-label>-->
+          <!--              </q-item-section>-->
+          <!--            </q-item>-->
+
+          <!--            <q-item tag="label" v-ripple>-->
+          <!--              <q-item-section avatar>-->
+          <!--                <q-checkbox v-model="attaches" val="orange" color="orange" />-->
+          <!--              </q-item-section>-->
+          <!--              <q-item-section>-->
+          <!--                <q-item-label>Orange</q-item-label>-->
+          <!--                <q-item-label caption>With description</q-item-label>-->
+          <!--              </q-item-section>-->
+          <!--            </q-item>-->
+          <!--          </q-list>-->
           <q-input
             filled
             disable
             v-model="row.size"
             :label="$t('forms.modelOrder.fields.size.label')"
+            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
             filled
+            :prefix="`max: ${row.max}`"
             type="number"
-            :prefix="`max ${row.max}:`"
             v-model.number="row.quantity"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
-            :rules="[ val => val !== undefined && val > -1 && val <= row.max || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
-        </div>
-        <div class="q-pl-md text-subtitle1 text-primary">
-          {{ $t('forms.modelOrder.fields.expectedOutlayRipeMaterial.title') }}
-        </div>
-        <div
-          v-for="(row, index) in consumedRows" :key="index"
-          class="row q-px-md q-col-gutter-x-md q-col-gutter-y-md q-mb-lg"
-        >
-          <div
-            v-if="index"
-            class="flex items-center"
-          >
-            <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>
-          </div>
-          <selectable-list
-            v-model="row.cutterRipeMaterialWarehouse"
-            :label="$t('forms.modelOrder.fields.cutterRipeMaterialWarehouse.label')"
-            :store="cutterWarehouse"
-            fetch-method="getAll"
-            :item-label="{ label: 'ripeMaterial', path: 'name' }"
-            :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
-            class="col-12"
-          />
-          <!-- max quantity: model uchun necha kg ishlatildi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantity) > 0"
-            :prefix="`max: ${row.cutterRipeMaterialWarehouse.quantity} ${row.cutterRipeMaterialWarehouse.ripeMaterial.measurement}`"
-            v-model.number="row.quantity"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.consumedQuantity.label')"
-            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.quantity || $t('forms.modelOrder.fields.consumedQuantity.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- atxot wasteSort1: necha kg otxodga chiqdi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantity) > 0"
-            v-model.number="row.wasteSort1"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.wasteSort1.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteSort1.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <div v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort1) > 0" class="col-12">
-            <q-toggle v-model="selectedData.hasUsedOldRemaining" label="Did you use old remaining material?" />
-          </div>
-          <!-- eski qoldiqdan ishlatildi remainingSort1: 1 sort material qoldiqdan qancha ishlatildi? -->
-          <q-input
-            v-if="selectedData.hasUsedOldRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort1) > 0"
-            :prefix="`max: ${row.cutterRipeMaterialWarehouse.remainingSort1} ${row.cutterRipeMaterialWarehouse.ripeMaterial.measurement}`"
-            filled
-            type="number"
-            v-model.number="row.remainingSort1"
-            :label="$t('forms.modelOrder.fields.remainingSort1.label')"
-            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.remainingSort1 || $t('forms.modelOrder.fields.remainingSort1.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- wasteRemainingSort1: 1 sort material qoldiqdan necha kg otxodga chiqdi? -->
-          <q-input
-            v-if="selectedData.hasUsedOldRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort1) > 0"
-            v-model.number="row.wasteRemainingSort1"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.wasteRemainingSort1.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteRemainingSort1.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-
-          <!-- quantitySort2: model uchun necha kg ishlatildi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantitySort2) > 0"
-            filled
-            :prefix="`max: ${row.cutterRipeMaterialWarehouse.quantitySort2} ${row.cutterRipeMaterialWarehouse.ripeMaterial.measurement}`"
-            type="number"
-            v-model.number="row.quantitySort2"
-            :label="$t('forms.modelOrder.fields.quantitySort2.label')"
-            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.quantitySort2 || $t('forms.modelOrder.fields.quantitySort2.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- wasteSort2: necha kg otxodga chiqdi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantitySort2) > 0"
-            v-model.number="row.wasteSort2"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.wasteSort2.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteSort2.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- remainingSort2: 2 sort material qoldiqdan qancha ishlatildi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort2) > 0"
-            :prefix="`max: ${row.cutterRipeMaterialWarehouse.remainingSort2} ${row.cutterRipeMaterialWarehouse.ripeMaterial.measurement}`"
-            filled
-            type="number"
-            v-model.number="row.remainingSort2"
-            :label="$t('forms.modelOrder.fields.remainingSort2.label')"
-            :rules="[ val => val !== undefined && val >= 0 && val <= row.cutterRipeMaterialWarehouse.remainingSort2 || $t('forms.modelOrder.fields.remainingSort2.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- wasteRemainingSort2: 2 sort material qoldiqdan necha kg otxodga chiqdi? -->
-          <q-input
-            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort2) > 0"
-            v-model.number="row.wasteRemainingSort2"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.wasteRemainingSort2.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.wasteRemainingSort2.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-
-          <div class="col-12">
-            <q-toggle v-model="selectedData.hasNewRemaining" label="Left new remaining?" />
-          </div>
-          <!-- newRemainingSort1: yangi qoldiq qoldimi? -->
-          <q-input
-            v-if="selectedData.hasNewRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantity) > 0"
-            v-model.number="row.newRemainingSort1"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.newRemainingSort1.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.newRemainingSort1.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <!-- newRemainingSort2: yangi qoldiq qoldimi? -->
-          <q-input
-            v-if="selectedData.hasNewRemaining && selectedData.hasNewRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantitySort2) > 0"
-            v-model.number="row.newRemainingSort2"
-            filled
-            type="number"
-            :label="$t('forms.modelOrder.fields.newRemainingSort2.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.modelOrder.fields.newRemainingSort2.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-        </div>
-        <div class="text-right q-ma-md">
-          <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>
         </div>
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="warehouseActionLoading"
-            :loading="warehouseActionLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
-            :label="$t('forms.completedMaterialOrderReport.buttons.create')"
+            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
             color="primary"
           />
         </div>
-        <q-separator />
       </q-form>
     </div>
   </q-dialog>

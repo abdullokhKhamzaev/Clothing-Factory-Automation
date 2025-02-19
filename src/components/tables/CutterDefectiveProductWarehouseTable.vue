@@ -6,12 +6,16 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
+import {useProductInWarehouse} from "stores/productInWarehouse.js";
 
 const { t } = useI18n();
 const $q = useQuasar();
 const selectedData = ref({});
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
+const showUpdateModal = ref(false);
+const updateActionErr = ref(null);
 
 const warehouse = ref([]);
 const embroideryWarehouse = ref([]);
@@ -38,6 +42,7 @@ const columns = [
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const rows = ref([{ size: '', quantity: '', max: '' }]);
 
 function acceptAction () {
   warehouseActionLoading.value = true;
@@ -125,13 +130,64 @@ function getEmbroideryWarehouse (filterProps) {
     .then(getWarehouseAction)
     .finally(() => loading.value = false)
 }
+function updateAction() {
+  if (!selectedData.value.id) {
+    console.warn('data not found');
+    return
+  }
+
+  loading.value = true;
+
+  let productSize = [];
+
+  rows.value.forEach((product) => {
+    productSize.push({ size: product.size, quantity: product.quantity })
+  })
+
+  let input = {
+    productSize: productSize,
+  };
+
+  useProductInWarehouse().update(selectedData.value.id, input)
+    .then(() => {
+      showUpdateModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.warehouse.confirmation.successUpdated')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch((res) => {
+      updateActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.warehouse.confirmation.failure')
+      })
+    })
+    .finally(() => loading.value = false)
+}
 
 function clearAction() {
   selectedData.value = {};
+  updateActionErr.value = null;
+  rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
   getWarehouse();
   getEmbroideryWarehouse();
+}
+function prefill() {
+  let sizes = [];
+  selectedData.value.productSize.forEach((size) => {
+    sizes.push({ size: size.size, quantity: '', max: size.quantity });
+  });
+  rows.value = sizes;
 }
 
 onMounted(() => {
@@ -140,6 +196,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="q-my-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <q-list
     v-show="!loading"
     bordered
@@ -176,6 +235,7 @@ onMounted(() => {
                   v-close-popup
                   class="text-orange"
                   clickable
+                  @click="selectedData = {...item}; prefill(); showUpdateModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
                     <q-avatar
@@ -350,5 +410,76 @@ onMounted(() => {
         />
       </q-card-actions>
     </q-card>
+  </q-dialog>
+  <q-dialog v-model="showUpdateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="updateAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <div
+          v-for="(row, index) in rows" :key="index"
+          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
+        >
+          <q-input
+            filled
+            disable
+            v-model="row.size"
+            :label="$t('forms.modelOrder.fields.size.label')"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            type="number"
+            v-model.number="row.quantity"
+            :label="$t('forms.warehouse.fields.quantity.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.warehouse.fields.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            no-caps
+            :label="$t('forms.warehouse.buttons.update')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
   </q-dialog>
 </template>

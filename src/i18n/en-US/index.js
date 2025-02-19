@@ -88,6 +88,7 @@ export default {
   model: 'Model',
   employees: 'Employees',
   attendance: 'Attendance',
+  ready: 'Ready',
   roles: {
     ROLE_ADMIN: 'Admin',
     ROLE_USER: 'User',
@@ -172,6 +173,9 @@ export default {
     },
     salary: {
       bar: 'Pay Salary'
+    },
+    warehouse: {
+      barUpdate: 'Update Warehouse'
     },
     advance: {
       bar: 'Give Advance'
@@ -343,6 +347,23 @@ export default {
         successEdited: 'User was successfully edited.',
         successDeleted: 'User was successfully deleted.',
         failure: 'There was an error saving user.'
+      }
+    },
+    warehouse: {
+      fields: {
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+      },
+      buttons: {
+        update: 'Update'
+      },
+      confirmation: {
+        successUpdated: 'Warehouse was successfully updated.',
+        failure: 'There was an error saving warehouse.'
       }
     },
     advance: {

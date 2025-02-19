@@ -19,6 +19,13 @@ export function isCutter() {
   return false;
 }
 
+export function isEmbroiderer() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_EMBROIDERER');
+  }
+  return false;
+}
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
     next()
@@ -158,8 +165,19 @@ const routes = [
       },
       {
         path: 'embroidery',
-        name: 'club.embroidery',
-        component: () => import('pages/EmbroideryPage.vue')
+        component: () => import('pages/EmbroideryPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.embroidery.warehouse',
+            component: () => import('pages/embroidery/WarehousePage.vue')
+          },
+          {
+            path: 'ready',
+            name: 'club.embroidery.ready',
+            component: () => import('pages/embroidery/ReadyPage.vue')
+          },
+        ]
       },
       {
         path: 'sew',
@@ -352,6 +370,29 @@ const routes = [
             path: 'defects',
             name: 'club.cutter.defects',
             component: () => import('pages/role-cutter/DefectsPage.vue'),
+          },
+        ]
+      }
+    ]
+  },
+  {
+    path: '/embroiderer',
+    component: () => import('layouts/embroiderer/MainLayout.vue'),
+    beforeEnter: ifAuthorized || isEmbroiderer,
+    children: [
+      {
+        path: '',
+        component: () => import('pages/role-embroiderer/IndexPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.embroiderer.warehouse',
+            component: () => import('pages/role-embroiderer/WarehousePage.vue'),
+          },
+          {
+            path: 'ready',
+            name: 'club.embroiderer.ready',
+            component: () => import('pages/role-embroiderer/ReadyWarehousePage.vue'),
           },
         ]
       }

@@ -8,6 +8,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const user = useAbout();
 const { t } = useI18n();
@@ -184,7 +185,7 @@ function updateAction() {
         type: 'positive',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
+        message: t('forms.warehouse.confirmation.successUpdated')
       })
       clearAction();
       refresh();
@@ -196,7 +197,7 @@ function updateAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+        message: t('forms.warehouse.confirmation.failure')
       })
     })
     .finally(() => loading.value = false)
@@ -218,6 +219,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="q-my-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <q-list
     v-show="!loading"
     bordered
@@ -254,7 +258,6 @@ onMounted(() => {
                   v-close-popup
                   class="text-orange"
                   clickable
-                  showUpdateModal
                   @click="selectedData = {...item}; prefill(); showUpdateModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
@@ -461,7 +464,7 @@ onMounted(() => {
           class="q-px-md q-py-sm text-white flex justify-between"
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
-          <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
+          <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
           <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
         </div>
         <div v-if="updateActionErr">
@@ -495,17 +498,15 @@ onMounted(() => {
             disable
             v-model="row.size"
             :label="$t('forms.modelOrder.fields.size.label')"
-            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
           <q-input
             filled
-            :prefix="`max: ${row.max}`"
             type="number"
             v-model.number="row.quantity"
-            :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
-            :rules="[ val => val !== undefined && val >= 0 || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            :label="$t('forms.warehouse.fields.quantity.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.warehouse.fields.quantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -516,7 +517,7 @@ onMounted(() => {
             :disable="loading"
             :loading="loading"
             no-caps
-            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
+            :label="$t('forms.warehouse.buttons.update')"
             type="submit"
             color="primary"
           />

@@ -96,6 +96,7 @@
 
         <side-bar-link
           v-for="link in linksList"
+          menu-route="weaver"
           :key="link.title"
           v-bind="link"
         />
@@ -124,75 +125,10 @@ const router = useRouter();
 const leftDrawerOpen = ref(false)
 const linksList = [
   {
-    title: 'users',
-    icon: 'mdi-account-multiple',
-    to: { name: 'club.users.employees' }
-  },
-  {
-    title: 'weaving',
-    icon: 'mdi-store-cog',
-    to: { name: 'club.weave.orders' }
-  },
-  {
-    title: 'paint',
-    icon: 'mdi-palette-outline',
-    to: { name: 'club.paint.orders' }
-  },
-  {
-    title: 'cutting',
-    icon: 'mdi-scissors-cutting',
-    to: { name: 'club.cut.orders' }
-  },
-  {
-    title: 'embroidery',
-    icon: 'mdi-draw',
-    to: { name: 'club.embroidery.warehouse' }
-  },
-  {
-    title: 'sewing',
-    icon: 'mdi-nail',
-    to: { name: 'club.sew' }
-  },
-  {
-    title: 'package',
-    icon: 'mdi-package-down',
-    to: { name: 'club.packing' }
-  },
-  {
-    title: 'productWarehouse',
-    icon: 'mdi-warehouse',
-    to: { name: 'club.productWarehouse' }
-  },
-  {
-    title: 'customers',
-    icon: 'mdi-account-group',
-    to: { name: 'club.customers' }
-  },
-  {
-    title: 'sales',
-    icon: 'mdi-cart-percent',
-    to: { name: 'club.sales' }
-  },
-  {
-    title: 'warehouse',
-    icon: 'mdi-warehouse',
-    to: { name: 'club.warehouse.accessory' }
-  },
-  {
-    title: 'statistics',
-    icon: 'mdi-chart-bar-stacked',
-    to: { name: 'club.statistic' }
-  },
-  {
-    title: 'budget',
-    icon: 'mdi-bank-circle-outline',
-    to: { name: 'club.budget.transactions' }
-  },
-  {
-    title: 'settings',
-    icon: 'mdi-cog',
-    to: { name: 'club.setting.thread' }
-  },
+    title: 'orders',
+    icon: 'mdi-bell-alert-outline',
+    to: { name: 'club.embroiderer.warehouse' }
+  }
 ]
 
 function logout() {
