@@ -26,6 +26,18 @@ export const MEASUREMENTS = [
     value: 'piece'
   }
 ]
+
+export const TRANSACTION_REASONS = [
+  {
+    label: 'Electricity',
+    value: 'Electricity'
+  },
+  {
+    label: 'Repair',
+    value: 'Repair'
+  }
+]
+
 export const SECTION_TYPES = [
   // 'cutter', 'cutterService', 'embroidery', 'embroideryService', 'sewer', 'sewerService', 'packager', 'packagerService', 'warehouse'
   {

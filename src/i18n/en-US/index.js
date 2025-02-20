@@ -1,6 +1,7 @@
 export default {
   transaction: {
     balanceIncreased: 'The balance is filled',
+    balanceDecreased: 'The balance is decreased',
     threadPurchased: 'Thread purchased',
     accessoryPurchased: 'Accessory purchased',
     materialPurchased: 'Material purchased',
@@ -13,6 +14,10 @@ export default {
     payedCustomerAdvance: 'Payed advance for customer',
     payedCustomerSalary: 'Payed salary for customer',
     receivedSaleDebt: 'Received sale debt',
+    spend: {
+      Electricity: 'Electricity',
+      Repair: 'Repair',
+    },
   },
   paySalary: 'Pay salary',
   payAdvance: 'Pay advance',
@@ -349,6 +354,16 @@ export default {
         successEdited: 'User was successfully edited.',
         successDeleted: 'User was successfully deleted.',
         failure: 'There was an error saving user.'
+      }
+    },
+    budget: {
+      fields: {
+        reason: {
+          label: 'Spend for what?',
+          validation: {
+            required: 'Reason is required.',
+          }
+        },
       }
     },
     warehouse: {

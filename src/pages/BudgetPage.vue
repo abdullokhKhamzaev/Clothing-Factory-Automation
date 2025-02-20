@@ -2,7 +2,7 @@
 import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
-import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import { formatFloatToInteger, TRANSACTION_REASONS } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import RouteTabs from "components/RouteTabs.vue";
@@ -11,6 +11,7 @@ const $q = useQuasar();
 const { t } = useI18n();
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
+const showMinusModal = ref(false);
 const selectedData = ref({
   from: {
     label: "USD",
@@ -22,6 +23,8 @@ const selectedData = ref({
   }
 });
 const addQuantity = ref(0);
+const minusQuantity = ref(0);
+const reason = ref(null);
 
 const budget = useBudget();
 const budgets = ref([]);
@@ -46,7 +49,6 @@ function getBudgets () {
       loading.value = false;
     });
 }
-
 function updateSelectedData (property) {
   const oppositeProperty = property === 'from' ? 'to' : 'from';
   selectedData.value[property] = budgetOptions.value.filter(option => option.value !== selectedData.value[oppositeProperty].value)[0];
@@ -98,13 +100,12 @@ function addAction() {
   const input = {
     budget: selectedData.value['@id'],
     quantity: addQuantity.value,
-    description: 'balanceIncreased.',
+    description: 'balanceIncreased',
     isIncome: true
   }
 
   budget.add(input)
     .then(() => {
-      addQuantity.value = 0;
       showAddModal.value = false;
       $q.notify({
         type: 'positive',
@@ -112,6 +113,46 @@ function addAction() {
         timeout: 1000,
         message: "Add is done successfully!"
       });
+      clearAction();
+      getBudgets();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: "Error while adding"
+      })
+    })
+    .finally(() => {
+      loading.value = false;
+    })
+}
+function minusAction() {
+  if (!reason.value) {
+    console.log('data is not found');
+    return;
+  }
+
+  loading.value = true;
+
+  const input = {
+    budget: selectedData.value['@id'],
+    quantity: minusQuantity.value,
+    description: 'balanceDecreasedFor' + reason.value,
+    isIncome: false
+  }
+
+  budget.add(input)
+    .then(() => {
+      showMinusModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: "Add is done successfully!"
+      });
+      clearAction();
       getBudgets();
     })
     .catch(() => {
@@ -128,6 +169,21 @@ function addAction() {
 }
 function refresh () {
   getBudgets();
+}
+function clearAction() {
+  addQuantity.value = 0;
+  minusQuantity.value = 0;
+  reason.value = null;
+  selectedData.value = {
+    from: {
+      label: "USD",
+      value: '/api/budgets/2'
+    },
+    to: {
+      label: "SO'M",
+      value: '/api/budgets/1'
+    }
+  }
 }
 
 const router = useRouter();
@@ -182,7 +238,8 @@ onMounted(() => {
           <div>
             {{ budget.name }} {{ $t('balance') }}
           </div>
-          <div>
+          <div class="flex q-gutter-x-md">
+            <q-btn icon="mdi-cash-minus" round text-color="red" color="white" @click="showMinusModal = true; selectedData = budget" />
             <q-btn icon="mdi-cash-plus" round text-color="green" color="white" @click="showAddModal = true; selectedData = budget" />
           </div>
         </div>
@@ -226,7 +283,7 @@ onMounted(() => {
       <q-form @submit.prevent="convertAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('convert') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
@@ -244,7 +301,7 @@ onMounted(() => {
             :prefix="selectedData?.from?.label === 'USD' ? '$' : 'U'"
             :label="$t('quantity')"
             lazy-rules
-            :rules="[ val => val && val > 0 || '' ]"
+            :rules="[ val => val !== undefined && val > 0 || '' ]"
             class="col-12 col-md-6"
           />
 
@@ -290,7 +347,7 @@ onMounted(() => {
       <q-form @submit.prevent="addAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="addQuantity = 0" />
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
@@ -306,12 +363,63 @@ onMounted(() => {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
+            no-caps
             :disable="loading"
             :loading="loading"
             :label="$t('add')"
             type="submit"
-            color="primary"
+            color="green"
             icon-right="mdi-cash-plus"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
+  <q-dialog v-model="showMinusModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="minusAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('add') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+
+        <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
+          <q-input
+            type="number"
+            v-model.number="minusQuantity"
+            :label="$t('quantity')"
+            lazy-rules
+            :rules="[ val => val !== undefined && val > 0 || '' ]"
+            class="col-12"
+          />
+          <q-select
+            filled
+            required
+            emit-value
+            map-options
+            v-model="reason"
+            :options="TRANSACTION_REASONS"
+            :label="$t('forms.budget.fields.reason.label')"
+            option-value="value"
+            :option-label="option => $t('transaction.spend.'+option.label)"
+            :rules="[val => !!val || $t('forms.budget.fields.reason.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            no-caps
+            :disable="loading"
+            :loading="loading"
+            :label="$t('pay')"
+            type="submit"
+            color="red"
+            icon-right="mdi-cash-minus"
           />
         </div>
       </q-form>
