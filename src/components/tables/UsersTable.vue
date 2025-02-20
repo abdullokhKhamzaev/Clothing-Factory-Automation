@@ -71,6 +71,10 @@ function prefill () {
   if (selectedData?.value?.budget && selectedData.value.budget['@id']) {
     selectedData.value.budget = selectedData.value.budget['@id']
   }
+
+  if (selectedData?.value?.roles && selectedData.value.roles.length) {
+    selectedData.value.roles = selectedData.value.roles[0]
+  }
 }
 function createAction() {
   userLoading.value = true
@@ -82,7 +86,7 @@ function createAction() {
     salary: selectedData.value.salary,
     salaryType: selectedData.value.salaryType,
     budget: selectedData.value.budget,
-    roles: selectedData.value.roles,
+    roles: [selectedData.value.roles],
   }
 
   user.createUser(input)
@@ -143,7 +147,8 @@ function updateAction() {
         fullName: selectedData.value.fullName,
         salary: selectedData.value.salary,
         salaryType: selectedData.value.salaryType,
-        budget: selectedData.value.budget
+        budget: selectedData.value.budget,
+        roles: [selectedData.value.roles]
       }
 
       user.editUser(selectedData.value.id, input)
@@ -574,7 +579,6 @@ function exportTable(users) {
                 filled
                 emit-value
                 map-options
-                multiple
                 v-model="selectedData.roles"
                 :options="ROLES"
                 :label="$t('forms.user.fields.roles.label')"

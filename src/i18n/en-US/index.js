@@ -96,7 +96,9 @@ export default {
     ROLE_CUTTER: 'Cutter',
     ROLE_EMBROIDERER: 'Embroiderer',
     ROLE_SEWER: 'Sewer',
-    ROLE_PACKAGER: 'Packager'
+    ROLE_PACKAGER: 'Packager',
+    ROLE_MERCHANT: 'Merchant',
+    ROLE_SUPER_ADMIN: 'Super Admin'
   },
   statuses: {
     accepted: 'Accepted',

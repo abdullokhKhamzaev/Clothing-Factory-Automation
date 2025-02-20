@@ -5,6 +5,13 @@ export function isAdmin() {
   return false;
 }
 
+export function isSuperAdmin() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_SUPER_ADMIN');
+  }
+  return false;
+}
+
 export function isWeaver() {
   if (localStorage.getItem('accessToken')) {
     return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_WEAVER');
@@ -63,14 +70,9 @@ const routes = [
     beforeEnter: ifNotAuthorized
   },
   {
-    path: '/',
-    component: () => import('pages/HomePage.vue'),
-    beforeEnter: ifAuthorized
-  },
-  {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
-    beforeEnter: ifAuthorized,
+    beforeEnter: ifAuthorized && isAdmin,
     children: [
       {
         path: 'users',
@@ -353,7 +355,7 @@ const routes = [
   {
     path: '/weaver',
     component: () => import('layouts/weaver/MainLayout.vue'),
-    beforeEnter: ifAuthorized || isWeaver,
+    beforeEnter: ifAuthorized && isWeaver || isSuperAdmin,
     children: [
       {
         path: 'orders',
@@ -376,7 +378,7 @@ const routes = [
   {
     path: '/cutter',
     component: () => import('layouts/cutter/MainLayout.vue'),
-    beforeEnter: ifAuthorized || isCutter,
+    beforeEnter: ifAuthorized && isCutter || isSuperAdmin,
     children: [
       {
         path: 'orders',
@@ -414,7 +416,7 @@ const routes = [
   {
     path: '/embroiderer',
     component: () => import('layouts/embroiderer/MainLayout.vue'),
-    beforeEnter: ifAuthorized || isEmbroiderer,
+    beforeEnter: ifAuthorized && isEmbroiderer || isSuperAdmin,
     children: [
       {
         path: '',
@@ -437,7 +439,7 @@ const routes = [
   {
     path: '/sewer',
     component: () => import('layouts/sewer/MainLayout.vue'),
-    beforeEnter: ifAuthorized || isSewer,
+    beforeEnter: ifAuthorized && isSewer || isSuperAdmin,
     children: [
       {
         path: '',
@@ -460,7 +462,7 @@ const routes = [
   {
     path: '/packager',
     component: () => import('layouts/packager/MainLayout.vue'),
-    beforeEnter: ifAuthorized || isPackager,
+    beforeEnter: ifAuthorized && isPackager || isSuperAdmin,
     children: [
       {
         path: '',
