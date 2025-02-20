@@ -33,6 +33,13 @@ export function isSewer() {
   return false;
 }
 
+export function isPackager() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_PACKAGER');
+  }
+  return false;
+}
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
     next()
@@ -445,6 +452,29 @@ const routes = [
             path: 'ready',
             name: 'club.sewer.ready',
             component: () => import('pages/role-sewer/ReadyPage.vue'),
+          },
+        ]
+      }
+    ]
+  },
+  {
+    path: '/packager',
+    component: () => import('layouts/packager/MainLayout.vue'),
+    beforeEnter: ifAuthorized || isPackager,
+    children: [
+      {
+        path: '',
+        component: () => import('pages/role-packager/IndexPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.packager.warehouse',
+            component: () => import('pages/role-packager/WarehousePage.vue'),
+          },
+          {
+            path: 'ready',
+            name: 'club.packager.ready',
+            component: () => import('pages/role-packager/ReadyPage.vue'),
           },
         ]
       }

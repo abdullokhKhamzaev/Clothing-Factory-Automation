@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -203,6 +204,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="q-my-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <q-list
     v-show="!loading && !warehouseActionLoading"
     bordered
@@ -235,23 +239,6 @@ onMounted(() => {
           >
             <q-menu>
               <q-card>
-                <q-item
-                  v-close-popup
-                  class="text-orange"
-                  clickable
-                >
-                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
-                    <q-avatar
-                      icon="edit"
-                      color="orange"
-                      class="text-white"
-                      size="md"
-                    />
-                  </q-item-section>
-                  <q-item-section>
-                    {{ $t('edit') }}
-                  </q-item-section>
-                </q-item>
                 <q-item
                   v-if="shouldShowAction(warehouseActions)"
                   v-close-popup

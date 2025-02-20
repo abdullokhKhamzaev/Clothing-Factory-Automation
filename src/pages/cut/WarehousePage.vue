@@ -96,7 +96,6 @@ function getSewerWarehouse (filterProps) {
     })
     .finally(() => loading.value = false)
 }
-
 function clearAction() {
   selectedData.value = {};
   sendActionErr.value = null;
@@ -202,16 +201,16 @@ function updateAction() {
     })
     .finally(() => loading.value = false)
 }
-function refresh() {
-  getWarehouse();
-  getEmbroideryWarehouse();
-  getSewerWarehouse();
-}
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');
 }
 function hasEmbroidery(data) {
   return data.some(size => size.embroidery.length > 0);
+}
+function refresh() {
+  getWarehouse();
+  getEmbroideryWarehouse();
+  getSewerWarehouse();
 }
 onMounted(() => {
   refresh()

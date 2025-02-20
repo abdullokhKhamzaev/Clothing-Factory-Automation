@@ -446,7 +446,6 @@ function exportTable(users) {
             filled
             emit-value
             map-options
-            multiple
             v-model="selectedData.roles"
             :options="ROLES"
             :label="$t('forms.user.fields.roles.label')"
