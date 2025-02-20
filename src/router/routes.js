@@ -26,6 +26,13 @@ export function isEmbroiderer() {
   return false;
 }
 
+export function isSewer() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_SEWER');
+  }
+  return false;
+}
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
     next()
@@ -415,6 +422,29 @@ const routes = [
             path: 'ready',
             name: 'club.embroiderer.ready',
             component: () => import('pages/role-embroiderer/ReadyWarehousePage.vue'),
+          },
+        ]
+      }
+    ]
+  },
+  {
+    path: '/sewer',
+    component: () => import('layouts/sewer/MainLayout.vue'),
+    beforeEnter: ifAuthorized || isSewer,
+    children: [
+      {
+        path: '',
+        component: () => import('pages/role-sewer/IndexPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.sewer.warehouse',
+            component: () => import('pages/role-sewer/WarehousePage.vue'),
+          },
+          {
+            path: 'ready',
+            name: 'club.sewer.ready',
+            component: () => import('pages/role-sewer/ReadyPage.vue'),
           },
         ]
       }
