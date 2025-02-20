@@ -2,13 +2,34 @@
 import { reactive, ref } from "vue";
 import { useAuth } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
+import { isAdmin, isCutter, isEmbroiderer, isPackager, isSewer, isWeaver } from "src/router/routes.js";
+import {useAbout} from "stores/user/about.js";
 
 const router = useRouter();
+
 let isLoading = ref(false);
 const authorization = reactive({
   phone: '',
   password: ''
 })
+
+function redirectUserByRole() {
+  if (isAdmin()) {
+    router.push({name: 'club.users.employees'});
+  } else if (isWeaver()) {
+    router.push({name: 'club.weaver.orders'});
+  } else if (isCutter()) {
+    router.push({name: 'club.cutter.orders'});
+  } else if (isEmbroiderer()) {
+    router.push({name: 'club.embroiderer.warehouse'});
+  } else if (isSewer()) {
+    router.push({name: 'club.sewer.warehouse'});
+  } else if (isPackager()) {
+    router.push({name: 'club.packager.warehouse'});
+  } else {
+    router.push('/');
+  }
+}
 
 function auth() {
   isLoading.value = true;
@@ -16,7 +37,8 @@ function auth() {
     .then((res) => {
       localStorage.setItem('accessToken', res.data.accessToken)
       localStorage.setItem('refreshToken', res.data.refreshToken)
-      router.push('/');
+      useAbout().fetchAbout();
+      redirectUserByRole();
     })
     .catch((err) => {
       console.log(err);
