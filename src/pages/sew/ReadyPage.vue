@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -202,6 +203,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="q-mb-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <q-list
     v-show="!loading && !warehouseActionLoading"
     bordered
