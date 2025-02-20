@@ -1,36 +1,31 @@
 <script setup>
-import { ref} from "vue";
-import { useQuasar } from "quasar";
-import SewingProductWarehouseTable from "components/tables/SewingProductWarehouseTable.vue";
-import SewingReadyProductWarehouseTable from "components/tables/SewingReadyProductWarehouseTable.vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import RouteTabs from "components/RouteTabs.vue";
 
-const $q = useQuasar();
-const tab = ref('warehouse');
+const { t } = useI18n();
+const router = useRouter();
+const routes = computed(() => {
+  return [
+    {
+      label: t('warehouse'),
+      value: router.resolve( { name: 'club.sew.warehouse' } )
+    },
+    {
+      label: t('ready'),
+      value: router.resolve( { name: 'club.sew.ready' } )
+    },
+  ];
+})
 </script>
 
 <template>
   <div>
-    <q-tabs
-      v-model="tab"
-      no-caps
-      dense
-      outside-arrows
-      mobile-arrows
-      class="shadow-2 text-primary"
-      :class="$q.screen.xs ? 'full-width' : ''"
-    >
-      <q-tab name="warehouse" :label="$t('warehouse')"/>
-      <q-tab name="sewerReadyWarehouse" :label="$t('warehouses.sewerReadyWarehouse')"/>
-    </q-tabs>
-  </div>
-  <div class="q-py-md">
-    <q-tab-panels v-model="tab" animated>
-      <q-tab-panel name="warehouse" class="q-pa-none">
-        <sewing-product-warehouse-table />
-      </q-tab-panel>
-      <q-tab-panel name="sewerReadyWarehouse" class="q-pa-none">
-        <sewing-ready-product-warehouse-table />
-      </q-tab-panel>
-    </q-tab-panels>
+    <route-tabs
+      :routes="routes"
+      class="q-mb-md"
+    />
+    <router-view />
   </div>
 </template>

@@ -94,7 +94,7 @@ function getWarehouse (filterProps) {
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
     })
-    .then(() => getWarehouseAction())
+    .then(getWarehouseAction)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};

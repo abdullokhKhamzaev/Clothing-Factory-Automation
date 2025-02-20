@@ -101,6 +101,19 @@ function getWarehouse (filterProps) {
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
     })
+    .then(getSendingWarehouse)
+}
+function getSendingWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'sewerWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
+    .then(getWarehouseAction)
+    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -117,18 +130,6 @@ function getWarehouseAction (filterProps) {
     .finally(() => {
       warehouseActionLoading.value = false;
     });
-}
-function getSendingWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  props.name = 'sewerWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function prefill() {
   let sizes = [];
@@ -192,7 +193,6 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
-  getSendingWarehouse();
 }
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');

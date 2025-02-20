@@ -103,22 +103,19 @@ function getWarehouse (filterProps) {
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
     })
+    .then(getReadyWarehouse)
 }
-function getWarehouseAction (filterProps) {
+function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
-  warehouseActionLoading.value = true;
+  props.name = 'packagerReadyWarehouse';
 
-  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id']];
-
-  useProductWarehouse().getAll(props || '')
+  useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
-      warehouseActions.value = res.data['hydra:member'];
-      warehouseActionTotal.value = res.data['hydra:totalItems'];
+      readyWarehouse.value = res.data['hydra:member'][0]['@id'];
     })
-    .finally(() => {
-      warehouseActionLoading.value = false;
-    });
+    .then(getCutterDefectiveWarehouse)
+    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
@@ -132,16 +129,21 @@ function getCutterDefectiveWarehouse (filterProps) {
     .then(getWarehouseAction)
     .finally(() => loading.value = false)
 }
-function getReadyWarehouse (filterProps) {
+function getWarehouseAction (filterProps) {
   let props = filterProps || {};
 
-  props.name = 'packagerReadyWarehouse';
+  warehouseActionLoading.value = true;
 
-  useWarehouse().fetchWarehouses(props || '')
+  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id'], readyWarehouse.value];
+
+  useProductWarehouse().getAll(props || '')
     .then((res) => {
-      readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      warehouseActions.value = res.data['hydra:member'];
+      warehouseActionTotal.value = res.data['hydra:totalItems'];
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+    });
 }
 function prefill() {
   let sizes = [];
@@ -256,8 +258,6 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
-  getCutterDefectiveWarehouse();
-  getReadyWarehouse();
 }
 
 onMounted(() => {

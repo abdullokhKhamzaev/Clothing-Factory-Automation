@@ -151,12 +151,12 @@ const linksList = [
   {
     title: 'sewing',
     icon: 'mdi-nail',
-    to: { name: 'club.sew' }
+    to: { name: 'club.sew.warehouse' }
   },
   {
     title: 'package',
     icon: 'mdi-package-down',
-    to: { name: 'club.packing' }
+    to: { name: 'club.package.warehouse' }
   },
   {
     title: 'productWarehouse',

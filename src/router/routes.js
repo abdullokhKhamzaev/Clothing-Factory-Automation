@@ -56,7 +56,6 @@ const routes = [
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
-    name: 'club.home',
     beforeEnter: ifAuthorized,
     children: [
       {
@@ -181,13 +180,36 @@ const routes = [
       },
       {
         path: 'sew',
-        name: 'club.sew',
-        component: () => import('pages/SewPage.vue')
+        component: () => import('pages/SewPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.sew.warehouse',
+            component: () => import('pages/sew/WarehousePage.vue')
+          },
+          {
+            path: 'ready',
+            name: 'club.sew.ready',
+            component: () => import('pages/sew/ReadyPage.vue')
+          },
+        ]
       },
       {
         path: 'packing',
         name: 'club.packing',
-        component: () => import('pages/PackingPage.vue')
+        component: () => import('pages/PackingPage.vue'),
+        children: [
+          {
+            path: 'warehouse',
+            name: 'club.package.warehouse',
+            component: () => import('pages/package/WarehousePage.vue')
+          },
+          {
+            path: 'ready',
+            name: 'club.package.ready',
+            component: () => import('pages/package/ReadyPage.vue')
+          },
+        ]
       },
       {
         path: 'product-warehouse',

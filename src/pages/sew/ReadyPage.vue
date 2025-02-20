@@ -7,18 +7,18 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
-import RefreshButton from "components/RefreshButton.vue";
 
-const user = useAbout();
 const { t } = useI18n();
 const $q = useQuasar();
+const user = useAbout();
 const selectedData = ref({});
-const showSendModal = ref(false);
 const sendActionErr = ref(false);
-
-const warehouse = ref({});
-const embroideryWarehouse = ref([]);
-const sewerWarehouse = ref([]);
+const showAcceptModal = ref(false);
+const showRejectModal = ref(false);
+const showSendModal = ref(false);
+const rows = ref([{ size: '', quantity: '', max: '' }]);
+const warehouse = ref([]);
+const sendingWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -31,7 +31,6 @@ const warehouseActionPagination = ref({
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
 
 const loading = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '' }]);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -44,23 +43,83 @@ const columns = [
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
+function acceptAction () {
+  warehouseActionLoading.value = true;
+  useProductWarehouse().accept(selectedData.value.id)
+    .then(() => {
+      showAcceptModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+      })
+    })
+    .finally(() => warehouseActionLoading.value = false)
+}
+function rejectAction () {
+  warehouseActionLoading.value = true;
+  useProductWarehouse().reject(selectedData.value.id)
+    .then(() => {
+      showRejectModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+      })
+    })
+    .finally(() => warehouseActionLoading.value = false)
+}
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
-  props.name = 'cutterWarehouse';
+  props.name = 'sewerReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
-      getWarehouseAction();
     })
+    .then(getSendingWarehouse)
+}
+function getSendingWarehouse (filterProps) {
+  let props = filterProps || {};
+
+  props.name = 'packagerWarehouse';
+
+  useWarehouse().fetchWarehouses(props || '')
+    .then((res) => {
+      sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
+    })
+    .then(getWarehouseAction)
+    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
 
   warehouseActionLoading.value = true;
 
-  props.fromWarehouse = warehouse.value['@id'];
+  props.toWarehouses = [sendingWarehouse.value, warehouse.value['@id']];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -71,34 +130,6 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
-function getEmbroideryWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  props.name = 'embroideryWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .finally(() => loading.value = false)
-}
-function getSewerWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  props.name = 'sewerWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      sewerWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .finally(() => loading.value = false)
-}
-
-function clearAction() {
-  selectedData.value = {};
-  sendActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', max: '' }];
-}
 function prefill() {
   let sizes = [];
   selectedData.value.productSize.forEach((size) => {
@@ -107,7 +138,7 @@ function prefill() {
   rows.value = sizes;
 }
 function sendAction() {
-  if (!user.about['@id'] || !selectedData.value['@id'] || !embroideryWarehouse.value || !warehouse.value['@id']) {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !sendingWarehouse.value || !warehouse.value['@id']) {
     console.warn('data not found');
     return
   }
@@ -124,13 +155,10 @@ function sendAction() {
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
     fromWarehouse: warehouse.value['@id'],
-    toWarehouse: embroideryWarehouse.value,
-    sentBy: user.about['@id']
+    toWarehouse: sendingWarehouse.value,
+    sentBy: user.about['@id'],
+    isDefective: true
   };
-
-  if (!hasEmbroidery(selectedData.value.productModel.sizes)) {
-    input.toWarehouse = sewerWarehouse.value;
-  }
 
   useProductWarehouse().send(input)
     .then(() => {
@@ -156,28 +184,26 @@ function sendAction() {
     })
     .finally(() => loading.value = false)
 }
+function clearAction() {
+  selectedData.value = {};
+  sendActionErr.value = null;
+  rows.value = [{ size: '', quantity: '', max: '' }];
+}
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
-  getSewerWarehouse();
 }
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');
 }
-function hasEmbroidery(data) {
-  return data.some(size => size.embroidery.length > 0);
-}
+
 onMounted(() => {
   refresh()
 })
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
-    <refresh-button :action="refresh" />
-  </div>
   <q-list
-    v-show="!loading"
+    v-show="!loading && !warehouseActionLoading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -209,25 +235,39 @@ onMounted(() => {
             <q-menu>
               <q-card>
                 <q-item
+                  v-close-popup
+                  class="text-orange"
+                  clickable
+                >
+                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
+                    <q-avatar
+                      icon="edit"
+                      color="orange"
+                      class="text-white"
+                      size="md"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ $t('edit') }}
+                  </q-item-section>
+                </q-item>
+                <q-item
                   v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
-                  class="text-primary"
+                  class="text-red"
                   clickable
                   @click="selectedData = {...item}; prefill(); showSendModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
                     <q-avatar
                       icon="mdi-cube-send"
-                      color="primary"
+                      color="red"
                       class="text-white"
                       size="md"
                     />
                   </q-item-section>
-                  <q-item-section v-if="hasEmbroidery(item.productModel.sizes)">
-                    {{ $t('sendToEmbroidery') }}
-                  </q-item-section>
-                  <q-item-section v-else>
-                    {{ $t('sendToSewerWarehouse') }}
+                  <q-item-section>
+                    {{ $t('sendToPackageWarehouse') }}
                   </q-item-section>
                 </q-item>
               </q-card>
@@ -241,7 +281,7 @@ onMounted(() => {
     :loading="loading || warehouseActionLoading"
   />
   <q-table
-    v-show="!loading || !warehouseActionLoading"
+    v-show="!loading && !warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -290,8 +330,37 @@ onMounted(() => {
             <div v-else-if="props.row.status === 'accepted'" class="text-green">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else class="text-orange">
+            <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
+            </div>
+          </div>
+          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
+            <div class="flex no-wrap q-gutter-x-sm">
+              <q-btn
+                dense
+                no-caps
+                no-wrap
+                color="green"
+                icon-right="mdi-check"
+                @click="selectedData = {...props.row}; showAcceptModal = true;"
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('accept') }}
+                </q-tooltip>
+              </q-btn>
+              <q-btn
+                dense
+                no-caps
+                no-wrap
+                size="md"
+                color="red"
+                icon-right="mdi-cancel"
+                @click="selectedData = {...props.row}; showRejectModal = true;"
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('reject') }}
+                </q-tooltip>
+              </q-btn>
             </div>
           </div>
           <div v-else>
@@ -302,6 +371,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >
@@ -348,6 +418,8 @@ onMounted(() => {
             disable
             v-model="selectedData.productModel.name"
             filled
+            lazy-rules
+            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -371,7 +443,7 @@ onMounted(() => {
             type="number"
             v-model.number="row.quantity"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
-            :rules="[ val => val !== undefined && val >= 0 && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
+            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
             class="col-12 col-md-6"
             hide-bottom-space
           />
@@ -389,5 +461,51 @@ onMounted(() => {
         </div>
       </q-form>
     </div>
+  </q-dialog>
+  <q-dialog v-model="showAcceptModal" persistent>
+    <q-card>
+      <q-card-section class="row q-pb-none">
+        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
+      </q-card-section>
+
+      <q-card-section>
+        {{ $t('dialogs.accept.info') }}
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-px-md q-mb-sm">
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn
+          :disable="loading || warehouseActionLoading"
+          :loading="loading || warehouseActionLoading"
+          no-caps
+          :label="$t('dialogs.accept.buttons.accept')"
+          color="green"
+          @click="acceptAction();"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showRejectModal" persistent>
+    <q-card>
+      <q-card-section class="row q-pb-none">
+        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
+      </q-card-section>
+
+      <q-card-section>
+        {{ $t('dialogs.reject.info') }}
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-px-md q-mb-sm">
+        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn
+          :disable="loading || warehouseActionLoading"
+          :loading="loading || warehouseActionLoading"
+          no-caps
+          :label="$t('dialogs.reject.buttons.reject')"
+          color="red"
+          @click="rejectAction()"
+        />
+      </q-card-actions>
+    </q-card>
   </q-dialog>
 </template>
