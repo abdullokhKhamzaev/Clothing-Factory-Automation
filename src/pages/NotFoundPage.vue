@@ -42,7 +42,7 @@ function redirectUserByRole() {
   } else if (isPackager()) {
     router.push({name: 'club.packager.warehouse'});
   } else {
-    router.push('/');
+    router.push('/login');
   }
 }
 </script>

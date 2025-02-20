@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
+import { useProductInWarehouse } from "stores/productInWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
@@ -19,8 +20,9 @@ const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const showDefectModal = ref(false);
 const showReportModal = ref(false);
+const showUpdateModal = ref(false);
+const updateActionErr = ref(null);
 const rows = ref([{ size: '', quantity: '', max: '', productAccessories: [] }]);
-// const attaches = ref([])
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref([]);
 const readyWarehouse = ref([]);
@@ -154,6 +156,48 @@ function prefill() {
   });
   rows.value = sizes;
 }
+function updateAction() {
+  if (!selectedData.value.id) {
+    console.warn('data not found');
+    return
+  }
+
+  loading.value = true;
+
+  let productSize = [];
+
+  rows.value.forEach((product) => {
+    productSize.push({ size: product.size, quantity: product.quantity })
+  })
+
+  let input = {
+    productSize: productSize,
+  };
+
+  useProductInWarehouse().update(selectedData.value.id, input)
+    .then(() => {
+      showUpdateModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.warehouse.confirmation.successUpdated')
+      })
+      clearAction();
+      refresh();
+    })
+    .catch((res) => {
+      updateActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.warehouse.confirmation.failure')
+      })
+    })
+    .finally(() => loading.value = false)
+}
 function defectAction() {
   if (!user.about['@id'] || !selectedData.value['@id'] || !cutterDefectiveWarehouse.value || !warehouse.value['@id']) {
     console.warn('data not found');
@@ -256,6 +300,7 @@ function clearAction() {
   selectedData.value = {};
   defectActionErr.value = null;
   reportActionErr.value = null;
+  updateActionErr.value = null;
   rows.value = [{ size: '', quantity: '', productAccessories: [], max: '' }];
 }
 function refresh() {
@@ -307,6 +352,7 @@ onMounted(() => {
                   v-close-popup
                   class="text-orange"
                   clickable
+                  @click="selectedData = {...item}; prefill(); showUpdateModal = true;"
                 >
                   <q-item-section avatar class="q-pr-md" style="min-width: auto">
                     <q-avatar
@@ -691,5 +737,76 @@ onMounted(() => {
         />
       </q-card-actions>
     </q-card>
+  </q-dialog>
+  <q-dialog v-model="showUpdateModal" persistent>
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="updateAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+        </div>
+        <div v-if="updateActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ updateActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <q-input
+            disable
+            v-model="selectedData.productModel.name"
+            filled
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <div
+          v-for="(row, index) in rows" :key="index"
+          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
+        >
+          <q-input
+            filled
+            disable
+            v-model="row.size"
+            :label="$t('forms.modelOrder.fields.size.label')"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            type="number"
+            v-model.number="row.quantity"
+            :label="$t('forms.warehouse.fields.quantity.label')"
+            :rules="[ val => val !== undefined && val >= 0 || $t('forms.warehouse.fields.quantity.validation.required')]"
+            class="col-12 col-md-6"
+            hide-bottom-space
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="loading"
+            :loading="loading"
+            no-caps
+            :label="$t('forms.warehouse.buttons.update')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
   </q-dialog>
 </template>
