@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
@@ -31,23 +31,20 @@ const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const order = useUnripeMaterialOrder();
+const thread = useThread();
 const unripeMaterial = useMaterial();
-const threads = ref([]);
 
 const selectedData = ref({});
 const whichSort = ref(null);
 const orderLoading = ref(false);
-const threadLoading = ref(false);
 const rows = ref([
   { thread: '', quantity: '' }
 ])
 
 const showOrderCreateModal = ref(false);
 const showOrderFinishModal = ref(false);
-// const showOrderEditModal = ref(false);
 const showOrderDeleteModal = ref(false);
 const createOrderErr = ref(null);
-// const editOrderErr = ref(null);
 
 const columns = [
   { name: 'id', label: t('tables.unripeMaterialOrder.columns.id'), align: 'left', field: 'id' },
@@ -69,22 +66,11 @@ const columns = [
 function getOrders () {
   emit('submit');
 }
-function getThreads () {
-  threadLoading.value = true;
-  useThread().fetchThreads('')
-    .then((res) => {
-      threads.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      threadLoading.value = false;
-    });
-}
 function clearAction() {
   selectedData.value = {};
   rows.value = [{ thread: '', quantity: '' }];
   whichSort.value = null;
   createOrderErr.value = null;
-  // editOrderErr.value = null;
 }
 function createOrderAction() {
   orderLoading.value = true;
@@ -92,8 +78,10 @@ function createOrderAction() {
   let expectedData = [];
 
   rows.value.forEach((row) => {
-    expectedData.push({thread: row.thread.value, quantity: row.quantity})
+    expectedData.push({thread: row.thread, quantity: row.quantity})
   })
+
+  console.log(expectedData);
 
   const input = {
     quantity: selectedData.value.quantity,
@@ -192,24 +180,6 @@ function removeRow(index) {
     this.rows.splice(index, 1);
   }
 }
-const threadOptions = computed(() => {
-  let options = [];
-  for (let i in threads.value) {
-    options.push({
-      label: threads.value[i].name,
-      value: threads.value[i]['@id']
-    });
-  }
-  return options
-})
-
-const filteredThreadOptions = computed(() => {
-  const selectedThreads = rows.value.map(row => row.thread.value);
-  return threadOptions.value.filter(option => !selectedThreads.includes(option.value))
-});
-onMounted(() => {
-  getThreads();
-})
 </script>
 
 <template>
@@ -382,18 +352,15 @@ onMounted(() => {
           >
             <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>
           </div>
-          <q-select
+          <selectable-list
             v-model="row.thread"
-            filled
-            map-options
-            :loading="threadLoading"
-            :options="filteredThreadOptions"
             :label="$t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.thread.label')"
-            option-value="value"
-            option-label="label"
+            :store="thread"
+            fetch-method="fetchThreads"
+            item-value="@id"
+            item-label="name"
             :rules="[val => !!val || $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.thread.validation.required')]"
             class="col"
-            hide-bottom-space
           />
           <q-input
             filled
@@ -423,106 +390,6 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-<!--  <q-dialog v-model="showOrderEditModal" persistent>-->
-<!--    <div-->
-<!--      class="bg-white shadow-3"-->
-<!--      style="width: 900px; max-width: 80vw;"-->
-<!--    >-->
-<!--      <q-form @submit.prevent="editOrderAction">-->
-<!--        <div-->
-<!--          class="q-px-md q-py-sm text-white flex justify-between"-->
-<!--          :class="editOrderErr ? 'bg-red' : 'bg-primary q-mb-lg'"-->
-<!--        >-->
-<!--          <div class="text-h6"> {{ $t('dialogs.unripeMaterialOrder.barEdit') }}</div>-->
-<!--          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>-->
-<!--        </div>-->
-<!--        <div v-if="editOrderErr">-->
-<!--          <q-separator color="white"/>-->
-<!--          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">-->
-<!--            <q-icon-->
-<!--              class="q-mr-sm"-->
-<!--              name="mdi-alert-circle-outline"-->
-<!--              size="md"-->
-<!--              color="white"-->
-<!--            />-->
-<!--            {{ editOrderErr }}-->
-<!--          </div>-->
-<!--          <q-separator color="white"/>-->
-<!--        </div>-->
-<!--        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">-->
-<!--          <q-select-->
-<!--            v-model="selectedData.material"-->
-<!--            filled-->
-<!--            emit-value-->
-<!--            map-options-->
-<!--            :loading="materialLoading"-->
-<!--            :options="materialOptions"-->
-<!--            :label="$t('forms.unripeMaterialOrder.fields.material.label')"-->
-<!--            option-value="value"-->
-<!--            option-label="label"-->
-<!--            :rules="[val => !!val || $t('forms.threadPurchase.fields.thread.validation.required')]"-->
-<!--            class="col-12"-->
-<!--            hide-bottom-space-->
-<!--          />-->
-<!--          <q-input-->
-<!--            filled-->
-<!--            type="number"-->
-<!--            v-model="selectedData.quantity"-->
-<!--            :label="$t('forms.unripeMaterialOrder.fields.quantity.label')"-->
-<!--            :rules="[ val => val && val > -1 || $t('forms.unripeMaterialOrder.fields.quantity.validation.required')]"-->
-<!--            class="col-12"-->
-<!--            hide-bottom-space-->
-<!--          />-->
-<!--        </div>-->
-
-<!--        <div class="q-pl-md text-subtitle1 text-primary">-->
-<!--          {{ $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.title') }}:-->
-<!--        </div>-->
-<!--        <q-separator class="q-mb-md"/>-->
-<!--        <div-->
-<!--          v-for="(row, index) in rows" :key="index"-->
-<!--          class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg"-->
-<!--        >-->
-<!--          <div-->
-<!--            v-if="index"-->
-<!--            class="flex items-center"-->
-<!--          >-->
-<!--            <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>-->
-<!--          </div>-->
-<!--          <q-select-->
-<!--            v-model="row.thread"-->
-<!--            filled-->
-<!--            map-options-->
-<!--            :loading="threadLoading"-->
-<!--            :options="filteredThreadOptions"-->
-<!--            :label="$t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.thread.label')"-->
-<!--            option-value="value"-->
-<!--            option-label="label"-->
-<!--            :rules="[val => !!val || $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.thread.validation.required')]"-->
-<!--            class="col"-->
-<!--            hide-bottom-space-->
-<!--          />-->
-<!--          <q-input-->
-<!--            filled-->
-<!--            type="number"-->
-<!--            v-model="row.quantity"-->
-<!--            :label="$t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.quantity.label')"-->
-<!--            :rules="[ val => val && val > -1 || $t('forms.unripeMaterialOrder.fields.expectedConsumeDtos.quantity.validation.required')]"-->
-<!--            class="col"-->
-<!--            hide-bottom-space-->
-<!--          />-->
-<!--        </div>-->
-<!--        <div class="text-right q-ma-md">-->
-<!--          <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>-->
-<!--        </div>-->
-<!--        <q-separator/>-->
-<!--        <div class="q-px-md q-py-sm text-center">-->
-<!--          <q-btn no-caps :label="$t('forms.unripeMaterialOrder.buttons.edit')" type="submit" color="primary"/>-->
-<!--        </div>-->
-<!--        <q-separator/>-->
-<!--      </q-form>-->
-<!--    </div>-->
-<!--  </q-dialog>-->
   <q-dialog v-model="showOrderDeleteModal" persistent>
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">

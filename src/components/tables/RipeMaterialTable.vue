@@ -212,12 +212,8 @@ function prefill () {
             </div>
           </div>
 
-          <div
-            v-else-if="col.name === 'paintFabricColor'"
-            class="flex no-wrap q-gutter-sm"
-          >
-            <span> {{ props.row.quantity }} </span>
-            <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
+          <div v-else-if="col.name === 'paintFabricColor'">
+            {{ props.row.paintFabricColor.name }}
           </div>
 
           <div

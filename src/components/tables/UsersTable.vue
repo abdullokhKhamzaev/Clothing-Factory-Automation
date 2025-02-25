@@ -48,10 +48,11 @@ const selectedData = ref({});
 const userLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salary', 'budget', 'roles' ]);
+const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salaryType', 'salary', 'budget', 'roles' ]);
 const columns = [
   { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'salaryType', label: t('tables.users.columns.salaryType'), align: 'left', field: 'salaryType' },
   { name: 'salary', label: t('tables.users.columns.salary'), align: 'left', field: 'salary' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
@@ -342,7 +343,11 @@ function exportTable(users) {
             {{ props.row.fullName }}
           </div>
 
-          <div v-else-if="col.name === 'salary'">
+          <div v-else-if="col.name === 'salaryType'">
+            {{ t(props.row.salaryType) || '-' }}
+          </div>
+
+          <div v-else-if="col.name === 'salary' && props.row.salary">
             {{ formatFloatToInteger(props.row.salary) === '0' ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
           </div>
 

@@ -344,7 +344,6 @@ function prefill () {
         >
           <selectable-list
             v-model="row.thread"
-            :disable="true"
             :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.thread.label')"
             :store="thread"
             fetch-method="fetchThreads"

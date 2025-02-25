@@ -421,6 +421,21 @@ function clearAction() {
             hide-bottom-space
           />
           <q-select
+            clearable
+            filled
+            required
+            emit-value
+            map-options
+            v-model="selectedData.type"
+            :options="SECTION_TYPES"
+            :label="$t('forms.accessory.fields.type.label')"
+            option-value="value"
+            :option-label="option => $t(option.label)"
+            :rules="[val => !!val || $t('forms.accessory.fields.type.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+          <q-select
             filled
             required
             emit-value

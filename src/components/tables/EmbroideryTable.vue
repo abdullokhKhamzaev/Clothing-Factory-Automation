@@ -58,34 +58,60 @@ function createAction () {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  useAddFile().addFile(file.value)
-    .then((res) => {
-      selectedData.value.image = res.data['@id']
+  if ( file.value ) {
+    useAddFile().addFile(file.value)
+      .then((res) => {
+        selectedData.value.image = res.data['@id']
 
-      embroidery.create(selectedData.value)
-        .then(() => {
-          showCreateModal.value = false;
-          $q.notify({
-            type: 'positive',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.embroidery.confirmation.successCreated')
+        embroidery.create(selectedData.value)
+          .then(() => {
+            showCreateModal.value = false;
+            $q.notify({
+              type: 'positive',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.embroidery.confirmation.successCreated')
+            })
+            clearAction();
+            getEmbroideries();
           })
-          clearAction();
-          getEmbroideries();
-        })
-        .catch((res) => {
-          createActionErr.value = res.response.data['hydra:description'];
+          .catch((res) => {
+            createActionErr.value = res.response.data['hydra:description'];
 
-          $q.notify({
-            type: 'negative',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.embroidery.confirmation.failure')
+            $q.notify({
+              type: 'negative',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.embroidery.confirmation.failure')
+            })
           })
+          .finally(() => embroideryLoading.value = false);
+      })
+  } else {
+    embroidery.create(selectedData.value)
+      .then(() => {
+        showCreateModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.embroidery.confirmation.successCreated')
         })
-        .finally(() => embroideryLoading.value = false);
-    })
+        clearAction();
+        getEmbroideries();
+      })
+      .catch((res) => {
+        createActionErr.value = res.response.data['hydra:description'];
+
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.embroidery.confirmation.failure')
+        })
+      })
+      .finally(() => embroideryLoading.value = false);
+  }
 }
 function updateAction() {
   if (selectedData.value.id) {
