@@ -6,7 +6,7 @@
       </div>
 
       <div class="text-h2" style="opacity:.4">
-        Oops. Nothing here...
+        Упс. Хэчнарса топилмади...
       </div>
 
       <q-btn
@@ -14,7 +14,7 @@
         color="white"
         text-color="blue"
         unelevated
-        label="Go Home"
+        label="Бош Сахифага Ýтиш"
         no-caps
         @click="redirectUserByRole"
       />
@@ -24,7 +24,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { isAdmin, isCutter, isEmbroiderer, isPackager, isSewer, isWeaver } from "src/router/routes.js";
+import {isAdmin, isCutter, isEmbroiderer, isMaster, isPackager, isSewer, isWeaver} from "src/router/routes.js";
 
 const router = useRouter();
 
@@ -41,6 +41,8 @@ function redirectUserByRole() {
     router.push({name: 'club.sewer.warehouse'});
   } else if (isPackager()) {
     router.push({name: 'club.packager.warehouse'});
+  } else if(isMaster()) {
+    router.push({name: 'club.master'});
   } else {
     router.push('/login');
   }

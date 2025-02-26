@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import { useAuth } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
-import { isAdmin, isCutter, isEmbroiderer, isPackager, isSewer, isWeaver } from "src/router/routes.js";
+import {isAdmin, isCutter, isEmbroiderer, isMaster, isPackager, isSewer, isWeaver} from "src/router/routes.js";
 import {useAbout} from "stores/user/about.js";
 
 const router = useRouter();
@@ -26,8 +26,10 @@ function redirectUserByRole() {
     router.push({name: 'club.sewer.warehouse'});
   } else if (isPackager()) {
     router.push({name: 'club.packager.warehouse'});
+  } else if(isMaster()) {
+    router.push({name: 'club.master.embroidery.warehouse'});
   } else {
-    router.push('/');
+    router.push('/login');
   }
 }
 

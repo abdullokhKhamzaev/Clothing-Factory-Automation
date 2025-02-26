@@ -47,6 +47,13 @@ export function isPackager() {
   return false;
 }
 
+export function isMaster() {
+  if (localStorage.getItem('accessToken')) {
+    return JSON.parse(atob(localStorage.getItem('accessToken').split('.')[1])).roles.includes('ROLE_MASTER');
+  }
+  return false;
+}
+
 const ifAuthorized = (to, from, next) => {
   if (localStorage.getItem('accessToken') !== null) {
     next()
@@ -72,7 +79,13 @@ const routes = [
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isAdmin()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: 'users',
@@ -355,7 +368,13 @@ const routes = [
   {
     path: '/weaver',
     component: () => import('layouts/weaver/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isWeaver || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isWeaver()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: 'orders',
@@ -378,7 +397,13 @@ const routes = [
   {
     path: '/cutter',
     component: () => import('layouts/cutter/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isCutter || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isCutter()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: 'orders',
@@ -416,7 +441,13 @@ const routes = [
   {
     path: '/embroiderer',
     component: () => import('layouts/embroiderer/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isEmbroiderer || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isEmbroiderer()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: '',
@@ -439,7 +470,13 @@ const routes = [
   {
     path: '/sewer',
     component: () => import('layouts/sewer/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isSewer || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isSewer()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: '',
@@ -482,7 +519,49 @@ const routes = [
       }
     ]
   },
-
+  {
+    path: '/master',
+    component: () => import('layouts/master/MainLayout.vue'),
+    beforeEnter: ifAuthorized && isMaster || isSuperAdmin,
+    children: [
+      {
+        path: '',
+        component: () => import('pages/role-master/IndexPage.vue'),
+        children: [
+          {
+            path: 'embroidery',
+            name: 'club.master.embroidery.warehouse',
+            component: () => import('pages/role-master/EmbroideryWarehousePage.vue'),
+          },
+          {
+            path: 'embroidery/ready',
+            name: 'club.master.embroidery.ready',
+            component: () => import('pages/role-master/EmbroideryReadyWarehousePage.vue'),
+          },
+          {
+            path: 'sewing',
+            name: 'club.master.sewing.warehouse',
+            component: () => import('pages/role-master/SewerWarehousePage.vue'),
+          },
+          {
+            path: 'sewing/ready',
+            name: 'club.master.sewing.ready',
+            component: () => import('pages/role-master/SewerReadyWarehouse.vue'),
+          },
+          {
+            path: 'packaging',
+            name: 'club.master.packaging.warehouse',
+            component: () => import('pages/role-master/PackagerWarehousePage.vue'),
+          },
+          {
+            path: 'packaging/ready',
+            name: 'club.master.packaging.ready',
+            component: () => import('pages/role-master/PackagerReadyPage.vue'),
+          },
+        ]
+      }
+    ]
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/NotFoundPage.vue')

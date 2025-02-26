@@ -80,7 +80,7 @@ function prefill() {
     sizes.push({ size: size.size, price: size.price, productAccessories: size.productAccessories, embroidery: size.embroidery });
   });
 
-  selectedData.value.image ='http://localhost:8888/' + selectedData.value.image.contentUrl;
+  // selectedData.value.image ='http://localhost:8888/' + selectedData.value.image.contentUrl;
 
   sizes.forEach((size) => {
     let embroideries = [];
@@ -114,34 +114,60 @@ function createAction() {
     budget: selectedData.value.budget,
   }
 
-  useAddFile().addFile(selectedData.value.image)
-    .then((res) => {
-      input.image = res.data['@id']
+  if (selectedData.value.image) {
+    useAddFile().addFile(selectedData.value.image)
+      .then((res) => {
+        input.image = res.data['@id']
 
-      model.create(input)
-        .then(() => {
-          showCreateModal.value = false;
-          $q.notify({
-            type: 'positive',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.model.confirmation.successCreated')
+        model.create(input)
+          .then(() => {
+            showCreateModal.value = false;
+            $q.notify({
+              type: 'positive',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.model.confirmation.successCreated')
+            })
+            clearAction();
+            getModels();
           })
-          clearAction();
-          getModels();
-        })
-        .catch((res) => {
-          createActionErr.value = res.response.data['hydra:description'];
+          .catch((res) => {
+            createActionErr.value = res.response.data['hydra:description'];
 
-          $q.notify({
-            type: 'negative',
-            position: 'top',
-            timeout: 1000,
-            message: t('forms.model.confirmation.failure')
+            $q.notify({
+              type: 'negative',
+              position: 'top',
+              timeout: 1000,
+              message: t('forms.model.confirmation.failure')
+            })
           })
+          .finally(() => modelLoading.value = false);
+      })
+  } else {
+    model.create(input)
+      .then(() => {
+        showCreateModal.value = false;
+        $q.notify({
+          type: 'positive',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.model.confirmation.successCreated')
         })
-        .finally(() => modelLoading.value = false);
-    })
+        clearAction();
+        getModels();
+      })
+      .catch((res) => {
+        createActionErr.value = res.response.data['hydra:description'];
+
+        $q.notify({
+          type: 'negative',
+          position: 'top',
+          timeout: 1000,
+          message: t('forms.model.confirmation.failure')
+        })
+      })
+      .finally(() => modelLoading.value = false);
+  }
 }
 function updateAction() {
   if (selectedData.value.id) {

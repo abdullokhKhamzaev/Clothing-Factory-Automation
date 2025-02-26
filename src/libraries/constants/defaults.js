@@ -24,6 +24,10 @@ export const MEASUREMENTS = [
   {
     label: 'Dona',
     value: 'piece'
+  },
+  {
+    label: 'Metr',
+    value: 'meter'
   }
 ]
 
@@ -93,6 +97,7 @@ export const ROLES = [
   { label: 'ROLE_EMBROIDERER', value: 'ROLE_EMBROIDERER' },
   { label: 'ROLE_SEWER', value: 'ROLE_SEWER' },
   { label: 'ROLE_PACKAGER', value: 'ROLE_PACKAGER' },
+  { label: 'ROLE_MASTER', value: 'ROLE_MASTER' },
   { label: 'ROLE_MERCHANT', value: 'ROLE_MERCHANT' },
   { label: 'ROLE_SUPER_ADMIN', value: 'ROLE_SUPER_ADMIN' },
 ];

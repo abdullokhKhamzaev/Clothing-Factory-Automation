@@ -88,6 +88,7 @@ export default {
   made: 'Made',
   piece: 'Piece',
   kg: 'KG',
+  meter: 'Meter',
   paint: 'Paint',
   paintFactory: 'Paint Factory',
   model: 'Model',
@@ -103,6 +104,7 @@ export default {
     ROLE_SEWER: 'Sewer',
     ROLE_PACKAGER: 'Packager',
     ROLE_MERCHANT: 'Merchant',
+    ROLE_MASTER: 'Master',
     ROLE_SUPER_ADMIN: 'Super Admin'
   },
   statuses: {
@@ -801,9 +803,9 @@ export default {
           }
         },
         debtQuantity: {
-          label: 'To\'lov miqdor',
+          label: 'Paid quantity',
           validation: {
-            required: 'To\'lov miqdor talab qilinadi.',
+            required: 'Quantity is required',
           }
         },
       },
@@ -1524,6 +1526,7 @@ export default {
         fullName: 'Name & Surname',
         phone: 'Phone',
         salary: 'Salary',
+        salaryType: 'Salary Type',
         currency: 'Currency',
         role: 'Role'
       },
