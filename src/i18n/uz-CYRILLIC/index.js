@@ -1,129 +1,205 @@
 export default {
+  transaction: {
+    balanceIncreased: 'Баланс тўлдирилди',
+    balanceDecreased: 'Баланс камайтирилди',
+    threadPurchased: 'Ип сотиб олинди',
+    accessoryPurchased: 'Аксессуар сотиб олинди',
+    materialPurchased: 'Материал сотиб олинди',
+    productSold: 'Маҳсулот сотилди',
+    payedForThreadPurchaseDebt: 'Ип савдосининг қарзи учун тўланди',
+    payedForMaterialPurchaseDebt: 'Материал савдосининг қарзи учун тўланди',
+    payedForPaintingDebt: 'Бўёқ савдосининг қарзи учун тўланди',
+    payedForAccessoryDebt: 'Аксессуар савдосининг қарзи учун тўланди',
+    payedForPaintMaterial: 'Бўёқ учун тўланди',
+    payedCustomerAdvance: 'Аванс берилди',
+    payedCustomerSalary: 'Моаш берилди',
+    receivedSaleDebt: 'Савдонинг қарзи қабул қилинди',
+    spend: {
+      Electricity: 'Электр',
+      Repair: 'Тамирлаш',
+    },
+  },
+  paySalary: 'Моаш тўлаш',
+  payAdvance: 'Аванс тўлаш',
+  departure: 'Йўқотиш',
+  oweUs: 'Бизга қарзсиз',
+  logout: 'Чиқиш',
+  salary: 'Моаш',
   add: 'Қўшиш',
+  accessory: 'Аксессуар',
   accept: 'Қабул қилиш',
   balance: 'Баланс',
   confirmed: 'Тасдиқланган',
-  repaintOrders: 'Боя буюртмалари',
-  completedOrders: 'Бажарилган буюртмалар',
-  completedRepaintOrders: 'Бажарилган боя буюртмалари',
-  convert: 'Конвертация қилиш',
-  columns: 'Устунлар',
+  repaintOrders: 'Қайта бўйоқ ордерлар',
+  completedOrders: 'Тугатилган ордерлар',
+  completedRepaintOrders: 'Тугатилган қайта бўйоқ ордерлар',
+  convert: 'Конверт қилиш',
+  columns: 'Колонкалар',
   colors: 'Ранглар',
   confirm: 'Тасдиқлаш',
   delete: 'Ўчириш',
-  debts: 'Борчилавчилар',
-  edit: 'Тахрирлаш',
+  debts: 'Қарзлар',
+  edit: 'Таҳрирлаш',
   finish: 'Тугатиш',
-  fabrics: 'Тўқимачилик материаллари',
+  fabrics: 'Матолар',
   from: 'Дан',
-  inProgress: 'Жараёнда',
+  inProgress: 'Давом этади',
   language: 'Тил',
   materials: 'Материаллар',
   roll: 'Рулон',
-  noData: 'Маълумотлар бўш',
-  orders: 'Буюртмалар',
+  noData: 'Маълумот мавжуд эмас',
+  orders: 'Ордерлар',
   pending: 'Кутилмоқда',
-  reject: 'Рад этиш',
+  reject: 'Рад этмоқ',
   report: 'Ҳисобот',
   pay: 'Тўлаш',
-  to: 'Гача',
+  to: 'Га',
   sell: 'Сотиш',
   thread: 'Ип',
   threads: 'Иплар',
   threadPurchase: 'Ип сотиб олиш',
   ripeMaterialPurchase: 'Пишган материал сотиб олиш',
-  ripeMaterialPaintPurchase: 'Боя сотиб олиш',
+  ripeMaterialPaintPurchase: 'Пишган материал бўйоғи сотиб олиш',
   transactions: 'Транзакциялар',
-  quantity: 'Миқдор',
-  warehouse: 'Омбор',
-  defects: 'Нуҳсонлар',
-  sendToEmbroidery: 'Бродга юбориш',
-  sendToCutterDefective: 'Кесувчи нуқсонли омборга юбориш',
-  sendToSewerWarehouse: 'Тикувчи омборга юбориш',
-  sendToPackageWarehouse: 'Қадоқлаш омборига юбориш',
-  sendToProductsWarehouse: 'Маҳсулотлар омборига юбориш',
+  quantity: 'Микдор',
+  warehouse: 'Ҳамбар',
+  unripeMaterial: 'Пишмаган материал',
+  ripeMaterial: 'Пишган материал',
+  defects: 'Нуқсонлар',
+  sendToEmbroidery: 'Бўёқчиликка юбориш',
+  sendToCutterDefective: 'Куттерга носоз юбориш',
+  sendToSewerWarehouse: 'Тикувга юбориш',
+  sendToPackageWarehouse: 'Пакетлашга юбориш',
+  sendToProductsWarehouse: 'Маҳсулотлар хамбарига юбориш',
   waiting: 'Кутилмоқда',
-  waitingOrders: 'Кутилган буюртмалар',
+  waitingOrders: 'Кутилмоқда ордерлар',
   receive: 'Қабул қилиш',
-  cutter: 'Бичувчи',
-  embroidery: 'Каштачи',
+  cutter: 'Куттер',
+  cutterService: 'Куттер хидмати',
+  embroideryService: 'Бўёқ хидмати',
+  embroidery: 'Бўёқчилик',
   sewer: 'Тикувчи',
-  packager: 'Кадокловчи',
+  sewerService: 'Тикув хидмати',
+  packager: 'Пакетловчи',
+  packagerService: 'Пакетлаш хидмати',
   monthly: 'Ойлик',
+  service: 'Хизмат',
   daily: 'Кунлик',
-  made: 'Бажарилган',
+  made: 'Яратилган',
+  piece: 'Тутам',
+  kg: 'КГ',
+  meter: 'Метрик',
+  paint: 'Бўёқ',
+  paintFactory: 'Бўёқ заводи',
+  model: 'Модел',
+  employees: 'Ходимлар',
+  attendance: 'Йўналиш',
+  ready: 'Тайёр',
+  roles: {
+    ROLE_ADMIN: 'Админ',
+    ROLE_USER: 'Фойдаланувчи',
+    ROLE_WEAVER: 'Ип ишловчиси',
+    ROLE_CUTTER: 'Куттер',
+    ROLE_EMBROIDERER: 'Бўёқчи',
+    ROLE_SEWER: 'Тикувчи',
+    ROLE_PACKAGER: 'Пакетловчи',
+    ROLE_MERCHANT: 'Савдогар',
+    ROLE_MASTER: 'Устоз',
+    ROLE_SUPER_ADMIN: 'Супер Админ'
+  },
   statuses: {
-    accepted: 'Қабул қилинди',
-    notAccepted: 'Қабул қилинмади',
-    rejected: 'Рад этилди',
-    confirmed: 'Тасдиқланди',
+    accepted: 'Қабул қилинган',
+    notAccepted: 'Қабул қилинмаган',
+    rejected: 'Рад этилган',
+    confirmed: 'Тасдиқланган',
     pending: 'Кутилмоқда',
-    completed: 'Бажарилди',
+    completed: 'Тугатилган',
     expected: 'Кутилган',
-    received: 'Қабул қилинди'
+    received: 'Қабул қилинган'
   },
   warehouses: {
-    cutterWarehouse: 'Кесиш омбори',
-    cutterDefectiveWarehouse: 'Нуҳсонли кесувчи омбори',
-    embroideryWarehouse: 'Брод моли омбори',
-    embroideryReadyWarehouse: 'Брод тайёр омбори',
-    sewerWarehouse: 'Тикувччилик омбори',
-    sewerReadyWarehouse: 'Тикувччилик тайёр омбори',
-    packagerWarehouse: 'Қадоқлаш омбори',
-    packagerReadyWarehouse: 'Қадоқлаш тайёр омбори',
-    productsWarehouse: 'Маҳсулотлар омбори',
+    cutterWarehouse: 'Куттер хамбари',
+    cutterDefectiveWarehouse: 'Носоз хамбари',
+    embroideryWarehouse: 'Бўёқчилик хамбари',
+    embroideryReadyWarehouse: 'Тайёр бўёқчилик хамбари',
+    sewerWarehouse: 'Тикув хамбари',
+    sewerReadyWarehouse: 'Тайёр тикув хамбари',
+    packagerWarehouse: 'Пакетловчи хамбари',
+    packagerReadyWarehouse: 'Тайёр пакетловчи хамбари',
+    productsWarehouse: 'Маҳсулотлар хамбари',
   },
   menus: {
     sideBar: {
       budget: 'Бюджет',
       customers: 'Мижозлар',
-      cutting: 'Кесиш',
-      embroidery: 'Брод',
-      package: 'Қадоқлаш',
-      paint: 'Боя',
-      paintedMaterialWarehouse: 'Боя қилинган материаллар омбори',
-      productWarehouse: 'Маҳсулотлар омбори',
-      settings: 'Созламалар',
-      unripeMaterialWarehouse: 'Пишмаган материаллар омбори',
-      sewing: 'Тикувчилик',
+      cutting: 'Куттериш',
+      embroidery: 'Бўёқчилик',
+      package: 'Пакет',
+      paint: 'Бўёқ',
+      productWarehouse: 'Маҳсулот хамбари',
+      settings: 'Тозалаш',
+      sewing: 'Тикув',
       statistics: 'Статистика',
-      sales: 'Сотувлар',
-      threadWarehouse: 'Ип омбори',
+      sales: 'Савдолар',
       users: 'Фойдаланувчилар',
-      weaving: 'Тўқувчилик'
+      weaving: 'Ип ишлаш',
+      warehouse: 'Ҳамбар'
     },
     weaver: {
-      orders: 'Буюртмалар'
+      orders: 'Ордерлар'
     }
   },
   dialogs: {
     delete: {
-      bar: 'Ўчиришни тасдиқланг',
-      info: 'Бу элементни ўчиришга аниқмисиз? Бу ҳаракатни қайтариб бўлмайди.',
+      bar: 'Ўчиришни тасдиқлаш',
+      info: 'Сиз ушбу элементни ўчиришни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
       buttons: {
         confirm: 'Тасдиқлаш',
         cancel: 'Бекор қилиш'
       }
     },
     accept: {
-      bar: 'Қабул қилишни тасдиқланг',
-      info: 'Қабул қилишга аниқмисиз? Бу ҳаракатни қайтариб бўлмайди.',
+      bar: 'Қабул қилишни тасдиқлаш',
+      info: 'Сиз қабул қилишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
       buttons: {
         accept: 'Қабул қилиш',
         cancel: 'Бекор қилиш'
       }
     },
-    complete: {
-      bar: 'Буюртмани якуниш',
-      info: 'Буюртмани якунишга аниқмисиз? Бу ҳаракатни қайтариб бўлмайди.',
+    attendance: {
+      bar: 'Ҳозирликни тасдиқлаш',
+      info: 'Сиз ҳозирликни қабул қилишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
       buttons: {
-        complete: 'Якунлаш',
+        accept: 'Қабул қилиш',
+        cancel: 'Бекор қилиш'
+      }
+    },
+    departure: {
+      bar: 'Эрта кетишни яратиш',
+      buttons: {
+        confirm: 'Тасдиқлаш',
+      }
+    },
+    salary: {
+      bar: 'Моаш тўлаш'
+    },
+    warehouse: {
+      barUpdate: 'Ҳамбарни янгилаш'
+    },
+    advance: {
+      bar: 'Аванс бериш'
+    },
+    complete: {
+      bar: 'Ордерни тугатиш',
+      info: 'Сиз ордерни тугатишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      buttons: {
+        complete: 'Тугатиш',
         cancel: 'Бекор қилиш'
       }
     },
     reject: {
-      bar: 'Рад этишни тасдиқланг',
-      info: 'Рад этишга аниқмисиз? Бу ҳаракатни қайтариб бўлмайди.',
+      bar: 'Рад этишни тасдиқлаш',
+      info: 'Сиз рад этишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
       buttons: {
         reject: 'Рад этиш',
         cancel: 'Бекор қилиш'
@@ -131,7 +207,7 @@ export default {
     },
     user: {
       barCreate: 'Фойдаланувчи яратиш',
-      barEdit: 'Фойдаланувчини таҳрирлаш',
+      barEdit: 'Фойдаланувchini таҳрирлаш',
     },
     thread: {
       barCreate: 'Ип яратиш',
@@ -139,19 +215,23 @@ export default {
     },
     threadPurchase: {
       barCreate: 'Ип сотиб олиш',
-      barPayDebt: 'Ип сотиб олиш учун қарзни тўлаш'
+      barPayDebt: 'Ип савдосини қарзини тўлаш'
+    },
+    accessoryPurchase: {
+      barCreate: 'Аксессуар сотиб олиш',
+      barPayDebt: 'Аксессуар савдосининг қарзини тўлаш'
     },
     unripeMaterial: {
-      barCreate: 'Пишмаган материал яратиш',
-      barEdit: 'Пишмаган материални таҳрирлаш',
+      barCreate: 'Тўқув материал яратиш',
+      barEdit: 'Тўқув материални таҳрирлаш',
     },
     accessory: {
       barCreate: 'Аксессуар яратиш',
       barEdit: 'Аксессуарни таҳрирлаш',
     },
     embroidery: {
-      barCreate: 'Брод яратиш',
-      barEdit: 'Бродни таҳрирлаш',
+      barCreate: 'Вишивка яратиш',
+      barEdit: 'Вишивкани таҳрирлаш',
     },
     customer: {
       barCreate: 'Мижоз яратиш',
@@ -159,51 +239,52 @@ export default {
     },
     sale: {
       barCreate: 'Сотув битимини яратиш',
-      barReceiveDebt: 'Сотув битимини олиш'
+      barReceiveDebt: 'Маҳсулот савдосининг қарзини қабул қилиш'
     },
     unripeMaterialOrder: {
-      barCreate: 'Пишмаган материал буюртмаси яратиш',
-      barEdit: 'Пишмаган материал буюртмасини таҳрирлаш',
+      barCreate: 'Тўқув материал буюртмаси яратиш',
+      barEdit: 'Тўқув материал буюртмасини таҳрирлаш',
     },
     modelOrder: {
-      barCreate: 'Модель буюртмаси яратиш',
-      barEdit: 'Модель буюртмасини таҳрирлаш'
+      barCreate: 'Модел буюртмаси яратиш',
+      barEdit: 'Модел буюртмасини таҳрирлаш'
     },
     ripeMaterial: {
-      barCreate: 'Пишган материал яратиш',
-      barSend: 'Пишган материални юбориш',
-      barEdit: 'Пишган материални таҳрирлаш',
+      barCreate: 'Материал яратиш',
+      barSend: 'Материални юбораш',
+      barEdit: 'Материални таҳрирлаш',
     },
     ripeMaterialAccepted: {
-      barAccept: 'Пишган материални қабул қилиш',
+      barAccept: 'Материални қабул қилиш',
     },
     ripeMaterialPurchase: {
-      barCreate: 'Пишган материал сотиб олиш',
-      barPayDebt: 'Пишган материал сотиб олиш қарзини тўлаш'
+      barCreate: 'Материал сотиб олиш',
+      barPayDebt: 'Материал савдосининг қарзини тўлаш'
     },
     paint: {
-      barCreate: 'Боя буюртмаси яратиш',
-      barEdit: 'Боя буюртмасини таҳрирлаш',
+      barCreate: 'Бўёқ буюртмаси яратиш',
+      barEdit: 'Бўёқ буюртмасини таҳрирлаш',
     },
     repaint: {
-      barCreate: 'Боя буюртмасини яратиш'
+      barCreate: 'Қайта бўёқ буюртмаси яратиш',
+      barAccept: 'Қабул қилиш',
     },
     paintPurchase: {
-      barPayDebt: 'Боя сотиб олиш қарзини тўлаш'
+      barPayDebt: 'Бўёқ савдосининг қарзини тўлаш'
     },
     completedMaterialOrderReport: {
       barCreate: 'Буюртма ҳақида ҳисобот',
     },
     fabric: {
-      barCreate: 'Боя фабрикаси яратиш',
-      barEdit: 'Боя фабрикасини таҳрирлаш',
+      barCreate: 'Бўёқ фабрикаси яратиш',
+      barEdit: 'Бўёқ фабрикасига таҳрирлаш',
     },
     color: {
       barCreate: 'Ранг яратиш',
       barEdit: 'Рангни таҳрирлаш',
     },
     model: {
-      barCreate: 'Модель яратиш',
+      barCreate: 'Модел яратиш',
       barEdit: 'Моделни таҳрирлаш'
     },
   },
@@ -217,15 +298,15 @@ export default {
           }
         },
         phone: {
-          label: 'Телефон',
+          label: 'Телефон рақам',
           validation: {
-            required: 'Телефон талаб қилинади.'
+            required: 'Телефон рақам талаб қилинади.'
           }
         },
         password: {
-          label: 'Пароль',
+          label: 'Парол',
           validation: {
-            required: 'Пароль талаб қилинади.'
+            required: 'Парол талаб қилинади.'
           }
         },
         currency: {
@@ -241,21 +322,100 @@ export default {
           }
         },
         roles: {
-          label: 'Роллар',
+          label: 'Ҳуҳуқ',
           validation: {
-            required: 'Роллар талаб қилинади.'
+            required: 'Ҳуҳуқ талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Фойдалануничи яратиш',
+        edit: 'Фойдаланувчини таҳрирлаш'
+      },
+      confirmation: {
+        successCreated: 'Фойдалануvчи муваффақиятли яратилди.',
+        successEdited: 'Фойдаланувчи муваффақиятли таҳрирланди.',
+        successDeleted: 'Фойдалануvчи муваффақиятли ўчирилди.',
+        failure: 'Фойдаланувчи сақлашда хатолик юз берди.'
+      }
+    },
+    salary: {
+      fields: {
+        quantity: {
+          label: 'Миқдор',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        pay: 'Тўлаш'
+      },
+      confirmation: {
+        successCreated: '',
+        successEdited: '',
+        successDeleted: '',
+        failure: ''
+      }
+    },
+    budget: {
+      fields: {
+        reason: {
+          label: 'Расход сабаби',
+          validation: {
+            required: 'Сабаб талаб қилинади.',
+          }
+        },
+      }
+    },
+    warehouse: {
+      fields: {
+        quantity: {
+          label: 'Миқдор',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        update: 'Таҳрирлаш'
+      },
+      confirmation: {
+        successUpdated: 'Омбор муваффақиятли таҳрирланди.',
+        failure: 'Хатолик юз берди.'
+      }
+    },
+    advance: {
+      fields: {
+        quantity: {
+          label: 'Миқдор',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        pay: 'Тўлаш'
+      },
+      confirmation: {
+        failure: 'Хатолик юз берди.'
+      }
+    },
+    departure: {
+      fields: {
+        cutMoney: {
+          label: 'Ундурилаётган сумма',
+          validation: {
+            required: 'Сумма талаб қилинади',
           }
         }
       },
       buttons: {
-        create: 'Фойдаланувчи яратиш',
-        edit: 'Фойдаланувчини таҳрирлаш'
+        create: 'Яратиш',
+        edit: 'Таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Фойдаланувчи муваффақиятли яратилди.',
-        successEdited: 'Фойдаланувчи муваффақиятли таҳрирланди.',
-        successDeleted: 'Фойдаланувчи муваффақиятли ўчирилди.',
-        failure: 'Фойдаланувчи сақлашда хатолик юз берди.'
+        failure: 'Хатолик юз берди'
       }
     },
     thread: {
@@ -267,9 +427,9 @@ export default {
           }
         },
         measurement: {
-          label: 'Ўлчов',
+          label: 'Ўлчов бирлик',
           validation: {
-            required: 'Ўлчов талаб қилинади.'
+            required: 'Ўлчов бирлик талаб қилинади.'
           }
         },
         quantity: {
@@ -285,29 +445,77 @@ export default {
           }
         },
         price: {
-          label: 'Нарх',
+          label: 'Нарҳ',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         }
       },
       buttons: {
-        create: 'Thread яратиш',
-        edit: 'Threadни таҳрирлаш'
+        create: 'Ип яратиш',
+        edit: 'Ипни таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Thread муваффақиятли яратилди.',
-        successEdited: 'Thread муваффақиятли таҳрирланди.',
-        successDeleted: 'Thread муваффақиятли ўчирилди.',
-        failure: 'Thread сақлашда хатолик юз берди.'
+        successCreated: 'Ип муваффақиятли яратилди.',
+        successEdited: 'Ип муваффақиятли таҳрирланди.',
+        successDeleted: 'Ип муваффақиятли ўчирилди.',
+        failure: 'Хатолик юз берди.'
       }
     },
     threadPurchase: {
       fields: {
         thread: {
-          label: 'Thread номи',
+          label: 'Ном',
           validation: {
-            required: 'Thread номи талаб қилинади.'
+            required: 'Ном талаб қилинади.'
+          }
+        },
+        budget: {
+          label: 'Бюджетни танланг',
+          validation: {
+            required: 'Бюджет талаб қилинади.'
+          }
+        },
+        price: {
+          label: '1кг нархи?',
+          validation: {
+            required: 'Нарҳ талаб қилинади.',
+          }
+        },
+        quantity: {
+          label: 'Неча кг?',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+        debtQuantity: {
+          label: 'Тўлов миқдори',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+        paidPrice: {
+          label: 'Тўланган сумма',
+          validation: {
+            required: 'Сумма талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        buy: 'Сотиб олиш',
+        payDebt: 'Қарзни тўлаш'
+      },
+      confirmation: {
+        successBought: 'Ип муваффақиятли сотиб олинди.',
+        failure: 'Хатолик юз берди.'
+      }
+    },
+    accessoryPurchase: {
+      fields: {
+        accessory: {
+          label: 'Аксессуар номи',
+          validation: {
+            required: 'Аксессуар номи талаб қилинади.'
           }
         },
         budget: {
@@ -317,13 +525,13 @@ export default {
           }
         },
         price: {
-          label: '1kg нархи?',
+          label: '1кг нархи?',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         },
         quantity: {
-          label: 'Неьта kg?',
+          label: 'Нечта кг?',
           validation: {
             required: 'Миқдор талаб қилинади.'
           }
@@ -335,19 +543,19 @@ export default {
           }
         },
         paidPrice: {
-          label: 'Тўланган нарх',
+          label: 'Тўланган сумма',
           validation: {
-            required: 'Тўланган нарх талаб қилинади.'
+            required: 'Тўланган сумма талаб қилинади.'
           }
-        }
+        },
       },
       buttons: {
         buy: 'Сотиб олиш',
         payDebt: 'Қарзни тўлаш'
       },
       confirmation: {
-        successBought: 'Thread муваффақиятли сотиб олинди.',
-        failure: 'Thread сотиб олишда хатолик юз берди.'
+        successBought: 'Аксессуар муваффақиятли сотиб олинди.',
+        failure: 'Аксессуар сотиб олишда хатолик юз берди.'
       }
     },
     unripeMaterial: {
@@ -361,13 +569,13 @@ export default {
         payWorker: {
           label: 'Ишчи нархи',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         },
         payWorkerSort2: {
           label: 'Сорт 2 ишчи нархи',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         },
         budget: {
@@ -377,9 +585,9 @@ export default {
           }
         },
         measurement: {
-          label: 'Ўлчов',
+          label: 'Ўлчов бирлик',
           validation: {
-            required: 'Ўлчов талаб қилинади.'
+            required: 'Ўлчов бирлик талаб қилинади.'
           }
         },
         quantity: {
@@ -395,21 +603,21 @@ export default {
           }
         },
         roll: {
-          label: 'Рулон',
+          label: 'Рўлон',
           validation: {
-            required: 'Рулон талаб қилинади.'
+            required: 'Рўлон талаб қилинади.'
           }
         },
         rollSort2: {
-          label: 'Рулон сорт 2',
+          label: 'Рўлон сорт 2',
           validation: {
-            required: 'Рулон талаб қилинади.'
+            required: 'Рўлон талаб қилинади.'
           }
         },
         price: {
-          label: 'Нарх',
+          label: 'Нарҳ',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         }
       },
@@ -441,13 +649,13 @@ export default {
         type: {
           label: 'Турини танланг',
           validation: {
-            required: 'Тур талаб килинади',
+            required: 'Тур талаб қилинади.',
           }
         },
         measurement: {
-          label: 'Ўлчов',
+          label: 'Ўлчов бирлик',
           validation: {
-            required: 'Ўлчов талаб қилинади.'
+            required: 'Ўлчов бирлик талаб қилинади.'
           }
         },
         quantity: {
@@ -463,9 +671,9 @@ export default {
           }
         },
         price: {
-          label: 'Нарх',
+          label: 'Нарҳ',
           validation: {
-            required: 'Нарх талаб қилинади.'
+            required: 'Нарҳ талаб қилинади.'
           }
         }
       },
@@ -484,208 +692,208 @@ export default {
       fields: {
         name: {
           label: 'Ном',
-            validation: {
+          validation: {
             required: 'Ном талаб қилинади.'
           }
         },
         image: {
           label: 'Расм',
-            validation: {
+          validation: {
             required: 'Расм талаб қилинади.'
           }
         },
         workerPrice: {
           label: 'Ишчи нархи',
-            validation: {
-            required: 'Нарх талаб қилинади.'
+          validation: {
+            required: 'Нарҳ талаб қилинади.'
           }
         },
         budget: {
           label: 'Бюджет',
-            validation: {
+          validation: {
             required: 'Бюджет талаб қилинади.'
           }
         }
       },
       buttons: {
-        create: 'Кастачилик яратиш',
-          edit: 'Кастачиликни таҳрирлаш'
+        create: 'Вишивка яратиш',
+        edit: 'Вишивкани таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Кастачилик муваффақиятли яратилди.',
-          successEdited: 'Кастачилик муваффақиятли таҳрирланди.',
-          successDeleted: 'Кастачилик муваффақиятли ўчирилди.',
-          failure: 'Кастачиликни сақлашда хатолик юз берди.'
+        successCreated: 'Вишивка муваффақиятли яратилди.',
+        successEdited: 'Вишивка муваффақиятли таҳрирланди.',
+        successDeleted: 'Вишивка муваффақиятли ўчирилди.',
+        failure: 'Вишивкани сақлашда хатолик юз берди.'
       }
     },
     customer: {
       fields: {
         fullName: {
           label: 'Исм ва Фамилия',
-            validation: {
+          validation: {
             required: 'Исм ва Фамилия талаб қилинади.'
           }
         },
         phone: {
-          label: 'Телефон',
-            validation: {
-            required: 'Телефон талаб қилинади.'
+          label: 'Телефон рақам',
+          validation: {
+            required: 'Телефон рақам талаб қилинади.'
           }
         }
       },
       buttons: {
         create: 'Мижоз яратиш',
-          edit: 'Мижозни таҳрирлаш'
+        edit: 'Мижозни таҳрирлаш'
       },
       confirmation: {
         successCreated: 'Мижоз муваффақиятли яратилди.',
-          successEdited: 'Мижоз муваффақиятли таҳрирланди.',
-          successDeleted: 'Мижоз муваффақиятли ўчирилди.',
-          failure: 'Мижозни сақлашда хатолик юз берди.'
+        successEdited: 'Мижоз муваффақиятли таҳрирланди.',
+        successDeleted: 'Мижоз муваффақиятли ўчирилди.',
+        failure: 'Мижозни сақлашда хатолик юз берди.'
       }
     },
     sale: {
       fields: {
         customer: {
           label: 'Мижозни танланг',
-            validation: {
+          validation: {
             required: 'Мижоз талаб қилинади.'
           }
         },
         budget: {
           label: 'Бюджет',
-            validation: {
+          validation: {
             required: 'Бюджет талаб қилинади.'
           }
         },
         productModel: {
           label: 'Модель',
-            validation: {
+          validation: {
             required: 'Модель талаб қилинади.'
           }
         },
         size: {
-          label: 'Ўлчам',
-            validation: {
-            required: 'Ўлчам талаб қилинади.'
+          label: 'Размер',
+          validation: {
+            required: 'Размер талаб қилинади.'
           }
         },
         quantity: {
           label: 'Миқдор',
-            validation: {
+          validation: {
             required: 'Миқдор талаб қилинади.'
           }
         },
         price: {
           label: 'Нарҳ',
-            validation: {
+          validation: {
             required: 'Нарҳ талаб қилинади.'
           }
         },
         paidPrice: {
-          label: 'Тўланган нарҳ',
-            validation: {
-            required: 'Тўланган нарҳ талаб қилинади.'
+          label: 'Тўланган сумма',
+          validation: {
+            required: 'Тўланган сумма талаб қилинади.'
           }
         },
         debtQuantity: {
           label: 'Тўлов миқдори',
-            validation: {
-            required: 'Тўлов миқдори талаб қилинади.'
+          validation: {
+            required: 'Тўлов миқдори талаб қилинади.',
+          }
+        },
+      },
+      buttons: {
+        create: 'Савдо',
+        receiveDebt: 'Қарзни олиш'
+      },
+      confirmation: {
+        successCreated: 'Савдо муваффақиятли яратилди.',
+        successEdited: 'Савдо муваффақиятли таҳрирланди.',
+        successDeleted: 'Савдо муваффақиятли ўчирилди.',
+        failure: 'Савдони сақлашда хатолик юз берди.'
+      }
+    },
+    ripeMaterial: {
+      fields: {
+        name: {
+          label: 'Ном',
+          validation: {
+            required: 'Ном талаб қилинади.'
+          }
+        },
+        color: {
+          label: 'Ранг',
+          validation: {
+            required: 'Ранг талаб қилинади.'
+          }
+        },
+        measurement: {
+          label: 'Ўлчов бирлик',
+          validation: {
+            required: 'Ўлчов бирлик талаб қилинади.'
+          }
+        },
+        quantity: {
+          label: 'Миқдор',
+          validation: {
+            required: 'Миқдор талаб қилинади.'
+          }
+        },
+        roll: {
+          label: 'Ролон',
+          validation: {
+            required: 'Ролон талаб қилинади.'
+          }
+        },
+        quantitySort2: {
+          label: 'Миқдор 2-тури',
+          validation: {
+            required: 'Миқдор талаб қилинади.'
+          }
+        },
+        rollSort2: {
+          label: 'Ролон 2-тури',
+          validation: {
+            required: 'Ролон талаб қилинади.'
+          }
+        },
+        budget: {
+          label: 'Бюджетни танланг',
+          validation: {
+            required: 'Бюджет талаб қилинади.'
+          }
+        },
+        price: {
+          label: 'Нарҳ',
+          validation: {
+            required: 'Нарҳ талаб қилинади.'
+          }
+        },
+        priceSort2: {
+          label: 'Нарҳ 2 сорт',
+          validation: {
+            required: 'Нарҳ талаб қилинади.'
           }
         }
       },
       buttons: {
-        create: 'Сотиш',
-          receiveDebt: 'Қарзни олиш'
+        create: 'Яратиш',
+        edit: 'Таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Сотув муваффақиятли яратилди.',
-          successEdited: 'Сотув муваффақиятли таҳрирланди.',
-          successDeleted: 'Сотув муваффақиятли ўчирилди.',
-          failure: 'Сотувни сақлашда хатолик юз берди.'
-      }
-    },
-    ripeMaterial: {
-    fields: {
-      name: {
-        label: 'Ном',
-          validation: {
-          required: 'Ном талаб қилинади.'
-        }
-      },
-      color: {
-        label: 'Ранг',
-          validation: {
-          required: 'Ранг талаб қилинади.'
-        }
-      },
-      measurement: {
-        label: 'Ўлчов',
-          validation: {
-          required: 'Ўлчов талаб қилинади.'
-        }
-      },
-      quantity: {
-        label: 'Миқдор',
-          validation: {
-          required: 'Миқдор талаб қилинади.'
-        }
-      },
-      roll: {
-        label: 'Рулон',
-          validation: {
-          required: 'Рулон талаб қилинади.'
-        }
-      },
-      quantitySort2: {
-        label: 'Миқдор 2-тури',
-          validation: {
-          required: 'Миқдор талаб қилинади.'
-        }
-      },
-      rollSort2: {
-        label: 'Рулон 2-тури',
-          validation: {
-          required: 'Рулон талаб қилинади.'
-        }
-      },
-      budget: {
-        label: 'Бюджетни танланг',
-          validation: {
-          required: 'Бюджет талаб қилинади.'
-        }
-      },
-      price: {
-        label: 'Нарҳ',
-          validation: {
-          required: 'Нарҳ талаб қилинади.'
-        }
-      },
-      priceSort2: {
-        label: 'Нарҳ 2-тури',
-          validation: {
-          required: 'Нарҳ талаб қилинади.'
-        }
-      }
-    },
-    buttons: {
-      create: 'Яратиш',
-        edit: 'Таҳрирлаш'
-    },
-    confirmation: {
-      successCreated: 'Материал муваффақиятли яратилди.',
+        successCreated: 'Материал муваффақиятли яратилди.',
         successEdited: 'Материал муваффақиятли таҳрирланди.',
         successDeleted: 'Материал муваффақиятли ўчирилди.',
         failure: 'Материални сақлашда хатолик юз берди.'
-    }
-  },
+      }
+    },
     ripeMaterialAccepted: {
       fields: {
         ripeMaterial: {
-          label: 'Пишган материални танланг',
+          label: 'Материални танланг',
           validation: {
-            required: 'Материал мажбурий.',
+            required: 'Материал талаб қилинади.',
           }
         },
         receivedQuantitySort1: {
@@ -695,21 +903,21 @@ export default {
           }
         },
         receivedRollSort1: {
-          label: 'Рўл Сорт 1',
+          label: 'Ролон Сорт 1',
           validation: {
-            required: 'Рўл мажбурий.',
+            required: 'Ролон талаб қилинади.',
           }
         },
         receivedQuantitySort2: {
           label: 'Миқдор Сорт 2',
           validation: {
-            required: 'Миқдор мажбурий.',
+            required: 'Миқдор талаб қилинади.',
           }
         },
         receivedRollSort2: {
-          label: 'Рўл Сорт 2',
+          label: 'Ролон Сорт 2',
           validation: {
-            required: 'Рўл мажбурий.',
+            required: 'Ролон талаб қилинади.',
           }
         },
         budget: {
@@ -721,11 +929,11 @@ export default {
         servicePrice: {
           label: 'Хизмат нархи',
           validation: {
-            required: 'Хизмат нархи мажбурий.',
+            required: 'Хизмат нархи талаб қилинади.',
           }
         },
         price: {
-          label: '1 кг учун қанча?',
+          label: '1(кг/м) учун нарҳ?',
           validation: {
             required: 'Нарҳ мажбурий.',
           }
@@ -733,7 +941,7 @@ export default {
         payedPrice: {
           label: 'Тўланган нарҳ',
           validation: {
-            required: 'Тўланган нарҳ мажбурий.',
+            required: 'Нарҳ талаб қилинади.',
           }
         },
       },
@@ -741,201 +949,201 @@ export default {
         accept: 'Қабул қилиш',
       },
       confirmation: {
-        successAccepted: 'Пишган материал муваффақиятли қабул қилинди.',
-        failure: 'Пишган материални сақлашда хатолик юз берди.',
+        successAccepted: 'Материал муваффақиятли қабул қилинди.',
+        failure: 'Материални сақлашда хатолик юз берди.',
       }
     },
     paint: {
       fields: {
         unripeMaterial: {
-          label: 'Пишмаган материал',
+          label: 'Тоқув материал',
           validation: {
-            required: 'Ном мажбурий.',
+            required: 'Ном талаб қилинади.',
           }
         },
         paintFabric: {
-          label: 'Матони танланг',
+          label: 'Фабрикани танланг',
           validation: {
-            required: 'Матолар мажбурий.',
+            required: 'Фабрика талаб қилинади.',
           }
         },
         sentQuantitySort1: {
           label: 'Миқдор',
           validation: {
-            required: 'Миқдор мажбурий.',
+            required: 'Миқдор талаб қилинади.',
           }
         },
         sentQuantitySort2: {
           label: 'Миқдор',
           validation: {
-            required: 'Миқдор мажбурий.',
+            required: 'Миқдор талаб қилинади.',
           }
         },
         sentRollSort1: {
-          label: 'Рўл',
+          label: 'Ролон',
           validation: {
-            required: 'Рўл мажбурий.',
+            required: 'Ролон талаб қилинади.',
           }
         },
         sentRollSort2: {
-          label: 'Рўл',
+          label: 'Ролл',
           validation: {
-            required: 'Рўл мажбурий.',
+            required: 'Ролон талаб қилинади.',
           }
         },
         dealDate: {
-          label: 'Битим санаси',
+          label: 'Келишилган муддат',
           validation: {
             required: 'Санани киритиш мажбурий.',
           }
         },
       },
       buttons: {
-        order: 'Буюртма яратиш',
-        edit: 'Тахрирлаш',
+        order: 'Буйрутма яратиш',
+        edit: 'Таҳрирлаш',
       },
       confirmation: {
-        successOrderCreated: 'Буюртма муваффақиятли яратилди.',
-        successOrderReceived: 'Буюртма муваффақиятли қабул қилинди.',
-        successOrderCompleted: 'Буюртма муваффақиятли якунланди.',
-        successOrderEdited: 'Буюртма муваффақиятли тахрирланди.',
-        successOrderDeleted: 'Буюртма муваффақиятли ўчирилди.',
-        failure: 'Буюртмани сақлашда хатолик юз берди.',
+        successOrderCreated: 'Буйрутма муваффақиятли яратилди.',
+        successOrderReceived: 'Буйрутма муваффақиятли қабул қилинди.',
+        successOrderCompleted: 'Буйрутма муваффақиятли якунланди.',
+        successOrderEdited: 'Буйрутма муваффақиятли таҳрирланди.',
+        successOrderDeleted: 'Буйрутма муваффақиятли ўчирилди.',
+        failure: 'Буйрутмани сақлашда хатолик юз берди.',
       }
     },
     repaint: {
-        fields: {
-          ripeMaterial: {
-            label: 'Пишган материални танланг',
-            validation: {
-              required: 'Материал мажбурий.',
-            }
-          },
-          paintFabric: {
-            label: 'Матони танланг',
-            validation: {
-              required: 'Матолар мажбурий.',
-            }
-          },
-          sentQuantitySort1: {
-            label: 'Миқдор Сорт 1',
-            validation: {
-              required: 'Миқдор мажбурий.',
-            }
-          },
-          receivedQuantitySort1: {
-            label: 'Қабул қилинган миқдор Сорт 1',
-            validation: {
-              required: 'Миқдор мажбурий.',
-            }
-          },
-          sentQuantitySort2: {
-            label: 'Миқдор Сорт 2',
-            validation: {
-              required: 'Миқдор мажбурий.',
-            }
-          },
-          receivedQuantitySort2: {
-            label: 'Қабул қилинган миқдор Сорт 2',
-            validation: {
-              required: 'Миқдор мажбурий.',
-            }
-          },
-          sentRollSort1: {
-            label: 'Рўл Сорт 1',
-            validation: {
-              required: 'Рўл мажбурий.',
-            }
-          },
-          receivedRollSort1: {
-            label: 'Қабул қилинган Рўл Сорт 1',
-            validation: {
-              required: 'Рўл мажбурий.',
-            }
-          },
-          sentRollSort2: {
-            label: 'Рўл Сорт 2',
-            validation: {
-              required: 'Рўл мажбурий.',
-            }
-          },
-          receivedRollSort2: {
-            label: 'Қабул қилинган Рўл Сорт 2',
-            validation: {
-              required: 'Рўл мажбурий.',
-            }
-          },
+      fields: {
+        ripeMaterial: {
+          label: 'Материални танланг',
+          validation: {
+            required: 'Материал мажбурий.',
+          }
         },
-        buttons: {
-          order: 'Буюртма яратиш',
-          accept: 'Буюртмани қабул қилиш',
+        paintFabric: {
+          label: 'Фабрикани танланг',
+          validation: {
+            required: 'Фабрика мажбурий.',
+          }
         },
-        confirmation: {
-          successOrderCreated: 'Буюртма муваффақиятли яратилди.',
-          successOrderReceived: 'Буюртма муваффақиятли қабул қилинди.',
-          failure: 'Буюртмани сақлашда хатолик юз берди.',
-        }
+        sentQuantitySort1: {
+          label: 'Юборилаётган миқдор сорт 1',
+          validation: {
+            required: 'Миқдор мажбурий.',
+          }
+        },
+        receivedQuantitySort1: {
+          label: 'Қабул қилинган миқдор сорт 1',
+          validation: {
+            required: 'Миқдор мажбурий.',
+          }
+        },
+        sentQuantitySort2: {
+          label: 'Юборилаётган миқдор сорт 2',
+          validation: {
+            required: 'Миқдор мажбурий.',
+          }
+        },
+        receivedQuantitySort2: {
+          label: 'Қабул қилинган миқдор сорт 2',
+          validation: {
+            required: 'Миқдор мажбурий.',
+          }
+        },
+        sentRollSort1: {
+          label: 'Юборилаётган ролон Сорт 1',
+          validation: {
+            required: 'Ролон мажбурий.',
+          }
+        },
+        receivedRollSort1: {
+          label: 'Қабул қилинган ролон сорт 1',
+          validation: {
+            required: 'Ролон мажбурий.',
+          }
+        },
+        sentRollSort2: {
+          label: 'Юборилаётган ролон сорт 2',
+          validation: {
+            required: 'Ролон мажбурий.',
+          }
+        },
+        receivedRollSort2: {
+          label: 'Қабул қилинган ролон сорт 2',
+          validation: {
+            required: 'Ролон мажбурий.',
+          }
+        },
       },
+      buttons: {
+        order: 'Буйрутма яратиш',
+        accept: 'Буйрутмани қабул қилиш',
+      },
+      confirmation: {
+        successOrderCreated: 'Буйрутма муваффақиятли яратилди.',
+        successOrderReceived: 'Буйрутма муваффақиятли қабул қилинди.',
+        failure: 'Буйрутмани сақлашда хатолик юз берди.',
+      }
+    },
     ripeMaterialPurchase: {
       fields: {
         ripeMaterial: {
-          label: 'Пишган материал номи',
+          label: 'Материал номи',
           validation: {
-            required: 'Номи керак.',
+            required: 'Ном мажбурий.',
           }
         },
         budget: {
-          label: 'Қайси бюджетдан?',
+          label: 'Қайси Бюджетдан?',
           validation: {
-            required: 'Бюджет номи керак.',
+            required: 'Бюджет мажбурий.',
           }
         },
         price: {
-          label: '1кг нархи?',
+          label: '1 (кг/м) нархи?',
           validation: {
-            required: 'Нарх керак.',
+            required: 'Нарх мажбурий.',
           }
         },
         priceSort2: {
-          label: '1кг нархи сорт 2?',
+          label: '1 (кг/м) нархи сорт 2?',
           validation: {
-            required: 'Нарх керак.',
+            required: 'Нарх мажбурий.',
           }
         },
         roll: {
-          label: 'Нечта ролик?',
+          label: 'Неча ролон?',
           validation: {
-            required: 'Ролик керак.',
+            required: 'Ролон мажбурий.',
           }
         },
         quantity: {
-          label: 'Нечта кг?',
+          label: 'Неча (кг/м)?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         quantitySort2: {
-          label: 'Нечта сорт-2 кг?',
+          label: 'Неча (кг/м) сорт-2?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         rollSort2: {
-          label: 'Нечта сорт-2 ролик?',
+          label: 'Нечта ролон сорт-2?',
           validation: {
-            required: 'Ролик керак.',
+            required: 'Ролон мажбурий.',
           }
         },
         debtQuantity: {
           label: 'Тўлов миқдори',
           validation: {
-            required: 'Тўлов миқдори керак.',
+            required: 'Тўлов миқдор мажбурий.',
           }
         },
         paidPrice: {
-          label: 'Тўланган нарх',
+          label: 'Тўланган сумма',
           validation: {
-            required: 'Тўланган нарх керак.',
+            required: 'Сумма мажбурий.',
           }
         },
       },
@@ -945,10 +1153,10 @@ export default {
         send: 'Юбориш'
       },
       confirmation: {
-        successBought: 'Пишган материал муваффақиятли сотиб олинди.',
-        successSent: 'Пишган материал муваффақиятли юборилди.',
-        failure: 'Пишган материални сотиб олишда хатолик юз берди.',
-        failureSent: 'Пишган материални юборишда хатолик юз берди.'
+        successBought: 'Материал муваффақиятли сотиб олинди.',
+        successSent: 'Материал муваффақиятли юбораилди.',
+        failure: 'Материални сотиб олишда хатолик юз берди.',
+        failureSent: 'Материални юбораишда хатолик юз берди.'
       }
     },
     unripeMaterialOrder: {
@@ -962,21 +1170,21 @@ export default {
         material: {
           label: 'Материал',
           validation: {
-            required: 'Материал керак.',
+            required: 'Материал мажбурий.',
           }
         },
         expectedConsumeDtos: {
-          title: 'Кутилаётган сарфлар:',
+          title: 'Кутилган сарф:',
           thread: {
             label: 'Ип тури',
             validation: {
-              required: 'Ип тури керак.',
+              required: 'Ип тури мажбурий.',
             }
           },
           quantity: {
             label: 'Миқдор',
             validation: {
-              required: 'Миқдор керак.',
+              required: 'Миқдор мажбурий.',
             }
           }
         }
@@ -986,10 +1194,10 @@ export default {
         edit: 'Буюртмани таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Пишмаган материал буюртмаси муваффақиятли яратилди.',
-        successCompleted: 'Пишмаган материал буюртмаси муваффақиятли бажарилди.',
-        successDeleted: 'Пишмаган материал буюртмаси муваффақиятли ўчирилди.',
-        failure: 'Пишмаган материал буюртмаси сақлашда хатолик юз берди.'
+        successCreated: 'Тоқув материал буюртмаси муваффақиятли яратилди.',
+        successCompleted: 'Тоқув материал буюртмаси муваффақиятли бажарилди.',
+        successDeleted: 'Тоқув материал буюртмаси муваффақиятли ўчирилди.',
+        failure: 'Тоқув материал буюртмаси сақлашда хатолик юз берди.'
       }
     },
     modelOrder: {
@@ -997,112 +1205,112 @@ export default {
         productModel: {
           label: 'Моделни танланг',
           validation: {
-            required: 'Модел номи керак.',
+            required: 'Модел номи мажбурий.',
           }
         },
         expectedOutlayRipeMaterial: {
-          title: 'Кутилаётган сарф:',
+          title: 'Кутилган сарф:',
         },
         cutterRipeMaterialWarehouse: {
           label: 'Материални танланг',
           validation: {
-            required: 'Материал номи керак.',
+            required: 'Материал номи мажбурий.',
           }
         },
         size: {
-          label: 'Модел ўлчами',
+          label: 'Модел размер',
           validation: {
-            required: 'Модел ўлчами керак.',
+            required: 'Размер мажбурий.',
           }
         },
         quantity: {
           label: 'Модел миқдори',
           validation: {
-            required: 'Модел миқдори керак.',
+            required: 'Модел миқдори мажбурий.',
           }
         },
         expectedConsumeQuantity: {
-          label: 'Кутилаётган сарф миқдори',
+          label: 'Кутилган сарф миқдори',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         consumedQuantity: {
-          label: 'Маҳсулотлар учун неча кг ишлатилган?',
+          label: 'Маҳсулотлар учун ишлатилган миқдор (кг/м)?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         wasteSort1: {
-          label: 'Нечта кг чиқинди?',
+          label: 'Неча (кг/м) чиқиндий?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         remainingSort1: {
-          label: 'Нечта кг қолган материал ишлатилган?',
+          label: 'Неча (кг/м) қолдиқ ишлатилган?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         wasteRemainingSort1: {
-          label: 'Нечта кг қолган материалга сарфланган чиқинди?',
+          label: 'Неча (кг/м) қолдиқнинг чиқиндиси?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         newRemainingSort1: {
-          label: 'Нечта янги қолган кг?',
+          label: 'Неча (кг/м) янги қолдиқ?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         expectedConsumeQuantitySort2: {
-          label: 'Sort 2 сарф миқдори',
+          label: 'Кутилган сарф миқдори сорт 2',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         quantitySort2: {
-          label: 'Маҳсулотлар учун неча sort 2 кг ишлатилган?',
+          label: 'Маҳсулотлар учун ишлатилган сорт 2 миқдор (кг/м)?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         wasteSort2: {
-          label: 'Нечта sort 2 кг чиқинди?',
+          label: 'Неча (кг/м) сорт 2 чиқиндий?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         remainingSort2: {
-          label: 'Нечта sort 2 кг қолган материал ишлатилган?',
+          label: 'Неча (кг/м) сорт 2 қолдиқ ишлатилган?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         wasteRemainingSort2: {
-          label: 'Нечта sort 2 кг қолган материалга сарфланган чиқинди?',
+          label: 'Неча (кг/м) сорт 2 қолдиқнинг чиқиндиси?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         newRemainingSort2: {
-          label: 'Нечта янги sort 2 қолган кг?',
+          label: 'Неча (кг/м) сорт 2 янги қолдиқ?',
           validation: {
-            required: 'Миқдор керак.',
+            required: 'Миқдор мажбурий.',
           }
         },
         expectedConsumeRemainingSort1: {
-          label: 'Қолган sort 1 миқдори',
+          label: 'Сорт 1 қолдиқ миқдор',
           validation: {
-            required: 'Қолган керак.',
+            required: 'Миқдор талаб қилинди.',
           }
         },
         expectedConsumeRemainingSort2: {
-          label: 'Қолган sort 2 миқдори',
+          label: 'Сорт 2 қолдиқ миқдор',
           validation: {
-            required: 'Қолган керак.',
+            required: 'Миқдор талаб қилинди.',
           }
         }
       },
@@ -1111,198 +1319,208 @@ export default {
         edit: 'Буюртмани таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Модел муваффақиятли яратилди.',
-        successEdited: 'Модел муваффақиятли таҳрирланди.',
-        successReceived: 'Модел муваффақиятли қабул қилинди.',
-        successCompleted: 'Модел муваффақиятли якунланди.',
-        failure: 'Моделни сақлашда хатолик юз берди.',
-        failureReceived: 'Буюртмани қабул қилишда хатолик юз берди.'
+        successCreated: 'Буюртма муваффақиятли яратилди.',
+        successEdited: 'Буюртма муваффақиятли таҳрирланди.',
+        successReceived: 'Буюртма муваффақиятли қабул қилинди.',
+        successCompleted: 'Буюртма муваффақиятли якунланди.',
+        failure: 'Хатолик юз берди',
+        failureReceived: 'Буюртмани қабул қилишда хатолик юз берди'
       }
     },
     completedMaterialOrderReport: {
-        fields: {
-          sort: {
-            label: 'Қайси сорт?',
+      fields: {
+        sort: {
+          label: 'Сортни танланг?',
+          validation: {
+            required: 'Сорт талаб қилинади.',
+          }
+        },
+        roll: {
+          label: 'Нечта ролон?',
+          validation: {
+            required: 'Ролон талаб қилинади.',
+          }
+        },
+        quantity: {
+          label: 'Неча кг тайёр?',
+          validation: {
+            required: 'Миқдор талаб қилинади.',
+          }
+        },
+        consumedDtos: {
+          title: 'Ишлатилган маҳсулотлар:',
+          thread: {
+            label: 'Ип тури',
             validation: {
-              required: 'Сорт керак.',
-            }
-          },
-          roll: {
-            label: 'Нечта ролик?',
-            validation: {
-              required: 'Ролик керак.',
+              required: 'Ип тури мажбурий',
             }
           },
           quantity: {
-            label: '{name} нинг неча кг тайёр?',
+            label: 'Миқдор',
             validation: {
-              required: 'Миқдор керак.',
+              required: 'Миқдор мажбурий.',
             }
-          },
-          consumedDtos: {
-            title: 'Ишлатилган сарфлар:',
-            thread: {
-              label: 'Ип тури',
-              validation: {
-                required: 'Ип тури керак.',
-              }
-            },
-            quantity: {
-              label: 'Миқдор',
-              validation: {
-                required: 'Миқдор керак.',
-              }
-            }
-          },
+          }
         },
-        buttons: {
-          create: 'Ҳисобот'
-        },
-        confirmation: {
-          successCreated: 'Ҳисобот муваффақиятли яратилди.',
-          successAccepted: 'Муваффақиятли қабул қилинди.',
-          successRejected: 'Муваффақиятли рад этилди.',
-          failure: 'Ҳисоботни сақлашда хатолик юз берди.'
-        }
       },
+      buttons: {
+        create: 'Ҳисобот'
+      },
+      confirmation: {
+        successCreated: 'Ҳисобот муваффақиятли яратилди.',
+        successAccepted: 'Ҳисобот муваффақиятли қабул қилинди.',
+        successRejected: 'Ҳисобот рад этилди.',
+        failure: 'Хатолик юз берди'
+      }
+    },
     fabric: {
       fields: {
         name: {
-          label: 'Исм',
+          label: 'Ном',
           validation: {
-            required: 'Исм киритилиши шарт.',
+            required: 'Ном мажбурий.',
           }
         },
         address: {
           label: 'Манзил',
           validation: {
-            required: 'Манзил киритилиши шарт.',
+            required: 'Манзил мажбурий.',
           }
         }
       },
       buttons: {
-        create: 'Бўёқ Фабрикасини Яратиш',
-        edit: 'Бўёқ Фабрикасини Тахрирлаш'
+        create: 'Фабрика яратиш',
+        edit: 'Фабрикани таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Бўёқ фабрикаси муваффақиятли яратилди.',
-        successEdited: 'Бўёқ фабрикаси муваффақиятли тахрирланди.',
-        successDeleted: 'Бўёқ фабрикаси муваффақиятли ўчирилди.',
-        failure: 'Бўёқ фабрикасини сақлашда хатолик юз берди.'
+        successCreated: 'Фабрика муваффақиятли яратилди.',
+        successEdited: 'Фабрика муваффақиятли таҳрирланди.',
+        successDeleted: 'Фабрика муваффақиятли ўчирилди.',
+        failure: 'Хатолик юз берди.'
       }
     },
     color: {
       fields: {
         name: {
-          label: 'Исм',
+          label: 'Ранг номи',
           validation: {
-            required: 'Исм киритилиши шарт.',
+            required: 'Ном мажбурий',
           }
         }
       },
       buttons: {
-        create: 'Ранг Яратиш',
-        edit: 'Рангни Тахрирлаш'
+        create: 'Ранг яратиш',
+        edit: 'Ранг таҳрирлаш'
       },
       confirmation: {
         successCreated: 'Ранг муваффақиятли яратилди.',
-        successEdited: 'Ранг муваффақиятли тахрирланди.',
-        successDeleted: 'Ранг муваффақиятли ўчирилди.',
-        failure: 'Рангни сақлашда хатолик юз берди.'
+        successEdited: 'Фабрика муваффақиятли таҳрирланди',
+        successDeleted: 'Фабрика муваффақиятли ўчирилди.',
+        failure: 'Хатолик юз берди.'
       }
     },
     model: {
-        fields: {
-          name: {
-            label: 'Модел номи',
+      fields: {
+        name: {
+          label: 'Модел номи',
+          validation: {
+            required: 'Модел номи мажбурий.',
+          }
+        },
+        description: {
+          label: 'Модел таснифи',
+          validation: {
+            required: 'Тасниф мажбурий.',
+          }
+        },
+        budget: {
+          label: 'Бюджетни танланг',
+          validation: {
+            required: 'Бюджет мажбурий.',
+          }
+        },
+        sizes: {
+          title: 'Модел размерларини яратиш:',
+        },
+        size: {
+          label: 'Модел размер номи',
+          validation: {
+            required: 'Модел размер номи мажбурий.',
+          }
+        },
+        price: {
+          label: 'Модел нархи',
+          validation: {
+            required: 'Модел нархи мажбурий.',
+          }
+        },
+        embroideries: {
+          label: 'Вишивкани танланг',
+          validation: {
+            required: 'Вишивка мажбурий.',
+          }
+        },
+        productAccessories: {
+          title: 'Маҳсулот аксесуарларини қўшиш:',
+          accessory: {
+            label: 'Аксесуарни танлаш',
             validation: {
-              required: 'Модел номи киритилиши шарт.',
+              required: 'Аксесуар мажбурий.',
             }
           },
-          description: {
-            label: 'Модел тавсифи',
+          quantity: {
+            label: 'Неҷта?',
             validation: {
-              required: 'Тавсиф киритилиши шарт.',
+              required: 'Миқдор мажбурий.',
             }
           },
           budget: {
-            label: 'Бюджетни танланг',
+            label: 'Ишчи нархининг бюджетини танланг',
             validation: {
-              required: 'Бюджет киритилиши шарт.',
+              required: 'Бюджетини мажбурий.',
             }
           },
-          sizes: {
-            title: 'Модел ўлчамларини яратиш:',
-          },
-          size: {
-            label: 'Модел ўлчами номи',
+          workerPrice: {
+            label: 'Ишчи учун бериладиган сумма',
             validation: {
-              required: 'Модел ўлчами номи киритилиши шарт.',
-            }
-          },
-          price: {
-            label: 'Модел нархи',
-            validation: {
-              required: 'Модел нархи киритилиши шарт.',
-            }
-          },
-          embroideries: {
-            label: 'Тикувларни танланг',
-            validation: {
-              required: 'Тикув танланиши шарт.',
-            }
-          },
-          productAccessories: {
-            title: 'Маҳсулот истеъмол ва аксессуарларини қўшиш',
-            accessory: {
-              label: 'Модел аксессуарини танланг',
-              validation: {
-                required: 'Аксессуар танланиши шарт.',
-              }
-            },
-            quantity: {
-              label: 'Нечта?',
-              validation: {
-                required: 'Сони киритилиши шарт.',
-              }
-            },
-            budget: {
-              label: 'Ишчи нархининг бюждетини танланг',
-              validation: {
-                required: 'Бюджет киритилиши шарт.',
-              }
-            },
-            workerPrice: {
-              label: 'Ишчи нархи',
-              validation: {
-                required: 'Нархи киритилиши шарт.',
-              }
+              required: 'Сумма талаб қилинади.',
             }
           }
-        },
-        buttons: {
-          create: 'Модел Яратиш',
-          edit: 'Модел Тахрирлаш'
-        },
-        confirmation: {
-          successCreated: 'Модел муваффақиятли яратилди.',
-          successEdited: 'Модел муваффақиятли тахрирланди.',
-          successDeleted: 'Модел муваффақиятли ўчирилди.',
-          failure: 'Моделни сақлашда хатолик юз берди.'
         }
+      },
+      buttons: {
+        create: 'Модел яратиш',
+        edit: 'Модел таҳрирлаш'
+      },
+      confirmation: {
+        successCreated: 'Модел муваффақиятли яратилди.',
+        successEdited: 'Модел муваффақиятли таҳрирланди.',
+        successDeleted: 'Модел муваффақиятли ўчирилди',
+        failure: 'Хатолик юз берди.'
       }
+    },
   },
   tables: {
     users: {
       header: {
         title: 'Фойдаланувчилар',
-        searchTitle: 'Исм бўйича қидиринг',
-        empty: 'Фойдаланувчи мавжуд эмас'
+        searchTitle: 'Исм бўйича қидириш',
+        empty: 'Ҳеч қандай фойдаланувчи топилмади'
       },
       columns: {
-        fullName: 'Исм ва фамилия',
+        worker: 'Ишчи',
+        month: 'Ой',
+        baseSalary: 'Асосий иш ҳаққи',
+        dailyWage: 'Кунлик иш ҳаққи',
+        workedDays: 'Ишланган кунлар',
+        pieceworkEarning: 'Ишбайлик ҳаққи',
+        advancePayment: 'Аванс тўлов',
+        paidAmount: 'Тўланган сумма',
+        transaction: 'Тасниф',
+        fullName: 'Исм & Фамилия',
         phone: 'Телефон',
-        salary: 'Маош',
+        salary: 'Ойлик',
+        salaryType: 'Ойлик тури',
         currency: 'Валютa',
         role: 'Рол'
       },
@@ -1310,71 +1528,104 @@ export default {
         add: 'Фойдаланувчи қўшиш'
       },
     },
+    attendance: {
+      header: {
+        title: 'Давомат',
+        empty: 'Ҳеч қандай давомат топилмади'
+      },
+      columns: {
+        worker: 'Ишчи',
+        date: 'Кун',
+        isWork: 'Ишда',
+        cutMoney: 'Ундурилган сумма',
+        isTimelyDeparture: 'Вақтдан олдин кетган',
+      }
+    },
     thread: {
       header: {
-        title: 'Мавзу',
-        empty: 'Мавзу мавжуд эмас'
+        title: 'Ип',
+        empty: 'Ҳеч қандай ип топилмади'
       },
       columns: {
         name: 'Ном',
-        quantity: 'Сони',
-        price: 'Нархи',
+        quantity: 'Миқдор',
+        price: 'Нарх',
       },
       buttons: {
-        add: 'Мавзу қўшиш'
+        add: 'Ип қўшиш'
       },
     },
     threadPurchase: {
       header: {
-        title: 'Мавзу Хараиди',
-        empty: 'Мавзу хараиди мавжуд эмас'
+        title: 'Ип Савдоси',
+        empty: 'Ҳеч қандай ип савдоси топилмади'
       },
       columns: {
-        id: 'Харид ID',
-        createdAt: 'Яратилган сана',
-        thread: 'Мавзу',
-        quantity: 'Сони',
-        price: 'Нархи',
+        id: 'Савдо ID',
+        createdAt: 'Яратилган вақт',
+        thread: 'Ип',
+        quantity: 'Миқдор',
+        price: 'Нарх',
         totalPrice: 'Жами нарх',
-        paidPrice: 'Тўланган нарх',
-        purchasedBy: 'Харид қилган',
-        transaction: 'Тавсиф',
+        paidPrice: 'Тўланган сумма',
+        purchasedBy: 'Ким томонидан савдо қилинган',
+        transaction: 'Тасниф',
       },
       buttons: {
-        add: 'Мавзу қўшиш'
+        add: 'Ип қўшиш'
+      },
+    },
+    accessoryPurchase: {
+      header: {
+        title: 'Аксессуар Савдоси',
+        empty: 'Ҳеч қандай Аксессуар Савдоси топилмади'
+      },
+      columns: {
+        id: 'Савдо ID',
+        createdAt: 'Яратилган вақт',
+        accessory: 'Аксессуар',
+        quantity: 'Миқдор',
+        price: 'Нарх',
+        totalPrice: 'Жами нарх',
+        paidPrice: 'Тўланган сумма',
+        purchasedBy: 'Ким томонидан савдо қилинган',
+        transaction: 'Тасниф',
+      },
+      buttons: {
+        add: 'Савдо яратиш'
       },
     },
     transaction: {
       header: {
-        title: 'Транзакциялар',
-        empty: 'Транзакция мавжуд эмас'
+        title: 'Трансаксиялар',
+        empty: 'Ҳеч қандай Трансаксия топилмади'
       },
       columns: {
         id: 'ID',
         createdAt: 'Сана',
-        paidPrice: 'Тўланган нарх',
-        createdBy: 'Яратган',
+        paidPrice: 'Тўланган сумма',
+        createdBy: 'Ким томонидан яратилган',
         description: 'Сабаб',
         budget: 'Бюджет',
         price: 'Нарх'
       },
       buttons: {
-        add: 'Мавзу қўшиш'
+        add: 'Трансаксия яратиш'
       },
     },
     unripeMaterial: {
       header: {
-        title: 'Нояр материаллар',
-        empty: 'Нояр материал мавжуд эмас'
+        title: 'Тўқув Материаллари',
+        empty: 'Ҳеч қандай Материал топилмади'
       },
       columns: {
-        name: 'Ном',
-        quantity: 'Сони',
-        roll: 'Рулон',
-        quantitySort2: 'Сони сорт 2',
-        rollSort2: 'Рулон сорт 2',
+        name: 'Номи',
+        quantity: 'Миқдор',
+        roll: 'Ролон',
+        quantitySort2: 'Миқдор сорт 2',
+        rollSort2: 'Ролон сорт 2',
         price: 'Нарх',
-        payWorker: 'Ишчи нархи'
+        payWorker: 'Ишчи ҳаққи'
       },
       buttons: {
         add: 'Материал қўшиш'
@@ -1382,60 +1633,61 @@ export default {
     },
     accessory: {
       header: {
-        title: 'Маҳсулот аксессуарлари',
-        empty: 'Аксессуар мавжуд эмас'
+        title: 'Аксессуар',
+        empty: 'Ҳеч қандай Аксессуар топилмади'
       },
       columns: {
         name: 'Ном',
         image: 'Расм',
-        quantity: 'Сони',
+        quantity: 'Миқдор',
         price: 'Нарх',
         type: 'Бўлим',
       },
       buttons: {
-        add: 'Аксессуар қўшиш'
+        add: 'Аксессуар қўшиш',
+        purchase: 'Сотиб олиш'
       },
     },
     embroidery: {
       header: {
-        title: 'Ишлов бериш',
-        empty: 'Ишлов бериш мавжуд эмас'
+        title: 'Вишивка',
+        empty: 'Ҳеч қандай Вишивка топилмади'
       },
       columns: {
         name: 'Ном',
         image: 'Расм',
-        workerPrice: 'Ишчи нархи',
+        workerPrice: 'Ишчи ҳаққи',
       },
       buttons: {
-        add: 'Ишлов қўшиш'
+        add: 'Вишивка қўшиш',
       },
     },
     customer: {
       header: {
         title: 'Мижоз',
-        empty: 'Мижоз мавжуд эмас'
+        empty: 'Ҳеч қандай Мижоз топилмади'
       },
       columns: {
-        fullName: 'Исм',
+        fullName: 'Исм & Фамилия',
         phone: 'Телефон'
       },
       buttons: {
-        add: 'Мижоз қўшиш'
+        add: 'Мижоз қўшиш',
       },
     },
     sale: {
       header: {
-        title: 'Сотув транзакциялари',
-        empty: 'Сотув транзакциялари мавжуд эмас'
+        title: 'Савдо Трансаксиялари',
+        empty: 'Ҳеч қандай Савдо Трансаксия топилмади'
       },
       columns: {
-        id: 'Сотув ID',
-        createdAt: 'Яратилган сана',
-        purchasedBy: 'Сотиб олган',
+        id: 'Савдо ID',
+        createdAt: 'Сана',
+        purchasedBy: 'Ким томонидан савдо қилинган',
         saleProduct: 'Маҳсулотлар',
         totalPrice: 'Жами нарх',
-        paidPrice: 'Тўланган нарх',
-        transaction: 'Тавсиф',
+        paidPrice: 'Тўланган сумма',
+        transaction: 'Тасниф',
       },
       buttons: {
         add: 'Яратиш'
@@ -1443,275 +1695,276 @@ export default {
     },
     ripeMaterial: {
       header: {
-        title: 'Пишган материаллар',
-        empty: 'Пишган материаллар мавжуд эмас'
+        title: 'Материаллар',
+        empty: 'Ҳеч қандай Материал топилмади'
       },
       columns: {
         name: 'Ном',
         paintFabricColor: 'Ранг',
-        quantity: 'Сони',
-        roll: 'Рулон',
-        quantitySort2: 'Сони сорт 2',
-        rollSort2: 'Рулон сорт 2',
+        quantity: 'Миқдор',
+        roll: 'Ролон',
+        quantitySort2: 'Миқдор сорт 2',
+        rollSort2: 'Ролон сорт 2',
         price: 'Нарх',
         priceSort2: 'Нарх сорт 2'
       },
       buttons: {
         add: 'Қўшиш',
-        sendToCutter: 'Кесувчи омборига жўнатиш'
+        sendToCutter: 'Бичувчи омборига юбориш'
       }
     },
     cutterRipeMaterial: {
       header: {
-        title: 'Пишган материаллар',
-        empty: 'Пишган материаллар мавжуд эмас'
+        title: 'Материаллар',
+        empty: 'Ҳеч қандай Материал топилмади'
       },
       columns: {
         ripeMaterial: 'Материал номи',
-        quantity: 'Сони',
-        roll: 'Рулон',
-        quantitySort2: 'Сони сорт 2',
-        rollSort2: 'Рулон сорт 2',
-        remainingSort1: 'Қолган сорт 1',
-        remainingSort2: 'Қолган сорт 2'
+        quantity: 'Миқдор',
+        roll: 'Ролон',
+        quantitySort2: 'Миқдор сорт 2',
+        rollSort2: 'Ролон сорт 2',
+        remainingSort1: 'Қолдиқ сорт 1',
+        remainingSort2: 'Қолдиқ сорт 2'
       },
       buttons: {
-        sendToWarehouse: 'Омборга жўнатиш'
+        sendToWarehouse: 'Складга юбориш'
       }
     },
     ripeMaterialPurchase: {
       header: {
-        title: 'Пишган материал хариди',
-        empty: 'Пишган материал хариди мавжуд эмас'
+        title: 'Материал Савдоси',
+        empty: 'Ҳеч қандай савдо топилмади'
       },
       columns: {
-        id: 'Харид ID',
-        createdAt: 'Яратилган сана',
+        id: 'Савдо ID',
+        createdAt: 'Сана',
         ripeMaterial: 'Материал',
-        quantity: 'Сони',
-        quantitySort2: 'Сони сорт 2',
+        quantity: 'Миқдор',
+        quantitySort2: 'Миқдор сорт 2',
         price: 'Нарх',
         priceSort2: 'Нарх сорт 2',
-        roll: 'Рулон',
-        rollSort2: 'Рулон сорт 2',
-        paidPrice: 'Тўланган нарх',
+        roll: 'Рўлон',
+        rollSort2: 'Рўлон сорт 2',
+        paidPrice: 'Тўланган сумма',
         totalPrice: 'Жами нарх',
-        purchasedBy: 'Харид қилган',
-        transaction: 'Тавсиф',
+        purchasedBy: 'Ким томонидан савдо қилинган',
+        transaction: 'Тасниф',
       },
       buttons: {
-        add: 'Пишган материал қўшиш'
+        add: 'Савдо қилиш'
       },
     },
     paint: {
       header: {
-        title: 'Бўёқ буйрутмалари',
-        empty: 'Мавжуд бўлган бўёқ буйрутмалари йўқ'
+        title: 'Бўёқ Буюртмалари',
+        empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
-        sentQuantitySort1: 'Миқдор тартиб 1',
-        sentRollSort1: 'Валик тартиб 1',
-        sentQuantitySort2: 'Миқдор тартиб 2',
-        sentRollSort2: 'Валик тартиб 2',
-        status: 'Ҳолат',
-        createdBy: 'Яратувчи',
-        receivedBy: 'Қабул қилган',
-        paintFabric: 'Матолар',
-        createdAt: 'Яратилган сана',
-        receivedAt: 'Қабул қилинган сана',
-        dealDate: 'Битим санаси',
-        unripeMaterial: 'Пишмаган материал',
-        ripeMaterialOrderAccepteds: 'Тавсиф'
+        sentQuantitySort1: 'Миқдор сорт 1',
+        sentRollSort1: 'Рўлон сорт 1',
+        sentQuantitySort2: 'Миқдор сорт 2',
+        sentRollSort2: 'Рўлон сорт 2',
+        status: 'Статус',
+        createdBy: 'Ким томонидан яратилган',
+        receivedBy: 'Ким қабул қилган',
+        paintFabric: 'Фабрика',
+        createdAt: 'Сана',
+        receivedAt: 'Қабул вақти',
+        dealDate: 'Келишилган сана',
+        unripeMaterial: 'Тўқув Материал',
+        ripeMaterialOrderAccepteds: 'Тасниф'
       },
       buttons: {
-        add: 'Буйрутма қўшиш'
+        add: 'Буюртма қўшиш'
       }
     },
     repaint: {
       header: {
-        title: 'Қайта бўёқ буйрутмалари',
-        empty: 'Мавжуд бўлган қайта бўёқ буйрутмалари йўқ'
+        title: 'Қайта Бўёқ Буюртмалари',
+        empty: 'Ҳеч қандай Қайта Бўёқ Буюртмалари топилмади'
       },
       columns: {
-        createdAt: 'Яратилган сана',
-        ripeMaterial: 'Пишган материал',
-        createdBy: 'Яратувчи',
-        paintFabric: 'Матолар',
-        sentQuantitySort1: 'Юборилган миқдор тартиб 1',
-        receivedQuantitySort1: 'Қабул қилинган миқдор тартиб 1',
-        sentRollSort1: 'Юборилган валик тартиб 1',
-        receivedRollSort1: 'Қабул қилинган валик тартиб 1',
-        sentQuantitySort2: 'Юборилган миқдор тартиб 2',
-        receivedQuantitySort2: 'Қабул қилинган миқдор тартиб 2',
-        sentRollSort2: 'Юборилган валик тартиб 2',
-        receivedRollSort2: 'Қабул қилинган валик тартиб 2',
-        status: 'Ҳолат',
-        receivedBy: 'Қабул қилган',
-        receivedAt: 'Қабул қилинган сана'
+        createdAt: 'Сана',
+        ripeMaterial: 'Материал',
+        createdBy: 'Ким томонидан яратилган',
+        paintFabric: 'Фабрика',
+        sentQuantitySort1: 'Юборилган миқдор сорт 1',
+        receivedQuantitySort1: 'Қабул қилинган миқдор сорт 1',
+        sentRollSort1: 'Юборилган рўлон сорт 1',
+        receivedRollSort1: 'Қабул қилинган рўлон сорт 1',
+        sentQuantitySort2: 'Юборилган миқдор сорт 2',
+        receivedQuantitySort2: 'Қабул қилинган миқдор сорт 2',
+        sentRollSort2: 'Юборилган рўлон сорт 2',
+        receivedRollSort2: 'Қабул қилинган рўлон сорт 2',
+        status: 'Статус',
+        receivedBy: 'Ким қабул қилган',
+        receivedAt: 'Қабул вақт',
+        dealDate: 'Келишилган сана'
       },
       buttons: {
-        add: 'Қайта бўёқ буйрутмаси қўшиш'
+        add: 'Буюртма яратиш'
       }
     },
     paintPurchase: {
       header: {
-        title: 'Бўёқ сотиб олиш',
-        empty: 'Мавжуд бўлган бўёқ сотиб олиш йўқ'
+        title: 'Бўёқ Савдоси',
+        empty: 'Ҳеч қандай савдо топилмади'
       },
       columns: {
-        id: 'Сотиб олиш ID',
-        receivedAt: 'Қабул қилинган сана',
-        receivedBy: 'Қабул қилган',
+        id: 'Савдо ID',
+        receivedBy: 'Ким қабул қилган',
+        receivedAt: 'Қабул вақт',
         ripeMaterial: 'Материал',
-        receivedQuantitySort1: 'Қабул қилинган миқдор тартиб 1',
-        receivedRollSort1: 'Қабул қилинган валик тартиб 1',
-        receivedQuantitySort2: 'Қабул қилинган миқдор тартиб 2',
-        receivedRollSort2: 'Қабул қилинган валик тартиб 2',
-        servicePrice: 'Хизмат нархи',
-        payedPrice: 'Тўланган нарх',
-        transaction: 'Тавсиф'
+        receivedQuantitySort1: 'Миқдор сорт 1',
+        receivedRollSort1: 'Рўлон сорт 1',
+        receivedQuantitySort2: 'Миқдор сорт 2',
+        receivedRollSort2: 'Рўлон сорт 2',
+        servicePrice: 'Сервис нарх',
+        payedPrice: 'Тўланган сумма',
+        transaction: 'Тасниф',
       }
     },
     unripeMaterialOrder: {
       header: {
-        title: 'Пишмаган материал буйрутмаси',
-        empty: 'Мавжуд бўлган буйрутма йўқ'
+        title: 'Тўқув Материал Буюртма',
+        empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
-        id: 'Буйрутма ID',
+        id: 'Буюртма ID',
         material: 'Материал номи',
         quantity: 'Миқдор',
-        completedQuantity: 'Бажарилган миқдор',
-        completedRoll: 'Валик',
-        completedQuantitySort2: 'Миқдор тартиб 2',
-        completedRollSort2: 'Валик тартиб 2',
+        completedQuantity: 'Тугатилган миқдор',
+        completedRoll: 'Рўлон',
+        completedQuantitySort2: 'Миқдор сорт 2',
+        completedRollSort2: 'Рўлон сорт 2',
         expectedConsume: 'Кутилаётган сарф',
-        completedUnripeMaterialOrders: 'Тавсиф',
-        consumed: 'Сарфланган',
-        createdAt: 'Яратилган сана',
-        createdBy: 'Яратувчи',
-        status: 'Ҳолат'
+        completedUnripeMaterialOrders: 'Тасниф',
+        consumed: 'Ишлатилди',
+        createdAt: 'Сана',
+        createdBy: 'Ким томонидан яратилган',
+        status: 'Статус',
       },
       buttons: {
-        add: 'Буйрутма қўшиш',
-        complete: 'Бажариш'
-      }
+        add: 'Буюртма қўшиш',
+        complete: 'Якунлаш'
+      },
     },
     completedUnripeMaterialOrder: {
       header: {
-        title: 'Бажарилган пишмаган материал',
-        empty: 'Мавжуд бўлган буйрутма йўқ'
+        title: 'Тугatilган Тўқув Буюртма',
+        empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
-        id: 'Буйрутма ID',
+        id: 'Буюртма ID',
         material: 'Материал номи',
         quantity: 'Миқдор',
-        confirmedBy: 'Тасдиқловчи',
-        completedQuantity: 'Бажарилган миқдор',
-        completedQuantitySort2: 'Бажарилган миқдор тартиб 2',
-        quantitySort2: 'Миқдор тартиб 2',
-        roll: 'Валик',
-        completedRoll: 'Бажарилган валик',
-        completedRollSort2: 'Бажарилган валик тартиб 2',
-        rollSort2: 'Валик тартиб 2',
+        confirmedBy: 'Тасдиқланди',
+        completedQuantity: 'Якунланган миқдор',
+        completedQuantitySort2: 'Якунланган миқдор сорт 2',
+        quantitySort2: 'Миқдор сорт 2',
+        roll: 'Рўлон',
+        completedRoll: 'Якунланган рўлон',
+        completedRollSort2: 'Якунланган рўлон сорт 2',
+        rollSort2: 'Рўлон сорт 2',
         expectedConsume: 'Кутилаётган сарф',
-        consumed: 'Сарфланган',
-        createdBy: 'Яратувчи',
-        createdAt: 'Яратилган сана',
-        status: 'Ҳолат',
-        completedUnripeMaterialOrders: 'Тавсиф'
+        consumed: 'Ишлатилди',
+        createdBy: 'Ким томонидан яратилган',
+        createdAt: 'Сана',
+        status: 'Статус',
+        completedUnripeMaterialOrders: 'Тасниф',
       }
     },
     modelOrder: {
       header: {
-        title: 'Буйрутмалар',
-        empty: 'Мавжуд бўлган буйрутма йўқ'
+        title: 'Бичув Буюртмалари',
+        empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
-        description: 'Тавсиф',
-        productModel: 'Маҳсулот модели',
-        createdAt: 'Яратилган сана',
-        createdBy: 'Яратувчи',
+        description: 'Тасниф',
+        productModel: 'Маҳсулот/Модел',
+        createdAt: 'Сана',
+        createdBy: 'Ким томонидан яратилди',
         productSize: 'Кутилаётган ўлчамлар',
         expectedOutlayRipeMaterial: 'Кутилаётган сарф',
-        productModelOrderCompleteds: 'Тавсиф',
-        status: 'Ҳолат'
+        productModelOrderCompleteds: 'Тасниф',
+        status: 'Статус',
       },
       buttons: {
-        add: 'Буйрутма қўшиш'
-      }
+        add: 'Буюртма қўшиш'
+      },
     },
     completedProductModelOrder: {
       header: {
-        title: 'Бажарилган моделлар',
-        empty: 'Мавжуд бўлган буйрутма йўқ'
+        title: 'Якунланган Бичув Буюртмалари',
+        empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
-        id: 'Буйрутма ID',
-        createdAt: 'Яратилган сана',
-        createdBy: 'Яратувчи',
+        id: 'Буюртма ID',
+        createdAt: 'Сана',
+        createdBy: 'Ким томонидан яратилган',
         productModel: 'Модел',
-        productSize: 'Маҳсулот ўлчамлари',
+        productSize: 'Модел ўлчамлар',
         expectedOutlayRipeMaterial: 'Кутилаётган сарф',
-        outlayRipeMaterial: 'Сарфланган',
-        status: 'Ҳолат'
+        outlayRipeMaterial: 'Ишлатилди',
+        status: 'Статус'
       }
     },
     warehouseAction: {
       header: {
-        title: 'Складдаги маҳсулот ҳаракати',
-        empty: 'Мавжуд бўлган ҳаракат йўқ'
+        title: 'Маҳсулотлар Ҳаракати',
+        empty: 'Ҳеч қандай ҳаракат топилмади'
       },
       columns: {
-        id: 'ID',
-        createdAt: 'Яратилган сана',
-        sentBy: 'Юборган',
+        id: 'Ҳаракат ID',
+        createdAt: 'Сана',
+        sentBy: 'Юборди',
         productModel: 'Модел',
-        productSize: 'Маҳсулот ўлчамлари',
-        fromWarehouse: 'Складдан',
-        toWarehouse: 'Складга',
-        status: 'Ҳолат'
+        productSize: 'Модел ўлчам',
+        fromWarehouse: 'Дан',
+        toWarehouse: 'Га',
+        status: 'Статус'
       }
     },
     fabric: {
       header: {
-        title: 'Бўёқ фабрикалари',
-        empty: 'Мавжуд бўлган бўёқ фабрикаси йўқ'
+        title: 'Бўёқ Фабрика',
+        empty: 'Ҳеч қандай фабрика топилмади'
       },
       columns: {
-        name: 'Номи',
-        address: 'Манзил'
+        name: 'Ном',
+        address: 'Манзил',
       },
       buttons: {
         add: 'Фабрика қўшиш'
-      }
+      },
     },
     color: {
       header: {
         title: 'Ранглар',
-        empty: 'Мавжуд бўлган ранг йўқ'
+        empty: 'Ҳеч қандай ранг топилмади'
       },
       columns: {
-        name: 'Номи'
+        name: 'Ном'
       },
       buttons: {
         add: 'Ранг қўшиш'
-      }
+      },
     },
     model: {
       header: {
         title: 'Моделлар',
-        empty: 'Мавжуд бўлган модел йўқ'
+        empty: 'Ҳеч қандай модел топилмади'
       },
       columns: {
-        name: 'Номи',
-        description: 'Тавсиф',
+        name: 'Ном',
+        description: 'Тасниф',
         sizes: 'Ўлчамлар',
         image: 'Расм'
       },
       buttons: {
         add: 'Модел қўшиш'
-      }
+      },
     }
   }
 }

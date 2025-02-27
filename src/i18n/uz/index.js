@@ -1,6 +1,6 @@
 export default {
   transaction: {
-    balanceIncreased: 'Balans to\'ldiriladi',
+    balanceIncreased: 'Balans to\'ldirildi',
     balanceDecreased: 'Balance kamaytirildi',
     threadPurchased: 'Ip sotib olindi',
     accessoryPurchased: 'Aksessuar sotib olindi',
@@ -130,7 +130,7 @@ export default {
   },
   menus: {
     sideBar: {
-      budget: 'Budjet',
+      budget: 'Byudjet',
       customers: 'Mijozlar',
       cutting: 'Bichuv',
       embroidery: 'Vishivka',
@@ -439,9 +439,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjetni tanlang',
+          label: 'Byudjetni tanlang',
           validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         },
         price: {
@@ -471,9 +471,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjetni tanlang',
+          label: 'Byudjetni tanlang',
           validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         },
         price: {
@@ -579,9 +579,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjet',
+          label: 'Byudjet',
           validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         },
         measurement: {
@@ -665,9 +665,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjet',
+          label: 'Byudjet',
           validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         },
         price: {
@@ -709,9 +709,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjet',
+          label: 'Byudjet',
             validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         }
       },
@@ -761,9 +761,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjet',
+          label: 'Byudjet',
             validation: {
-            required: 'Budjet talab qilinadi.'
+            required: 'Byudjet talab qilinadi.'
           }
         },
         productModel: {
@@ -859,7 +859,7 @@ export default {
         }
       },
       budget: {
-        label: 'Budjetni tanlang',
+        label: 'Byudjetni tanlang',
           validation: {
           required: 'Byudjet talab qilinadi.'
         }
@@ -921,9 +921,9 @@ export default {
           }
         },
         budget: {
-          label: 'Budjetni tanlang',
+          label: 'Byudjetni tanlang',
           validation: {
-            required: 'Budjet majburiy.',
+            required: 'Byudjet majburiy.',
           }
         },
         servicePrice: {
@@ -933,7 +933,7 @@ export default {
           }
         },
         price: {
-          label: '1 kg uchun narx?',
+          label: '1(kg/m) uchun narx?',
           validation: {
             required: 'Narx majburiy.',
           }
@@ -1093,19 +1093,19 @@ export default {
           }
         },
         budget: {
-          label: 'Qaysi budjetdan?',
+          label: 'Qaysi Byudjetdan?',
           validation: {
             required: 'Byudjet majburiy.',
           }
         },
         price: {
-          label: '1kg narxi?',
+          label: '1 (kg/m) narxi?',
           validation: {
             required: 'Narx majburiy.',
           }
         },
         priceSort2: {
-          label: '1kg narxi sort 2?',
+          label: '1 (kg/m) narxi sort 2?',
           validation: {
             required: 'Narx majburiy.',
           }
@@ -1117,13 +1117,13 @@ export default {
           }
         },
         quantity: {
-          label: 'Necha kg?',
+          label: 'Necha (kg/m)?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         quantitySort2: {
-          label: 'Necha kg sort-2?',
+          label: 'Necha (kg/m) sort-2?',
           validation: {
             required: 'Miqdor majburiy.',
           }
@@ -1236,31 +1236,31 @@ export default {
           }
         },
         consumedQuantity: {
-          label: 'Mahsulotlar uchun nechta kg ishlatilgan?',
+          label: 'Mahsulotlar uchun ishlatilgan miqdor (kg/m)?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         wasteSort1: {
-          label: 'Necha kg chiqindi?',
+          label: 'Necha (kg/m) chiqindi?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         remainingSort1: {
-          label: 'Necha kg qoldiq material ishlatilgan?',
+          label: 'Necha (kg/m) qoldiq ishlatilgan?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         wasteRemainingSort1: {
-          label: 'Necha kg qoldiq materialdan qolgan chiqindi?',
+          label: 'Necha (kg/m) qoldiqning chiqindisi?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         newRemainingSort1: {
-          label: 'Necha kg yangi qoldiq?',
+          label: 'Necha (kg/m) yangi qoldiq?',
           validation: {
             required: 'Miqdor majburiy.',
           }
@@ -1272,45 +1272,45 @@ export default {
           }
         },
         quantitySort2: {
-          label: 'Mahsulotlar uchun necha kg sort 2 material ishlatilgan?',
+          label: 'Mahsulotlar uchun ishlatilgan sort 2 miqdor (kg/m)?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         wasteSort2: {
-          label: 'Nechta kg sort 2 chiqindi?',
+          label: 'Necha (kg/m) sort 2 chiqindi?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         remainingSort2: {
-          label: 'Necha kg sort 2 qoldiq material ishlatilgan?',
+          label: 'Necha (kg/m) sort 2 qoldiq ishlatilgan?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         wasteRemainingSort2: {
-          label: 'Necha kg sort 2 material chiqindi?',
+          label: 'Necha (kg/m) sort 2 qoldiqning chiqindisi?',
           validation: {
             required: 'Miqdor majburiy.',
           }
         },
         newRemainingSort2: {
-          label: 'Necha kg yangi qoldiq sort 2?',
+          label: 'Necha (kg/m) sort 2 yangi qoldiq?',
           validation: {
             required: 'Quantity is required.',
           }
         },
         expectedConsumeRemainingSort1: {
-          label: 'Qoldiq sort 1 miqdor',
+          label: 'Sort 1 qoldiq miqdor',
           validation: {
-            required: 'Miqdor majburiy.',
+            required: 'Miqdor talab qilinadi.',
           }
         },
         expectedConsumeRemainingSort2: {
-          label: 'Remaining sort 2 quantity',
+          label: 'Sort 2 qoldiq miqdor',
           validation: {
-            required: 'Remaining is required.',
+            required: 'Miqdor talab qilinadi.',
           }
         }
       },
@@ -1319,651 +1319,651 @@ export default {
         edit: 'Edit Order'
       },
       confirmation: {
-        successCreated: 'Model was successfully created.',
-        successEdited: 'Model was successfully edited.',
-        successReceived: 'Model was successfully received.',
-        successCompleted: 'Model was successfully completed.',
-        failure: 'There was an error saving model.',
-        failureReceived: 'There was an error receiving order.'
+        successCreated: 'Buyurtma muvaffaqiyatli yaratildi.',
+        successEdited: 'Buyurtma muvaffaqiyatli tahrirlandi.',
+        successReceived: 'Buyurtma muvaffaqiyatli qabul qilindi.',
+        successCompleted: 'Buyurtma muvaffaqiyatli yakunlandi.',
+        failure: 'Xatolik yuz berdi',
+        failureReceived: 'Buyurtma qabul qilishda xatolik yuz berdi'
       }
     },
     completedMaterialOrderReport: {
       fields: {
         sort: {
-          label: 'Which sort?',
+          label: 'Sortni tanlang?',
           validation: {
-            required: 'Sort is required.',
+            required: 'Sort talab qilinadi.',
           }
         },
         roll: {
-          label: 'How many rolls?',
+          label: 'Nechta ro\'lon?',
           validation: {
-            required: 'Roll is required.',
+            required: 'Ro\'lon talab qilinadi.',
           }
         },
         quantity: {
-          label: 'How many kg of {name} ready?',
+          label: 'Necha kg tayyor?',
           validation: {
-            required: 'Quantity is required.',
+            required: 'Miqdor talab qilinadi.',
           }
         },
         consumedDtos: {
-          title: 'Used consumes:',
+          title: 'Ishlatilgan mahsulotlar:',
           thread: {
-            label: 'Thread Type',
+            label: 'Up turi',
             validation: {
-              required: 'Thread Type is required.',
+              required: 'Ip turi majburiy',
             }
           },
           quantity: {
-            label: 'Quantity',
+            label: 'Miqdor',
             validation: {
-              required: 'Quantity is required.',
+              required: 'Miqdor majburiy.',
             }
           }
         },
       },
       buttons: {
-        create: 'Report'
+        create: 'Hisobot'
       },
       confirmation: {
-        successCreated: 'Report was successfully created.',
-        successAccepted: 'Successfully accepted.',
-        successRejected: 'Successfully rejected.',
-        failure: 'There was an error saving Report.'
+        successCreated: 'Hisobot muvoffaqiyatli yaratildi.',
+        successAccepted: 'Hisobot muvoffaqiyatli qabul qilindi.',
+        successRejected: 'Hisobot rad etildi.',
+        failure: 'Xatolik yuz berdi'
       }
     },
     fabric: {
       fields: {
         name: {
-          label: 'Name',
+          label: 'Nom',
           validation: {
-            required: 'Name is required.',
+            required: 'Nom majburiy.',
           }
         },
         address: {
-          label: 'Address',
+          label: 'Manzil',
           validation: {
-            required: 'Address is required.',
+            required: 'Manzil majburiy.',
           }
         }
       },
       buttons: {
-        create: 'Create Paint Factory',
-        edit: 'Edit Paint Factory'
+        create: 'Fabrika yaratish',
+        edit: 'Fabrikani tahrirlash'
       },
       confirmation: {
-        successCreated: 'Paint Factory was successfully created.',
-        successEdited: 'Paint Factory was successfully edited.',
-        successDeleted: 'Paint Factory was successfully deleted.',
-        failure: 'There was an error saving paint factory.'
+        successCreated: 'Fabrika muvoffaqiyatli yaratildi.',
+        successEdited: 'Fabrika muvoffaqiyatli tahrirlandi.',
+        successDeleted: 'Fabrika muvoffaqiyatli o\'chirildi.',
+        failure: 'Xatolik yuz berdi.'
       }
     },
     color: {
       fields: {
         name: {
-          label: 'Name',
+          label: 'Rang nomi',
           validation: {
-            required: 'Name is required.',
+            required: 'Nom majburiy',
           }
         }
       },
       buttons: {
-        create: 'Create Color',
-        edit: 'Edit Color'
+        create: 'Rang yaratish',
+        edit: 'Rang tahrirlash'
       },
       confirmation: {
-        successCreated: 'Color was successfully created.',
-        successEdited: 'Color was successfully edited.',
-        successDeleted: 'Color was successfully deleted.',
-        failure: 'There was an error saving paint color.'
+        successCreated: 'Rang muvoffaqiyatli yaratildi.',
+        successEdited: 'Fabrika muvoffaqiyatli tahrirlandi',
+        successDeleted: 'Fabrika muvoffaqiyatli o\'chirildi.',
+        failure: 'Xatolik yuz berdi.'
       }
     },
     model: {
       fields: {
         name: {
-          label: 'Model name',
+          label: 'Model nomi',
           validation: {
-            required: 'Model name is required.',
+            required: 'Model nomi majburiy.',
           }
         },
         description: {
-          label: 'Model description',
+          label: 'Model tasnifi',
           validation: {
-            required: 'Description is required.',
+            required: 'Tasnif majburiy.',
           }
         },
         budget: {
-          label: 'Select budget',
+          label: 'Byudjetni tanlang',
           validation: {
-            required: 'Budget is required.',
+            required: 'Byudjet majburiy.',
           }
         },
         sizes: {
-          title: 'Create model sizes:',
+          title: 'Model razmerlarini yaratish:',
         },
         size: {
-          label: 'Model size name',
+          label: 'Model razmer nomi',
           validation: {
-            required: 'Model size name is required.',
+            required: 'Model ramer nomi majburiy.',
           }
         },
         price: {
-          label: 'Model price',
+          label: 'Model narxi',
           validation: {
-            required: 'Model price is required.',
+            required: 'Model narxi majburiy.',
           }
         },
         embroideries: {
-          label: 'Choose embroideries',
+          label: 'Vishivkani tanlang',
           validation: {
-            required: 'Embroidery is required.',
+            required: 'Vishivka majburiy.',
           }
         },
         productAccessories: {
-          title: 'Add product consumption/accessory',
+          title: 'Maxsulot aksessuarlarini qo\'shish:',
           accessory: {
-            label: 'Choose model accessory',
+            label: 'Aksessuarni tanlash',
             validation: {
-              required: 'Accessory is required.',
+              required: 'Aksessuar majburiy.',
             }
           },
           quantity: {
-            label: 'How many?',
+            label: 'Nechta?',
             validation: {
-              required: 'Quantity is required.',
+              required: 'Miqdor majburiy.',
             }
           },
           budget: {
-            label: 'Select budget of worker price',
+            label: 'Ishchi narxining byudjetini tanlang',
             validation: {
-              required: 'Budget is required.',
+              required: 'Byudjetini majburiy.',
             }
           },
           workerPrice: {
-            label: 'Worker price',
+            label: 'Ischchi uchun beriladigan summa',
             validation: {
-              required: 'Price is required.',
+              required: 'Summa talab qilinadi.',
             }
           }
         }
       },
       buttons: {
-        create: 'Create Model',
-        edit: 'Edit Model'
+        create: 'Model yaratish',
+        edit: 'Model tahrirlash'
       },
       confirmation: {
-        successCreated: 'Model was successfully created.',
-        successEdited: 'Model was successfully edited.',
-        successDeleted: 'Model was successfully deleted.',
-        failure: 'There was an error saving model.'
+        successCreated: 'Model muvoffaqiyatli yaratildi.',
+        successEdited: 'Model muvoffaqiyatli tahrirlandi.',
+        successDeleted: 'Model muvoffaqiyatli o\'chirildi',
+        failure: 'Xatolik yuz berdi.'
       }
     },
   },
   tables: {
     users: {
       header: {
-        title: 'Users',
-        searchTitle: 'Search by name',
-        empty: 'There is no available user'
+        title: 'Foydalanuvchilar',
+        searchTitle: 'Ism bo\'yicha qidirish',
+        empty: 'Hech qanday foydalanuvchi topilmadi'
       },
       columns: {
-        worker: 'Customer',
-        month: 'Month',
-        baseSalary: 'Base Salary',
-        dailyWage: 'Daily Wage',
-        workedDays: 'Worked Days',
-        pieceworkEarning: 'Piecework Earning',
-        advancePayment: 'Advance Payment',
-        paidAmount: 'Paid Amount',
-        transaction: 'Description',
-        fullName: 'Name & Surname',
-        phone: 'Phone',
-        salary: 'Salary',
-        salaryType: 'Salary Type',
-        currency: 'Currency',
-        role: 'Role'
+        worker: 'Ishchi',
+        month: 'Oy',
+        baseSalary: 'Asosiy ish haqqi',
+        dailyWage: 'Kunlik ish haqqi',
+        workedDays: 'Ishlangan kunlar',
+        pieceworkEarning: 'Ishbaylik haqqi',
+        advancePayment: 'Avans to\'lov',
+        paidAmount: 'To\'langan summa',
+        transaction: 'Tasnif',
+        fullName: 'Ism & Familya',
+        phone: 'Telefon',
+        salary: 'Oylik',
+        salaryType: 'Oylik turi',
+        currency: 'Valyuta',
+        role: 'Rol'
       },
       buttons: {
-        add: 'Add User'
+        add: 'Foydalanuvchi qo\'shish'
       },
     },
     attendance: {
       header: {
-        title: 'Attendance',
-        empty: 'There is no available attendance'
+        title: 'Davomat',
+        empty: 'Hech qanday davomad topilmadi'
       },
       columns: {
-        worker: 'Customer',
-        date: 'Date',
-        isWork: 'At work',
-        cutMoney: 'Cut money',
-        isTimelyDeparture: 'Early departure',
+        worker: 'Ishchi',
+        date: 'Kun',
+        isWork: 'Ishda',
+        cutMoney: 'Undurilgan summa',
+        isTimelyDeparture: 'Vaqtdan oldin ketgan',
       }
     },
     thread: {
       header: {
-        title: 'Thread',
-        empty: 'There is no available thread'
+        title: 'Ip',
+        empty: 'Hech qanday ip topilmadi'
       },
       columns: {
-        name: 'Name',
-        quantity: 'Quantity',
-        price: 'Price',
+        name: 'Nom',
+        quantity: 'Miqdor',
+        price: 'Narx',
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Ip qo\'shish'
       },
     },
     threadPurchase: {
       header: {
-        title: 'Thread Purchase',
-        empty: 'There is no available Thread Purchase'
+        title: 'Ip Savdosi',
+        empty: 'Hech qanday ip savdosi topilmadi'
       },
       columns: {
-        id: 'Purchase ID',
-        createdAt: 'Created At',
-        thread: 'Thread',
-        quantity: 'Quantity',
-        price: 'Price',
-        totalPrice: 'Total Price',
-        paidPrice: 'Paid Price',
-        purchasedBy: 'Purchased By',
-        transaction: 'Description',
+        id: 'Savdo ID',
+        createdAt: 'Yaratilgan vaqt',
+        thread: 'Ip',
+        quantity: 'Miqdor',
+        price: 'Narx',
+        totalPrice: 'Jami narx',
+        paidPrice: 'To\'langan summa',
+        purchasedBy: 'Kim tomonidan savdo qilingan',
+        transaction: 'Tasnif',
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Ip qo\'shish'
       },
     },
     accessoryPurchase: {
       header: {
-        title: 'Accessory Purchase',
-        empty: 'There is no available Accessory Purchase'
+        title: 'Aksessuar Savdosi',
+        empty: 'Hech qanday Aksessuar Savdosi topilmadi'
       },
       columns: {
-        id: 'Purchase ID',
-        createdAt: 'Created At',
-        accessory: 'Accessory',
-        quantity: 'Quantity',
-        price: 'Price',
-        totalPrice: 'Total Price',
-        paidPrice: 'Paid Price',
-        purchasedBy: 'Purchased By',
-        transaction: 'Description',
+        id: 'Savdo ID',
+        createdAt: 'Yaratilgan vaqt',
+        accessory: 'Aksessuar',
+        quantity: 'Miqdor',
+        price: 'Narx',
+        totalPrice: 'Jami narx',
+        paidPrice: 'To\'langan summa',
+        purchasedBy: 'Kim tomonidan savdo qilingan',
+        transaction: 'Tasnif',
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Savdo yaratish'
       },
     },
     transaction: {
       header: {
-        title: 'Transactions',
-        empty: 'There is no available transaction'
+        title: 'Transaksiyaklar',
+        empty: 'Hech qanday Transaksiya topilmadi'
       },
       columns: {
         id: 'ID',
-        createdAt: 'Date',
-        paidPrice: 'Paid Price',
-        createdBy: 'Created By',
-        description: 'Reason',
-        budget: 'Budget',
-        price: 'Price'
+        createdAt: 'Sana',
+        paidPrice: 'To\'langan summa',
+        createdBy: 'Kim tomonidan yaratilgan',
+        description: 'Sabab',
+        budget: 'Byudjet',
+        price: 'Narx'
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Transaksiya yaratish'
       },
     },
     unripeMaterial: {
       header: {
-        title: 'Unripe Materials',
-        empty: 'There is no available Unripe Materials'
+        title: 'To\'quv Materiallari',
+        empty: 'Hech qanday Material topilmadi'
       },
       columns: {
-        name: 'Name',
-        quantity: 'Quantity',
-        roll: 'Roll',
-        quantitySort2: 'Quantity sort 2',
-        rollSort2: 'Roll sort 2',
-        price: 'Price',
-        payWorker: 'Worker price'
+        name: 'Nomi',
+        quantity: 'Miqdor',
+        roll: 'Ro\'lon',
+        quantitySort2: 'Miqdor sort 2',
+        rollSort2: 'Ro\'lon sort 2',
+        price: 'Narx',
+        payWorker: 'Ishchi haqqi'
       },
       buttons: {
-        add: 'Add Material'
+        add: 'Material qo\'shish'
       },
     },
     accessory: {
       header: {
-        title: 'Accessory',
-        empty: 'There is no available Accessory'
+        title: 'Aksessuar',
+        empty: 'Hech qanday Aksessuar topilmadi'
       },
       columns: {
-        name: 'Name',
-        image: 'Image',
-        quantity: 'Quantity',
-        price: 'Price',
-        type: 'Section',
+        name: 'Nom',
+        image: 'Rasm',
+        quantity: 'Miqdor',
+        price: 'Narx',
+        type: 'Bo\'lim',
       },
       buttons: {
-        add: 'Add Accessory',
-        purchase: 'Purchase'
+        add: 'Aksessaur qo\'shish',
+        purchase: 'Sotib olish'
       },
     },
     embroidery: {
       header: {
-        title: 'Embroidery',
-        empty: 'There is no available Embroidery'
+        title: 'Vishivka',
+        empty: 'Hech qanday Vishivka topilmadi'
       },
       columns: {
-        name: 'Name',
-        image: 'Image',
-        workerPrice: 'Worker Price',
+        name: 'Nom',
+        image: 'Rasm',
+        workerPrice: 'Ishchi haqqi',
       },
       buttons: {
-        add: 'Add Embroidery'
+        add: 'Vishivka qo\'shish',
       },
     },
     customer: {
       header: {
-        title: 'Customer',
-        empty: 'There is no available Customer'
+        title: 'Mijoz',
+        empty: 'Hech qanday Mijoz topilmadi'
       },
       columns: {
-        fullName: 'Name',
-        phone: 'Phone'
+        fullName: 'Ism & Familya',
+        phone: 'Telefon'
       },
       buttons: {
-        add: 'Add Customer'
+        add: 'Mijoz qo\'shish',
       },
     },
     sale: {
       header: {
-        title: 'Sale Transactions',
-        empty: 'There is no available Sale Transactions'
+        title: 'Savdo Tranzaksiyalar',
+        empty: 'Hech qanday Savdo Tranzaksiya topilmadi'
       },
       columns: {
-        id: 'Sale ID',
-        createdAt: 'Created At',
-        purchasedBy: 'Purchased By',
-        saleProduct: 'Products',
-        totalPrice: 'Total Price',
-        paidPrice: 'Paid price',
-        transaction: 'Description',
+        id: 'Savdo ID',
+        createdAt: 'Sana',
+        purchasedBy: 'Kim tomonidan savdo qilingan',
+        saleProduct: 'Maxsulotlar',
+        totalPrice: 'Jami narx',
+        paidPrice: 'To\'langan summa',
+        transaction: 'Tasnif',
       },
       buttons: {
-        add: 'Create'
+        add: 'Yaratish'
       }
     },
     ripeMaterial: {
       header: {
-        title: 'Ripe Materials',
-        empty: 'There is no available Ripe Materials'
+        title: 'Materiallar',
+        empty: 'Hech qanday Material topilmadi'
       },
       columns: {
-        name: 'Name',
-        paintFabricColor: 'Color',
-        quantity: 'Quantity',
-        roll: 'Roll',
-        quantitySort2: 'Quantity sort 2',
-        rollSort2: 'Roll sort 2',
-        price: 'Price',
-        priceSort2: 'Price sort 2'
+        name: 'Nom',
+        paintFabricColor: 'Rang',
+        quantity: 'Miqdor',
+        roll: 'Ro\'lon',
+        quantitySort2: 'Miqdor sort 2',
+        rollSort2: 'Ro\'lon sort 2',
+        price: 'Narx',
+        priceSort2: 'Narx sort 2'
       },
       buttons: {
-        add: 'Add',
-        sendToCutter: 'Send to Cutter Warehouse'
+        add: 'Qo\'shish',
+        sendToCutter: 'Bichuvchi omboriga yuborish'
       }
     },
     cutterRipeMaterial: {
       header: {
-        title: 'Ripe Materials',
-        empty: 'There is no available Ripe Materials'
+        title: 'Materiallar',
+        empty: 'Hech qanday Material topilmadi'
       },
       columns: {
-        ripeMaterial: 'Material name',
-        quantity: 'Quantity',
-        roll: 'Roll',
-        quantitySort2: 'Quantity sort 2',
-        rollSort2: 'Roll sort 2',
-        remainingSort1: 'Remainder sort 1',
-        remainingSort2: 'Remainder sort 2'
+        ripeMaterial: 'Material nomi',
+        quantity: 'Miqdor',
+        roll: 'Ro\'lon',
+        quantitySort2: 'Miqdor sort 2',
+        rollSort2: 'Ro\'lon sort 2',
+        remainingSort1: 'Qoldiq sort 1',
+        remainingSort2: 'Qoldiq sort 2'
       },
       buttons: {
-        sendToWarehouse: 'Send to Warehouse'
+        sendToWarehouse: 'Skladga yuborish'
       }
     },
     ripeMaterialPurchase: {
       header: {
-        title: 'Ripe Material Purchase',
-        empty: 'There is no available Thread Purchase'
+        title: 'Material Savdosi',
+        empty: 'Hech qanday savdo topilmadi'
       },
       columns: {
-        id: 'Purchase ID',
-        createdAt: 'Created At',
+        id: 'Savdo ID',
+        createdAt: 'Sana',
         ripeMaterial: 'Material',
-        quantity: 'Quantity',
-        quantitySort2: 'Quantity sort 2',
-        price: 'Price',
-        priceSort2: 'Price sort 2',
-        roll: 'Roll',
-        rollSort2: 'Roll sort 2',
-        paidPrice: 'Paid price',
-        totalPrice: 'Total Price',
-        purchasedBy: 'Purchased By',
-        transaction: 'Description',
+        quantity: 'Miqdor',
+        quantitySort2: 'Miqdor sort 2',
+        price: 'Narx',
+        priceSort2: 'Narx sort 2',
+        roll: 'Ro\'lon',
+        rollSort2: 'Ro\'lon sort 2',
+        paidPrice: 'To\'langan summa',
+        totalPrice: 'Jami narx',
+        purchasedBy: 'Kim tomonidan savdo qilingan',
+        transaction: 'Tasnif',
       },
       buttons: {
-        add: 'Add Ripe Material'
+        add: 'Savdo qilish'
       },
     },
     paint: {
       header: {
-        title: 'Paint Orders',
-        empty: 'There is no available Paint Orders'
+        title: 'Bo\'yoq Buyurtmalar',
+        empty: 'Hech qanday buyurtma topilmadi'
       },
       columns: {
-        sentQuantitySort1: 'Quantity sort 1',
-        sentRollSort1: 'Roll sort 1',
-        sentQuantitySort2: 'Quantity sort 2',
-        sentRollSort2: 'Roll sort 2',
+        sentQuantitySort1: 'Miqdor sort 1',
+        sentRollSort1: 'Ro\'lon sort 1',
+        sentQuantitySort2: 'Miqdor sort 2',
+        sentRollSort2: 'Ro\'lon sort 2',
         status: 'Status',
-        createdBy: 'Created By',
-        receivedBy: 'Received By',
-        paintFabric: 'Fabric',
-        createdAt: 'Created At',
-        receivedAt: 'Received At',
-        dealDate: 'Deal Date',
-        unripeMaterial: 'Unripe Material',
-        ripeMaterialOrderAccepteds: 'Description'
+        createdBy: 'Kim tomonidan yaratilgan',
+        receivedBy: 'Kim qabul qilgan',
+        paintFabric: 'Fabrika',
+        createdAt: 'Sana',
+        receivedAt: 'Qabul vaqti',
+        dealDate: 'Kelishilgan sana',
+        unripeMaterial: 'To\'quv Material',
+        ripeMaterialOrderAccepteds: 'Tasnif'
       },
       buttons: {
-        add: 'Add Order'
+        add: 'Buyurtma qo\'shish'
       }
     },
     repaint: {
       header: {
-        title: 'Repaint Orders',
-        empty: 'There is no available Repaint Orders'
+        title: 'Qayta Bo\'yoq Buyurtmalar',
+        empty: 'Hech qanday Qayta Bo\'yoq Buyurtmalar topilmadi'
       },
       columns: {
-        createdAt: 'Created At',
-        ripeMaterial: 'Ripe Material',
-        createdBy: 'Created By',
-        paintFabric: 'Fabric',
-        sentQuantitySort1: 'Sent Quantity sort 1',
-        receivedQuantitySort1: 'Received Quantity sort 1',
-        sentRollSort1: 'Sent Roll sort 1',
-        receivedRollSort1: 'Received Roll sort 1',
-        sentQuantitySort2: 'Sent Quantity sort 2',
-        receivedQuantitySort2: 'Received Quantity sort 2',
-        sentRollSort2: 'Sent Roll sort 2',
-        receivedRollSort2: 'Received Roll sort 2',
+        createdAt: 'Sana',
+        ripeMaterial: 'Material',
+        createdBy: 'Kim tomonidan yaratilgan',
+        paintFabric: 'Fabrika',
+        sentQuantitySort1: 'Jo\'natilgan miqdor sort 1',
+        receivedQuantitySort1: 'Qabul qilingan miqdor sort 1',
+        sentRollSort1: 'Jo\'natilgan ro\'lon sort 1',
+        receivedRollSort1: 'Qabul qilingan ro\'lon sort 1',
+        sentQuantitySort2: 'Jo\'natilgan miqdor sort 2',
+        receivedQuantitySort2: 'Qabul qilingan miqdor sort 2',
+        sentRollSort2: 'Jo\'natilgan ro\'lon sort 2',
+        receivedRollSort2: 'Qabul qilingan ro\'lon sort 2',
         status: 'Status',
-        receivedBy: 'Received By',
-        receivedAt: 'Received At',
-        dealDate: 'Deal date'
+        receivedBy: 'Kim qabul qilgan',
+        receivedAt: 'Qabul vaqt',
+        dealDate: 'Kelishilgan sana'
       },
       buttons: {
-        add: 'Add repaint order'
+        add: 'Buyurtma yaratish'
       }
     },
     paintPurchase: {
       header: {
-        title: 'Paint Purchase',
-        empty: 'There is no available Paint Purchase'
+        title: 'Bo\'yoq Savdosi',
+        empty: 'Hech qanday savdo topilmadi'
       },
       columns: {
-        id: 'Purchase ID',
-        receivedAt: 'Received At',
-        receivedBy: 'Received By',
+        id: 'Savdo ID',
+        receivedBy: 'Kim qabul qilgan',
+        receivedAt: 'Qabul vaqt',
         ripeMaterial: 'Material',
-        receivedQuantitySort1: 'Quantity sort 1',
-        receivedRollSort1: 'Roll sort 1',
-        receivedQuantitySort2: 'Quantity sort 2',
-        receivedRollSort2: 'Roll sort 2',
-        servicePrice: 'Service price',
-        payedPrice: 'Paid price',
-        transaction: 'Description',
+        receivedQuantitySort1: 'Miqdor sort 1',
+        receivedRollSort1: 'Ro\'lon sort 1',
+        receivedQuantitySort2: 'Miqdor sort 2',
+        receivedRollSort2: 'Ro\'lon sort 2',
+        servicePrice: 'Servis narx',
+        payedPrice: 'To\'langan summa',
+        transaction: 'Tasnif',
       }
     },
     unripeMaterialOrder: {
       header: {
-        title: 'Unripe Material Order',
-        empty: 'There is no available order'
+        title: 'To\'quv Material Buyurtma',
+        empty: 'Hech qanday buyurtma topilmadi'
       },
       columns: {
-        id: 'Order ID',
-        material: 'Material Name',
-        quantity: 'Quantity',
-        completedQuantity: 'Completed Quantity',
-        completedRoll: 'Roll',
-        completedQuantitySort2: 'Quantity Sort2',
-        completedRollSort2: 'Roll Sort2',
-        expectedConsume: 'Expected Consume',
-        completedUnripeMaterialOrders: 'Description',
-        consumed: 'Consumed',
-        createdAt: 'Created At',
-        createdBy: 'Created By',
+        id: 'Buyurtma ID',
+        material: 'Material nomi',
+        quantity: 'Miqdor',
+        completedQuantity: 'Tugatilgan miqdor',
+        completedRoll: 'Ro\'lon',
+        completedQuantitySort2: 'Miqdor sort 2',
+        completedRollSort2: 'Ro\'lon sort 2',
+        expectedConsume: 'Kutilayotgan rasxod',
+        completedUnripeMaterialOrders: 'Tasnif',
+        consumed: 'Ishlatildi',
+        createdAt: 'Sana',
+        createdBy: 'Kim tomonidan yaratilgan',
         status: 'Status',
       },
       buttons: {
-        add: 'Add Order',
-        complete: 'Complete'
+        add: 'Buyurtma qo\'shish',
+        complete: 'Yakunlash'
       },
     },
     completedUnripeMaterialOrder: {
       header: {
-        title: 'Completed Unripe Material',
-        empty: 'There is no available order'
+        title: 'Tugatilgan To\'quv Buyurtmar',
+        empty: 'Hech qandan buyurtma topilmadi'
       },
       columns: {
-        id: 'Order id',
-        material: 'Material name',
-        quantity: 'Quantity',
-        confirmedBy: 'Confirmed by',
-        completedQuantity: 'Completed quantity',
-        completedQuantitySort2: 'Completed quantity sort2',
-        quantitySort2: 'Quantity sort2',
-        roll: 'Roll',
-        completedRoll: 'Completed roll',
-        completedRollSort2: 'Completed roll sort2',
-        rollSort2: 'Roll sort2',
-        expectedConsume: 'Expected consume',
-        consumed: 'Consumed',
-        createdBy: 'Created by',
-        createdAt: 'Created at',
+        id: 'Buyurtma ID',
+        material: 'Material nomi',
+        quantity: 'Miqdor',
+        confirmedBy: 'Tasdiqlandi',
+        completedQuantity: 'Yakunlangan miqdor',
+        completedQuantitySort2: 'Yakunlangan miqdor sort 2',
+        quantitySort2: 'Miqdor sort 2',
+        roll: 'Ro\'lon',
+        completedRoll: 'Yakunlangan ro\'lon',
+        completedRollSort2: 'Yakunlangan ro\'lon sort 2',
+        rollSort2: 'Ro\'lon sort 2',
+        expectedConsume: 'Kutilgan rasxod',
+        consumed: 'Ishlatildi',
+        createdBy: 'Kim tomonidan yaratilgan',
+        createdAt: 'Sana',
         status: 'Status',
-        completedUnripeMaterialOrders: 'Description',
+        completedUnripeMaterialOrders: 'Tasnif',
       }
     },
     modelOrder: {
       header: {
-        title: 'Orders',
-        empty: 'There is no available order'
+        title: 'Bichuv Buyurtmalar',
+        empty: 'Hech qanday buyurtma topilmadi'
       },
       columns: {
-        description: 'Description',
-        productModel: 'Product Model',
-        createdAt: 'Created At',
-        createdBy: 'Created By',
-        productSize: 'Expected Sizes',
-        expectedOutlayRipeMaterial: 'Expected Consume',
-        productModelOrderCompleteds: 'Description',
+        description: 'Tasnif',
+        productModel: 'Maxsulot/Model',
+        createdAt: 'Sana',
+        createdBy: 'Kim tomonidan yaratildi',
+        productSize: 'Kutilgan razmerlar',
+        expectedOutlayRipeMaterial: 'Kutilgan rasxod',
+        productModelOrderCompleteds: 'Tasnif',
         status: 'Status',
       },
       buttons: {
-        add: 'Add order'
+        add: 'Buyurtma qo\'shish'
       },
     },
     completedProductModelOrder: {
       header: {
-        title: 'Completed Models',
-        empty: 'There is no available order'
+        title: 'Yakunlangan Bichuv Buyurtmalar',
+        empty: 'Hech qanday buyurtma topilmadi'
       },
       columns: {
-        id: 'Order id',
-        createdAt: 'Created at',
-        createdBy: 'Created by',
+        id: 'Buyurtma ID',
+        createdAt: 'Sana',
+        createdBy: 'Kim tomonidan yaratilgan',
         productModel: 'Model',
-        productSize: 'Product sizes',
-        expectedOutlayRipeMaterial: 'Expected consume',
-        outlayRipeMaterial: 'Consumed',
+        productSize: 'Model razmerlar',
+        expectedOutlayRipeMaterial: 'Kutilgan rasxod',
+        outlayRipeMaterial: 'Ishlatildi',
         status: 'Status'
       }
     },
     warehouseAction: {
       header: {
-        title: 'Product in warehouse action',
-        empty: 'There is no available action'
+        title: 'Maxsulotlar Harakati',
+        empty: 'Hech qanday harakat topilmadi'
       },
       columns: {
-        id: 'id',
-        createdAt: 'Created at',
-        sentBy: 'Sent by',
+        id: 'Harakat ID',
+        createdAt: 'Sana',
+        sentBy: 'Jo\'natdi',
         productModel: 'Model',
-        productSize: 'Product sizes',
-        fromWarehouse: 'From',
-        toWarehouse: 'To',
+        productSize: 'Model razmer',
+        fromWarehouse: 'Dan',
+        toWarehouse: 'Ga',
         status: 'Status'
       }
     },
     fabric: {
       header: {
-        title: 'Paint Factories',
-        empty: 'There is no available paint factory'
+        title: 'Bo\'yoq Fabrika',
+        empty: 'Hech qanday fabrika topilmadi'
       },
       columns: {
-        name: 'Name',
-        address: 'Address',
+        name: 'Nom',
+        address: 'Manzil',
       },
       buttons: {
-        add: 'Add Factory'
+        add: 'Fabrika qo\'shish'
       },
     },
     color: {
       header: {
-        title: 'Colors',
-        empty: 'There is no available color'
+        title: 'Ranglar',
+        empty: 'Hech qanday rang topilmadi'
       },
       columns: {
-        name: 'Name'
+        name: 'Nom'
       },
       buttons: {
-        add: 'Add Color'
+        add: 'Rang qo\'shish'
       },
     },
     model: {
       header: {
-        title: 'Models',
-        empty: 'There is no available model'
+        title: 'Modellar',
+        empty: 'Hech qanday model topilmadi'
       },
       columns: {
-        name: 'Name',
-        description: 'Description',
-        sizes: 'Sizes',
-        image: 'Image'
+        name: 'Nom',
+        description: 'Tasnif',
+        sizes: 'Razmerlar',
+        image: 'Rasm'
       },
       buttons: {
-        add: 'Add Model'
+        add: 'Model qo\'shish'
       },
     }
   }
