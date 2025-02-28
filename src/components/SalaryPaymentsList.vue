@@ -10,7 +10,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <q-list bordered separator style="max-width: 300px">
+  <q-list bordered separator style="max-width: 360px">
     <q-item
       v-for="order in props.lists"
       :key="order.id"

@@ -10,7 +10,7 @@ import { useBudget } from "stores/budget.js";
 import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
-import TransactionList from "components/TransactionList.vue";
+import SaleList from "components/SaleList.vue";
 
 // Props
 let props = defineProps({
@@ -231,7 +231,7 @@ onMounted(() => {
     :loading="loading || saleLoading"
   />
   <q-table
-    v-show="!props.loading && !saleLoading"
+    v-show="!props.loading"
     flat
     bordered
     :rows="props.sales"
@@ -321,7 +321,7 @@ onMounted(() => {
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-          <transaction-list :lists="props.row.transaction" />
+          <sale-list :lists="props.row.transaction" :saleProduct="props.row.saleProduct" :customer="props.row.customer" />
         </q-td>
       </q-tr>
     </template>
@@ -422,7 +422,7 @@ onMounted(() => {
                     filled
                     type="number"
                     :suffix="selectedData?.budget?.name || null"
-                    v-model.number="row.price"
+                    v-model="row.price"
                     :label="$t('forms.sale.fields.price.label')"
                     :rules="[ val => val && val > 0 || $t('forms.sale.fields.price.validation.required')]"
                     class="col-12 col-md-6"

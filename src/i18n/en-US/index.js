@@ -23,6 +23,8 @@ export default {
   payAdvance: 'Pay advance',
   departure: 'Departure',
   oweUs: 'Owe us',
+  total: 'Total',
+  paid: 'Paid',
   logout: 'Logout',
   salary: 'Salary',
   add: 'Add',
