@@ -7,7 +7,6 @@ import { useProductInWarehouse } from "stores/productInWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const user = useAbout();
@@ -50,11 +49,14 @@ const columns = [
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'cutterWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getWarehouseAction);
 }
@@ -77,6 +79,8 @@ function getWarehouseAction (filterProps) {
 function getEmbroideryWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
@@ -87,6 +91,8 @@ function getEmbroideryWarehouse (filterProps) {
 }
 function getSewerWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'sewerWarehouse';
 
@@ -221,6 +227,14 @@ onMounted(() => {
   <div class="q-my-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
+
   <q-list
     v-show="!loading"
     bordered
@@ -300,9 +314,7 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
     v-show="!loading || !warehouseActionLoading"
     flat
@@ -365,6 +377,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >
@@ -442,8 +455,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -513,8 +526,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.warehouse.buttons.update')"
             type="submit"

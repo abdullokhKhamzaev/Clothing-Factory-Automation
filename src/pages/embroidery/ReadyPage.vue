@@ -7,7 +7,6 @@ import { useProductInWarehouse } from "stores/productInWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -48,6 +47,7 @@ const columns = [
 ];
 
 function acceptAction () {
+  warehouseActionLoading.value = true;
   useProductWarehouse().accept(selectedData.value.id)
     .then(() => {
       showAcceptModal.value = false;
@@ -68,8 +68,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
+    .finally(warehouseActionLoading.value = false)
 }
 function rejectAction () {
+  warehouseActionLoading.value = true;
   useProductWarehouse().reject(selectedData.value.id)
     .then(() => {
       showRejectModal.value = false;
@@ -90,6 +92,7 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
+    .finally(() => warehouseActionLoading.value = false)
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
@@ -254,12 +257,11 @@ onMounted(() => {
     <refresh-button :action="refresh" />
   </div>
 
-  <div v-if="loading" class=" q-mb-md flex justify-center">
-    <q-spinner-ball
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
       color="primary"
       size="4em"
     />
-    <q-tooltip :offset="[0, 8]">QSpinnerBall</q-tooltip>
   </div>
 
   <q-list
@@ -339,7 +341,6 @@ onMounted(() => {
     </q-item>
   </q-list>
 
-  <skeleton-table :loading="warehouseActionLoading"/>
   <q-table
     :loading="warehouseActionLoading || loading"
     flat

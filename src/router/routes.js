@@ -499,7 +499,13 @@ const routes = [
   {
     path: '/packager',
     component: () => import('layouts/packager/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isPackager || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isPackager()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: '',
@@ -522,7 +528,13 @@ const routes = [
   {
     path: '/master',
     component: () => import('layouts/master/MainLayout.vue'),
-    beforeEnter: ifAuthorized && isMaster || isSuperAdmin,
+    beforeEnter: (to, from, next) => {
+      if ((ifAuthorized && isMaster()) || isSuperAdmin()) {
+        next();
+      } else {
+        next('/login');
+      }
+    },
     children: [
       {
         path: '',

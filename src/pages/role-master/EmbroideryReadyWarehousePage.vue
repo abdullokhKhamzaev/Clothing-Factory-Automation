@@ -5,13 +5,11 @@ import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
 const selectedData = ref({});
-const sendActionErr = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const warehouse = ref([]);
@@ -62,7 +60,7 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(warehouseActionLoading.value = false)
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
@@ -91,25 +89,30 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'embroideryReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getSendingWarehouse)
 }
 function getSendingWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'sewerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -127,10 +130,8 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
-
 function clearAction() {
   selectedData.value = {};
-  sendActionErr.value = null;
 }
 function refresh() {
   getWarehouse();
@@ -142,11 +143,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
+  <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
+
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -169,11 +178,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -278,6 +285,7 @@ onMounted(() => {
       @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
     />
   </div>
+
   <!-- Dialogs -->
   <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>

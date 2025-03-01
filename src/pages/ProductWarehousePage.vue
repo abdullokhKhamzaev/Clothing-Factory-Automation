@@ -6,7 +6,6 @@ import { useProductInWarehouse } from "stores/productInWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -93,11 +92,14 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'productsWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getWarehouseAction)
 }
@@ -184,8 +186,15 @@ onMounted(() => {
   <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -241,11 +250,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="loading || warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -456,8 +463,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.warehouse.buttons.update')"
             type="submit"

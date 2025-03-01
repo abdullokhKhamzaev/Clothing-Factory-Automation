@@ -7,7 +7,6 @@ import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -134,11 +133,14 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'cutterDefectiveWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
 }
 function getWarehouseAction (filterProps) {
@@ -160,14 +162,16 @@ function getWarehouseAction (filterProps) {
 function getEmbroideryWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'cutterDefectiveWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function reportOrderAction() {
   if (!selectedData.value.productModel['@id']) {
@@ -175,7 +179,7 @@ function reportOrderAction() {
     return;
   }
 
-  warehouseActionLoading.value = true;
+  loading.value = true;
 
   let productSize = [];
 
@@ -231,7 +235,7 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false);
+    .finally(() => loading.value = false);
 }
 
 function clearAction() {
@@ -259,8 +263,15 @@ onMounted(() => {
   <div class="q-my-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -316,11 +327,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading || !warehouseActionLoading"
+    :loading="loading || warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -407,6 +416,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >
@@ -622,8 +632,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="warehouseActionLoading"
-            :loading="warehouseActionLoading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.completedMaterialOrderReport.buttons.create')"
             type="submit"

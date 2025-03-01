@@ -6,7 +6,6 @@ import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -14,8 +13,6 @@ const $q = useQuasar();
 const user = useAbout();
 const selectedData = ref({});
 const sendActionErr = ref(false);
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const showSendModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
@@ -45,25 +42,30 @@ const columns = [
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'packagerReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getSendingWarehouse)
 }
 function getSendingWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'productsWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -154,9 +156,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
+  <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
+
   <q-list
     v-show="!loading"
     bordered
@@ -215,11 +225,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -309,7 +317,7 @@ onMounted(() => {
     </template>
   </q-table>
   <div
-    v-show="!warehouseActionLoading"
+    v-show="!loading && !warehouseActionLoading"
     v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
     class="row justify-center q-mt-md"
   >
@@ -389,8 +397,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

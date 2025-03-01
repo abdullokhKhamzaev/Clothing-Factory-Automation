@@ -6,7 +6,6 @@ import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -98,37 +97,44 @@ function rejectAction () {
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'packagerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getReadyWarehouse)
 }
 function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'packagerReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getCutterDefectiveWarehouse)
-    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
+  loading.value = true;
+
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -267,11 +273,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
+  <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -348,11 +361,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="loading || warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"
@@ -522,8 +533,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -597,8 +608,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

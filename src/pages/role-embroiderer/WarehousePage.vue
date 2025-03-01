@@ -6,7 +6,6 @@ import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -19,8 +18,7 @@ const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const showDefectModal = ref(false);
 const showReportModal = ref(false);
-const rows = ref([{ size: '', quantity: '', max: '', productAccessories: [] }]);
-// const attaches = ref([])
+const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref([]);
 const readyWarehouse = ref([]);
@@ -34,7 +32,6 @@ const warehouseActionPagination = ref({
   rowsNumber: 0
 });
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
-
 const loading = ref(false);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
@@ -70,7 +67,7 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(warehouseActionLoading.value = false)
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
@@ -94,42 +91,49 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(warehouseActionLoading.value = false)
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getReadyWarehouse)
 }
 function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'embroideryReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getCutterDefectiveWarehouse)
-    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
+  loading.value = true;
+
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -150,7 +154,7 @@ function getWarehouseAction (filterProps) {
 function prefill() {
   let sizes = [];
   selectedData.value.productSize.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', productAccessories: size.productAccessories, max: size.quantity });
+    sizes.push({ size: size.size, quantity: '', max: size.quantity });
   });
   rows.value = sizes;
 }
@@ -256,7 +260,7 @@ function clearAction() {
   selectedData.value = {};
   defectActionErr.value = null;
   reportActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', productAccessories: [], max: '' }];
+  rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
   getWarehouse();
@@ -268,11 +272,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
+  <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -349,11 +360,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -523,8 +532,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -575,26 +584,6 @@ onMounted(() => {
           v-for="(row, index) in rows" :key="index"
           class="row q-px-md q-col-gutter-x-lg q-mb-lg"
         >
-          <!--          <q-list>-->
-          <!--            <q-item tag="label" v-ripple>-->
-          <!--              <q-item-section avatar>-->
-          <!--                <q-checkbox v-model="attaches" val="teal" color="teal" />-->
-          <!--              </q-item-section>-->
-          <!--              <q-item-section>-->
-          <!--                <q-item-label>Teal</q-item-label>-->
-          <!--              </q-item-section>-->
-          <!--            </q-item>-->
-
-          <!--            <q-item tag="label" v-ripple>-->
-          <!--              <q-item-section avatar>-->
-          <!--                <q-checkbox v-model="attaches" val="orange" color="orange" />-->
-          <!--              </q-item-section>-->
-          <!--              <q-item-section>-->
-          <!--                <q-item-label>Orange</q-item-label>-->
-          <!--                <q-item-label caption>With description</q-item-label>-->
-          <!--              </q-item-section>-->
-          <!--            </q-item>-->
-          <!--          </q-list>-->
           <q-input
             filled
             disable
@@ -618,8 +607,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

@@ -4,7 +4,6 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useI18n } from "vue-i18n";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -31,42 +30,50 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
-  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' }
+  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
+  { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 function getWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'sewerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getReadyWarehouse)
 }
 function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'sewerReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getCutterDefectiveWarehouse)
-    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'cutterDefectiveWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -97,8 +104,15 @@ onMounted(() => {
   <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -121,11 +135,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="loading || warehouseActionLoading"
     flat
     bordered
     :rows="warehouseActions"

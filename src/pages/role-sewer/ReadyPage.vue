@@ -6,7 +6,6 @@ import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -15,6 +14,7 @@ const user = useAbout();
 const selectedData = ref({});
 const sendActionErr = ref(false);
 const showSendModal = ref(false);
+const updateActionErr = ref(null);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
 const sendingWarehouse = ref([]);
@@ -39,30 +39,36 @@ const columns = [
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
+  { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
 function getWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'sewerReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getSendingWarehouse)
 }
 function getSendingWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'packagerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -137,6 +143,7 @@ function sendAction() {
 function clearAction() {
   selectedData.value = {};
   sendActionErr.value = null;
+  updateActionErr.value = null;
   rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
@@ -155,8 +162,16 @@ onMounted(() => {
   <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
+
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -213,11 +228,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -358,8 +371,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

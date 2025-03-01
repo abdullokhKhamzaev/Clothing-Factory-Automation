@@ -4,10 +4,12 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useI18n } from "vue-i18n";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
+const selectedData = ref({});
+const showAcceptModal = ref(false);
+const showRejectModal = ref(false);
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref([]);
 const readyWarehouse = ref([]);
@@ -21,7 +23,6 @@ const warehouseActionPagination = ref({
   rowsNumber: 0
 });
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
-
 const loading = ref(false);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
@@ -32,41 +33,49 @@ const columns = [
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
+  { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 function getWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getReadyWarehouse)
 }
 function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'embroideryReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getCutterDefectiveWarehouse)
-    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
+  loading.value = true;
+
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -94,11 +103,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
+  <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
+      color="primary"
+      size="4em"
+    />
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -121,11 +137,9 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -176,6 +190,35 @@ onMounted(() => {
             </div>
             <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
+            </div>
+          </div>
+          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
+            <div class="flex no-wrap q-gutter-x-sm">
+              <q-btn
+                dense
+                no-caps
+                no-wrap
+                color="green"
+                icon-right="mdi-check"
+                @click="selectedData = {...props.row}; showAcceptModal = true;"
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('accept') }}
+                </q-tooltip>
+              </q-btn>
+              <q-btn
+                dense
+                no-caps
+                no-wrap
+                size="md"
+                color="red"
+                icon-right="mdi-cancel"
+                @click="selectedData = {...props.row}; showRejectModal = true;"
+              >
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('reject') }}
+                </q-tooltip>
+              </q-btn>
             </div>
           </div>
           <div v-else>

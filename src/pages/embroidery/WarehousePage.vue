@@ -7,7 +7,6 @@ import { useProductInWarehouse } from "stores/productInWarehouse.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -22,7 +21,7 @@ const showDefectModal = ref(false);
 const showReportModal = ref(false);
 const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
-const rows = ref([{ size: '', quantity: '', max: '', productAccessories: [] }]);
+const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref([]);
 const readyWarehouse = ref([]);
@@ -50,6 +49,7 @@ const columns = [
 ];
 
 function acceptAction () {
+  warehouseActionLoading.value = true;
   useProductWarehouse().accept(selectedData.value.id)
     .then(() => {
       showAcceptModal.value = false;
@@ -70,8 +70,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
+    .finally(warehouseActionLoading.value = false)
 }
 function rejectAction () {
+  warehouseActionLoading.value = true;
   useProductWarehouse().reject(selectedData.value.id)
     .then(() => {
       showRejectModal.value = false;
@@ -92,6 +94,7 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
+    .finally(warehouseActionLoading.value = false)
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
@@ -154,7 +157,7 @@ function getWarehouseAction (filterProps) {
 function prefill() {
   let sizes = [];
   selectedData.value.productSize.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', productAccessories: size.productAccessories, max: size.quantity });
+    sizes.push({ size: size.size, quantity: '', max: size.quantity });
   });
   rows.value = sizes;
 }
@@ -303,7 +306,7 @@ function clearAction() {
   defectActionErr.value = null;
   reportActionErr.value = null;
   updateActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', productAccessories: [], max: '' }];
+  rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
   getWarehouse();
@@ -319,12 +322,11 @@ onMounted(() => {
     <refresh-button :action="refresh" />
   </div>
 
-  <div v-if="loading" class=" q-mb-md flex justify-center">
-    <q-spinner-ball
+  <div v-show="loading" class=" q-mb-md flex justify-center">
+    <q-spinner
       color="primary"
       size="4em"
     />
-    <q-tooltip :offset="[0, 8]">QSpinnerBall</q-tooltip>
   </div>
   <q-list
     v-show="!loading"
@@ -423,7 +425,6 @@ onMounted(() => {
     </q-item>
   </q-list>
 
-  <skeleton-table :loading="warehouseActionLoading" />
   <q-table
     :loading="warehouseActionLoading || loading"
     flat
