@@ -236,7 +236,7 @@ function receiveAction() {
   </q-table>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showCreateModal" persistent @before-hide="clearAction">
+  <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -373,7 +373,7 @@ function receiveAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showReceiveModal" persistent @before-hide="clearAction">
+  <q-dialog v-model="showReceiveModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"

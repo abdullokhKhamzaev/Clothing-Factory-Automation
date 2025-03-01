@@ -254,7 +254,7 @@ function prefill () {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
@@ -273,7 +273,7 @@ function prefill () {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showOrderReportModal" persistent>
+  <q-dialog v-model="showOrderReportModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -284,7 +284,7 @@ function prefill () {
           :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction()" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="reportActionErr">
           <q-separator color="white" />

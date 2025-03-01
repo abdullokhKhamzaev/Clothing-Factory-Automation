@@ -222,7 +222,7 @@ function deleteAction() {
   </q-table>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showCreateModal" persistent>
+  <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -230,7 +230,7 @@ function deleteAction() {
       <q-form @submit.prevent="createAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('dialogs.user.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -269,7 +269,7 @@ function deleteAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showUpdateModal" persistent>
+  <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -277,7 +277,7 @@ function deleteAction() {
       <q-form @submit.prevent="updateAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('dialogs.user.barEdit') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -316,7 +316,7 @@ function deleteAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showDeleteModal" persistent>
+  <q-dialog v-model="showDeleteModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
@@ -329,7 +329,7 @@ function deleteAction() {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn :label="$t('dialogs.delete.buttons.confirm')" color="red" @click="deleteAction" />
       </q-card-actions>
     </q-card>

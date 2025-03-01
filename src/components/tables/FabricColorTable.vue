@@ -195,7 +195,7 @@ function clearAction() {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showColorCreateModal" persistent>
+  <q-dialog v-model="showColorCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -206,7 +206,7 @@ function clearAction() {
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.color.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
           <q-separator color="white" />
@@ -246,7 +246,7 @@ function clearAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showColorUpdateModal" persistent>
+  <q-dialog v-model="showColorUpdateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -257,7 +257,7 @@ function clearAction() {
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.color.barEdit') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
           <q-separator color="white" />
@@ -297,7 +297,7 @@ function clearAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showColorDeleteModal" persistent>
+  <q-dialog v-model="showColorDeleteModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
@@ -310,7 +310,7 @@ function clearAction() {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction" />
+        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
           :disable="props.loading || colorLoading"
           :loading="props.loading || colorLoading"

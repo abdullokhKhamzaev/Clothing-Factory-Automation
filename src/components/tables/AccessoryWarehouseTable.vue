@@ -176,7 +176,7 @@ function clearAction() {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showPurchaseModal" persistent>
+  <q-dialog v-model="showPurchaseModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -187,7 +187,7 @@ function clearAction() {
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.accessoryPurchase.barCreate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
           <q-separator color="white" />

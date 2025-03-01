@@ -181,7 +181,7 @@ onMounted(() => {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showPayModal" persistent>
+  <q-dialog v-model="showPayModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -192,7 +192,7 @@ onMounted(() => {
           :class="payActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.accessoryPurchase.barPayDebt') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="payActionErr">
           <q-separator color="white" />

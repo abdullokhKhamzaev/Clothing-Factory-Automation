@@ -234,24 +234,6 @@ onMounted(() => {
                     {{ $t('edit') }}
                   </q-item-section>
                 </q-item>
-                <q-separator />
-                <q-item
-                  v-close-popup
-                  class="text-green"
-                  clickable
-                >
-                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
-                    <q-avatar
-                      icon="edit"
-                      color="green"
-                      class="text-white"
-                      size="md"
-                    />
-                  </q-item-section>
-                  <q-item-section>
-                    {{ $t('sell') }}
-                  </q-item-section>
-                </q-item>
               </q-card>
             </q-menu>
           </q-btn>
@@ -368,7 +350,7 @@ onMounted(() => {
       @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
     />
   </div>
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
@@ -379,7 +361,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -391,7 +373,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
+  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
@@ -402,7 +384,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -414,7 +396,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showUpdateModal" persistent>
+  <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -425,7 +407,7 @@ onMounted(() => {
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
           <q-separator color="white" />

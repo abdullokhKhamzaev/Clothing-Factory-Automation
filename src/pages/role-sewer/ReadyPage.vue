@@ -14,8 +14,6 @@ const $q = useQuasar();
 const user = useAbout();
 const selectedData = ref({});
 const sendActionErr = ref(false);
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const showSendModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
@@ -41,57 +39,8 @@ const columns = [
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
-  { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
-function acceptAction () {
-  warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id)
-    .then(() => {
-      showAcceptModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
-function rejectAction () {
-  warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id)
-    .then(() => {
-      showRejectModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
@@ -321,35 +270,6 @@ onMounted(() => {
               {{ $t('statuses.' + props.row.status) }}
             </div>
           </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
-            <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                color="green"
-                icon-right="mdi-check"
-                @click="selectedData = {...props.row}; showAcceptModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('accept') }}
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
-            </div>
-          </div>
           <div v-else>
             {{ props.row[col.field] }}
           </div>
@@ -374,7 +294,7 @@ onMounted(() => {
     />
   </div>
   <!-- Dialogs -->
-  <q-dialog v-model="showSendModal" persistent>
+  <q-dialog v-model="showSendModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -385,7 +305,7 @@ onMounted(() => {
           :class="sendActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="sendActionErr">
           <q-separator color="white" />
@@ -448,51 +368,5 @@ onMounted(() => {
         </div>
       </q-form>
     </div>
-  </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent>
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.accept.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.accept.buttons.accept')"
-          color="green"
-          @click="acceptAction();"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="rejectAction()"
-        />
-      </q-card-actions>
-    </q-card>
   </q-dialog>
 </template>

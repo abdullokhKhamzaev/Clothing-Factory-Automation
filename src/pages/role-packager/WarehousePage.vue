@@ -458,7 +458,7 @@ onMounted(() => {
     />
   </div>
   <!-- Dialogs -->
-  <q-dialog v-model="showDefectModal" persistent>
+  <q-dialog v-model="showDefectModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -469,7 +469,7 @@ onMounted(() => {
           :class="defectActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="defectActionErr">
           <q-separator color="white" />
@@ -533,7 +533,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showReportModal" persistent>
+  <q-dialog v-model="showReportModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -544,7 +544,7 @@ onMounted(() => {
           :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="reportActionErr">
           <q-separator color="white" />
@@ -608,7 +608,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
@@ -619,7 +619,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -631,7 +631,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
+  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
@@ -642,7 +642,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"

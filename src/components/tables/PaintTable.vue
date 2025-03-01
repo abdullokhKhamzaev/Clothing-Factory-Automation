@@ -327,7 +327,7 @@ function finishOrderAction() {
   </q-table>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showCreateModal" persistent @before-hide="clearAction">
+  <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -465,7 +465,7 @@ function finishOrderAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showReceiveModal" persistent @before-hide="clearAction">
+  <q-dialog v-model="showReceiveModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -624,7 +624,7 @@ function finishOrderAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showOrderFinishModal" persistent>
+  <q-dialog v-model="showOrderFinishModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.complete.bar') }}</div>
@@ -635,7 +635,7 @@ function finishOrderAction() {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup @click="clearAction"/>
+        <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="props.loading || paintLoading"
           :loading="props.loading || paintLoading"

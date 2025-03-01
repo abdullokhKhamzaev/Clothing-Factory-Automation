@@ -271,7 +271,7 @@ function departureAction () {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.attendance.bar') }}</div>
@@ -282,7 +282,7 @@ function departureAction () {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || attendanceLoading"
           :loading="loading || attendanceLoading"
@@ -294,7 +294,7 @@ function departureAction () {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showDepartureModal" persistent>
+  <q-dialog v-model="showDepartureModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -305,7 +305,7 @@ function departureAction () {
           :class="departureActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.departure.bar') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="departureActionErr">
           <q-separator color="white" />

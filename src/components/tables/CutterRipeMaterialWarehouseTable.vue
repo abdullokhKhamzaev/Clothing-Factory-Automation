@@ -178,7 +178,7 @@ function sendAction() {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showSendModal" persistent>
+  <q-dialog v-model="showSendModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -189,7 +189,7 @@ function sendAction() {
           :class="sendActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="sendActionErr">
           <q-separator color="white" />

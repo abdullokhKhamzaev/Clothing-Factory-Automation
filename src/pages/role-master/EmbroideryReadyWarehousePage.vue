@@ -279,7 +279,7 @@ onMounted(() => {
     />
   </div>
   <!-- Dialogs -->
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
@@ -290,7 +290,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -302,7 +302,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
+  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
@@ -313,7 +313,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"

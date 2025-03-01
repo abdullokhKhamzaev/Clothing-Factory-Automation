@@ -295,7 +295,7 @@ function clearAction() {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showCreateModal" persistent>
+  <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -306,7 +306,7 @@ function clearAction() {
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.model.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
           <q-separator color="white" />
@@ -480,7 +480,7 @@ function clearAction() {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showUpdateModal" persistent>
+  <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -491,7 +491,7 @@ function clearAction() {
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.model.barEdit') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
           <q-separator color="white" />

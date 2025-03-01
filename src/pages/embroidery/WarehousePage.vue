@@ -36,7 +36,6 @@ const warehouseActionPagination = ref({
   rowsNumber: 0
 });
 const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
-
 const loading = ref(false);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
@@ -51,7 +50,6 @@ const columns = [
 ];
 
 function acceptAction () {
-  warehouseActionLoading.value = true;
   useProductWarehouse().accept(selectedData.value.id)
     .then(() => {
       showAcceptModal.value = false;
@@ -72,10 +70,8 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
 }
 function rejectAction () {
-  warehouseActionLoading.value = true;
   useProductWarehouse().reject(selectedData.value.id)
     .then(() => {
       showRejectModal.value = false;
@@ -96,42 +92,48 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
+
+  loading.value = true;
 
   props.name = 'embroideryWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
     .then(getReadyWarehouse)
 }
 function getReadyWarehouse (filterProps) {
   let props = filterProps || {};
 
+  loading.value = true;
+
   props.name = 'embroideryReadyWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       readyWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getCutterDefectiveWarehouse)
-    .finally(() => loading.value = false)
 }
 function getCutterDefectiveWarehouse (filterProps) {
   let props = filterProps || {};
 
   props.name = 'cutterDefectiveWarehouse';
 
+  loading.value = true;
+
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
+      loading.value = false;
     })
     .then(getWarehouseAction)
-    .finally(() => loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -316,8 +318,16 @@ onMounted(() => {
   <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
+
+  <div v-if="loading" class=" q-mb-md flex justify-center">
+    <q-spinner-ball
+      color="primary"
+      size="4em"
+    />
+    <q-tooltip :offset="[0, 8]">QSpinnerBall</q-tooltip>
+  </div>
   <q-list
-    v-show="!loading && !warehouseActionLoading"
+    v-show="!loading"
     bordered
     separator
     class="q-mb-md shadow-3"
@@ -412,11 +422,10 @@ onMounted(() => {
       </q-item-section>
     </q-item>
   </q-list>
-  <skeleton-table
-    :loading="loading || warehouseActionLoading"
-  />
+
+  <skeleton-table :loading="warehouseActionLoading" />
   <q-table
-    v-show="!loading && !warehouseActionLoading"
+    :loading="warehouseActionLoading || loading"
     flat
     bordered
     :rows="warehouseActions"
@@ -521,8 +530,9 @@ onMounted(() => {
       @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
     />
   </div>
+
   <!-- Dialogs -->
-  <q-dialog v-model="showDefectModal" persistent>
+  <q-dialog v-model="showDefectModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -533,7 +543,7 @@ onMounted(() => {
           :class="defectActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="defectActionErr">
           <q-separator color="white" />
@@ -586,8 +596,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -597,7 +607,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showReportModal" persistent>
+  <q-dialog v-model="showReportModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -608,7 +618,7 @@ onMounted(() => {
           :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="reportActionErr">
           <q-separator color="white" />
@@ -638,26 +648,6 @@ onMounted(() => {
           v-for="(row, index) in rows" :key="index"
           class="row q-px-md q-col-gutter-x-lg q-mb-lg"
         >
-<!--          <q-list>-->
-<!--            <q-item tag="label" v-ripple>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-checkbox v-model="attaches" val="teal" color="teal" />-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label>Teal</q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-
-<!--            <q-item tag="label" v-ripple>-->
-<!--              <q-item-section avatar>-->
-<!--                <q-checkbox v-model="attaches" val="orange" color="orange" />-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label>Orange</q-item-label>-->
-<!--                <q-item-label caption>With description</q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-<!--          </q-list>-->
           <q-input
             filled
             disable
@@ -681,8 +671,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -692,7 +682,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent>
+  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
@@ -703,7 +693,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -715,7 +705,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent>
+  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
@@ -726,7 +716,7 @@ onMounted(() => {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup @click="clearAction()" />
+        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="loading || warehouseActionLoading"
           :loading="loading || warehouseActionLoading"
@@ -738,7 +728,7 @@ onMounted(() => {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showUpdateModal" persistent>
+  <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -749,7 +739,7 @@ onMounted(() => {
           :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
           <q-separator color="white" />
@@ -798,8 +788,8 @@ onMounted(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading"
-            :loading="loading"
+            :disable="loading || warehouseActionLoading"
+            :loading="loading || warehouseActionLoading"
             no-caps
             :label="$t('forms.warehouse.buttons.update')"
             type="submit"

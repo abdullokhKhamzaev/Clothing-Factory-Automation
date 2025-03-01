@@ -278,7 +278,7 @@ function payAdvanceAction () {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showSalaryModal" persistent>
+  <q-dialog v-model="showSalaryModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -289,7 +289,7 @@ function payAdvanceAction () {
           :class="salaryActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.salary.bar') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="salaryActionErr">
           <q-separator color="white" />
@@ -330,7 +330,7 @@ function payAdvanceAction () {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showAdvanceModal" persistent>
+  <q-dialog v-model="showAdvanceModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -341,7 +341,7 @@ function payAdvanceAction () {
           :class="advanceActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.advance.bar') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="advanceActionErr">
           <q-separator color="white" />

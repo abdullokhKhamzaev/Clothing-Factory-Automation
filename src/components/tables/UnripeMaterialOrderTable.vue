@@ -290,7 +290,7 @@ function removeRow(index) {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showOrderCreateModal" persistent>
+  <q-dialog v-model="showOrderCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -301,7 +301,7 @@ function removeRow(index) {
           :class="createOrderErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.unripeMaterialOrder.barCreate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createOrderErr">
           <q-separator color="white"/>
@@ -390,7 +390,7 @@ function removeRow(index) {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showOrderDeleteModal" persistent>
+  <q-dialog v-model="showOrderDeleteModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row flex items-center q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.delete.bar') }}</div>
@@ -403,7 +403,7 @@ function removeRow(index) {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup @click="clearAction"/>
+        <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
           :disable="props.loading || orderLoading"
           :loading="props.loading || orderLoading"
@@ -414,7 +414,7 @@ function removeRow(index) {
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showOrderFinishModal" persistent>
+  <q-dialog v-model="showOrderFinishModal" persistent @hide="clearAction">
     <q-card>
       <q-card-section class="row q-pb-none">
         <div class="text-h6"> {{ $t('dialogs.complete.bar') }}</div>
@@ -425,7 +425,7 @@ function removeRow(index) {
       </q-card-section>
 
       <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup @click="clearAction"/>
+        <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
           :disable="props.loading || orderLoading"
           :loading="props.loading || orderLoading"

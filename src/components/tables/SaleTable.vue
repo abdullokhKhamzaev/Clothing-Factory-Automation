@@ -327,7 +327,7 @@ onMounted(() => {
     </template>
   </q-table>
   <!-- Dialogs -->
-  <q-dialog v-model="showCreateModal" persistent>
+  <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -338,7 +338,7 @@ onMounted(() => {
           :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.sale.barCreate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
           <q-separator color="white"/>
@@ -467,7 +467,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showPayModal" persistent>
+  <q-dialog v-model="showPayModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -478,7 +478,7 @@ onMounted(() => {
           :class="payActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
         >
           <div class="text-h6"> {{ $t('dialogs.sale.barReceiveDebt') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction" />
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="payActionErr">
           <q-separator color="white" />

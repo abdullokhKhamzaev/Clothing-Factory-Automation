@@ -275,7 +275,7 @@ onMounted(() => {
   </div>
 
   <!-- Dialogs -->
-  <q-dialog v-model="showConvertModal" persistent>
+  <q-dialog v-model="showConvertModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -283,7 +283,7 @@ onMounted(() => {
       <q-form @submit.prevent="convertAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('convert') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
@@ -339,7 +339,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showAddModal" persistent>
+  <q-dialog v-model="showAddModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -347,7 +347,7 @@ onMounted(() => {
       <q-form @submit.prevent="addAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
@@ -375,7 +375,7 @@ onMounted(() => {
       </q-form>
     </div>
   </q-dialog>
-  <q-dialog v-model="showMinusModal" persistent>
+  <q-dialog v-model="showMinusModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
@@ -383,7 +383,7 @@ onMounted(() => {
       <q-form @submit.prevent="minusAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
-          <q-btn icon="close" flat round dense v-close-popup @click="clearAction"/>
+          <q-btn icon="close" flat round dense v-close-popup />
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
