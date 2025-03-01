@@ -498,12 +498,9 @@ function getOrders() {
             hide-bottom-space
           />
 
-          <div class="col-12">
-            <q-toggle v-model="selectedData.hasNewRemaining" label="Left new remaining?" />
-          </div>
           <!-- newRemainingSort1: yangi qoldiq qoldimi? -->
           <q-input
-            v-if="selectedData.hasNewRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantity) > 0"
+            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantity) > 0"
             v-model.number="row.newRemainingSort1"
             filled
             type="number"
@@ -514,7 +511,7 @@ function getOrders() {
           />
           <!-- newRemainingSort2: yangi qoldiq qoldimi? -->
           <q-input
-            v-if="selectedData.hasNewRemaining && selectedData.hasNewRemaining && row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantitySort2) > 0"
+            v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.quantitySort2) > 0"
             v-model.number="row.newRemainingSort2"
             filled
             type="number"

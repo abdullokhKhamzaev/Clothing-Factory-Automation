@@ -636,9 +636,9 @@ function clearAction() {
             </div>
           </div>
         </div>
-        <div class="text-right q-ma-md">
-          <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>
-        </div>
+<!--        <div class="text-right q-ma-md">-->
+<!--          <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>-->
+<!--        </div>-->
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
