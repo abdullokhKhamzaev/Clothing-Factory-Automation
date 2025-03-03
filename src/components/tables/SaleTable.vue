@@ -120,8 +120,6 @@ function createAction () {
 
   input.isPayed = Number(selectedData.value.paidPrice) === Number(total.value);
 
-  console.log(input);
-
   sale.create(input)
     .then(() => {
       showCreateModal.value = false;

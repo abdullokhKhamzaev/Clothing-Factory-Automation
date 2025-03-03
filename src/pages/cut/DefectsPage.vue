@@ -96,10 +96,14 @@ function getWarehouse (filterProps) {
 
   props.name = 'cutterDefectiveWarehouse';
 
+  loading.value = true;
+
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
+    .then(getWarehouseAction);
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -167,7 +171,6 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
-  getWarehouseAction()
 }
 function prefill() {
   let sizes = [];

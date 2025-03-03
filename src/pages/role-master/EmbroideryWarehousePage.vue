@@ -7,9 +7,6 @@ import { formatDate } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
-const selectedData = ref({});
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const warehouse = ref([]);
 const cutterDefectiveWarehouse = ref('/api/warehouses/2');
 const readyWarehouse = ref('/api/warehouses/4');
@@ -32,8 +29,7 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
-  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
-  { name: 'action', label: '', align: 'right', field: 'action' }
+  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' }
 ];
 function getWarehouse (filterProps) {
   let props = filterProps || {};
@@ -45,8 +41,9 @@ function getWarehouse (filterProps) {
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
-    .finally(loading.value = false);
+    .then(getWarehouseAction)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -66,7 +63,6 @@ function getWarehouseAction (filterProps) {
 }
 function refresh() {
   getWarehouse();
-  getWarehouseAction();
 }
 
 onMounted(() => {
@@ -162,35 +158,6 @@ onMounted(() => {
             </div>
             <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
-            </div>
-          </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
-            <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                color="green"
-                icon-right="mdi-check"
-                @click="selectedData = {...props.row}; showAcceptModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('accept') }}
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
             </div>
           </div>
           <div v-else>

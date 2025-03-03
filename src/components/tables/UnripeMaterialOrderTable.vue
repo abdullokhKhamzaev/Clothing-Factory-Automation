@@ -81,8 +81,6 @@ function createOrderAction() {
     expectedData.push({thread: row.thread, quantity: row.quantity})
   })
 
-  console.log(expectedData);
-
   const input = {
     quantity: selectedData.value.quantity,
     material: selectedData.value.material,

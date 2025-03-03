@@ -130,8 +130,9 @@ function getWarehouse (filterProps) {
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
+      loading.value = false;
     })
-    .finally(loading.value = false)
+    .then(getWarehouseAction)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -305,7 +306,6 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
-  getWarehouseAction();
 }
 
 onMounted(() => {
