@@ -24,12 +24,22 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import {isAdmin, isCutter, isEmbroiderer, isMaster, isPackager, isSewer, isWeaver} from "src/router/routes.js";
+import { onMounted } from "vue";
+import {
+  isAdmin,
+  isCutter,
+  isEmbroiderer,
+  isMaster,
+  isPackager,
+  isSewer,
+  isSuperAdmin,
+  isWeaver
+} from "src/router/routes.js";
 
 const router = useRouter();
 
 function redirectUserByRole() {
-  if (isAdmin()) {
+  if (isAdmin() || isSuperAdmin()) {
     router.push({name: 'club.users.employees'});
   } else if (isWeaver()) {
     router.push({name: 'club.weaver.orders'});
@@ -47,4 +57,6 @@ function redirectUserByRole() {
     router.push('/login');
   }
 }
+
+onMounted(() => redirectUserByRole());
 </script>

@@ -2,7 +2,16 @@
 import { reactive, ref } from "vue";
 import { useAuth } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
-import {isAdmin, isCutter, isEmbroiderer, isMaster, isPackager, isSewer, isWeaver} from "src/router/routes.js";
+import {
+  isAdmin,
+  isCutter,
+  isEmbroiderer,
+  isMaster,
+  isPackager,
+  isSewer,
+  isSuperAdmin,
+  isWeaver
+} from "src/router/routes.js";
 import {useAbout} from "stores/user/about.js";
 
 const router = useRouter();
@@ -14,7 +23,7 @@ const authorization = reactive({
 })
 
 function redirectUserByRole() {
-  if (isAdmin()) {
+  if (isAdmin() || isSuperAdmin()) {
     router.push({name: 'club.users.employees'});
   } else if (isWeaver()) {
     router.push({name: 'club.weaver.orders'});
