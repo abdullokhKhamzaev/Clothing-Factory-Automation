@@ -42,13 +42,14 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
+  { name: 'receivedToPackageBy', label: t('checkedBy'), align: 'left', field: 'receivedToPackageBy' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
 function acceptAction () {
   warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id)
+  useProductWarehouse().accept(selectedData.value.id, {status: 'accepted'})
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -72,7 +73,7 @@ function acceptAction () {
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id)
+  useProductWarehouse().reject(selectedData.value.id, {status: 'rejected'})
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
@@ -384,6 +385,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'toWarehouse'">
             {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+          </div>
+          <div v-else-if="col.name === 'receivedToPackageBy'">
+            {{ props.row?.receivedToPackageBy?.fullName || '-' }}
           </div>
           <div v-else-if="col.name === 'status'">
             <div v-if="props.row.status === 'pending'" class="text-red">

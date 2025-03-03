@@ -20,6 +20,7 @@ export default {
     },
   },
   paySalary: 'Pay salary',
+  checkedBy: 'Checked By',
   payAdvance: 'Pay advance',
   departure: 'Departure',
   oweUs: 'Owe us',

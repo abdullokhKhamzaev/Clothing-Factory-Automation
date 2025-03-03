@@ -20,6 +20,7 @@ export default {
     },
   },
   paySalary: 'Maosh to\'lash',
+  checkedBy: 'Tekshirildi',
   payAdvance: 'Avans to\'lash',
   departure: 'Jo\'nab ketish',
   oweUs: 'Bizdan qarz',

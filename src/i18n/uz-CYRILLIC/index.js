@@ -20,6 +20,7 @@ export default {
     },
   },
   paySalary: 'Моаш тўлаш',
+  checkedBy: 'Текширилди',
   payAdvance: 'Аванс тўлаш',
   departure: 'Йўқотиш',
   oweUs: 'Биздан қарз',

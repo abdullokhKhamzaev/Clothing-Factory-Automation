@@ -41,13 +41,25 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
+  { name: 'receivedToEmbroideryBy', label: t('checkedBy'), align: 'left', field: 'receivedToEmbroideryBy' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
 function acceptAction () {
+  if (!user.about['@id'] || !selectedData.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
   warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id)
+
+  const input = {
+    status: 'accepted',
+    receivedToEmbroideryBy: user.about['@id']
+  }
+
+  useProductWarehouse().accept(selectedData.value.id, input)
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -70,8 +82,19 @@ function acceptAction () {
     .finally(warehouseActionLoading.value = false)
 }
 function rejectAction () {
+  if (!user.about['@id'] || !selectedData.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
   warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id)
+
+  const input = {
+    status: 'rejected',
+    receivedToEmbroideryBy: user.about['@id']
+  }
+
+  useProductWarehouse().reject(selectedData.value.id, input)
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
@@ -403,6 +426,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'toWarehouse'">
             {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+          </div>
+          <div v-else-if="col.name === 'receivedToEmbroideryBy'">
+            {{ props.row?.receivedToEmbroideryBy?.fullName || '-' }}
           </div>
           <div v-else-if="col.name === 'status'">
             <div v-if="props.row.status === 'pending'" class="text-red">

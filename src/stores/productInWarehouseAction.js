@@ -46,17 +46,17 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
     }
   }
 
-  async function accept(id) {
+  async function accept(id, data) {
     try {
-      return client.put('product_in_warehouse_actions/' + id + '/accept', {status: 'accepted'})
+      return client.put('product_in_warehouse_actions/' + id + '/accept', data)
     } catch (e) {
       console.log(e)
     }
   }
 
-  async function reject(id) {
+  async function reject(id, data) {
     try {
-      return client.put('product_in_warehouse_actions/' + id + '/accept', {status: 'rejected'})
+      return client.put('product_in_warehouse_actions/' + id + '/accept', data)
     } catch (e) {
       console.log(e)
     }

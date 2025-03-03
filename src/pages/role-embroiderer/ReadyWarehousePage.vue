@@ -37,6 +37,7 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
+  { name: 'receivedToEmbroideryBy', label: t('checkedBy'), align: 'left', field: 'receivedToEmbroideryBy' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
 ];
 
@@ -268,6 +269,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'toWarehouse'">
             {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+          </div>
+          <div v-else-if="col.name === 'receivedToEmbroideryBy'">
+            {{ props.row?.receivedToEmbroideryBy?.fullName || '-' }}
           </div>
           <div v-else-if="col.name === 'status'">
             <div v-if="props.row.status === 'pending'" class="text-red">

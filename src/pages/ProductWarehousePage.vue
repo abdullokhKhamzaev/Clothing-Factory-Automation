@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useProductInWarehouse } from "stores/productInWarehouse.js";
+import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
@@ -10,6 +11,7 @@ import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
+const user = useAbout();
 const selectedData = ref({});
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
@@ -37,13 +39,26 @@ const columns = [
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
+  { name: 'receivedToWarehouseBy', label: t('checkedBy'), align: 'left', field: 'receivedToWarehouseBy' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
 function acceptAction () {
+  if (!user.about['@id'] || !selectedData.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
   warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id)
+
+  const input = {
+    status: 'accepted',
+    receivedToWarehouseBy: user.about['@id']
+  }
+
+  warehouseActionLoading.value = true;
+  useProductWarehouse().accept(selectedData.value.id, input)
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -66,8 +81,19 @@ function acceptAction () {
     .finally(() => warehouseActionLoading.value = false)
 }
 function rejectAction () {
+  if (!user.about['@id'] || !selectedData.value['@id']) {
+    console.warn('data not found');
+    return
+  }
+
   warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id)
+
+  const input = {
+    status: 'rejected',
+    receivedToWarehouseBy: user.about['@id']
+  }
+
+  useProductWarehouse().reject(selectedData.value.id, input)
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
@@ -293,6 +319,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'toWarehouse'">
             {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+          </div>
+          <div v-else-if="col.name === 'receivedToWarehouseBy'">
+            {{ props.row?.receivedToWarehouseBy?.fullName || '-' }}
           </div>
           <div v-else-if="col.name === 'status'">
             <div v-if="props.row.status === 'pending'" class="text-red">
