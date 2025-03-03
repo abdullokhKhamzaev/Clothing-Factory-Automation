@@ -22,7 +22,7 @@ export default {
   paySalary: 'Моаш тўлаш',
   checkedBy: 'Текширилди',
   payAdvance: 'Аванс тўлаш',
-  departure: 'Йўқотиш',
+  departure: 'Жўнав кетиш',
   oweUs: 'Биздан қарз',
   total: 'Жами',
   paid: 'Тўланди',
@@ -33,70 +33,70 @@ export default {
   accept: 'Қабул қилиш',
   balance: 'Баланс',
   confirmed: 'Тасдиқланган',
-  repaintOrders: 'Қайта бўйоқ Буюртмалар',
-  completedOrders: 'Тугатилган Буюртмалар',
-  completedRepaintOrders: 'Тугатилган қайта бўйоқ Буюртмалар',
-  convert: 'Конверт қилиш',
-  columns: 'Колонкалар',
+  repaintOrders: 'Қайта бўйоқ буюртмалар',
+  completedOrders: 'Якунланган буюртмалар',
+  completedRepaintOrders: 'Якунланган қайта бўйоқ буюртмалар',
+  convert: 'Айирбошлаш',
+  columns: 'Устунлар',
   colors: 'Ранглар',
   confirm: 'Тасдиқлаш',
   delete: 'Ўчириш',
   debts: 'Қарзлар',
   edit: 'Таҳрирлаш',
   finish: 'Тугатиш',
-  fabrics: 'Матолар',
+  fabrics: 'Фабрикалар',
   from: 'Дан',
-  inProgress: 'Давом этади',
+  inProgress: 'Жараёнда',
   language: 'Тил',
   materials: 'Материаллар',
-  roll: 'Рулон',
+  roll: 'Рўлон',
   noData: 'Маълумот мавжуд эмас',
   orders: 'Буюртмалар',
   pending: 'Кутилмоқда',
-  reject: 'Рад этмоқ',
+  reject: 'Рад этиш',
   report: 'Ҳисобот',
   pay: 'Тўлаш',
   to: 'Га',
   sell: 'Сотиш',
   thread: 'Ип',
   threads: 'Иплар',
-  threadPurchase: 'Ип сотиб олиш',
-  ripeMaterialPurchase: 'Пишган материал сотиб олиш',
-  ripeMaterialPaintPurchase: 'Пишган материал бўйоғи сотиб олиш',
+  threadPurchase: 'Ип савдоси',
+  ripeMaterialPurchase: 'Материал савдоси',
+  ripeMaterialPaintPurchase: 'Боёк савдоси',
   transactions: 'Транзакциялар',
   quantity: 'Микдор',
-  warehouse: 'Ҳамбар',
-  unripeMaterial: 'Пишмаган материал',
-  ripeMaterial: 'Пишган материал',
-  defects: 'Нуқсонлар',
-  sendToEmbroidery: 'Бўёқчиликка юбориш',
-  sendToCutterDefective: 'Куттерга носоз юбориш',
+  warehouse: 'Омбор',
+  unripeMaterial: 'Тўкув материал',
+  ripeMaterial: 'Материал',
+  defects: 'Браглар',
+  sendToEmbroidery: 'Вышивкага юбориш',
+  sendToCutterDefective: 'Бичув (браг) га юбориш',
   sendToSewerWarehouse: 'Тикувга юбориш',
-  sendToPackageWarehouse: 'Пакетлашга юбориш',
-  sendToProductsWarehouse: 'Маҳсулотлар хамбарига юбориш',
+  sendToPackageWarehouse: 'Упаковкага юбориш',
+  sendToProductsWarehouse: 'Складга юбориш',
   waiting: 'Кутилмоқда',
-  waitingOrders: 'Кутилмоқда Буюртмалар',
+  waitingOrders: 'Кутилаётган буюртмалар',
   receive: 'Қабул қилиш',
   cutter: 'Бичувчи',
-  cutterService: 'Бичувчи хзмати',
-  embroideryService: 'Бўёқ хидмати',
-  embroidery: 'Бўёқчилик',
+  cutterService: 'Бичувчи учун сервис',
+  embroideryService: 'Вышивкачи учун сервис',
+  embroidery: 'Вышивкачи',
   sewer: 'Тикувчи',
-  sewerService: 'Тикув хидмати',
-  packager: 'Пакетловчи',
-  packagerService: 'Пакетлаш хидмати',
+  sewerService: 'Тикувчи учун сервис',
+  packager: 'Кадокловчи',
+  packagerService: 'Кадокловчи учун сервис',
   monthly: 'Ойлик',
-  service: 'Хизмат',
+  service: 'Сервис',
   daily: 'Кунлик',
-  made: 'Яратилган',
-  piece: 'Тутам',
+  made: 'Ишбай',
+  piece: 'Дона',
   kg: 'КГ',
-  meter: 'Метрик',
+  meter: 'Метр',
   paint: 'Бўёқ',
-  paintFactory: 'Бўёқ заводи',
+  paintFactory: 'Бўёқ фабрика',
   model: 'Модел',
   employees: 'Ходимлар',
-  attendance: 'Йўналиш',
+  attendance: 'Давомат',
   ready: 'Тайёр',
   roles: {
     ROLE_ADMIN: 'Админ',
@@ -116,20 +116,20 @@ export default {
     rejected: 'Рад этилган',
     confirmed: 'Тасдиқланган',
     pending: 'Кутилмоқда',
-    completed: 'Тугатилган',
-    expected: 'Кутилган',
+    completed: 'Якунланган',
+    expected: 'Кутилаётган',
     received: 'Қабул қилинган'
   },
   warehouses: {
-    cutterWarehouse: 'Бичувчи хзмати',
-    cutterDefectiveWarehouse: 'Носоз хзмати',
-    embroideryWarehouse: 'Бўёқчилик хзмати',
-    embroideryReadyWarehouse: 'Тайёр бўёқчилик хзмати',
-    sewerWarehouse: 'Тикув хзмати',
-    sewerReadyWarehouse: 'Тайёр тикув хзмати',
-    packagerWarehouse: 'Пакетловчи хзмати',
-    packagerReadyWarehouse: 'Тайёр пакетловчи хзмати',
-    productsWarehouse: 'Маҳсулотлар хзмати',
+    cutterWarehouse: 'Бичув омбор',
+    cutterDefectiveWarehouse: 'Бичув (враг) омбор',
+    embroideryWarehouse: 'Вышивка омбор',
+    embroideryReadyWarehouse: 'Вышивка (тайёр) омбор',
+    sewerWarehouse: 'Тикув омбор',
+    sewerReadyWarehouse: 'Тикув (тайёр) омбор',
+    packagerWarehouse: 'Упаковка омбор',
+    packagerReadyWarehouse: 'Упаковка (тайёр) омбор',
+    productsWarehouse: 'Склад',
   },
   menus: {
     sideBar: {
@@ -155,7 +155,7 @@ export default {
   dialogs: {
     delete: {
       bar: 'Ўчиришни тасдиқлаш',
-      info: 'Сиз ушбу элементни ўчиришни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      info: 'Сиз ушбу элементни ўчиришни истайсизми? Бу амални ортга кайтариб бўлмайди.',
       buttons: {
         confirm: 'Тасдиқлаш',
         cancel: 'Бекор қилиш'
@@ -163,7 +163,7 @@ export default {
     },
     accept: {
       bar: 'Қабул қилишни тасдиқлаш',
-      info: 'Сиз қабул қилишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      info: 'Сиз қабул қилишни истайсизми? Бу амални ортга кайтариб бўлмайди.',
       buttons: {
         accept: 'Қабул қилиш',
         cancel: 'Бекор қилиш'
@@ -171,7 +171,7 @@ export default {
     },
     attendance: {
       bar: 'Ҳозирликни тасдиқлаш',
-      info: 'Сиз ҳозирликни қабул қилишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      info: 'Сиз ҳозирликни қабул қилишни истайсизми? Бу амални ортга кайтариб бўлмайди.',
       buttons: {
         accept: 'Қабул қилиш',
         cancel: 'Бекор қилиш'
@@ -187,22 +187,22 @@ export default {
       bar: 'Моаш тўлаш'
     },
     warehouse: {
-      barUpdate: 'Ҳамбарни янгилаш'
+      barUpdate: 'Омборни янгилаш'
     },
     advance: {
       bar: 'Аванс бериш'
     },
     complete: {
-      bar: 'Ордерни тугатиш',
-      info: 'Сиз ордерни тугатишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      bar: 'Буюртмани тугатиш',
+      info: 'Сиз буюртмани тугатишни истайсизми? Бу амални ортга кайтариб бўлмайди.',
       buttons: {
-        complete: 'Тугатиш',
+        complete: 'Якунлаш',
         cancel: 'Бекор қилиш'
       }
     },
     reject: {
       bar: 'Рад этишни тасдиқлаш',
-      info: 'Сиз рад этишни истайсизми? Бу амалиётни орқасига олиш мумкин эмас.',
+      info: 'Сиз рад этишни истайсизми? Бу амални ортга кайтариб бўлмайди.',
       buttons: {
         reject: 'Рад этиш',
         cancel: 'Бекор қилиш'
@@ -210,7 +210,7 @@ export default {
     },
     user: {
       barCreate: 'Фойдаланувчи яратиш',
-      barEdit: 'Фойдаланувchini таҳрирлаш',
+      barEdit: 'Фойдаланувчини таҳрирлаш',
     },
     thread: {
       barCreate: 'Ип яратиш',
@@ -245,11 +245,11 @@ export default {
       barReceiveDebt: 'Маҳсулот савдосининг қарзини қабул қилиш'
     },
     unripeMaterialOrder: {
-      barCreate: 'Тўқув материал буюртмаси яратиш',
+      barCreate: 'Тўқув материал буюртмасини яратиш',
       barEdit: 'Тўқув материал буюртмасини таҳрирлаш',
     },
     modelOrder: {
-      barCreate: 'Модел буюртмаси яратиш',
+      barCreate: 'Модел буюртмасини яратиш',
       barEdit: 'Модел буюртмасини таҳрирлаш'
     },
     ripeMaterial: {
@@ -265,7 +265,7 @@ export default {
       barPayDebt: 'Материал савдосининг қарзини тўлаш'
     },
     paint: {
-      barCreate: 'Бўёқ буюртмаси яратиш',
+      barCreate: 'Бўёқ буюртмасини яратиш',
       barEdit: 'Бўёқ буюртмасини таҳрирлаш',
     },
     repaint: {
@@ -279,8 +279,8 @@ export default {
       barCreate: 'Буюртма ҳақида ҳисобот',
     },
     fabric: {
-      barCreate: 'Бўёқ фабрикаси яратиш',
-      barEdit: 'Бўёқ фабрикасига таҳрирлаш',
+      barCreate: 'Бўёқ фабрика яратиш',
+      barEdit: 'Бўёқ фабрикасини таҳрирлаш',
     },
     color: {
       barCreate: 'Ранг яратиш',
@@ -332,13 +332,13 @@ export default {
         },
       },
       buttons: {
-        create: 'Фойдалануничи яратиш',
+        create: 'Фойдаланувчи яратиш',
         edit: 'Фойдаланувчини таҳрирлаш'
       },
       confirmation: {
-        successCreated: 'Фойдалануvчи муваффақиятли яратилди.',
+        successCreated: 'Фойдаланувчи муваффақиятли яратилди.',
         successEdited: 'Фойдаланувчи муваффақиятли таҳрирланди.',
-        successDeleted: 'Фойдалануvчи муваффақиятли ўчирилди.',
+        successDeleted: 'Фойдаланувчи муваффақиятли ўчирилди.',
         failure: 'Фойдаланувчи сақлашда хатолик юз берди.'
       }
     },
@@ -850,13 +850,13 @@ export default {
           }
         },
         quantitySort2: {
-          label: 'Миқдор 2-тури',
+          label: 'Миқдор 2-сорт',
           validation: {
             required: 'Миқдор талаб қилинади.'
           }
         },
         rollSort2: {
-          label: 'Ролон 2-тури',
+          label: 'Ролон 2-сорт',
           validation: {
             required: 'Ролон талаб қилинади.'
           }
@@ -874,7 +874,7 @@ export default {
           }
         },
         priceSort2: {
-          label: 'Нарҳ 2 сорт',
+          label: 'Нарҳ 2-сорт',
           validation: {
             required: 'Нарҳ талаб қилинади.'
           }
@@ -1600,8 +1600,8 @@ export default {
     },
     transaction: {
       header: {
-        title: 'Трансаксиялар',
-        empty: 'Ҳеч қандай Трансаксия топилмади'
+        title: 'Транзакциялар',
+        empty: 'Ҳеч қандай Транзакция топилмади'
       },
       columns: {
         id: 'ID',
@@ -1613,7 +1613,7 @@ export default {
         price: 'Нарх'
       },
       buttons: {
-        add: 'Трансаксия яратиш'
+        add: 'Транзакция яратиш'
       },
     },
     unripeMaterial: {
@@ -1855,7 +1855,7 @@ export default {
     },
     completedUnripeMaterialOrder: {
       header: {
-        title: 'Тугatilган Тўқув Буюртма',
+        title: 'Якунланган Тўқув Буюртма',
         empty: 'Ҳеч қандай буюртма топилмади'
       },
       columns: {
@@ -1907,7 +1907,7 @@ export default {
         createdAt: 'Сана',
         createdBy: 'Ким томонидан яратилган',
         productModel: 'Модел',
-        productSize: 'Модел ўлчамлар',
+        productSize: 'Модел размерлар',
         expectedOutlayRipeMaterial: 'Кутилаётган сарф',
         outlayRipeMaterial: 'Ишлатилди',
         status: 'Статус'
@@ -1923,7 +1923,7 @@ export default {
         createdAt: 'Сана',
         sentBy: 'Юборди',
         productModel: 'Модел',
-        productSize: 'Модел ўлчам',
+        productSize: 'Модел размер',
         fromWarehouse: 'Дан',
         toWarehouse: 'Га',
         status: 'Статус'

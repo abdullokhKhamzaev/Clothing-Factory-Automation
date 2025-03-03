@@ -33,7 +33,7 @@ export default {
   accept: 'Qabul qilish',
   balance: 'Balans',
   confirmed: 'Tasdiqlangan',
-  repaintOrders: 'Qayta bo\'yash buyurtmalar',
+  repaintOrders: 'Qayta bo\'yoq buyurtmalar',
   completedOrders: 'Yakunlangan buyurtmalar',
   completedRepaintOrders: 'Yakunlangan qayta bo\'yash buyurtmalar',
   convert: 'Ayriboshlash',
@@ -70,7 +70,7 @@ export default {
   ripeMaterial: 'Material',
   defects: 'Braglar',
   sendToEmbroidery: 'Vishivkaga yuborish',
-  sendToCutterDefective: 'Tikuv (brag) ga yuborish',
+  sendToCutterDefective: 'Bichuv (brag) ga yuborish',
   sendToSewerWarehouse: 'Tikuvga yuborish',
   sendToPackageWarehouse: 'Qadoqlashga yuborish',
   sendToProductsWarehouse: 'Omborga yuborish',
@@ -96,7 +96,7 @@ export default {
   paintFactory: 'Bo\'yoq fabrika',
   model: 'Madel',
   employees: 'Ishchilar',
-  attendance: 'Davomad',
+  attendance: 'Davomat',
   ready: 'Tayyor',
   roles: {
     ROLE_ADMIN: 'Admin',
@@ -139,7 +139,7 @@ export default {
       embroidery: 'Vishivka',
       package: 'Qadoqlash',
       paint: 'Bo\'yoq',
-      productWarehouse: 'Maxsulot ombor',
+      productWarehouse: 'Maxsulot ombori',
       settings: 'Sozlamalar',
       sewing: 'Tikuv',
       statistics: 'Statistika',
@@ -201,7 +201,7 @@ export default {
       }
     },
     reject: {
-      bar: 'Rad etishni tasdiqlang',
+      bar: 'Rad etishni tasdiqlash',
       info: 'Haqiqatan ham rad qilmoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi.',
       buttons: {
         reject: 'Rad etish',
@@ -242,14 +242,14 @@ export default {
     },
     sale: {
       barCreate: 'Sotuv bitimini yaratish',
-      barReceiveDebt: 'Maxsulot savdosini qarzini qabul qilish'
+      barReceiveDebt: 'Maxsulot savdosining qarzini qabul qilish'
     },
     unripeMaterialOrder: {
-      barCreate: 'To\'quv material buyurtmasi yaratish',
+      barCreate: 'To\'quv material buyurtmasini yaratish',
       barEdit: 'To\'quv material buyurtmasini tahrirlash',
     },
     modelOrder: {
-      barCreate: 'Model buyurtmasi yaratish',
+      barCreate: 'Model buyurtmasini yaratish',
       barEdit: 'Model buyurtmasini tahrirlash'
     },
     ripeMaterial: {
@@ -279,7 +279,7 @@ export default {
       barCreate: 'Buyurtma haqida hisobot',
     },
     fabric: {
-      barCreate: 'Bo\'yoq fabrikasi yaratish',
+      barCreate: 'Bo\'yoq fabrika yaratish',
       barEdit: 'Bo\'yoq fabrikasini tahrirlash',
     },
     color: {
@@ -850,13 +850,13 @@ export default {
         }
       },
       quantitySort2: {
-        label: 'Miqdor 2-turi',
+        label: 'Miqdor 2-сорт',
           validation: {
           required: 'Miqdor talab qilinadi.'
         }
       },
       rollSort2: {
-        label: 'Ro\'lon 2-turi',
+        label: 'Ro\'lon 2-сорт',
           validation: {
           required: 'Ro\'lon talab qilinadi.'
         }
