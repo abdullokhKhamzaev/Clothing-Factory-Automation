@@ -21,7 +21,7 @@ const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
-const sendingWarehouse = ref([]);
+const sendingWarehouse = ref('/api/warehouses/5');
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -105,23 +105,8 @@ function getWarehouse (filterProps) {
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
-      loading.value = false;
     })
-    .then(getSendingWarehouse)
-}
-function getSendingWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'sewerWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
-      loading.value = false;
-    })
-    .then(getWarehouseAction)
+    .finally(loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -243,6 +228,7 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
+  getWarehouseAction();
 }
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');

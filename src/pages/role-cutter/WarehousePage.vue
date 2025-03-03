@@ -16,8 +16,8 @@ const showSendModal = ref(false);
 const sendActionErr = ref(false);
 
 const warehouse = ref({});
-const embroideryWarehouse = ref([]);
-const sewerWarehouse = ref([]);
+const embroideryWarehouse = ref('/api/warehouses/3');
+const sewerWarehouse = ref('/api/warehouses/5');
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -72,32 +72,6 @@ function getWarehouseAction (filterProps) {
     .finally(() => {
       warehouseActionLoading.value = false;
     });
-}
-function getEmbroideryWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'embroideryWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .finally(() => loading.value = false)
-}
-function getSewerWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'sewerWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      sewerWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .finally(() => loading.value = false)
 }
 function clearAction() {
   selectedData.value = {};
@@ -169,8 +143,6 @@ function hasEmbroidery(data) {
 }
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
-  getSewerWarehouse();
 }
 onMounted(() => {
   refresh()

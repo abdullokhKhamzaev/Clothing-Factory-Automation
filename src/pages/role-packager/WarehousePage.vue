@@ -20,8 +20,8 @@ const showDefectModal = ref(false);
 const showReportModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
-const cutterDefectiveWarehouse = ref([]);
-const readyWarehouse = ref([]);
+const cutterDefectiveWarehouse = ref('/api/warehouses/2');
+const readyWarehouse = ref('/api/warehouses/8');
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -127,37 +127,8 @@ function getWarehouse (filterProps) {
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
-      loading.value = false;
     })
-    .then(getReadyWarehouse)
-}
-function getReadyWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'packagerReadyWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      readyWarehouse.value = res.data['hydra:member'][0]['@id'];
-      loading.value = false;
-    })
-    .then(getCutterDefectiveWarehouse)
-}
-function getCutterDefectiveWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  props.name = 'cutterDefectiveWarehouse';
-
-  loading.value = true;
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      cutterDefectiveWarehouse.value = res.data['hydra:member'][0]['@id'];
-      loading.value = false;
-    })
-    .then(getWarehouseAction)
+    .finally(loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -288,8 +259,8 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
+  getWarehouseAction();
 }
-
 onMounted(() => {
   refresh()
 })

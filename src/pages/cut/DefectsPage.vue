@@ -18,7 +18,6 @@ const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
 
 const warehouse = ref([]);
-const embroideryWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -118,18 +117,6 @@ function getWarehouseAction (filterProps) {
       warehouseActionLoading.value = false;
     });
 }
-function getEmbroideryWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  props.name = 'cutterDefectiveWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
-    })
-    .then(getWarehouseAction)
-    .finally(() => loading.value = false)
-}
 function updateAction() {
   if (!selectedData.value.id) {
     console.warn('data not found');
@@ -180,7 +167,7 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
+  getWarehouseAction()
 }
 function prefill() {
   let sizes = [];

@@ -21,7 +21,6 @@ const showOrderReportModal = ref(false);
 const reportActionErr = ref(false);
 
 const warehouse = ref([]);
-const embroideryWarehouse = ref([]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -148,7 +147,7 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouse = embroideryWarehouse.value;
+  props.toWarehouse = warehouse.value['@id'];
 
   useProductWarehouse().getAll(props || '')
     .then((res) => {
@@ -158,20 +157,6 @@ function getWarehouseAction (filterProps) {
     .finally(() => {
       warehouseActionLoading.value = false;
     });
-}
-function getEmbroideryWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'cutterDefectiveWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      embroideryWarehouse.value = res.data['hydra:member'][0]['@id'];
-      loading.value = false;
-    })
-    .then(getWarehouseAction)
 }
 function reportOrderAction() {
   if (!selectedData.value.productModel['@id']) {
@@ -251,7 +236,7 @@ function prefill() {
 }
 function refresh() {
   getWarehouse();
-  getEmbroideryWarehouse();
+  getWarehouseAction();
 }
 
 onMounted(() => {

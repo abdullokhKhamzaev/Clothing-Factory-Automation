@@ -13,7 +13,7 @@ const selectedData = ref({});
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const warehouse = ref([]);
-const sendingWarehouse = ref([]);
+const sendingWarehouse = ref('/api/warehouses/9');
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -97,23 +97,8 @@ function getWarehouse (filterProps) {
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
       warehouse.value = res.data['hydra:member'][0];
-      loading.value = false;
     })
-    .then(getSendingWarehouse)
-}
-function getSendingWarehouse (filterProps) {
-  let props = filterProps || {};
-
-  loading.value = true;
-
-  props.name = 'productsWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      sendingWarehouse.value = res.data['hydra:member'][0]['@id'];
-      loading.value = false;
-    })
-    .then(getWarehouseAction)
+    .finally(loading.value = false)
 }
 function getWarehouseAction (filterProps) {
   let props = filterProps || {};
@@ -137,6 +122,7 @@ function clearAction() {
 }
 function refresh() {
   getWarehouse();
+  getWarehouseAction();
 }
 onMounted(() => {
   refresh()
