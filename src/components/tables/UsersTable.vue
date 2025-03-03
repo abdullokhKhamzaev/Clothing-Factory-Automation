@@ -430,7 +430,7 @@ function exportTable(users) {
             v-model="selectedData.phone"
             :label="$t('forms.user.fields.phone.label')"
             name="First Name"
-            mask="+############"
+            mask="+#################"
             :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
             hide-bottom-space
             class="col-12"
@@ -575,7 +575,7 @@ function exportTable(users) {
                 v-model="selectedData.phone"
                 :label="$t('forms.user.fields.phone.label')"
                 name="First Name"
-                mask="+############"
+                mask="+#################"
                 :rules="[ val => val && val.length > 0 || $t('forms.user.fields.phone.validation.required')]"
                 hide-bottom-space
                 class="col-12"

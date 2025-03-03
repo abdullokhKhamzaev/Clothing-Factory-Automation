@@ -72,7 +72,7 @@ function auth() {
               v-model="authorization.phone"
               label="Phone"
               name="First Name"
-              mask="+############"
+              mask="+#################"
             />
             <q-input v-model="authorization.password" label="Password" name="password" type="password"/>
 

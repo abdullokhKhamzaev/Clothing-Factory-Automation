@@ -246,7 +246,7 @@ function clearAction() {
             v-model="selectedData.phone"
             :label="$t('forms.customer.fields.phone.label')"
             name="First Name"
-            mask="+############"
+            mask="+#################"
             :rules="[ val => val && val.length > 0 || $t('forms.customer.fields.phone.validation.required')]"
             hide-bottom-space
             class="col-12"
@@ -307,7 +307,7 @@ function clearAction() {
             v-model="selectedData.phone"
             :label="$t('forms.customer.fields.phone.label')"
             name="First Name"
-            mask="+############"
+            mask="+#################"
             :rules="[ val => val && val.length > 0 || $t('forms.customer.fields.phone.validation.required')]"
             hide-bottom-space
             class="col-12"
