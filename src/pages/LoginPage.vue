@@ -71,7 +71,7 @@ function auth() {
           <div class="q-mb-xl">
             <div class="flex justify-center">
               <div class="text-h4 q-my-none text-weight-bold text-primary">
-                Login Form
+                Tizimga kirish
               </div>
             </div>
           </div>
@@ -79,14 +79,14 @@ function auth() {
           <q-form ref="form" class="q-gutter-md" @submit="auth">
             <q-input
               v-model="authorization.phone"
-              label="Phone"
-              name="First Name"
+              label="Telefon"
+              name="telephone"
               mask="+#################"
             />
-            <q-input v-model="authorization.password" label="Password" name="password" type="password"/>
+            <q-input v-model="authorization.password" label="Parol" name="password" type="password"/>
 
             <div>
-              <q-btn class="full-width" color="primary" label="Login" type="submit" :loading="isLoading" :disable="isLoading" />
+              <q-btn class="full-width" color="primary" label="Kirish" type="submit" :loading="isLoading" :disable="isLoading" />
             </div>
           </q-form>
         </q-card-section>
