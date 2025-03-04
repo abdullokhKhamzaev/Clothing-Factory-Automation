@@ -97,7 +97,7 @@ export default defineConfig((ctx) => {
       config: {
         brand: {
           // Override Quasar's default colors
-          primary: '#119cf1',
+          primary: '#6f42c1',
         }
       },
 

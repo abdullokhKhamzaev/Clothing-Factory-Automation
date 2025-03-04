@@ -56,19 +56,20 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
+      class="bg-primary text-white"
     >
       <q-list>
         <q-item-label
-          class="text-h5 text-primary text-weight-medium"
+          class="text-white text-h5 text-weight-medium"
           header
         >
-          Kids Club Inc
+          Kids Club
         </q-item-label>
 
         <q-separator />
 
         <q-item-label
-          class="text-h5 text-primary text-weight-medium"
+          class="bg-white text-h5 text-weight-medium"
           header
         >
           <q-item
@@ -78,7 +79,7 @@
               style="max-width: 40px"
               avatar
             >
-              <q-img src="favicon.ico" />
+              <q-img src="favicon.png" />
             </q-item-section>
 
             <q-item-section>
