@@ -14,8 +14,6 @@ const user = useAbout();
 const selectedData = ref({});
 const defectActionErr = ref(false);
 const reportActionErr = ref(false);
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const showDefectModal = ref(false);
 const showReportModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
@@ -43,80 +41,8 @@ const columns = [
   { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
   { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
   { name: 'receivedToSewingBy', label: t('checkedBy'), align: 'left', field: 'receivedToSewingBy' },
-  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
-  { name: 'action', label: '', align: 'right', field: 'action' }
+  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' }
 ];
-
-function acceptAction () {
-  if (!user.about['@id'] || !selectedData.value['@id']) {
-    console.warn('data not found');
-    return
-  }
-
-  warehouseActionLoading.value = true;
-
-  const input = {
-    status: 'accepted',
-    receivedToSewingBy: user.about['@id']
-  }
-
-  useProductWarehouse().accept(selectedData.value.id, input)
-    .then(() => {
-      showAcceptModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
-function rejectAction () {
-  if (!user.about['@id'] || !selectedData.value['@id']) {
-    console.warn('data not found');
-    return
-  }
-
-  warehouseActionLoading.value = true;
-
-  const input = {
-    status: 'rejected',
-    receivedToSewingBy: user.about['@id']
-  }
-
-  useProductWarehouse().reject(selectedData.value.id, input)
-    .then(() => {
-      showRejectModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
@@ -278,6 +204,94 @@ onMounted(() => {
       size="4em"
     />
   </div>
+
+  <div class="q-mb-lg shadow-3">
+    <q-table
+      :loading="loading || warehouseActionLoading"
+      flat
+      bordered
+      :rows="warehouseActions"
+      :columns="columns"
+      :no-data-label="$t('tables.transaction.header.empty')"
+      color="primary"
+      row-key="id"
+      :pagination="warehouseActionPagination"
+      hide-bottom
+    >
+      <template v-slot:top>
+        <div class="col-12 flex justify-between">
+          <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
+        </div>
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td v-for="col in columns" :key="col.name" :props="props">
+            <div v-if="col.name === 'sentBy'">
+              {{ props.row.sentBy.fullName }}
+            </div>
+            <div v-else-if="col.name === 'createdAt'">
+              {{ formatDate(props.row.createdAt) }}
+            </div>
+            <div v-else-if="col.name === 'productModel'">
+              {{ props.row.productModel.name }}
+            </div>
+            <div v-else-if="col.name === 'productSize'">
+              <div
+                v-for="consume in props.row.productSize"
+                :key="consume"
+              >
+                {{ consume.size }} : {{ consume.quantity }}
+              </div>
+            </div>
+            <div v-else-if="col.name === 'fromWarehouse'">
+              {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
+            </div>
+            <div v-else-if="col.name === 'toWarehouse'">
+              {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+            </div>
+            <div v-else-if="col.name === 'receivedToSewingBy'">
+              {{ props.row?.receivedToSewingBy?.fullName || '-' }}
+            </div>
+            <div v-else-if="col.name === 'status'">
+              <div v-if="props.row.status === 'pending'" class="text-red">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+              <div v-else-if="props.row.status === 'accepted'" class="text-green">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+              <div v-else class="text-red">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+            </div>
+            <div v-else>
+              {{ props.row[col.field] }}
+            </div>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+    <div
+    v-show="!loading && !warehouseActionLoading"
+    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
+    class="row justify-center q-mt-md"
+  >
+    <q-pagination
+      :disable="warehouseActionLoading"
+      v-model="warehouseActionPagination.page"
+      input-class="text-bold text-black"
+      :max="warehouseActionPagesNumber"
+      color="primary"
+      input
+      size="md"
+      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
+    />
+  </div>
+  </div>
+
+  <h4 class="q-mb-sm">
+    {{ $t('tables.model.header.title') }}
+  </h4>
+
   <q-list
     v-show="!loading"
     bordered
@@ -303,6 +317,7 @@ onMounted(() => {
       <q-item-section>
         <div class="flex justify-end">
           <q-btn
+            v-if="shouldShowAction(warehouseActions)"
             color="primary"
             icon="mdi-dots-vertical"
             size="sm"
@@ -311,7 +326,6 @@ onMounted(() => {
             <q-menu>
               <q-card>
                 <q-item
-                  v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
                   class="text-red"
                   clickable
@@ -352,120 +366,14 @@ onMounted(() => {
               </q-card>
             </q-menu>
           </q-btn>
+          <p v-else class="text-orange">
+            {{ $t('pending') }}
+          </p>
         </div>
       </q-item-section>
     </q-item>
   </q-list>
 
-  <q-table
-    :loading="loading || warehouseActionLoading"
-    flat
-    bordered
-    :rows="warehouseActions"
-    :columns="columns"
-    :no-data-label="$t('tables.transaction.header.empty')"
-    color="primary"
-    row-key="id"
-    :pagination="warehouseActionPagination"
-    hide-bottom
-  >
-    <template v-slot:top>
-      <div class="col-12 flex justify-between">
-        <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
-      </div>
-    </template>
-    <template v-slot:body="props">
-      <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div v-if="col.name === 'sentBy'">
-            {{ props.row.sentBy.fullName }}
-          </div>
-          <div v-else-if="col.name === 'createdAt'">
-            {{ formatDate(props.row.createdAt) }}
-          </div>
-          <div v-else-if="col.name === 'productModel'">
-            {{ props.row.productModel.name }}
-          </div>
-          <div v-else-if="col.name === 'productSize'">
-            <div
-              v-for="consume in props.row.productSize"
-              :key="consume"
-            >
-              {{ consume.size }} : {{ consume.quantity }}
-            </div>
-          </div>
-          <div v-else-if="col.name === 'fromWarehouse'">
-            {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
-          </div>
-          <div v-else-if="col.name === 'toWarehouse'">
-            {{ $t('warehouses.' + props.row.toWarehouse.name) }}
-          </div>
-          <div v-else-if="col.name === 'receivedToSewingBy'">
-            {{ props.row?.receivedToSewingBy?.fullName || '-' }}
-          </div>
-          <div v-else-if="col.name === 'status'">
-            <div v-if="props.row.status === 'pending'" class="text-red">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-            <div v-else-if="props.row.status === 'accepted'" class="text-green">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-            <div v-else class="text-red">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-          </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
-            <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                color="green"
-                icon-right="mdi-check"
-                @click="selectedData = {...props.row}; showAcceptModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('accept') }}
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
-            </div>
-          </div>
-          <div v-else>
-            {{ props.row[col.field] }}
-          </div>
-        </q-td>
-      </q-tr>
-    </template>
-  </q-table>
-  <div
-    v-show="!loading && !warehouseActionLoading"
-    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="warehouseActionLoading"
-      v-model="warehouseActionPagination.page"
-      input-class="text-bold text-black"
-      :max="warehouseActionPagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
-    />
-  </div>
   <!-- Dialogs -->
   <q-dialog v-model="showDefectModal" persistent @hide="clearAction">
     <div
@@ -616,51 +524,5 @@ onMounted(() => {
         </div>
       </q-form>
     </div>
-  </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.accept.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.accept.buttons.accept')"
-          color="green"
-          @click="acceptAction();"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="rejectAction()"
-        />
-      </q-card-actions>
-    </q-card>
   </q-dialog>
 </template>
