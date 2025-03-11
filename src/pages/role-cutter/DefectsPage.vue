@@ -255,6 +255,117 @@ onMounted(() => {
       size="4em"
     />
   </div>
+
+  <div class="q-mb-lg shadow-3">
+    <q-table
+      :loading="loading || warehouseActionLoading"
+      flat
+      bordered
+      :rows="warehouseActions"
+      :columns="columns"
+      :no-data-label="$t('tables.transaction.header.empty')"
+      color="primary"
+      row-key="id"
+      :pagination="warehouseActionPagination"
+      hide-bottom
+    >
+      <template v-slot:top>
+        <div class="col-12 flex justify-between">
+          <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
+        </div>
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td v-for="col in columns" :key="col.name" :props="props">
+            <div v-if="col.name === 'sentBy'">
+              {{ props.row.sentBy.fullName }}
+            </div>
+            <div v-else-if="col.name === 'productModel'">
+              {{ props.row.productModel.name }}
+            </div>
+            <div v-else-if="col.name === 'productSize'">
+              <div
+                v-for="consume in props.row.productSize"
+                :key="consume"
+              >
+                {{ consume.size }} : {{ consume.quantity }}
+              </div>
+            </div>
+            <div v-else-if="col.name === 'fromWarehouse'">
+              {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
+            </div>
+            <div v-else-if="col.name === 'toWarehouse'">
+              {{ $t('warehouses.' + props.row.toWarehouse.name) }}
+            </div>
+            <div v-else-if="col.name === 'status'">
+              <div v-if="props.row.status === 'pending'" class="text-red">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+              <div v-else-if="props.row.status === 'accepted'" class="text-green">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+              <div v-else class="text-orange">
+                {{ $t('statuses.' + props.row.status) }}
+              </div>
+            </div>
+            <div v-else-if="col.name === 'action' && props.row.status === 'pending'">
+              <div class="flex no-wrap q-gutter-x-sm">
+                <q-btn
+                  dense
+                  no-caps
+                  no-wrap
+                  color="green"
+                  icon-right="mdi-check"
+                  @click="selectedData = {...props.row}; showAcceptModal = true;"
+                >
+                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                    {{ $t('accept') }}
+                  </q-tooltip>
+                </q-btn>
+                <q-btn
+                  dense
+                  no-caps
+                  no-wrap
+                  size="md"
+                  color="red"
+                  icon-right="mdi-cancel"
+                  @click="selectedData = {...props.row}; showRejectModal = true;"
+                >
+                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                    {{ $t('reject') }}
+                  </q-tooltip>
+                </q-btn>
+              </div>
+            </div>
+            <div v-else>
+              {{ props.row[col.field] }}
+            </div>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+    <div
+    v-show="!loading && !warehouseActionLoading"
+    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
+    class="row justify-center q-mt-md"
+  >
+    <q-pagination
+      :disable="warehouseActionLoading"
+      v-model="warehouseActionPagination.page"
+      input-class="text-bold text-black"
+      :max="warehouseActionPagesNumber"
+      color="primary"
+      input
+      size="md"
+      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
+    />
+  </div>
+  </div>
+
+  <h4 class="q-mb-sm">
+    {{ $t('tables.model.header.title') }}
+  </h4>
+
   <q-list
     v-show="!loading"
     bordered
@@ -313,109 +424,6 @@ onMounted(() => {
     </q-item>
   </q-list>
 
-  <q-table
-    :loading="loading || warehouseActionLoading"
-    flat
-    bordered
-    :rows="warehouseActions"
-    :columns="columns"
-    :no-data-label="$t('tables.transaction.header.empty')"
-    color="primary"
-    row-key="id"
-    :pagination="warehouseActionPagination"
-    hide-bottom
-  >
-    <template v-slot:top>
-      <div class="col-12 flex justify-between">
-        <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
-      </div>
-    </template>
-    <template v-slot:body="props">
-      <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div v-if="col.name === 'sentBy'">
-            {{ props.row.sentBy.fullName }}
-          </div>
-          <div v-else-if="col.name === 'productModel'">
-            {{ props.row.productModel.name }}
-          </div>
-          <div v-else-if="col.name === 'productSize'">
-            <div
-              v-for="consume in props.row.productSize"
-              :key="consume"
-            >
-              {{ consume.size }} : {{ consume.quantity }}
-            </div>
-          </div>
-          <div v-else-if="col.name === 'fromWarehouse'">
-            {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
-          </div>
-          <div v-else-if="col.name === 'toWarehouse'">
-            {{ $t('warehouses.' + props.row.toWarehouse.name) }}
-          </div>
-          <div v-else-if="col.name === 'status'">
-            <div v-if="props.row.status === 'pending'" class="text-red">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-            <div v-else-if="props.row.status === 'accepted'" class="text-green">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-            <div v-else class="text-orange">
-              {{ $t('statuses.' + props.row.status) }}
-            </div>
-          </div>
-          <div v-else-if="col.name === 'action' && props.row.status === 'pending'">
-            <div class="flex no-wrap q-gutter-x-sm">
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                color="green"
-                icon-right="mdi-check"
-                @click="selectedData = {...props.row}; showAcceptModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('accept') }}
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                dense
-                no-caps
-                no-wrap
-                size="md"
-                color="red"
-                icon-right="mdi-cancel"
-                @click="selectedData = {...props.row}; showRejectModal = true;"
-              >
-                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                  {{ $t('reject') }}
-                </q-tooltip>
-              </q-btn>
-            </div>
-          </div>
-          <div v-else>
-            {{ props.row[col.field] }}
-          </div>
-        </q-td>
-      </q-tr>
-    </template>
-  </q-table>
-  <div
-    v-show="!loading && !warehouseActionLoading"
-    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="warehouseActionLoading"
-      v-model="warehouseActionPagination.page"
-      input-class="text-bold text-black"
-      :max="warehouseActionPagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
-    />
-  </div>
   <!-- Dialogs -->
   <q-dialog v-model="showOrderReportModal" persistent @hide="clearAction">
     <div
