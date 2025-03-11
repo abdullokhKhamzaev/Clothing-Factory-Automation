@@ -26,6 +26,7 @@ const routes = computed(() => {
       :routes="routes"
       class="q-mb-md"
     />
+    <q-badge color="green" :label="$t('menus.sideBar.sewing')" class="text-h5 q-mb-md" />
     <router-view />
   </div>
 </template>

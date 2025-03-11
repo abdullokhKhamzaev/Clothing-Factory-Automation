@@ -209,6 +209,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <q-badge color="green" :label="$t('menus.sideBar.productWarehouse')" class="text-h5 q-mb-md" />
+
   <div class="q-mb-md flex justify-end">
     <refresh-button :action="refresh" />
   </div>
