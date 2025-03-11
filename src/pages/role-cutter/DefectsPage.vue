@@ -83,7 +83,7 @@ const columns = [
 
 function acceptAction () {
   warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id)
+  useProductWarehouse().accept(selectedData.value.id, {status: 'accepted'})
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -107,7 +107,7 @@ function acceptAction () {
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id)
+  useProductWarehouse().reject(selectedData.value.id, {status: 'rejected'})
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
