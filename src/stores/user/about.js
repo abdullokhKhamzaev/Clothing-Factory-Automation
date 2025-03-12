@@ -11,6 +11,9 @@ export const useAbout = defineStore('about', () => {
       about.value = data
     } catch (e) {
       console.error(e)
+      if (e.message === 'Request failed with status code 401') {
+        localStorage.removeItem('accessToken')
+      }
     }
   }
 

@@ -14,7 +14,6 @@ const user = useAbout();
 const selectedData = ref({});
 const sendActionErr = ref(false);
 const showSendModal = ref(false);
-const updateActionErr = ref(null);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
 const sendingWarehouse = ref('/api/warehouses/7');
@@ -129,7 +128,6 @@ function sendAction() {
 function clearAction() {
   selectedData.value = {};
   sendActionErr.value = null;
-  updateActionErr.value = null;
   rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function refresh() {
