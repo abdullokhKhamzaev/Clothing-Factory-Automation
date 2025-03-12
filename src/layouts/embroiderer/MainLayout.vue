@@ -89,7 +89,7 @@
               <q-item-label caption>
                 {{ user.about.phone }}
               </q-item-label>
-              <q-item-label>
+              <q-item-label v-if="user?.about?.roles?.length">
                 <q-badge align="top">{{ $t('roles.' + user.about.roles[0]) }}</q-badge>
               </q-item-label>
             </q-item-section>

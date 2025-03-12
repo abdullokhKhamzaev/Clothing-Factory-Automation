@@ -14,10 +14,11 @@ const customerPagination = ref({
   rowsNumber: 0
 });
 const customerPagesNumber = computed(() => Math.ceil(customerTotal.value / customerPagination.value.rowsPerPage));
+const fullName = ref('')
 function getCustomers (filterProps) {
-  let props = filterProps || {};
   customerLoading.value = true;
-  customer.fetchCustomers(props || '')
+
+  customer.fetchCustomers(filterProps || '')
     .then((res) => {
       customers.value = res.data['hydra:member'];
       customerTotal.value = res.data['hydra:totalItems'];
@@ -27,14 +28,18 @@ function getCustomers (filterProps) {
     });
 }
 
-function refresh () {
+function refresh (fullName) {
+  if (fullName) {
+    fullName.value = fullName;
+  }
+
   customerPagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   };
-  getCustomers();
+  getCustomers(fullName);
 }
 
 onMounted(() => {
@@ -61,7 +66,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getCustomers({ page: customerPagination.page })"
+      @update:model-value="getCustomers({ fullName: fullName, page: customerPagination.page })"
     />
   </div>
 </template>

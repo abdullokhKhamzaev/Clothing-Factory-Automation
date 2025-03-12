@@ -29,6 +29,7 @@ const customer = useCustomer();
 
 const customerLoading = ref(false);
 const selectedData = ref({});
+const searchTitle = ref('');
 const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showUpdateModal = ref(false);
@@ -42,7 +43,7 @@ const columns = [
 ];
 
 function getCustomers () {
-  emit('submit');
+  emit('submit', { fullName: searchTitle.value });
 }
 function createAction () {
   customerLoading.value = true;
@@ -160,8 +161,27 @@ function clearAction() {
     hide-bottom
   >
     <template v-slot:top>
+      <div class="q-table__title full-width">
+        {{ $t('tables.customer.header.title') }}
+        <q-separator class="q-mt-sm q-mb-md" />
+      </div>
+
       <div class="col-12 flex justify-between">
-        <div class="q-table__title">{{ $t('tables.customer.header.title') }}</div>
+        <q-input
+          style="min-width: 225px"
+          dense
+          outlined
+          clearable
+          v-model="searchTitle"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+          :label="$t('tables.users.header.searchTitle')"
+          :debounce="1000"
+          @update:model-value="emit('submit', { fullName: searchTitle });"
+        >
+          <template v-slot:append>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
         <div class="text-right">
           <q-btn
             color="primary"
