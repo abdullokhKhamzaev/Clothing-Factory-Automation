@@ -14,8 +14,6 @@ const user = useAbout();
 const selectedData = ref({});
 const defectActionErr = ref(false);
 const reportActionErr = ref(false);
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const showDefectModal = ref(false);
 const showReportModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
@@ -46,77 +44,6 @@ const columns = [
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
-
-function acceptAction () {
-  if (!user.about['@id'] || !selectedData.value['@id']) {
-    console.warn('data not found');
-    return
-  }
-
-  warehouseActionLoading.value = true;
-
-  const input = {
-    status: 'accepted',
-    receivedToPackageBy: user.about['@id']
-  }
-
-  useProductWarehouse().accept(selectedData.value.id, input)
-    .then(() => {
-      showAcceptModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
-function rejectAction () {
-  if (!user.about['@id'] || !selectedData.value['@id']) {
-    console.warn('data not found');
-    return
-  }
-
-  warehouseActionLoading.value = true;
-
-  const input = {
-    status: 'rejected',
-    receivedToPackageBy: user.about['@id']
-  }
-
-  useProductWarehouse().reject(selectedData.value.id, input)
-    .then(() => {
-      showRejectModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => warehouseActionLoading.value = false)
-}
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
@@ -626,51 +553,5 @@ onMounted(() => {
         </div>
       </q-form>
     </div>
-  </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.accept.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.accept.buttons.accept')"
-          color="green"
-          @click="acceptAction();"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="rejectAction()"
-        />
-      </q-card-actions>
-    </q-card>
   </q-dialog>
 </template>

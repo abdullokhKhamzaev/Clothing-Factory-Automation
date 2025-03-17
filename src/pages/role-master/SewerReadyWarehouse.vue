@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
-import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { formatDate } from "src/libraries/constants/defaults.js";
@@ -10,15 +9,11 @@ import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
-const user = useAbout();
 const selectedData = ref({});
-const sendActionErr = ref(false);
-const showSendModal = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const warehouse = ref([]);
 const sendingWarehouse = ref('/api/warehouses/7');
-const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouseActions = ref([]);
 const warehouseActionTotal = ref(0);
 const warehouseActionLoading = ref(false);
@@ -97,7 +92,7 @@ function getWarehouse (filterProps) {
 
   loading.value = true;
 
-  props.name = 'sewerReadyWarehouse';
+  props.name = 'packagerWarehouse';
 
   useWarehouse().fetchWarehouses(props || '')
     .then((res) => {
@@ -124,65 +119,6 @@ function getWarehouseAction (filterProps) {
 }
 function clearAction() {
   selectedData.value = {};
-  sendActionErr.value = null;
-  rows.value = [{ size: '', quantity: '', max: '' }];
-}
-function prefill() {
-  let sizes = [];
-  selectedData.value.productSize.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', max: size.quantity });
-  });
-  rows.value = sizes;
-}
-function sendAction() {
-  if (!user.about['@id'] || !selectedData.value['@id'] || !sendingWarehouse.value || !warehouse.value['@id']) {
-    console.warn('data not found');
-    return
-  }
-
-  loading.value = true;
-
-  let productSize = [];
-
-  rows.value.forEach((product) => {
-    productSize.push({ size: product.size, quantity: product.quantity })
-  })
-
-  let input = {
-    productModel: selectedData.value.productModel['@id'],
-    productSize: productSize,
-    fromWarehouse: warehouse.value['@id'],
-    toWarehouse: sendingWarehouse.value,
-    sentBy: user.about['@id'],
-    isDefective: true
-  };
-
-  useProductWarehouse().send(input)
-    .then(() => {
-      showSendModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.successSent')
-      })
-      clearAction();
-      refresh();
-    })
-    .catch((res) => {
-      sendActionErr.value = res.response.data['hydra:description'];
-
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
-      })
-    })
-    .finally(() => loading.value = false)
-}
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
 }
 function refresh() {
   getWarehouse();
@@ -343,43 +279,6 @@ onMounted(() => {
           </span>
         </q-item-label>
       </q-item-section>
-      <q-item-section>
-        <div class="flex justify-end">
-          <q-btn
-            v-if="shouldShowAction(warehouseActions)"
-            color="primary"
-            icon="mdi-dots-vertical"
-            size="sm"
-            round
-          >
-            <q-menu>
-              <q-card>
-                <q-item
-                  v-close-popup
-                  class="text-red"
-                  clickable
-                  @click="selectedData = {...item}; prefill(); showSendModal = true;"
-                >
-                  <q-item-section avatar class="q-pr-md" style="min-width: auto">
-                    <q-avatar
-                      icon="mdi-cube-send"
-                      color="red"
-                      class="text-white"
-                      size="md"
-                    />
-                  </q-item-section>
-                  <q-item-section>
-                    {{ $t('sendToPackageWarehouse') }}
-                  </q-item-section>
-                </q-item>
-              </q-card>
-            </q-menu>
-          </q-btn>
-          <p v-else class="text-orange">
-            {{ $t('pending') }}
-          </p>
-        </div>
-      </q-item-section>
     </q-item>
   </q-list>
 
@@ -429,80 +328,5 @@ onMounted(() => {
         />
       </q-card-actions>
     </q-card>
-  </q-dialog>
-  <q-dialog v-model="showSendModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
-      <q-form @submit.prevent="sendAction">
-        <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="sendActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
-        >
-          <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup />
-        </div>
-        <div v-if="sendActionErr">
-          <q-separator color="white" />
-          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
-            <q-icon
-              class="q-mr-sm"
-              name="mdi-alert-circle-outline"
-              size="md"
-              color="white"
-            />
-            {{ sendActionErr }}
-          </div>
-          <q-separator color="white" />
-        </div>
-        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <q-input
-            disable
-            v-model="selectedData.productModel.name"
-            filled
-            lazy-rules
-            :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-        </div>
-        <div
-          v-for="(row, index) in rows" :key="index"
-          class="row q-px-md q-col-gutter-x-lg q-mb-lg"
-        >
-          <q-input
-            filled
-            disable
-            v-model="row.size"
-            :label="$t('forms.modelOrder.fields.size.label')"
-            :rules="[ val => val && val > 0 || $t('forms.modelOrder.fields.size.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-          <q-input
-            filled
-            :prefix="`max: ${row.max}`"
-            type="number"
-            v-model.number="row.quantity"
-            :label="$t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.label')"
-            :rules="[ val => val !== undefined && val <= Number(row.max) || $t('forms.completedMaterialOrderReport.fields.consumedDtos.quantity.validation.required')]"
-            class="col-12 col-md-6"
-            hide-bottom-space
-          />
-        </div>
-        <q-separator/>
-        <div class="q-px-md q-py-sm text-center">
-          <q-btn
-            :disable="loading || warehouseActionLoading"
-            :loading="loading || warehouseActionLoading"
-            no-caps
-            :label="$t('forms.ripeMaterialPurchase.buttons.send')"
-            type="submit"
-            color="primary"
-          />
-        </div>
-      </q-form>
-    </div>
   </q-dialog>
 </template>
