@@ -15,8 +15,9 @@ export default {
     payedCustomerSalary: 'Maosh berildi',
     receivedSaleDebt: 'Savdoning qarzi qabul qilindi',
     spend: {
-      Electricity: 'Elektr',
-      Repair: 'Ta\'mirlash',
+      utility: 'Kommunal to\'lov',
+      repair: 'Ta\'mirlash',
+      food: 'Oziq-ovqat'
     },
   },
   paySalary: 'Maosh to\'lash',

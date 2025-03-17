@@ -15,8 +15,9 @@ export default {
     payedCustomerSalary: 'Payed salary for customer',
     receivedSaleDebt: 'Received sale debt',
     spend: {
-      Electricity: 'Electricity',
-      Repair: 'Repair',
+      utility: 'Utility',
+      repair: 'Repair',
+      food: 'Food'
     },
   },
   paySalary: 'Pay salary',

@@ -33,12 +33,16 @@ export const MEASUREMENTS = [
 
 export const TRANSACTION_REASONS = [
   {
-    label: 'Electricity',
-    value: 'Electricity'
+    label: 'Utility bill',
+    value: 'utility'
   },
   {
     label: 'Repair',
-    value: 'Repair'
+    value: 'repair'
+  },
+  {
+    label: 'Food',
+    value: 'food'
   }
 ]
 

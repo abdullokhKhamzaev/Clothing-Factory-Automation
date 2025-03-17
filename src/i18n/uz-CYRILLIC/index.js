@@ -15,8 +15,9 @@ export default {
     payedCustomerSalary: 'Моаш берилди',
     receivedSaleDebt: 'Савдонинг қарзи қабул қилинди',
     spend: {
-      Electricity: 'Электр',
-      Repair: 'Тамирлаш',
+      Electricity: 'Коммунал тўлов',
+      repair: 'Тамирлаш',
+      food: 'Озик-овкат'
     },
   },
   paySalary: 'Моаш тўлаш',
