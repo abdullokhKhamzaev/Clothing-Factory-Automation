@@ -248,9 +248,6 @@ function reportAction() {
     })
     .finally(() => loading.value = false)
 }
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
-}
 function clearAction() {
   selectedData.value = {};
   defectActionErr.value = null;
@@ -419,7 +416,6 @@ onMounted(() => {
       <q-item-section>
         <div class="flex justify-end">
           <q-btn
-            v-if="shouldShowAction(warehouseActions)"
             color="primary"
             icon="mdi-dots-vertical"
             size="sm"
@@ -447,7 +443,6 @@ onMounted(() => {
                 </q-item>
                 <q-separator />
                 <q-item
-                  v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
                   class="text-primary"
                   clickable
@@ -468,9 +463,6 @@ onMounted(() => {
               </q-card>
             </q-menu>
           </q-btn>
-          <p v-else class="text-orange">
-            {{ $t('pending') }}
-          </p>
         </div>
       </q-item-section>
     </q-item>

@@ -133,9 +133,6 @@ function clearAction() {
 function refresh() {
   getWarehouse();
 }
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
-}
 
 onMounted(() => {
   refresh()
@@ -266,7 +263,6 @@ onMounted(() => {
       <q-item-section>
         <div class="flex justify-end">
           <q-btn
-            v-if="shouldShowAction(warehouseActions)"
             color="primary"
             icon="mdi-dots-vertical"
             size="sm"
@@ -295,9 +291,6 @@ onMounted(() => {
               </q-card>
             </q-menu>
           </q-btn>
-          <p v-else class="text-orange">
-            {{ $t('pending') }}
-          </p>
         </div>
       </q-item-section>
     </q-item>

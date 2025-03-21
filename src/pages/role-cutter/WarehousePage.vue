@@ -135,9 +135,6 @@ function sendAction() {
     })
     .finally(() => loading.value = false)
 }
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
-}
 function hasEmbroidery(data) {
   return data.some(size => size.embroidery.length > 0);
 }
@@ -270,7 +267,6 @@ onMounted(() => {
       <q-item-section>
         <div class="flex justify-end">
           <q-btn
-            v-if="shouldShowAction(warehouseActions)"
             color="primary"
             icon="mdi-dots-vertical"
             size="sm"
@@ -302,9 +298,6 @@ onMounted(() => {
               </q-card>
             </q-menu>
           </q-btn>
-          <p v-else class="text-orange">
-            {{ $t('pending') }}
-          </p>
         </div>
       </q-item-section>
     </q-item>

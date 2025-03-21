@@ -176,9 +176,6 @@ function reportAction() {
     })
     .finally(() => loading.value = false)
 }
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
-}
 function clearAction() {
   selectedData.value = {};
   defectActionErr.value = null;
@@ -263,35 +260,6 @@ onMounted(() => {
                 {{ $t('statuses.' + props.row.status) }}
               </div>
             </div>
-            <div v-else-if="col.name === 'action' && props.row.status === 'pending' && warehouse.name === props.row.toWarehouse.name">
-              <div class="flex no-wrap q-gutter-x-sm">
-                <q-btn
-                  dense
-                  no-caps
-                  no-wrap
-                  color="green"
-                  icon-right="mdi-check"
-                  @click="selectedData = {...props.row}; showAcceptModal = true;"
-                >
-                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                    {{ $t('accept') }}
-                  </q-tooltip>
-                </q-btn>
-                <q-btn
-                  dense
-                  no-caps
-                  no-wrap
-                  size="md"
-                  color="red"
-                  icon-right="mdi-cancel"
-                  @click="selectedData = {...props.row}; showRejectModal = true;"
-                >
-                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                    {{ $t('reject') }}
-                  </q-tooltip>
-                </q-btn>
-              </div>
-            </div>
             <div v-else>
               {{ props.row[col.field] }}
             </div>
@@ -346,7 +314,6 @@ onMounted(() => {
       <q-item-section>
         <div class="flex justify-end">
           <q-btn
-            v-if="shouldShowAction(warehouseActions)"
             color="primary"
             icon="mdi-dots-vertical"
             size="sm"
@@ -374,7 +341,6 @@ onMounted(() => {
                 </q-item>
                 <q-separator />
                 <q-item
-                  v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
                   class="text-primary"
                   clickable
@@ -395,9 +361,6 @@ onMounted(() => {
               </q-card>
             </q-menu>
           </q-btn>
-          <p v-else class="text-orange">
-            {{ $t('pending') }}
-          </p>
         </div>
       </q-item-section>
     </q-item>

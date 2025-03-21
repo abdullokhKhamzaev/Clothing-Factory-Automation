@@ -181,9 +181,6 @@ function updateAction() {
     })
     .finally(() => loading.value = false)
 }
-function shouldShowAction(data) {
-  return !data.some(order => order.status === 'pending');
-}
 function hasEmbroidery(data) {
   return data.some(size => size.embroidery.length > 0);
 }
@@ -258,7 +255,6 @@ onMounted(() => {
                   </q-item-section>
                 </q-item>
                 <q-item
-                  v-if="shouldShowAction(warehouseActions)"
                   v-close-popup
                   class="text-primary"
                   clickable
