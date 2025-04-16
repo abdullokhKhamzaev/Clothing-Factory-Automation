@@ -12,10 +12,10 @@ const routes = computed(() => {
       label: t('warehouse'),
       value: router.resolve( { name: 'club.sew.warehouse' } )
     },
-    {
-      label: t('ready'),
-      value: router.resolve( { name: 'club.sew.ready' } )
-    },
+    // {
+    //   label: t('ready'),
+    //   value: router.resolve( { name: 'club.sew.ready' } )
+    // },
   ];
 })
 </script>

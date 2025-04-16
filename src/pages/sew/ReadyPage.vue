@@ -234,6 +234,17 @@ function refresh() {
 onMounted(() => {
   refresh()
 })
+
+const searchTitle = ref();
+const filteredProducts = computed(() => {
+  if (!searchTitle.value) {
+    return warehouse.value.productInWarehouses || [];
+  }
+
+  return (warehouse.value.productInWarehouses || []).filter(item =>
+    item.productModel.name.toLowerCase().includes(searchTitle.value.toLowerCase())
+  );
+});
 </script>
 
 <template>
@@ -254,8 +265,26 @@ onMounted(() => {
     separator
     class="q-mb-md shadow-3"
   >
+    <q-input
+      style="min-width: 225px"
+      dense
+      clearable
+      v-model="searchTitle"
+      class="q-mx-md"
+      :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+      :label="$t('tables.users.header.searchTitle')"
+    >
+      <template v-slot:append>
+        <q-icon name="search" color="primary" />
+      </template>
+    </q-input>
+    <q-item v-if="!filteredProducts.length">
+      <q-item-section>
+        <q-item-label class="text-subtitle1 text-weight-bold">{{ $t('productNotFound') }}</q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item
-      v-for="(item, index) in warehouse.productInWarehouses"
+      v-for="(item, index) in filteredProducts"
       :key="item"
     >
       <q-item-section>

@@ -99,6 +99,7 @@ export default {
   employees: 'Employees',
   attendance: 'Attendance',
   ready: 'Ready',
+  productNotFound: 'Product not found',
   roles: {
     ROLE_ADMIN: 'Admin',
     ROLE_USER: 'User',

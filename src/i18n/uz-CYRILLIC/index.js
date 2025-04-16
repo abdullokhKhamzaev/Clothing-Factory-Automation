@@ -99,6 +99,7 @@ export default {
   employees: 'Ходимлар',
   attendance: 'Давомат',
   ready: 'Тайёр',
+  productNotFound: 'Хеч кандай махсулот топилмади.',
   roles: {
     ROLE_ADMIN: 'Админ',
     ROLE_USER: 'Фойдаланувчи',
