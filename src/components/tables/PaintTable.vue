@@ -84,7 +84,7 @@ function createAction() {
       createdBy: user.about['@id'],
       paintFabric: selectedData.value.paintFabric,
       dealDate: selectedData.value.dealDate,
-      unripeMaterial: selectedData.value.unripeMaterial
+      unripeMaterial: selectedData.value.unripeMaterial['@id']
     }
   } else if (selectedData.value.whichSort === 2) {
     input = {
@@ -93,7 +93,7 @@ function createAction() {
       createdBy: user.about['@id'],
       paintFabric: selectedData.value.paintFabric,
       dealDate: selectedData.value.dealDate,
-      unripeMaterial: selectedData.value.unripeMaterial
+      unripeMaterial: selectedData.value.unripeMaterial['@id']
     }
   }
 
@@ -359,7 +359,7 @@ function finishOrderAction() {
             :label="$t('forms.paint.fields.unripeMaterial.label')"
             :store="unripeMaterial"
             fetch-method="fetchMaterials"
-            item-value="@id"
+            item-value=""
             item-label="name"
             :rule-message="$t('forms.paint.fields.unripeMaterial.validation.required')"
             class="col-12"
@@ -385,8 +385,9 @@ function finishOrderAction() {
             type="number"
             filled
             :label="$t('forms.paint.fields.sentQuantitySort1.label')"
+            :prefix="`max: ${Number(selectedData.unripeMaterial.quantity)} |`"
             lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.paint.fields.sentQuantitySort1.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= Number(selectedData.unripeMaterial.quantity) || $t('forms.paint.fields.sentQuantitySort1.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
@@ -409,8 +410,9 @@ function finishOrderAction() {
             type="number"
             filled
             :label="$t('forms.paint.fields.sentQuantitySort2.label')"
+            :prefix="`max: ${Number(selectedData.unripeMaterial.quantitySort2)} |`"
             lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.paint.fields.sentQuantitySort2.validation.required')]"
+            :rules="[ val => val !== undefined && val >= 0 && val <= Number(selectedData.unripeMaterial.quantitySort2) || $t('forms.paint.fields.sentQuantitySort2.validation.required')]"
             hide-bottom-space
             class="col-12"
           />
