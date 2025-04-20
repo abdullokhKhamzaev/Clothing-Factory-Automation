@@ -289,7 +289,6 @@ const filteredProducts = computed(() => {
       clearable
       v-model="searchTitle"
       class="q-mx-md"
-      :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
       :label="$t('tables.users.header.searchTitle')"
     >
       <template v-slot:append>
