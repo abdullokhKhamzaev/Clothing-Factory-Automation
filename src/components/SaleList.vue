@@ -32,7 +32,7 @@ const props = defineProps({
             <q-badge color="teal" :label="'#id ' + order.id" />
           </div>
         </div>
-        <div class="flex justify-between text-grey-10 text-caption">
+        <div class="flex justify-between text-weight-bold text-h6 text-blue">
           <div> {{ order.createdBy.fullName }} </div>
           <div> -> </div>
           <div> {{ customer.fullName }} </div>

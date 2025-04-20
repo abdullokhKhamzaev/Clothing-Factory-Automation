@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { formatDate } from "src/libraries/constants/defaults.js";
+import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 // Props
@@ -122,7 +122,7 @@ function rejectAction () {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div class="flex justify-end" v-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn

@@ -6,7 +6,7 @@ import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
-import { DATE_FORMAT, formatDate } from "src/libraries/constants/defaults.js";
+import {DATE_FORMAT, formatDate, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 
@@ -182,7 +182,7 @@ function receiveAction() {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'action' && props.row.status === 'expected'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn

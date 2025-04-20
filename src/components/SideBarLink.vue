@@ -3,7 +3,7 @@
     clickable
     :to="props.to"
     class="flex"
-    active-class="bg-accent"
+    active-class="bg-light-blue"
   >
     <q-item-section
       v-if="props.icon"

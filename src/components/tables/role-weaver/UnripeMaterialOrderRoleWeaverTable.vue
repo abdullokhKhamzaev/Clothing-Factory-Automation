@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { formatDate } from "src/libraries/constants/defaults.js";
+import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useThread } from "stores/thread.js";
@@ -176,7 +176,7 @@ function prefill () {
   >
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'action'" class="flex justify-end">
             <q-btn
               v-if="props.row.status !== 'confirmed'"

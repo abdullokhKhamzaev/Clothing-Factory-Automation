@@ -5,7 +5,7 @@ import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { formatDate } from "src/libraries/constants/defaults.js";
+import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -181,7 +181,7 @@ const filteredProducts = computed(() => {
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td v-for="col in columns" :key="col.name" :props="props">
+          <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
             <div v-if="col.name === 'sentBy'">
               {{ props.row.sentBy.fullName }}
             </div>

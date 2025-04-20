@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
@@ -127,7 +127,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>

@@ -7,7 +7,7 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import SaleList from "components/SaleList.vue";
@@ -256,7 +256,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>

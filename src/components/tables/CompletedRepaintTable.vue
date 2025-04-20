@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { formatDate } from "src/libraries/constants/defaults.js";
+import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 
 let props = defineProps({
@@ -71,7 +71,7 @@ const columns = [
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'action' && props.row.status === 'expected'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn

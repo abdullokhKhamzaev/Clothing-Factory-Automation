@@ -5,7 +5,7 @@ import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
-import { formatDate } from "../../libraries/constants/defaults.js";
+import {formatDate, isToday} from "../../libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
@@ -212,7 +212,7 @@ function removeRow(index) {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'action'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn

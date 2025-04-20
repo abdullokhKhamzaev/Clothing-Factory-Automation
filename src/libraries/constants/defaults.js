@@ -135,3 +135,14 @@ export const formatDate = (dateString) => {
   // Return the formatted string
   return `${year}-${month}-${day} ${time.slice(0, 5)}`;
 };
+
+export const isToday = (dateStr) => {
+  const inputDate = new Date(dateStr);
+  const today = new Date();
+
+  return (
+    inputDate.getFullYear() === today.getFullYear() &&
+    inputDate.getMonth() === today.getMonth() &&
+    inputDate.getDate() === today.getDate()
+  );
+};

@@ -9,7 +9,7 @@ import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import CutReportList from "components/CutReportList.vue";
-import {formatDate} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 
 // Props
 let props = defineProps({
@@ -244,7 +244,7 @@ function getOrders() {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'action'" class="flex justify-end">
             <q-btn
               v-if="props.row.status !== 'confirmed'"
