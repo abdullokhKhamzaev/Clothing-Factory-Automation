@@ -5,6 +5,10 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
   async function getAll(filterProps) {
     let url = ''
 
+    if ( filterProps?.noPagination ) {
+      url += '/all'
+    }
+
     if (filterProps?.page) {
       url += '?page=' + filterProps.page
     } else {
@@ -29,6 +33,13 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
       filterProps.fromWarehouses.forEach((warehouse) => {
         url += '&fromWarehouse[]=' + warehouse
       })
+    }
+
+    if (filterProps?.receivedAtFrom) {
+      url += '&receivedAt[after]=' + filterProps.receivedAtFrom;
+    }
+    if (filterProps?.receivedAtTo) {
+      url += '&receivedAt[before]=' + filterProps.receivedAtTo;
     }
 
     try {
