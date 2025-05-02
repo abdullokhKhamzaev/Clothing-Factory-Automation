@@ -60,6 +60,9 @@ const columns = [
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
+          <div v-else-if="col.name === 'description'">
+            {{ props.row.description.startsWith('other') ? props.row.description.slice(6) : $t('transaction.' + props.row.description) }}
+          </div>
           <div v-else-if="col.name === 'paidPrice'">
             <span
               class="q-pa-xs rounded-borders"

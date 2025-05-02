@@ -14,11 +14,13 @@ export default {
     payedCustomerAdvance: 'Avans berildi',
     payedCustomerSalary: 'Maosh berildi',
     receivedSaleDebt: 'Savdoning qarzi qabul qilindi',
-    spend: {
-      utility: 'Kommunal to\'lov',
-      repair: 'Ta\'mirlash',
-      food: 'Oziq-ovqat'
-    },
+    tax: 'Soliq',
+    electricity: 'Svet',
+    gas: 'Gaz',
+    water: 'Suv',
+    repair: 'Ta\'mirlash',
+    food: 'Oziq-ovqat',
+    other: 'Boshqa'
   },
   paySalary: 'Maosh to\'lash',
   checkedBy: 'Tekshirildi',

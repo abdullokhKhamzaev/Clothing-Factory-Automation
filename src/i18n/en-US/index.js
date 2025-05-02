@@ -14,11 +14,13 @@ export default {
     payedCustomerAdvance: 'Payed advance for customer',
     payedCustomerSalary: 'Payed salary for customer',
     receivedSaleDebt: 'Received sale debt',
-    spend: {
-      utility: 'Utility',
-      repair: 'Repair',
-      food: 'Food'
-    },
+    tax: 'Tax',
+    electricity: 'Electricity',
+    gas: 'Gas',
+    water: 'Water',
+    repair: 'Repair',
+    food: 'Food',
+    other: 'Other'
   },
   paySalary: 'Pay salary',
   checkedBy: 'Checked By',

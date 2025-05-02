@@ -25,6 +25,7 @@ const selectedData = ref({
 const addQuantity = ref(0);
 const minusQuantity = ref(0);
 const reason = ref(null);
+const reasonText = ref(null);
 
 const budget = useBudget();
 const budgets = ref([]);
@@ -139,7 +140,7 @@ function minusAction() {
   const input = {
     budget: selectedData.value['@id'],
     quantity: minusQuantity.value,
-    description: 'balanceDecreasedFor' + reason.value,
+    description: reason.value === 'other' ? reason.value + ' ' + reasonText.value : reason.value,
     isIncome: false
   }
 
@@ -404,10 +405,19 @@ onMounted(() => {
             :options="TRANSACTION_REASONS"
             :label="$t('forms.budget.fields.reason.label')"
             option-value="value"
-            :option-label="option => $t('transaction.spend.'+option.label)"
+            :option-label="option => $t('transaction.'+option.value)"
             :rules="[val => !!val || $t('forms.budget.fields.reason.validation.required')]"
             class="col-12"
             hide-bottom-space
+          />
+          <q-input
+            v-if="reason === 'other'"
+            v-model="reasonText"
+            type="textarea"
+            :label="$t('forms.budget.fields.reason.label')"
+            filled
+            required
+            class="col-12 q-mt-md"
           />
         </div>
         <q-separator />

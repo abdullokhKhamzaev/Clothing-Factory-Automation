@@ -14,11 +14,13 @@ export default {
     payedCustomerAdvance: 'Аванс берилди',
     payedCustomerSalary: 'Моаш берилди',
     receivedSaleDebt: 'Савдонинг қарзи қабул қилинди',
-    spend: {
-      Electricity: 'Коммунал тўлов',
-      repair: 'Тамирлаш',
-      food: 'Озик-овкат'
-    },
+    tax: 'Солик',
+    electricity: 'Свет',
+    gas: 'Газ',
+    water: 'Сув',
+    repair: 'Тамирлаш',
+    food: 'Озик-овкат',
+    other: 'Бошка'
   },
   paySalary: 'Моаш тўлаш',
   checkedBy: 'Текширилди',
