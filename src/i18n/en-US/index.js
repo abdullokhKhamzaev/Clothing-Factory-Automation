@@ -1697,6 +1697,7 @@ export default {
         id: 'Sale ID',
         createdAt: 'Created At',
         purchasedBy: 'Purchased By',
+        purchasedTo: 'Purchased To',
         saleProduct: 'Products',
         totalPrice: 'Total Price',
         paidPrice: 'Paid price',

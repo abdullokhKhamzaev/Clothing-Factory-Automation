@@ -6,8 +6,8 @@ axios.interceptors.request.use((config) => {
   if (config.method.toUpperCase() === 'PATCH') {
     config.headers['Content-Type'] = 'application/merge-patch+json'
   }
-
-  config.baseURL = import.meta.env.VITE_API_DOMEN + '/api/'
+  config.baseURL = 'https://api.abdullokh-dev.uz/api'
+  // config.baseURL = import.meta.env.VITE_API_DOMEN + '/api/'
 
   return config
 });

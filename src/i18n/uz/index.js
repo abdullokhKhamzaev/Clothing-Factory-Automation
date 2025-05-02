@@ -1690,7 +1690,8 @@ export default {
       columns: {
         id: 'Savdo ID',
         createdAt: 'Sana',
-        purchasedBy: 'Kim tomonidan savdo qilingan',
+        purchasedBy: 'Kim',
+        purchasedTo: 'Kimga',
         saleProduct: 'Maxsulotlar',
         totalPrice: 'Jami narx',
         paidPrice: 'To\'langan summa',

@@ -1690,7 +1690,8 @@ export default {
       columns: {
         id: 'Савдо ID',
         createdAt: 'Сана',
-        purchasedBy: 'Ким томонидан савдо қилинган',
+        purchasedBy: 'Ким',
+        purchasedTo: 'Кимга',
         saleProduct: 'Маҳсулотлар',
         totalPrice: 'Жами нарх',
         paidPrice: 'Тўланган сумма',

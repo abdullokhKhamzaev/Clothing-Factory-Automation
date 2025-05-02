@@ -46,14 +46,15 @@ const createActionErr = ref(null);
 const showPayModal = ref(false);
 const payActionErr = ref(null);
 
+const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice'])
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.sale.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'purchasedBy', label: t('tables.sale.columns.purchasedBy'), align: 'left', field: 'purchasedBy' },
+  { name: 'purchasedTo', label: t('tables.sale.columns.purchasedTo'), align: 'left', field: 'purchasedTo' },
   { name: 'saleProduct', label: t('tables.sale.columns.saleProduct'), align: 'left', field: 'saleProduct' },
   { name: 'totalPrice', label: t('tables.sale.columns.totalPrice'), align: 'left', field: 'totalPrice' },
   { name: 'paidPrice', label: t('tables.sale.columns.paidPrice'), align: 'left', field: 'paidPrice' },
-  { name: 'transaction', label: t('tables.sale.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 
@@ -234,6 +235,7 @@ onMounted(() => {
     bordered
     :rows="props.sales"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.sale.header.empty')"
     color="primary"
     row-key="id"
@@ -241,8 +243,23 @@ onMounted(() => {
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12 flex">
         <div class="q-table__title">{{ $t('tables.sale.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
+        />
         <div class="text-right">
           <q-btn
             color="primary"
@@ -262,6 +279,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'purchasedBy'">
             {{ props.row.purchasedBy.fullName }}
+          </div>
+          <div v-else-if="col.name === 'purchasedTo'">
+            {{ props.row.customer.fullName }}
           </div>
           <div v-else-if="col.name === 'saleProduct'">
             <div
@@ -317,7 +337,7 @@ onMounted(() => {
           </div>
         </q-td>
       </q-tr>
-      <q-tr v-show="props.expand" :props="props">
+      <q-tr :props="props">
         <q-td colspan="100%">
           <sale-list :lists="props.row.transaction" :saleProduct="props.row.saleProduct" :customer="props.row.customer" />
         </q-td>
