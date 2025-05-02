@@ -45,6 +45,7 @@ const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showPayModal = ref(false);
 const payActionErr = ref(null);
+const customerFullName = ref('');
 
 const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice'])
 const columns = [
@@ -71,7 +72,7 @@ function removeRow(index) {
   }
 }
 function getSales () {
-  emit('submit');
+  emit('submit', { customer: customerFullName.value });
   getProducts()
 }
 function getProducts (filterProps) {
@@ -243,31 +244,50 @@ onMounted(() => {
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.sale.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
-        />
-        <div class="text-right">
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.sale.buttons.add')"
-            no-caps
-            @click="showCreateModal = true"
+
+        <div class="flex justify-between q-my-md">
+          <q-select
+            style="min-width: 100px;"
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
           />
+          <div>
+            <q-btn
+              color="primary"
+              icon-right="add"
+              :label="$t('tables.sale.buttons.add')"
+              no-caps
+              @click="showCreateModal = true"
+            />
+          </div>
+        </div>
+
+        <div>
+          <selectable-list
+            v-model="customerFullName"
+            dense
+            :label="$t('forms.sale.fields.customer.label')"
+            :store="customer"
+            fetch-method="fetchCustomers"
+            item-value="fullName"
+            item-label="fullName"
+            :rule-message="$t('forms.sale.fields.customer.validation.required')"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            @update:model-value="emit('submit', { customer: customerFullName });"
+          />
+<!--          <q-toggle v-model="debts" :label="$t('debts')" />-->
         </div>
       </div>
     </template>

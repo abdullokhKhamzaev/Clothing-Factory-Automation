@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useSale } from "stores/sale.js";
 import SaleTable from "components/tables/SaleTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const sale = useSale();
 const sales = ref([]);
@@ -14,10 +15,11 @@ const salePagination = ref({
   rowsNumber: 0
 });
 const salePagesNumber = computed(() => Math.ceil(saleTotal.value / salePagination.value.rowsPerPage));
+const customerFullName = ref('');
 function getSales (filterProps) {
-  let props = filterProps || {};
   saleLoading.value = true;
-  sale.fetchSales(props || '')
+
+  sale.fetchSales(filterProps || '')
     .then((res) => {
       sales.value = res.data['hydra:member'];
       saleTotal.value = res.data['hydra:totalItems'];
@@ -27,14 +29,18 @@ function getSales (filterProps) {
     });
 }
 
-function refresh () {
+function refresh (customerFullName) {
+  if (customerFullName) {
+    customerFullName.value = customerFullName;
+  }
+
   salePagination.value = {
     rowsPerPage: 10,
     page: 1,
     descending: true,
     rowsNumber: 0
   };
-  getSales();
+  getSales(customerFullName);
 }
 
 onMounted(() => {
@@ -43,6 +49,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="q-my-md flex justify-end">
+    <refresh-button :action="refresh" />
+  </div>
   <sale-table
     :sales="sales"
     :pagination="salePagination"
@@ -61,7 +70,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getSales({ page: salePagination.page })"
+      @update:model-value="getSales({ customer: customerFullName, page: salePagination.page })"
     />
   </div>
 </template>

@@ -11,6 +11,10 @@ export const useSale = defineStore('sales', () => {
       url += '?page=1'
     }
 
+    if (filterProps?.customer) {
+      url += '&customer.fullName=' + filterProps.customer
+    }
+
     try {
       return client.get('sales' + url)
     } catch (e) {
