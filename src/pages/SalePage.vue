@@ -15,11 +15,13 @@ const salePagination = ref({
   rowsNumber: 0
 });
 const salePagesNumber = computed(() => Math.ceil(saleTotal.value / salePagination.value.rowsPerPage));
-const customerFullName = ref('');
+
+const filters = ref({})
+
 function getSales (filterProps) {
   saleLoading.value = true;
 
-  sale.fetchSales(filterProps || '')
+  sale.fetchSales(filterProps || filters.value)
     .then((res) => {
       sales.value = res.data['hydra:member'];
       saleTotal.value = res.data['hydra:totalItems'];
@@ -29,9 +31,9 @@ function getSales (filterProps) {
     });
 }
 
-function refresh (customerFullName) {
-  if (customerFullName) {
-    customerFullName.value = customerFullName;
+function refresh (props) {
+  if (props) {
+    Object.assign(filters.value, props);
   }
 
   salePagination.value = {
@@ -40,7 +42,7 @@ function refresh (customerFullName) {
     descending: true,
     rowsNumber: 0
   };
-  getSales(customerFullName);
+  getSales();
 }
 
 onMounted(() => {
@@ -70,7 +72,7 @@ onMounted(() => {
       color="primary"
       input
       size="md"
-      @update:model-value="getSales({ customer: customerFullName, page: salePagination.page })"
+      @update:model-value="getSales({ ...filters, page: salePagination.page })"
     />
   </div>
 </template>

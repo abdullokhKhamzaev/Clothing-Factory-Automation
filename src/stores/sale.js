@@ -15,6 +15,10 @@ export const useSale = defineStore('sales', () => {
       url += '&customer.fullName=' + filterProps.customer
     }
 
+    if (typeof filterProps?.isPayed !== 'undefined' && typeof filterProps.isPayed === 'boolean') {
+      url += '&isPayed=' + filterProps.isPayed
+    }
+
     try {
       return client.get('sales' + url)
     } catch (e) {

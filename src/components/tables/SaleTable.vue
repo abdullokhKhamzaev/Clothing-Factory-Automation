@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useSale } from "stores/sale.js";
@@ -45,7 +45,10 @@ const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showPayModal = ref(false);
 const payActionErr = ref(null);
-const customerFullName = ref('');
+const filters = reactive({
+  customer: '',
+  isPayed: null
+});
 
 const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice'])
 const columns = [
@@ -72,7 +75,7 @@ function removeRow(index) {
   }
 }
 function getSales () {
-  emit('submit', { customer: customerFullName.value });
+  emit('submit', filters);
   getProducts()
 }
 function getProducts (filterProps) {
@@ -202,8 +205,6 @@ function payAction () {
     sale: selectedData.value['@id']
   }
 
-  console.log(input);
-
   useBudget().payDebt(input, 'aA')
     .then(() => {
       showPayModal.value = false;
@@ -276,18 +277,22 @@ onMounted(() => {
 
         <div>
           <selectable-list
-            v-model="customerFullName"
+            v-model="filters.customer"
             dense
-            :label="$t('forms.sale.fields.customer.label')"
+            clearable
+            :label="$t('tables.users.header.searchTitle')"
             :store="customer"
             fetch-method="fetchCustomers"
             item-value="fullName"
             item-label="fullName"
-            :rule-message="$t('forms.sale.fields.customer.validation.required')"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-            @update:model-value="emit('submit', { customer: customerFullName });"
+            @update:model-value="emit('submit', filters);"
           />
-<!--          <q-toggle v-model="debts" :label="$t('debts')" />-->
+          <q-toggle
+            v-model="filters.isPayed"
+            :label="$t('debts')"
+            @update:model-value="emit('submit', filters);"
+          />
         </div>
       </div>
     </template>
