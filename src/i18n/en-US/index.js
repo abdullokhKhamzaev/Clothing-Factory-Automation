@@ -405,9 +405,6 @@ export default {
         pay: 'Pay'
       },
       confirmation: {
-        successCreated: 'User was successfully created.',
-        successEdited: 'User was successfully edited.',
-        successDeleted: 'User was successfully deleted.',
         failure: 'There was an error saving user.'
       }
     },
@@ -425,9 +422,6 @@ export default {
         edit: 'Edit User'
       },
       confirmation: {
-        successCreated: 'User was successfully created.',
-        successEdited: 'User was successfully edited.',
-        successDeleted: 'User was successfully deleted.',
         failure: 'There was an error saving user.'
       }
     },
