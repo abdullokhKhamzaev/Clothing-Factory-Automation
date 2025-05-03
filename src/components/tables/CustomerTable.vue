@@ -38,6 +38,7 @@ const showDeleteModal = ref(false);
 
 const columns = [
   { name: 'fullName', label: t('tables.customer.columns.fullName'), align: 'left', field: 'fullName' },
+  { name: 'username', label: t('tables.customer.columns.username'), align: 'left', field: 'username' },
   { name: 'phone', label: t('tables.customer.columns.phone'), align: 'left', field: 'phone' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
@@ -263,6 +264,15 @@ function clearAction() {
           />
           <q-input
             filled
+            v-model="selectedData.username"
+            :label="$t('forms.customer.fields.username.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.customer.fields.username.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+          <q-input
+            filled
             v-model="selectedData.phone"
             :label="$t('forms.customer.fields.phone.label')"
             name="First Name"
@@ -319,6 +329,15 @@ function clearAction() {
             :label="$t('forms.customer.fields.fullName.label')"
             lazy-rules
             :rules="[ val => val && val.length > 0 || $t('forms.customer.fields.fullName.validation.required')]"
+            class="col-12"
+            hide-bottom-space
+          />
+          <q-input
+            filled
+            v-model="selectedData.username"
+            :label="$t('forms.customer.fields.username.label')"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || $t('forms.customer.fields.username.validation.required')]"
             class="col-12"
             hide-bottom-space
           />

@@ -35,7 +35,7 @@ const props = defineProps({
         <div class="flex justify-between text-weight-bold text-h6 text-blue">
           <div> {{ order.createdBy.fullName }} </div>
           <div> -> </div>
-          <div> {{ customer.fullName }} </div>
+          <div> {{ customer.username || customer.fullName }} </div>
         </div>
 
         <q-separator />

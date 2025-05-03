@@ -741,6 +741,12 @@ export default {
             required: 'Ism va Familiya talab qilinadi.'
           }
         },
+        username: {
+          label: 'Foydalanuvchi nomi',
+          validation: {
+            required: 'Foydalanuvchi nomi talab qilinadi.'
+          }
+        },
         phone: {
           label: 'Telefon raqam',
             validation: {
@@ -1676,6 +1682,7 @@ export default {
       },
       columns: {
         fullName: 'Ism & Familya',
+        username: 'Foidalanuvchi nomi',
         phone: 'Telefon'
       },
       buttons: {

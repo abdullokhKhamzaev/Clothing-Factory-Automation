@@ -747,6 +747,12 @@ export default {
             required: 'Name & Surname is required.',
           }
         },
+        username: {
+          label: 'Username',
+          validation: {
+            required: 'Username is required.',
+          }
+        },
         phone: {
           label: 'Phone',
           validation: {
@@ -1682,6 +1688,7 @@ export default {
       },
       columns: {
         fullName: 'Name',
+        username: 'Username',
         phone: 'Phone'
       },
       buttons: {

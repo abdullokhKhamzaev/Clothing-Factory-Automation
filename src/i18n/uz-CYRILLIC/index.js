@@ -741,6 +741,12 @@ export default {
             required: 'Исм ва Фамилия талаб қилинади.'
           }
         },
+        username: {
+          label: 'Фойдаланувчи номи',
+          validation: {
+            required: 'Фойдаланувчи номи талаб қилинади.'
+          }
+        },
         phone: {
           label: 'Телефон рақам',
           validation: {
@@ -1676,6 +1682,7 @@ export default {
       },
       columns: {
         fullName: 'Исм & Фамилия',
+        username: 'Фойдаланувчи номи',
         phone: 'Телефон'
       },
       buttons: {
