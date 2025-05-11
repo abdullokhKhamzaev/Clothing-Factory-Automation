@@ -50,7 +50,7 @@ const filters = reactive({
   isPayed: null
 });
 
-const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice'])
+const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice', 'action'])
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.sale.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -539,11 +539,11 @@ onMounted(() => {
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
             v-model.number="selectedData.debtQuantity"
-            :prefix="$t('debts') + ': ' + `${(selectedData.totalPrice - selectedData.paidPrice)}`"
+            :prefix="$t('debts') + ': ' + `${(selectedData.totalPrice - selectedData.paidPrice).toFixed(2)}`"
             filled
             type="number"
             :label="$t('forms.sale.fields.debtQuantity.label')"
-            :rules="[ val => val && val <= (selectedData.totalPrice - selectedData.paidPrice) || $t('forms.saleLoading.fields.debtQuantity.validation.required')]"
+            :rules="[ val => val && val <= (selectedData.totalPrice - selectedData.paidPrice).toFixed(2) || $t('forms.saleLoading.fields.debtQuantity.validation.required')]"
             class="col-12"
             hide-bottom-space
           />
