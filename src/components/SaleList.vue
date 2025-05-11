@@ -52,7 +52,7 @@ const props = defineProps({
                 v-for="product in sale.quantities"
                 :key="product.id"
               >
-                {{ product.size }}: {{ product.quantity }} * {{ product.price }} = {{ product.quantity * product.price }} {{ order.budget.name }}
+                {{ product.size }}: {{ product.quantity }} * {{ product.price }} = {{ (product.quantity * product.price).toFixed(1) }} {{ order.budget.name }}
               </div>
             </div>
           </q-item-section>
@@ -66,7 +66,7 @@ const props = defineProps({
           {{ $t('paid') }}: {{ formatFloatToInteger(order.paidPrice) }} {{ order.budget.name }}
         </div>
         <div class="text-red" v-if="order.price - order.paidPrice">
-          {{ $t('oweUs') }}: {{ order.price - order.paidPrice }} {{ order.budget.name }}
+          {{ $t('oweUs') }}: {{ (order.price - order.paidPrice).toFixed(1) }} {{ order.budget.name }}
         </div>
       </q-item-section>
     </q-item>
