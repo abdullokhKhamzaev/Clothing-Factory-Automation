@@ -148,6 +148,7 @@ export default {
       sewing: 'Tikuv',
       statistics: 'Statistika',
       sales: 'Savdo',
+      orders: 'Buyurtmalar',
       users: 'Foydalanuvchilar',
       weaving: 'To\'quv',
       warehouse: 'Ombor'
@@ -1706,6 +1707,25 @@ export default {
       },
       buttons: {
         add: 'Yaratish'
+      }
+    },
+    order: {
+      header: {
+        title: 'Buyurtmalar',
+        empty: 'Hech qanday buyurtma topilmadi'
+      },
+      columns: {
+        id: 'ID',
+        createdAt: 'Sana',
+        createdBy: 'Kim',
+        customer: 'Kimga',
+        products: 'Maxsulotlar',
+        status: 'Status',
+        totalPrice: 'Jami narx',
+        dealDate: 'Kelishilgan sana',
+      },
+      buttons: {
+        add: 'Qo\'shish',
       }
     },
     ripeMaterial: {

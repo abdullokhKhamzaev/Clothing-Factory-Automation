@@ -256,6 +256,11 @@ const routes = [
         component: () => import('pages/SalePage.vue')
       },
       {
+        path: 'orders',
+        name: 'club.orders',
+        component: () => import('pages/OrderPage.vue')
+      },
+      {
         path: 'warehouse',
         component: () => import('pages/WarehousePage.vue'),
         children: [

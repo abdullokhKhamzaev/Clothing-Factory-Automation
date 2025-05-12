@@ -148,6 +148,7 @@ export default {
       sewing: 'Sewing',
       statistics: 'Statistics',
       sales: 'Sales',
+      orders: 'Orders',
       users: 'Users',
       weaving: 'Weaving',
       warehouse: 'Warehouse'
@@ -1703,6 +1704,25 @@ export default {
         totalPrice: 'Total Price',
         paidPrice: 'Paid price',
         transaction: 'Description',
+      },
+      buttons: {
+        add: 'Create'
+      }
+    },
+    order: {
+      header: {
+        title: 'Orders',
+        empty: 'There is no available Orders'
+      },
+      columns: {
+        id: 'Order ID',
+        createdAt: 'Created At',
+        createdBy: 'Created By',
+        customer: 'Customer',
+        products: 'Products',
+        status: 'Status',
+        totalPrice: 'Total Price',
+        dealDate: 'Deal Date'
       },
       buttons: {
         add: 'Create'

@@ -148,6 +148,7 @@ export default {
       sewing: 'Тикув',
       statistics: 'Статистика',
       sales: 'Савдо',
+      orders: 'Буюртмалар',
       users: 'Фойдаланувчилар',
       weaving: 'Тўкув',
       warehouse: 'Oмбор'
@@ -1706,6 +1707,25 @@ export default {
       },
       buttons: {
         add: 'Яратиш'
+      }
+    },
+    order: {
+      header: {
+        title: 'Буюртмалар',
+        empty: 'Ҳеч қандай Буюртма топилмади'
+      },
+      columns: {
+        id: 'ID',
+        createdAt: 'Сана',
+        createdBy: 'Ким',
+        customer: 'Кимга',
+        products: 'Маҳсулотлар',
+        status: 'Статус',
+        totalPrice: 'Жами нарх',
+        dealDate: 'Келишилган сана',
+      },
+      buttons: {
+        add: 'Қўшиш',
       }
     },
     ripeMaterial: {

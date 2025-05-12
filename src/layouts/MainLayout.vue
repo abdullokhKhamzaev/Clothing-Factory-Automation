@@ -173,6 +173,11 @@ const linksList = [
     to: { name: 'club.customers' }
   },
   {
+    title: 'orders',
+    icon: 'mdi-store-alert-outline',
+    to: { name: 'club.orders' }
+  },
+  {
     title: 'sales',
     icon: 'mdi-cart-percent',
     to: { name: 'club.sales' }
