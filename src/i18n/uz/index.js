@@ -102,6 +102,7 @@ export default {
   attendance: 'Davomat',
   ready: 'Tayyor',
   productNotFound: 'Hech qanday maxsulot topilmadi.',
+  isUsedRemainingMaterial: 'Qoldiq materialdan foydalandingizmi?',
   roles: {
     ROLE_ADMIN: 'Admin',
     ROLE_USER: 'User',

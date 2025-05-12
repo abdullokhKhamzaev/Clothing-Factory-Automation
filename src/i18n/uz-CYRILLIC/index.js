@@ -102,6 +102,7 @@ export default {
   attendance: 'Давомат',
   ready: 'Тайёр',
   productNotFound: 'Хеч кандай махсулот топилмади.',
+  isUsedRemainingMaterial: 'Қолдиқ материалдан фойдаландингизми?',
   roles: {
     ROLE_ADMIN: 'Админ',
     ROLE_USER: 'Фойдаланувчи',

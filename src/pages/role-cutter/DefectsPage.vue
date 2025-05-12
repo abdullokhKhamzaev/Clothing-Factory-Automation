@@ -548,7 +548,7 @@ const filteredProducts = computed(() => {
             hide-bottom-space
           />
           <div v-if="row.cutterRipeMaterialWarehouse && Number(row.cutterRipeMaterialWarehouse.remainingSort1) > 0" class="col-12">
-            <q-toggle v-model="selectedData.hasUsedOldRemaining" label="Did you use old remaining material?" />
+            <q-toggle v-model="selectedData.hasUsedOldRemaining" :label="$t('isUsedRemainingMaterial')" />
           </div>
           <!-- eski qoldiqdan ishlatildi remainingSort1: 1 sort material qoldiqdan qancha ishlatildi? -->
           <q-input

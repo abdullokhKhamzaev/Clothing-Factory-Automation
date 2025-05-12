@@ -102,6 +102,7 @@ export default {
   attendance: 'Attendance',
   ready: 'Ready',
   productNotFound: 'Product not found',
+  isUsedRemainingMaterial: 'Did you use old remaining material?',
   roles: {
     ROLE_ADMIN: 'Admin',
     ROLE_USER: 'User',
