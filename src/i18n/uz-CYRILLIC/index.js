@@ -1704,6 +1704,7 @@ export default {
         saleProduct: 'Маҳсулотлар',
         totalPrice: 'Жами нарх',
         paidPrice: 'Тўланган сумма',
+        debt: 'Карз',
         transaction: 'Тасниф',
       },
       buttons: {

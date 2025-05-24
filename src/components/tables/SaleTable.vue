@@ -58,6 +58,7 @@ const columns = [
   { name: 'saleProduct', label: t('tables.sale.columns.saleProduct'), align: 'left', field: 'saleProduct' },
   { name: 'totalPrice', label: t('tables.sale.columns.totalPrice'), align: 'left', field: 'totalPrice' },
   { name: 'paidPrice', label: t('tables.sale.columns.paidPrice'), align: 'left', field: 'paidPrice' },
+  { name: 'debt', label: t('tables.sale.columns.debt'), align: 'left', field: 'debt' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
@@ -292,6 +293,10 @@ onMounted(() => {
           />
           <q-toggle
             v-model="filters.isPayed"
+            checked-icon="check"
+            unchecked-icon="clear"
+            :false-value="true"
+            :true-value="false"
             :label="$t('debts')"
             @update:model-value="emit('submit', filters);"
           />
@@ -334,6 +339,12 @@ onMounted(() => {
           >
             {{ formatFloatToInteger(props.row.paidPrice) }} {{ props.row.budget.name }}
           </div>
+          <div v-else-if="col.name === 'debt'" class="text-orange text-bold">
+            <div v-if="Number(props.row.totalPrice) - Number(props.row.paidPrice)">
+              {{ formatFloatToInteger(Number(props.row.totalPrice) - Number(props.row.paidPrice)) }} {{ props.row.budget.name }}
+            </div>
+            <div v-else>-</div>
+          </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
               v-model="props.expand"
@@ -343,10 +354,7 @@ onMounted(() => {
               :label="$t('tables.ripeMaterialPurchase.columns.transaction')"
             />
           </div>
-          <div
-            v-else-if="col.name === 'action' && !props.row.isPayed"
-            class="flex justify-end"
-          >
+          <div v-else-if="col.name === 'action' && !props.row.isPayed" class="flex justify-end">
             <q-btn
               class="q-px-sm"
               outline
@@ -366,7 +374,7 @@ onMounted(() => {
       </q-tr>
       <q-tr :props="props">
         <q-td colspan="100%">
-          <sale-list :lists="props.row.transaction" :saleProduct="props.row.saleProduct" :customer="props.row.customer" />
+          <sale-list :lists="props.row.transaction" :saleProduct="props.row.saleProduct" :customer="props.row.customer" :owe-us="Number(props.row.totalPrice) - Number(props.row.paidPrice)" />
         </q-td>
       </q-tr>
     </template>

@@ -1703,6 +1703,7 @@ export default {
         purchasedTo: 'Kimga',
         saleProduct: 'Maxsulotlar',
         totalPrice: 'Jami narx',
+        debt: 'Qarz',
         paidPrice: 'To\'langan summa',
         transaction: 'Tasnif',
       },

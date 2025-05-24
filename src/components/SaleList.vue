@@ -13,6 +13,10 @@ const props = defineProps({
   customer: {
     type: Object,
     required: true
+  },
+  oweUs: {
+    type: Number,
+    required: true
   }
 })
 </script>
@@ -65,10 +69,10 @@ const props = defineProps({
         <div class="text-primary">
           {{ $t('paid') }}: {{ formatFloatToInteger(order.paidPrice) }} {{ order.budget.name }}
         </div>
-        <div class="text-red" v-if="(order.price - order.paidPrice).toFixed(2) > 0">
-          {{ $t('oweUs') }}: {{ (order.price - order.paidPrice).toFixed(2) }} {{ order.budget.name }}
-        </div>
       </q-item-section>
     </q-item>
+    <div class="text-red q-mx-md q-mb-sm" v-if="props.oweUs">
+      {{ $t('oweUs') }}: {{ oweUs }} {{ lists[0].budget.name }}
+    </div>
   </q-list>
 </template>

@@ -1704,6 +1704,7 @@ export default {
         saleProduct: 'Products',
         totalPrice: 'Total Price',
         paidPrice: 'Paid price',
+        debt: 'Debt',
         transaction: 'Description',
       },
       buttons: {
