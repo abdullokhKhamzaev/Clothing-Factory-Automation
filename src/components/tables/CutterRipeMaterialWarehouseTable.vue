@@ -42,6 +42,7 @@ const columns = [
   { name: 'remainingSort2', label: t('tables.cutterRipeMaterial.columns.remainingSort2'), align: 'left', field: 'remainingSort2' },
   { name: 'action', label: '', align: 'left', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 function clearAction() {
   selectedData.value = {};
@@ -104,6 +105,7 @@ function sendAction() {
     bordered
     :rows="props.materials"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.repaint.header.empty')"
     color="primary"
     row-key="id"
@@ -111,8 +113,23 @@ function sendAction() {
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex items-md-center justify-between">
+      <div class="col-12 flex items-center justify-between">
         <div class="q-table__title">{{ $t('tables.cutterRipeMaterial.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : ''"
+        />
       </div>
     </template>
     <template v-slot:body="props">

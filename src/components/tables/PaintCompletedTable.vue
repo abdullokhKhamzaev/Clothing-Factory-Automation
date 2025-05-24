@@ -3,6 +3,7 @@ import { useI18n } from "vue-i18n";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import PaintReportList from "components/PaintReportList.vue";
+import {ref} from "vue";
 
 let props = defineProps({
   orders: {
@@ -36,6 +37,7 @@ const columns = [
   { name: 'dealDate', label: t('tables.paint.columns.dealDate'), align: 'left', field: 'dealDate' },
   { name: 'ripeMaterialOrderAccepteds', label: t('tables.paint.columns.ripeMaterialOrderAccepteds'), align: 'left', field: 'ripeMaterialOrderAccepteds' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 </script>
 
 <template>
@@ -47,7 +49,7 @@ const columns = [
     flat
     bordered
     :rows="props.orders"
-    :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.paint.header.empty')"
     color="primary"
     row-key="id"
@@ -57,6 +59,22 @@ const columns = [
     <template v-slot:top>
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.paint.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-mt-md"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : ''"
+        />
       </div>
     </template>
     <template v-slot:body="props">

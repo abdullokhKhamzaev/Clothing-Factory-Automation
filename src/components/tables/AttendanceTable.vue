@@ -39,7 +39,6 @@ const departureActionErr = ref(false);
 const attendanceLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'date', 'worker', 'isWork', 'cutMoney', 'isTimelyDeparture' ]);
 const columns = [
   { name: 'date', label: t('tables.attendance.columns.date'), align: 'left', field: 'date' },
   { name: 'worker', label: t('tables.attendance.columns.worker'), align: 'left', field: 'worker' },
@@ -48,6 +47,7 @@ const columns = [
   { name: 'isTimelyDeparture', label: t('tables.attendance.columns.isTimelyDeparture'), align: 'left', field: 'isTimelyDeparture' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 // functions
 function getAttendances() {

@@ -42,6 +42,7 @@ const columns = [
   { name: 'phone', label: t('tables.customer.columns.phone'), align: 'left', field: 'phone' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 function getCustomers () {
   emit('submit', { fullName: searchTitle.value });
@@ -155,6 +156,7 @@ function clearAction() {
     bordered
     :rows="props.customers"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.customer.header.empty')"
     color="primary"
     row-key="id"
@@ -167,23 +169,23 @@ function clearAction() {
         <q-separator class="q-mt-sm q-mb-md" />
       </div>
 
-      <div class="col-12 flex justify-between">
-        <q-input
-          style="min-width: 225px"
-          dense
-          outlined
-          clearable
-          v-model="searchTitle"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-          :label="$t('tables.users.header.searchTitle')"
-          :debounce="1000"
-          @update:model-value="emit('submit', { fullName: searchTitle });"
-        >
-          <template v-slot:append>
-            <q-icon name="search" color="primary" />
-          </template>
-        </q-input>
-        <div class="text-right">
+      <div class="col-12">
+        <div class="flex justify-between">
+          <q-input
+            style="min-width: 225px"
+            dense
+            outlined
+            clearable
+            v-model="searchTitle"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            :label="$t('tables.users.header.searchTitle')"
+            :debounce="1000"
+            @update:model-value="emit('submit', { fullName: searchTitle });"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="primary" />
+            </template>
+          </q-input>
           <q-btn
             color="primary"
             icon-right="add"
@@ -192,6 +194,21 @@ function clearAction() {
             @click="showCreateModal = true"
           />
         </div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-mt-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">

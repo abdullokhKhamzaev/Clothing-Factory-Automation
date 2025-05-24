@@ -47,6 +47,7 @@ const columns = [
   { name: 'workerPrice', label: t('tables.embroidery.columns.workerPrice'), align: 'left', field: 'workerPrice' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 function getEmbroideries () {
   emit('submit');
@@ -192,6 +193,7 @@ function clearAction() {
     bordered
     :rows="props.embroideries"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.embroidery.header.empty')"
     color="primary"
     row-key="id"
@@ -199,9 +201,25 @@ function clearAction() {
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.embroidery.header.title') }}</div>
-        <div class="text-right">
+
+        <div class="flex items-center justify-between q-my-md">
+          <q-select
+            style="min-width: 100px;"
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+          />
           <q-btn
             color="primary"
             icon-right="add"

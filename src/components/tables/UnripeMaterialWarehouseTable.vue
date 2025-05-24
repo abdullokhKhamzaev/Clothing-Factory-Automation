@@ -1,6 +1,7 @@
 <script setup>
 import { useI18n } from "vue-i18n";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import {ref} from "vue";
 
 // Props
 let props = defineProps({
@@ -30,6 +31,7 @@ const columns = [
   { name: 'payWorker', label: t('tables.unripeMaterial.columns.payWorker'), align: 'left', field: 'payWorker' },
   { name: 'price', label: t('tables.unripeMaterial.columns.price'), align: 'left', field: 'price' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 </script>
 
 <template>
@@ -41,6 +43,7 @@ const columns = [
     flat
     bordered
     :rows="props.materials"
+    :visible-columns="visibleColumns"
     :columns="columns"
     :no-data-label="$t('tables.unripeMaterial.header.empty')"
     color="primary"
@@ -51,6 +54,21 @@ const columns = [
     <template v-slot:top>
       <div class="col-12 flex items-md-center justify-between">
         <div class="q-table__title">{{ $t('tables.unripeMaterial.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-my-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">

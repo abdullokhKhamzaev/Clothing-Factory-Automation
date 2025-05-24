@@ -31,6 +31,7 @@ const orderLoading = ref(false);
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
 const selectedData = ref({});
+
 const columns = [
   { name: 'id', label: t('tables.completedProductModelOrder.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.completedProductModelOrder.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -42,6 +43,8 @@ const columns = [
   { name: 'status', label: t('tables.completedProductModelOrder.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
 function getOrders () {
   emit('submit');
 }
@@ -108,12 +111,34 @@ function rejectAction () {
     bordered
     :rows="props.orders"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.completedProductModelOrder.header.empty')"
     color="primary"
     row-key="id"
     :pagination="props.pagination"
     hide-bottom
   >
+    <template v-slot:top>
+      <div class="col-12">
+        <div class="q-table__title">{{ $t('tables.completedProductModelOrder.header.title') }}</div>
+
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+        />
+      </div>
+    </template>
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">

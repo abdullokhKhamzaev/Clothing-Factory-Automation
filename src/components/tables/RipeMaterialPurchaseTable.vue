@@ -98,6 +98,7 @@ const columns = [
   { name: 'transaction', label: t('tables.ripeMaterialPurchase.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 const selectedBudget = computed(() => {
   return budgets.value.filter((budget) => budget.currency['@id'] === selectedData?.value?.budget.currency);
@@ -118,6 +119,7 @@ onMounted(() => {
     bordered
     :rows="props.purchases"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.ripeMaterialPurchase.header.empty')"
     color="primary"
     row-key="id"
@@ -127,6 +129,21 @@ onMounted(() => {
     <template v-slot:top>
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.ripeMaterialPurchase.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-my-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">

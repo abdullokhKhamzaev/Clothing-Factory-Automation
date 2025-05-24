@@ -34,6 +34,8 @@ const columns = [
   { name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds' },
   { name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
 </script>
 
 <template>
@@ -46,6 +48,7 @@ const columns = [
     bordered
     :rows="props.orders"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.modelOrder.header.empty')"
     color="primary"
     row-key="id"
@@ -55,6 +58,21 @@ const columns = [
     <template v-slot:top>
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-my-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">

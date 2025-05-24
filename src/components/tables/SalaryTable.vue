@@ -38,7 +38,6 @@ const advanceActionErr = ref(false);
 const salaryLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'worker', 'month', 'baseSalary', 'dailyWage', 'workedDays', 'pieceworkEarning', 'advancePayment', 'paidAmount', 'budget', 'isPaid', 'transaction' ]);
 const columns = [
   { name: 'worker', label: t('tables.users.columns.worker'), align: 'left', field: 'worker', required: true },
   { name: 'month', label: t('tables.users.columns.month'), align: 'left', field: 'month' },
@@ -51,6 +50,7 @@ const columns = [
   { name: 'transaction', label: t('tables.users.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 // functions
 function getSalaries() {

@@ -47,7 +47,6 @@ const filters = reactive({
   status: ''
 });
 
-const visibleColumns = ref(['id', 'createdAt', 'createdBy', 'customer', 'products', 'status', 'totalPrice', 'dealDate'])
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.order.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -59,6 +58,7 @@ const columns = [
   { name: 'dealDate', label: t('tables.order.columns.dealDate'), align: 'left', field: 'dealDate' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 const rows = ref([
   { productModel: '', productInWarehouse: '', quantities: [] }
@@ -203,7 +203,7 @@ onMounted(() => {
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.order.header.title') }}</div>
 
-        <div class="flex justify-between q-my-md">
+        <div class="flex items-center justify-between q-my-md">
           <q-select
             style="min-width: 100px;"
             dense

@@ -48,7 +48,6 @@ const selectedData = ref({});
 const userLoading = ref(false);
 
 // table settings
-const visibleColumns = ref([ 'name', 'fullName', 'phone', 'salaryType', 'salary', 'budget', 'roles' ]);
 const columns = [
   { name: 'fullName', label: t('tables.users.columns.fullName'), align: 'left', field: 'fullName', required: true },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
@@ -57,6 +56,7 @@ const columns = [
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 // functions
 function getUsers() {

@@ -50,7 +50,6 @@ const filters = reactive({
   isPayed: null
 });
 
-const visibleColumns = ref(['id', 'createdAt', 'purchasedBy', 'purchasedTo', 'saleProduct', 'totalPrice', 'paidPrice', 'action'])
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.sale.columns.createdAt'), align: 'left', field: 'createdAt' },
@@ -61,6 +60,7 @@ const columns = [
   { name: 'paidPrice', label: t('tables.sale.columns.paidPrice'), align: 'left', field: 'paidPrice' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 const rows = ref([
   { productModel: '', productInWarehouse: '', quantities: [] }
@@ -165,13 +165,15 @@ const productOptions = computed(() => {
   return options
 })
 const total = computed(() => {
-  let totalPrice = 0
+  let totalPrice = 0;
+
   rows.value.forEach((row) => {
     row.quantities.forEach((quantity) => {
-      totalPrice += quantity.price * quantity.quantity;
+      const priceInCents = Math.round(quantity.price * 100);
+      totalPrice += priceInCents * quantity.quantity;
     })
   })
-  return totalPrice
+  return totalPrice / 100
 })
 function prefill(model, index) {
   let models = [];
@@ -248,7 +250,7 @@ onMounted(() => {
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.sale.header.title') }}</div>
 
-        <div class="flex justify-between q-my-md">
+        <div class="flex items-center justify-between q-my-md">
           <q-select
             style="min-width: 100px;"
             dense

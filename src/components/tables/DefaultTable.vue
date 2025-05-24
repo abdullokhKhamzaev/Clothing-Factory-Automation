@@ -28,13 +28,14 @@ const searchTitle = ref('');
 const selectedData = ref({});
 
 // table settings
-const visibleColumns = ref([ 'name', 'surName', 'phone' ]);
 const columns = [
   { name: 'name', label: t('tables.users.columns.name'), align: 'left', field: 'name' },
   { name: 'surName', label: t('forms.user.fields.surname.label'), align: 'left', field: 'surName' },
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
 function wrapCsvValue(val, formatFn, row) {
   // If the value is undefined or null, return an empty string
   if (val === undefined || val === null) {

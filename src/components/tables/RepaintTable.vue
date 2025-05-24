@@ -54,6 +54,7 @@ const columns = [
   { name: 'status', label: t('tables.repaint.columns.status'), align: 'left', field: 'status' },
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
 function clearAction() {
   selectedData.value = {};
@@ -168,6 +169,7 @@ function receiveAction() {
     bordered
     :rows="props.orders"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.repaint.header.empty')"
     color="primary"
     row-key="id"
@@ -175,9 +177,27 @@ function receiveAction() {
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex items-md-center justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.repaint.header.title') }}</div>
-        <q-btn no-caps :label="$t('tables.repaint.buttons.add')" color="primary" @click="showCreateModal = true" />
+
+        <div class="flex items-center justify-between q-my-md">
+          <q-select
+            style="min-width: 100px;"
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+          />
+          <q-btn no-caps :label="$t('tables.repaint.buttons.add')" color="primary" @click="showCreateModal = true" />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">

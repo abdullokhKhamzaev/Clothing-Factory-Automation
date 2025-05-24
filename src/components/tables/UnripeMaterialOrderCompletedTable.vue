@@ -3,6 +3,7 @@ import { useI18n } from "vue-i18n";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
+import {ref} from "vue";
 
 // Props
 let props = defineProps({
@@ -37,6 +38,7 @@ const columns = [
   { name: 'completedUnripeMaterialOrders', label: t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders'), align: 'left', field: 'completedUnripeMaterialOrders' },
   { name: 'status', label: t('tables.unripeMaterialOrder.columns.status'), align: 'left', field: 'status' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 </script>
 
 <template>
@@ -49,6 +51,7 @@ const columns = [
     bordered
     :rows="props.orders"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
     color="primary"
     row-key="id"
@@ -56,8 +59,23 @@ const columns = [
     hide-bottom
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12">
         <div class="q-table__title">{{ $t('tables.completedUnripeMaterialOrder.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-my-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">

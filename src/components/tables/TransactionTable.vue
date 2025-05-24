@@ -2,6 +2,7 @@
 import { useI18n } from "vue-i18n";
 import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
 import SkeletonTable from "components/tables/SkeletonTable.vue";
+import {ref} from "vue";
 
 // Props
 let props = defineProps({
@@ -31,6 +32,7 @@ const columns = [
   { name: 'budget', label: t('tables.transaction.columns.budget'), align: 'left', field: 'budget' },
   { name: 'price', label: t('tables.transaction.columns.price'), align: 'left', field: 'price' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 </script>
 
 <template>
@@ -43,6 +45,7 @@ const columns = [
     bordered
     :rows="props.transactions"
     :columns="columns"
+    :visible-columns="visibleColumns"
     :no-data-label="$t('tables.transaction.header.empty')"
     color="primary"
     row-key="id"
@@ -52,6 +55,21 @@ const columns = [
     <template v-slot:top>
       <div class="col-12">
         <div class="q-table__title">{{ $t('tables.transaction.header.title') }}</div>
+        <q-select
+          style="min-width: 100px;"
+          dense
+          multiple
+          outlined
+          options-dense
+          emit-value
+          map-options
+          v-model="visibleColumns"
+          :display-value="$q.lang.table.columns"
+          :options="columns"
+          option-value="name"
+          :label="$t('columns')"
+          class="q-my-md"
+        />
       </div>
     </template>
     <template v-slot:body="props">
