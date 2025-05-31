@@ -11,6 +11,11 @@ export const useSale = defineStore('sales', () => {
       url += '?page=1'
     }
 
+    if (filterProps?.id) {
+      url += '&customer.id=' + filterProps.id
+      console.log(filterProps);
+    }
+
     if (filterProps?.customer) {
       url += '&customer.fullName=' + filterProps.customer
     }
@@ -21,6 +26,28 @@ export const useSale = defineStore('sales', () => {
 
     try {
       return client.get('sales' + url)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function fetchSalesAll(filterProps) {
+    let url = ''
+
+    if (filterProps?.id) {
+      url += '&customer.id=' + filterProps.id
+    }
+
+    if (filterProps?.customer) {
+      url += '&customer.fullName=' + filterProps.customer
+    }
+
+    if (typeof filterProps?.isPayed !== 'undefined' && typeof filterProps.isPayed === 'boolean') {
+      url += '&isPayed=' + filterProps.isPayed
+    }
+
+    try {
+      return client.get('sales/all?' + url)
     } catch (e) {
       console.log(e)
     }
@@ -50,5 +77,5 @@ export const useSale = defineStore('sales', () => {
   //   }
   // }
 
-  return { fetchSales, create }
+  return { fetchSales, fetchSalesAll, create }
 })

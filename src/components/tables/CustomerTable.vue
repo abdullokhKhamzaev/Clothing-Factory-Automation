@@ -214,7 +214,19 @@ function clearAction() {
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props">
-          <div class="flex justify-end" v-if="col.name === 'action'">
+          <div v-if="col.name === 'fullName'">
+            <router-link
+              class="text-black"
+              :to="{
+                name: 'club.customer',
+                params: { id:props.row.id },
+                state: { customer: props.row }
+              }"
+            >
+              {{ props.row.fullName }}
+            </router-link>
+          </div>
+          <div class="flex justify-end" v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn size="md" color="primary" rounded dense icon="edit" @click="showUpdateModal = true; selectedData = {...props.row}">
                 <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
@@ -227,13 +239,6 @@ function clearAction() {
                 </q-tooltip>
               </q-btn>
             </div>
-          </div>
-          <div
-            v-else-if="col.name === 'quantity'"
-            class="flex no-wrap q-gutter-sm"
-          >
-            <span> {{ props.row.workerPrice }} </span>
-            <span class="text-weight-bolder"> ({{ props.row.budget }}) </span>
           </div>
           <div v-else>
             {{ props.row[col.field] }}

@@ -248,7 +248,12 @@ const routes = [
       {
         path: 'customers',
         name: 'club.customers',
-        component: () => import('pages/CustomerPage.vue')
+        component: () => import('pages/customer/CustomersPage.vue'),
+      },
+      {
+        path: 'customers/:id',
+        name: 'club.customer',
+        component: () => import('pages/customer/CustomerPage.vue'),
       },
       {
         path: 'sales',

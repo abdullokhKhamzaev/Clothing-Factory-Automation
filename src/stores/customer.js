@@ -2,21 +2,25 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useCustomer = defineStore('customers', () => {
-  async function fetchCustomers(filterProps) {
-    let url = ''
+  async function fetchCustomers(filterProps = {}) {
+    let url = '?page=' + (filterProps.page || 1);
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
-
-    if (filterProps?.fullName) {
-      url += '&fullName=' + filterProps.fullName
+    for (const key in filterProps) {
+      if (key !== 'page' && filterProps[key] != null && filterProps[key] !== '') {
+        url += `&${key}=${encodeURIComponent(filterProps[key])}`;
+      }
     }
 
     try {
-      return client.get('customers' + url)
+      return client.get('customers' + url);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function fetchCustomer(id) {
+    try {
+      return client.get('customers/' + id)
     } catch (e) {
       console.log(e)
     }
@@ -46,5 +50,5 @@ export const useCustomer = defineStore('customers', () => {
     }
   }
 
-  return { fetchCustomers, create, update, deleteCustomer }
+  return { fetchCustomers, fetchCustomer, create, update, deleteCustomer }
 })
