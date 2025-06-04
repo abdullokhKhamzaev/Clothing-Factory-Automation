@@ -40,6 +40,7 @@ const columns = [
   { name: 'receivedToPackageBy', label: t('checkedBy'), align: 'left', field: 'receivedToPackageBy' },
   { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
@@ -168,6 +169,7 @@ const filteredProducts = computed(() => {
       bordered
       :rows="warehouseActions"
       :columns="columns"
+      :visible-columns="visibleColumns"
       :no-data-label="$t('tables.transaction.header.empty')"
       color="primary"
       row-key="id"
@@ -177,6 +179,21 @@ const filteredProducts = computed(() => {
       <template v-slot:top>
         <div class="col-12 flex justify-between">
           <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
+          <q-select
+            style="min-width: 100px;"
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+          />
         </div>
       </template>
       <template v-slot:body="props">
