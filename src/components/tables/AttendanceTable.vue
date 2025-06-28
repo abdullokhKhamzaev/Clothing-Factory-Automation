@@ -58,6 +58,8 @@ function clearAction() {
   departureActionErr.value = false;
 }
 function acceptAction () {
+  if (attendanceLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id && !user.about['@id']) {
     console.warn('empty data');
     return;
@@ -95,6 +97,8 @@ function acceptAction () {
     .finally(() => attendanceLoading.value = false)
 }
 function departureAction () {
+  if (attendanceLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id && !user.about['@id']) {
     console.warn('empty data');
     return;

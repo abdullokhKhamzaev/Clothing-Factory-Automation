@@ -77,6 +77,8 @@ function getOrders () {
   getProducts()
 }
 function getProducts (filterProps) {
+  if (productsLoading.value) return; // Prevent multiple rapid calls
+
   let props = filterProps || {};
 
   productsLoading.value = true;
@@ -90,6 +92,7 @@ function getProducts (filterProps) {
     .finally(() => productsLoading.value = false)
 }
 function createAction () {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
   orderLoading.value = true;
 
   if (!user.about['@id']) {

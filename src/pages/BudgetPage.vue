@@ -55,6 +55,8 @@ function updateSelectedData (property) {
   selectedData.value[property] = budgetOptions.value.filter(option => option.value !== selectedData.value[oppositeProperty].value)[0];
 }
 function convertAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   loading.value = true;
 
   const input = {
@@ -96,6 +98,8 @@ function convertAction() {
     })
 }
 function addAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   loading.value = true;
 
   const input = {
@@ -130,6 +134,8 @@ function addAction() {
     })
 }
 function minusAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   if (!reason.value) {
     console.log('data is not found');
     return;

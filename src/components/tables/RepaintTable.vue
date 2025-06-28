@@ -62,6 +62,8 @@ function clearAction() {
   receiveActionErr.value = null;
 }
 function createAction() {
+  if (paintLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id']) {
     console.warn('user not found');
     return
@@ -116,6 +118,8 @@ function createAction() {
     .finally(() => paintLoading.value = false)
 }
 function receiveAction() {
+  if (paintLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id'] || !selectedData.value.id) {
     console.warn('data not found');
     return

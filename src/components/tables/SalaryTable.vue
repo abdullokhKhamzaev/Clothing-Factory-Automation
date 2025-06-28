@@ -62,6 +62,8 @@ function clearAction() {
   advanceActionErr.value = false;
 }
 function paySalaryAction () {
+  if (salaryLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('empty data');
     return;
@@ -99,6 +101,8 @@ function paySalaryAction () {
     .finally(() => salaryLoading.value = false)
 }
 function payAdvanceAction () {
+  if (salaryLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('empty data');
     return;

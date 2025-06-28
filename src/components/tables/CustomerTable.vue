@@ -48,6 +48,8 @@ function getCustomers () {
   emit('submit', { fullName: searchTitle.value });
 }
 function createAction () {
+  if (customerLoading.value) return; // Prevent multiple rapid calls
+
   customerLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -80,6 +82,8 @@ function createAction () {
 }
 function updateAction() {
   if (selectedData.value.id) {
+    if (customerLoading.value) return; // Prevent multiple rapid calls
+
     customerLoading.value = true;
 
     customer.update(selectedData.value.id, selectedData.value)
@@ -112,6 +116,8 @@ function updateAction() {
 }
 function deleteAction() {
   if (selectedData.value.id) {
+    if (customerLoading.value) return; // Prevent multiple rapid calls
+
     customerLoading.value = true;
 
     customer.deleteCustomer(selectedData.value.id)

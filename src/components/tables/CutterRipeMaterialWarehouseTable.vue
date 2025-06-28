@@ -50,6 +50,8 @@ function clearAction() {
 }
 
 function sendAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id'] || !selectedData.value.ripeMaterial['@id']) {
     console.warn('data not found');
     return

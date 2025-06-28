@@ -56,6 +56,8 @@ function getMaterials () {
   emit('submit');
 }
 function createAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   materialLoading.value = true;
 
   if ( selectedData?.value?.paintFabricColor['@id'] ) {
@@ -87,6 +89,8 @@ function createAction() {
     .finally(() => materialLoading.value = false);
 }
 function updateAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     materialLoading.value = true;
 
@@ -123,6 +127,8 @@ function updateAction() {
   clearAction();
 }
 function deleteAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     materialLoading.value = true;
 

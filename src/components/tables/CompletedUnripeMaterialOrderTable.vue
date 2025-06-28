@@ -52,6 +52,8 @@ function clearAction() {
   selectedData.value = {};
 }
 function acceptAction () {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   orderLoading.value = true;
   useCompletedUnripeMaterialOrders().acceptOrder(selectedData.value.id, { status: 'accepted' })
     .then(() => {
@@ -76,6 +78,8 @@ function acceptAction () {
     .finally(() => orderLoading.value = false)
 }
 function rejectAction () {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   orderLoading.value = true;
   useCompletedUnripeMaterialOrders().rejectOrder(selectedData.value.id, { status: 'rejected' })
     .then(() => {

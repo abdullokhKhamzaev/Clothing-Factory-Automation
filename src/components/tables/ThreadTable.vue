@@ -49,6 +49,8 @@ function getThreads () {
   emit('submit');
 }
 function createThreadAction() {
+  if (threadLoading.value) return; // Prevent multiple rapid calls
+
   threadLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -80,6 +82,8 @@ function createThreadAction() {
     .finally(() => threadLoading.value = false);
 }
 function updateThreadAction() {
+  if (threadLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     threadLoading.value = true;
 
@@ -111,6 +115,8 @@ function updateThreadAction() {
   clearAction();
 }
 function deleteThreadAction() {
+  if (threadLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     threadLoading.value = true;
 

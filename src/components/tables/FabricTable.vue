@@ -45,6 +45,8 @@ function getFabrics () {
   emit('submit');
 }
 function createFabricAction() {
+  if (fabricLoading.value) return; // Prevent multiple rapid calls
+
   fabricLoading.value = true;
 
   fabric.createFabric(selectedData.value)
@@ -73,6 +75,8 @@ function createFabricAction() {
 }
 function updateFabricAction() {
   if (selectedData.value.id) {
+    if (fabricLoading.value) return; // Prevent multiple rapid calls
+
     fabricLoading.value = true;
 
     fabric.editFabric(selectedData.value.id, selectedData.value)
@@ -105,6 +109,8 @@ function updateFabricAction() {
 }
 function deleteFabricAction() {
   if (selectedData.value.id) {
+    if (fabricLoading.value) return; // Prevent multiple rapid calls
+
     fabricLoading.value = true;
 
     fabric.deleteFabric(selectedData.value.id)

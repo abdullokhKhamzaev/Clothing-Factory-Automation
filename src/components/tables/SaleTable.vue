@@ -93,6 +93,8 @@ function getProducts (filterProps) {
     .finally(() => productsLoading.value = false)
 }
 function createAction () {
+  if (saleLoading.value) return; // Prevent multiple rapid calls
+
   saleLoading.value = true;
 
   if (!user.about['@id']) {
@@ -193,6 +195,8 @@ function prefill(model, index) {
   rows.value[index] = models[0]
 }
 function payAction () {
+  if (saleLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('empty data');
     return;

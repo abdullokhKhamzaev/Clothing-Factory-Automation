@@ -120,6 +120,8 @@ function prefill() {
   rows.value = sizes;
 }
 function confirmOrder() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data is empty');
     return;
@@ -154,6 +156,8 @@ function confirmOrder() {
     .finally(() => orderLoading.value = false);
 }
 function reportOrderAction() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data is empty');
     return;

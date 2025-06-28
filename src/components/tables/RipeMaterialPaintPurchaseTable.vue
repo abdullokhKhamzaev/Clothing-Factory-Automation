@@ -49,6 +49,8 @@ function clearAction () {
   payActionErr.value = null;
 }
 function payAction () {
+  if (paymentLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('empty data');
     return;

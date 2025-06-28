@@ -100,6 +100,8 @@ function getModels () {
   emit('submit');
 }
 function createAction() {
+  if (modelLoading.value) return; // Prevent multiple rapid calls
+
   modelLoading.value = true;
 
   let sizes = [];
@@ -172,6 +174,8 @@ function createAction() {
 }
 function updateAction() {
   if (selectedData.value.id) {
+    if (modelLoading.value) return; // Prevent multiple rapid calls
+
     modelLoading.value = true;
 
     let sizes = [];

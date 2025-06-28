@@ -44,6 +44,8 @@ function getColors () {
   emit('submit');
 }
 function createColorAction() {
+  if (colorLoading.value) return; // Prevent multiple rapid calls
+
   colorLoading.value = true;
 
   color.createColor(selectedData.value)
@@ -72,6 +74,8 @@ function createColorAction() {
 }
 function updateColorAction() {
   if (selectedData.value.id) {
+    if (colorLoading.value) return; // Prevent multiple rapid calls
+
     colorLoading.value = true;
 
     color.editColor(selectedData.value.id, selectedData.value)
@@ -104,6 +108,8 @@ function updateColorAction() {
 }
 function deleteColorAction() {
   if (selectedData.value.id) {
+    if (colorLoading.value) return; // Prevent multiple rapid calls
+
     colorLoading.value = true;
 
     color.deleteColor(selectedData.value.id)

@@ -114,6 +114,8 @@ function clearAction () {
   updateOrderErr.value = null;
 }
 function createOrderAction () {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id']) {
     console.warn('user not found');
     return
@@ -170,6 +172,8 @@ function createOrderAction () {
     .finally(() => orderLoading.value = false);
 }
 function updateOrderAction () {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id']) {
     console.warn('user not found');
     return
@@ -226,6 +230,8 @@ function updateOrderAction () {
     .finally(() => orderLoading.value = false);
 }
 function finishOrderAction() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data is empty');
     return

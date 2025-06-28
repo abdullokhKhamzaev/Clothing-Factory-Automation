@@ -51,6 +51,8 @@ function clearAction() {
   createActionErr.value = null;
 }
 function createAction() {
+  if (purchaseLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id']) {
     console.warn('user not found');
     return

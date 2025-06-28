@@ -53,6 +53,8 @@ function getEmbroideries () {
   emit('submit');
 }
 function createAction () {
+  if (embroideryLoading.value) return; // Prevent multiple rapid calls
+
   embroideryLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -116,6 +118,8 @@ function createAction () {
 }
 function updateAction() {
   if (selectedData.value.id) {
+    if (embroideryLoading.value) return; // Prevent multiple rapid calls
+
     embroideryLoading.value = true;
 
     embroidery.update(selectedData.value.id, selectedData.value)
@@ -148,6 +152,8 @@ function updateAction() {
 }
 function deleteAction() {
   if (selectedData.value.id) {
+    if (embroideryLoading.value) return; // Prevent multiple rapid calls
+
     embroideryLoading.value = true;
 
     embroidery.deleteEmbroidery(selectedData.value.id)

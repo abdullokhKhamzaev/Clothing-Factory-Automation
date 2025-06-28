@@ -56,6 +56,7 @@ function getAccessories () {
   emit('submit');
 }
 function createAction () {
+  if (accessoryLoading.value) return; // Prevent multiple rapid calls
   accessoryLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -119,6 +120,7 @@ function createAction () {
 }
 function updateAction() {
   if (selectedData.value.id) {
+    if (accessoryLoading.value) return; // Prevent multiple rapid calls
     accessoryLoading.value = true;
 
     accessory.update(selectedData.value.id, selectedData.value)
@@ -151,6 +153,7 @@ function updateAction() {
 }
 function deleteAction() {
   if (selectedData.value.id) {
+    if (accessoryLoading.value) return; // Prevent multiple rapid calls
     accessoryLoading.value = true;
 
     accessory.deleteAccessory(selectedData.value.id)

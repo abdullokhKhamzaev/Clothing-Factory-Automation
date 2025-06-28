@@ -55,6 +55,8 @@ function getMaterials () {
   emit('submit');
 }
 function createMaterialAction () {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   materialLoading.value = true;
 
   if ( selectedData?.value?.quantity ) {
@@ -86,6 +88,8 @@ function createMaterialAction () {
     .finally(() => materialLoading.value = false);
 }
 function updateMaterialAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     materialLoading.value = true;
 
@@ -118,6 +122,8 @@ function updateMaterialAction() {
   clearAction();
 }
 function deleteMaterialAction() {
+  if (materialLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData.value.id) {
     materialLoading.value = true;
 

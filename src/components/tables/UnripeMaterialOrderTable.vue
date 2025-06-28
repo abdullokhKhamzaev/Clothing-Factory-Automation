@@ -74,6 +74,8 @@ function clearAction() {
   createOrderErr.value = null;
 }
 function createOrderAction() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   orderLoading.value = true;
 
   let expectedData = [];
@@ -114,6 +116,8 @@ function createOrderAction() {
     .finally(() => orderLoading.value = false);
 }
 function finishOrderAction() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data is empty');
     return
@@ -144,6 +148,8 @@ function finishOrderAction() {
     .finally(() => orderLoading.value = false);
 }
 function deleteOrderAction() {
+  if (orderLoading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data is empty');
     return;

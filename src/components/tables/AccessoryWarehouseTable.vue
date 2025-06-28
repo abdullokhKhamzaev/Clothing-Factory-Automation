@@ -55,6 +55,7 @@ function getAccessories () {
   emit('submit');
 }
 function createAction() {
+  if (purchaseLoading.value) return; // Prevent multiple rapid calls
   if (!user.about['@id']) {
     console.warn('user not found');
     return

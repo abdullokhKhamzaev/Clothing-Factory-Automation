@@ -78,6 +78,8 @@ function prefill () {
   }
 }
 function createAction() {
+  if (userLoading.value) return; // Prevent multiple rapid calls
+
   userLoading.value = true
 
   const input = {
@@ -116,6 +118,8 @@ function createAction() {
     })
 }
 function updateAction() {
+  if (userLoading.value) return; // Prevent multiple rapid calls
+
   if (selectedData?.value?.id) {
     userLoading.value = true;
 
@@ -180,6 +184,8 @@ function updateAction() {
   }
 }
 function deleteAction() {
+  if (userLoading.value) return; // Prevent multiple rapid calls
+
   if ( selectedData?.value?.id ) {
     userLoading.value = true;
     user.deleteUser(selectedData.value.id)

@@ -45,6 +45,8 @@ const visibleColumns = ref(columns.map(column => column.name));
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 
 function acceptAction () {
+  if (warehouseActionLoading.value) return; // Prevent multiple rapid calls
+
   warehouseActionLoading.value = true;
   useProductWarehouse().accept(selectedData.value.id, {status: 'accepted'})
     .then(() => {
@@ -69,6 +71,8 @@ function acceptAction () {
     .finally(() => warehouseActionLoading.value = false)
 }
 function rejectAction () {
+  if (warehouseActionLoading.value) return; // Prevent multiple rapid calls
+
   warehouseActionLoading.value = true;
   useProductWarehouse().reject(selectedData.value.id, {status: 'rejected'})
     .then(() => {
@@ -123,6 +127,8 @@ function getWarehouseAction (filterProps) {
     });
 }
 function updateAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.id) {
     console.warn('data not found');
     return

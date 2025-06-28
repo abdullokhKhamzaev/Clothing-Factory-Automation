@@ -35,7 +35,6 @@ const columns = [
   { name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
-
 </script>
 
 <template>

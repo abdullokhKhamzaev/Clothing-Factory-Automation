@@ -56,6 +56,8 @@ function clearAction() {
   sendActionErr.value = null;
 }
 function createAction() {
+  if (purchaseLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id']) {
     console.warn('user not found');
     return
@@ -123,6 +125,8 @@ function createAction() {
     .finally(() => purchaseLoading.value = false)
 }
 function sendAction() {
+  if (purchaseLoading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id'] || !selectedData.value['@id']) {
     console.warn('data not found');
     return
