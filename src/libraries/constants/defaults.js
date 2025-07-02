@@ -162,3 +162,25 @@ export const isToday = (dateStr) => {
     inputDate.getDate() === today.getDate()
   );
 };
+
+export function getStats(actions) {
+  const stats = {};
+  let total = 0;
+
+  if (actions) {
+    actions.forEach(action => {
+      const modelName = action.productModel?.name || 'Unknown Model';
+      const quantities = action.productSize.map(sizeItem => sizeItem.quantity || 0);
+      const totalQuantity = quantities.reduce((sum, q) => sum + q, 0);
+
+      if (!stats[modelName]) {
+        stats[modelName] = 0;
+      }
+
+      stats[modelName] += totalQuantity;
+      total += totalQuantity;
+    });
+  }
+
+  return { stats, total };
+}

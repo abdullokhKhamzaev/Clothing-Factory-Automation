@@ -171,11 +171,16 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="flex justify-end q-gutter-x-md q-mb-sm">
+    <q-btn color="primary" icon="mdi-chevron-double-left" @click="$refs.stepper.previous()" :disable="step === 1" />
+    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 4" />
+  </div>
   <q-stepper
     v-model="step"
     ref="stepper"
     color="primary"
     animated
+    class="q-mx-auto w-full"
   >
     <q-step
       :name="1"
@@ -241,13 +246,13 @@ onMounted(() => {
                 </template>
               </q-splitter>
               <q-separator inset />
-          </div>
+            </div>
           </q-card>
         </q-expansion-item>
         <q-card-section>
           <div class="text-bold">Jami: {{ cutModelsAcceptedData.value?.total }}</div>
-          <div class="text-bold">Vishivkaga o'tdi -> {{ embroideryAcceptedMovementsStats.total }} {{ embroideryPendingMovementsStats.total ? `Kutilmoqda: ${embroideryPendingMovementsStats.total}` : ''  }}</div>
-          <div class="text-bold">Tikuvga o'tdi -> {{ sewAcceptedMovementsStats.total }} {{ sewPendingMovementsStats.total ? `Kutilmoqda: ${sewPendingMovementsStats.total}` : ''  }}</div>
+          <div class="text-bold">Vishivkaga o'tdi -> {{ embroideryAcceptedMovementsStats.total }} {{ embroideryPendingMovementsStats.total ? `(+ Kutilmoqda: ${embroideryPendingMovementsStats.total})` : ''  }}</div>
+          <div class="text-bold">Tikuvga o'tdi -> {{ sewAcceptedMovementsStats.total }} {{ sewPendingMovementsStats.total ? `(+ Kutilmoqda: ${sewPendingMovementsStats.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 
@@ -268,6 +273,71 @@ onMounted(() => {
       :done="step > 2"
     >
       {{ t('menus.sideBar.embroidery') }}
+<!--      <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">-->
+<!--        <div class="flex justify-end q-py-sm q-mr-md">-->
+<!--          <refresh-button dense :action="getMovements" />-->
+<!--        </div>-->
+
+<!--        <q-linear-progress v-if="embroideryAcceptedMovementsLoading || embroideryPendingMovementsLoading" indeterminate rounded size="xs" color="primary" />-->
+<!--        <q-separator v-else />-->
+
+<!--        <q-expansion-item-->
+<!--          expand-separator-->
+<!--          label="Qo'shimcha ma'lumotlar"-->
+<!--          header-class="text-primary"-->
+<!--        >-->
+<!--          <q-card>-->
+<!--            <div>-->
+<!--              <q-splitter v-model="splitterModel">-->
+<!--                <template v-slot:before>-->
+<!--                  <q-card-section>Bichilgan mahsulotlar:</q-card-section>-->
+<!--                </template>-->
+<!--                <template v-slot:after>-->
+<!--                  <q-card-section>{{ cutModelsAcceptedData.value?.total || 0 }}</q-card-section>-->
+<!--                </template>-->
+<!--              </q-splitter>-->
+<!--              <q-separator inset />-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <q-splitter v-model="splitterModel">-->
+<!--                <template v-slot:before>-->
+<!--                  <q-card-section>Tasdiqni kutayotgan mahsulotlar:</q-card-section>-->
+<!--                </template>-->
+<!--                <template v-slot:after>-->
+<!--                  <q-card-section><span class="text-green">? +</span> {{ cutModelsPendingData.value?.total || 0 }}</q-card-section>-->
+<!--                </template>-->
+<!--              </q-splitter>-->
+<!--              <q-separator inset />-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <q-splitter v-model="splitterModel">-->
+<!--                <template v-slot:before>-->
+<!--                  <q-card-section>Bichilgan brag mahsulotlar:</q-card-section>-->
+<!--                </template>-->
+<!--                <template v-slot:after>-->
+<!--                  <q-card-section>{{ cutModelsDefectAcceptedData.value?.total || 0 }}</q-card-section>-->
+<!--                </template>-->
+<!--              </q-splitter>-->
+<!--              <q-separator inset />-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <q-splitter v-model="splitterModel">-->
+<!--                <template v-slot:before>-->
+<!--                  <q-card-section> Tasdiqni kutayotgan brag mahsulotlar:</q-card-section>-->
+<!--                </template>-->
+<!--                <template v-slot:after>-->
+<!--                  <q-card-section><span class="text-green">? +</span> {{ cutModelsDefectPendingData.value?.total || 0 }}</q-card-section>-->
+<!--                </template>-->
+<!--              </q-splitter>-->
+<!--              <q-separator inset />-->
+<!--            </div>-->
+<!--          </q-card>-->
+<!--        </q-expansion-item>-->
+<!--        <q-card-section>-->
+<!--          <div class="text-bold">Vishivkaga Qabul qilindi -> {{ embroideryAcceptedMovementsStats.total }} {{ embroideryPendingMovementsStats.total ? `(+ Kutilmoqda: ${embroideryPendingMovementsStats.total})` : ''  }}</div>-->
+<!--          <div class="text-bold">Tikuvga o'tdi -> {{ sewAcceptedMovementsStats.total }} {{ sewPendingMovementsStats.total ? `(+ Kutilmoqda: ${sewPendingMovementsStats.total})` : ''  }}</div>-->
+<!--        </q-card-section>-->
+<!--      </q-card>-->
     </q-step>
 
     <q-step
@@ -288,12 +358,5 @@ onMounted(() => {
     >
       {{ t('menus.sideBar.package') }}
     </q-step>
-
-<!--    <template v-slot:navigation>-->
-<!--      <q-stepper-navigation>-->
-<!--        <q-btn @click="$refs.stepper.next()" color="primary" :label="step === 4 ? 'Finish' : 'Continue'" />-->
-<!--        <q-btn v-if="step > 1" flat color="primary" @click="$refs.stepper.previous()" label="Back" class="q-ml-sm" />-->
-<!--      </q-stepper-navigation>-->
-<!--    </template>-->
   </q-stepper>
 </template>
