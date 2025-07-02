@@ -15,6 +15,10 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
       url += '?page=1'
     }
 
+    if ( filterProps?.status ) {
+      url += '&status=' + filterProps.status
+    }
+
     if ( filterProps?.toWarehouse ) {
       url += '&toWarehouse=' + filterProps.toWarehouse
     }
@@ -40,6 +44,13 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
     }
     if (filterProps?.receivedAtTo) {
       url += '&receivedAt[before]=' + filterProps.receivedAtTo;
+    }
+
+    if (filterProps?.createdAtFrom) {
+      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    }
+    if (filterProps?.createdAtTo) {
+      url += '&createdAt[before]=' + filterProps.createdAtTo;
     }
 
     try {

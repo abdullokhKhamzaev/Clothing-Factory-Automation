@@ -2,6 +2,26 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useProductModelOrderCompleted = defineStore('product_model_order_completed', () => {
+  async function getAll(filterProps) {
+    let url = '/all'
+
+    if ( filterProps?.status ) {
+      url += '?status=' + filterProps.status
+    }
+
+    if (filterProps?.createdAtFrom) {
+      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    }
+    if (filterProps?.createdAtTo) {
+      url += '&createdAt[before]=' + filterProps.createdAtTo;
+    }
+
+    try {
+      return await client.get('product_model_order_completeds' + url);
+    } catch (e) {
+      console.log(e)
+    }
+  }
   function getOrders(filterProps) {
     let url = ''
 
@@ -43,5 +63,5 @@ export const useProductModelOrderCompleted = defineStore('product_model_order_co
     }
   }
 
-  return { getOrders, createReport, accept, reject }
+  return { getAll, getOrders, createReport, accept, reject }
 })
