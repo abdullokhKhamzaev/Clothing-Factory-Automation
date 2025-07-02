@@ -229,7 +229,7 @@ function payAdvanceAction () {
             {{ formatFloatToInteger(props.row.advancePayment) === '0' ? '-' : formatFloatToInteger(props.row.advancePayment) + ' ' + props.row.budget.name}}
           </div>
           <div v-else-if="col.name === 'paidAmount'">
-            {{ formatFloatToInteger(props.row.paidAmount) === '0' ? '-' : formatFloatToInteger(props.row.paidAmount) + ' ' + props.row.budget.name}}
+            {{ props.row.transaction.reduce((sum, t) => sum + parseFloat(t.price), 0) }} {{ props.row.budget.name }}
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
@@ -245,7 +245,6 @@ function payAdvanceAction () {
           <div v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
-                v-if="!Number(props.row.paidAmount)"
                 dense
                 outline
                 no-caps
@@ -255,17 +254,17 @@ function payAdvanceAction () {
                 :label="$t('paySalary')"
                 @click="selectedData = {...props.row}; showSalaryModal = true;"
               />
-              <q-btn
-                v-if="!Number(props.row.advancePayment)"
-                dense
-                outline
-                no-caps
-                no-wrap
-                color="primary"
-                icon-right="mdi-cash"
-                :label="$t('payAdvance')"
-                @click="selectedData = {...props.row}; showAdvanceModal = true;"
-              />
+<!--              <q-btn-->
+<!--                v-if="!Number(props.row.advancePayment)"-->
+<!--                dense-->
+<!--                outline-->
+<!--                no-caps-->
+<!--                no-wrap-->
+<!--                color="primary"-->
+<!--                icon-right="mdi-cash"-->
+<!--                :label="$t('payAdvance')"-->
+<!--                @click="selectedData = {...props.row}; showAdvanceModal = true;"-->
+<!--              />-->
             </div>
           </div>
 
