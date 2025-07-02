@@ -7,6 +7,7 @@ import CutModelsAccepted from "components/statistics/CutModelsAccepted.vue";
 import CutModelsPending from "components/statistics/CutModelsPending.vue";
 import CutModelsDefectAccepted from "components/statistics/CutModelsDefectAccepted.vue";
 import CutModelsDefectPending from "components/statistics/CutModelsDefectPending.vue";
+import {getStats} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -155,27 +156,6 @@ async function getMovements () {
   await getSewPendingMovements();
 }
 
-function getStats(actions) {
-  const stats = {};
-  let total = 0;
-
-  if (actions) {
-    actions.forEach(action => {
-      const modelName = action.productModel?.name || 'Unknown Model';
-      const quantities = action.productSize.map(sizeItem => sizeItem.quantity || 0);
-      const totalQuantity = quantities.reduce((sum, q) => sum + q, 0);
-
-      if (!stats[modelName]) {
-        stats[modelName] = 0;
-      }
-
-      stats[modelName] += totalQuantity;
-      total += totalQuantity;
-    });
-  }
-
-  return { stats, total };
-}
 const embroideryAcceptedMovementsStats = computed(() => getStats(embroideryAcceptedMovements.value));
 const embroideryPendingMovementsStats = computed(() => getStats(embroideryPendingMovements.value));
 const sewAcceptedMovementsStats = computed(() => getStats(sewAcceptedMovements.value));
@@ -200,7 +180,7 @@ onMounted(() => {
     <q-step
       :name="1"
       :title="t('menus.sideBar.cutting')"
-      caption="1000"
+      :caption="cutModelsAcceptedData.value?.total"
       icon="mdi-scissors-cutting"
       :done="step > 1"
     >

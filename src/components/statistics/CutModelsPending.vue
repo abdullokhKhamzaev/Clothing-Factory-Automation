@@ -2,6 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue"
 import {useProductModelOrderCompleted} from "stores/productModelOrderCompleted.js";
 import RefreshButton from "components/RefreshButton.vue";
+import {getStats} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -41,27 +42,6 @@ function getModels () {
     });
 }
 
-function getStats(actions) {
-  const stats = {};
-  let total = 0;
-
-  if (actions) {
-    actions.forEach(action => {
-      const modelName = action.productModel?.name || 'Unknown Model';
-      const quantities = action.productSize.map(sizeItem => sizeItem.quantity || 0);
-      const totalQuantity = quantities.reduce((sum, q) => sum + q, 0);
-
-      if (!stats[modelName]) {
-        stats[modelName] = 0;
-      }
-
-      stats[modelName] += totalQuantity;
-      total += totalQuantity;
-    });
-  }
-
-  return { stats, total };
-}
 const modelsStats = computed(() => getStats(models.value));
 
 function sendData() {
