@@ -28,27 +28,29 @@
             {{ $t('logout') }}
           </q-tooltip>
         </q-btn>
-        <q-select
-          v-model="locale"
-          :options="LANGUAGES"
-          :label="$t('language')"
-          color="black"
-          options-dense
-          emit-value
-          map-options
-          style="min-width: 150px"
-          outlined
+        <q-btn-dropdown
+          color="white"
+          icon="language"
+          flat
           dense
-          filled
-          bg-color="white"
-          @update:model-value="changeLang"
+          size="md"
         >
-          <template v-slot:append>
-            <q-avatar>
-              <q-icon name="mdi-translate-variant" size="sm" color="primary" />
-            </q-avatar>
-          </template>
-        </q-select>
+          <q-list>
+            <q-item
+              v-for="(language, index) in LANGUAGES"
+              :key="index"
+              clickable
+              v-close-popup
+              @click="changeLang(language.value)"
+              :class="locale === language.value ? 'bg-primary text-white' : ''"
+            >
+              <q-item-section>
+                <q-item-label>{{ language.label }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+<!--        <q-toggle v-model="isDark" label="Dark Mode" />-->
       </q-toolbar>
     </q-header>
 
@@ -121,11 +123,20 @@ import { useRouter } from "vue-router";
 import SideBarLink from 'components/SideBarLink.vue'
 import { useAbout } from 'stores/user/about.js';
 import { LANGUAGES } from 'src/libraries/constants/defaults.js';
+// import {useQuasar} from "quasar";
 
 const { locale } = useI18n();
 const user = useAbout();
 const router = useRouter();
 const leftDrawerOpen = ref(false)
+
+// const $q = useQuasar();
+// const isDark = ref($q.dark.isActive)
+
+// Watch toggle and apply dark mode
+// watch(isDark, (val) => {
+//   $q.dark.set(val)
+// })
 const linksList = [
   {
     title: 'users',

@@ -95,9 +95,64 @@ async function getEmbroideryPendingMovements () {
     });
 }
 
+// Get Sew Accepted Movements
+const sewAcceptedMovements = ref([]);
+const sewAcceptedMovementsLoading = ref(false);
+const sewWarehouse = '/api/warehouses/5';
+async function getSewAcceptedMovements () {
+  if (sewAcceptedMovementsLoading.value) return; // Prevent multiple rapid calls
+
+  sewAcceptedMovementsLoading.value = true;
+
+  let filterProps = {};
+
+  filterProps.fromWarehouse = cutterWarehouse;
+  filterProps.toWarehouse = sewWarehouse;
+  filterProps.status = 'accepted';
+  filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
+  filterProps.receivedAtTo = props.dateTo + 'T23:59:59';
+  filterProps.noPagination = true;
+
+  await useProductWarehouse().getAll(filterProps)
+    .then((res) => {
+      sewAcceptedMovements.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      sewAcceptedMovementsLoading.value = false;
+    });
+}
+
+// Get Sew Pending Movements
+const sewPendingMovements = ref([]);
+const sewPendingMovementsLoading = ref(false);
+async function getSewPendingMovements () {
+  if (sewPendingMovementsLoading.value) return; // Prevent multiple rapid calls
+
+  sewPendingMovementsLoading.value = true;
+
+  let filterProps = {};
+
+  filterProps.fromWarehouse = cutterWarehouse;
+  filterProps.toWarehouse = sewWarehouse;
+  filterProps.status = 'pending';
+  filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
+  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
+  filterProps.noPagination = true;
+
+  await useProductWarehouse().getAll(filterProps)
+    .then((res) => {
+      sewPendingMovements.value = res.data['hydra:member'];
+    })
+    .finally(() => {
+      sewPendingMovementsLoading.value = false;
+    });
+}
+
 async function getMovements () {
   await getEmbroideryAcceptedMovements();
   await getEmbroideryPendingMovements();
+  await getSewAcceptedMovements();
+  await getSewPendingMovements();
 }
 
 function getStats(actions) {
@@ -123,6 +178,8 @@ function getStats(actions) {
 }
 const embroideryAcceptedMovementsStats = computed(() => getStats(embroideryAcceptedMovements.value));
 const embroideryPendingMovementsStats = computed(() => getStats(embroideryPendingMovements.value));
+const sewAcceptedMovementsStats = computed(() => getStats(sewAcceptedMovements.value));
+const sewPendingMovementsStats = computed(() => getStats(sewPendingMovements.value));
 
 watch(props, () => {
   getMovements();
@@ -189,7 +246,7 @@ onMounted(() => {
                   <q-card-section>Bichilgan brag mahsulotlar:</q-card-section>
                 </template>
                 <template v-slot:after>
-                  <q-card-section><span class="text-green">-</span> {{ cutModelsDefectAcceptedData.value?.total || 0 }}</q-card-section>
+                  <q-card-section>{{ cutModelsDefectAcceptedData.value?.total || 0 }}</q-card-section>
                 </template>
               </q-splitter>
               <q-separator inset />
@@ -200,7 +257,7 @@ onMounted(() => {
                   <q-card-section> Tasdiqni kutayotgan brag mahsulotlar:</q-card-section>
                 </template>
                 <template v-slot:after>
-                  <q-card-section><span class="text-green">~</span> {{ cutModelsDefectPendingData.value?.total || 0 }}</q-card-section>
+                  <q-card-section><span class="text-green">? +</span> {{ cutModelsDefectPendingData.value?.total || 0 }}</q-card-section>
                 </template>
               </q-splitter>
               <q-separator inset />
@@ -208,9 +265,9 @@ onMounted(() => {
           </q-card>
         </q-expansion-item>
         <q-card-section>
-          <div class="text-bold">Jami: {{ cutModelsAcceptedData.value?.total - cutModelsDefectAcceptedData.value?.total }}</div>
+          <div class="text-bold">Jami: {{ cutModelsAcceptedData.value?.total }}</div>
           <div class="text-bold">Vishivkaga o'tdi -> {{ embroideryAcceptedMovementsStats.total }} {{ embroideryPendingMovementsStats.total ? `Kutilmoqda: ${embroideryPendingMovementsStats.total}` : ''  }}</div>
-          <div class="text-bold">Tikuvga o'tdi -> Todo</div>
+          <div class="text-bold">Tikuvga o'tdi -> {{ sewAcceptedMovementsStats.total }} {{ sewPendingMovementsStats.total ? `Kutilmoqda: ${sewPendingMovementsStats.total}` : ''  }}</div>
         </q-card-section>
       </q-card>
 
