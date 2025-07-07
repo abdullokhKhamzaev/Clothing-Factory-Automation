@@ -21,7 +21,7 @@ const splitterModel = ref(50);
 
 const models = ref([]);
 const loading = ref(false);
-const packagerWarehouse = '/api/warehouses/7';
+const packagerReadyWarehouse = '/api/warehouses/8';
 const productWarehouse = '/api/warehouses/9';
 function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
@@ -29,7 +29,7 @@ function getModels () {
 
   let filterProps = {};
 
-  filterProps.fromWarehouse = packagerWarehouse;
+  filterProps.fromWarehouse = packagerReadyWarehouse;
   filterProps.toWarehouse = productWarehouse;
   filterProps.status = 'accepted';
   filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-card flat bordered class="q-pa-sm text-red">
+  <q-card flat bordered class="q-pa-sm text-green">
     <q-card-section class="flex justify-between">
       <div class="text-h6 text-primary">Upakovkadan -> Skladga jo'natildi:</div>
       <refresh-button dense :action="getModels" />

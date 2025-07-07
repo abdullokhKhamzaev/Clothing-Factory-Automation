@@ -385,7 +385,7 @@ function getPackageModelsProductWarehousePending(data) {
           <div class="text-bold">Qabul Qilindi -> {{ packageModelsAcceptedData.value?.total || 0 }} {{ packageModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsPendingData.value.total})` : ''  }}</div>
           <div class="text-bold">Qadoqlandi: {{ packageReadyModelsAcceptedData.value?.total || 0 }} {{ packageReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageReadyModelsPendingData.value.total})` : ''  }}</div>
           <div class="text-bold">Bichuv Bragga Jo'natildi -> {{ packageModelsCutDefectAcceptedData.value?.total || 0 }} {{ packageModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsCutDefectPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Upakovkaga Jo'natildi -> {{ packageModelsProductWarehouseAcceptedData.value?.total || 0 }} {{ packageModelsProductWarehousePendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsProductWarehousePendingData.value.total})` : ''  }}</div>
+          <div class="text-bold">Skladga Jo'natildi -> {{ packageModelsProductWarehouseAcceptedData.value?.total || 0 }} {{ packageModelsProductWarehousePendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsProductWarehousePendingData.value.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 

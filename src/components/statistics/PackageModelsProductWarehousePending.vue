@@ -21,7 +21,7 @@ const splitterModel = ref(50);
 
 const models = ref([]);
 const loading = ref(false);
-const packagerWarehouse = '/api/warehouses/7';
+const packagerReadyWarehouse = '/api/warehouses/8';
 const productWarehouse = '/api/warehouses/9';
 function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
@@ -29,7 +29,7 @@ function getModels () {
 
   let filterProps = {};
 
-  filterProps.fromWarehouse = packagerWarehouse;
+  filterProps.fromWarehouse = packagerReadyWarehouse;
   filterProps.toWarehouse = productWarehouse;
   filterProps.status = 'pending';
   filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
