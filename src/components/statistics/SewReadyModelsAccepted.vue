@@ -22,6 +22,7 @@ const splitterModel = ref(50);
 // Accepted Orders
 const models = ref([]);
 const loading = ref(false);
+const sewerWarehouse = '/api/warehouses/5';
 const packagerWarehouse = '/api/warehouses/7';
 async function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
@@ -29,6 +30,7 @@ async function getModels () {
 
   let filterProps = {};
 
+  filterProps.fromWarehouse = sewerWarehouse;
   filterProps.toWarehouse = packagerWarehouse;
   filterProps.status = 'accepted'
   filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
@@ -63,7 +65,7 @@ onMounted(() => {
 <template>
   <q-card flat bordered class="q-pa-sm text-green q-mb-md">
     <q-card-section class="flex justify-between">
-      <div class="text-h6 text-primary">Upakovkaga qabul qilingan mahsulotlar:</div>
+      <div class="text-h6 text-primary">Tikilgan mahsulotlar:</div>
       <refresh-button dense :action="getModels" />
     </q-card-section>
 

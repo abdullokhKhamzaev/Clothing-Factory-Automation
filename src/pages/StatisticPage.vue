@@ -2,9 +2,6 @@
 import {ref} from "vue";
 import {DATE_FORMAT} from "src/libraries/constants/defaults.js";
 import AllReports from "components/statistics/AllReports.vue";
-import SewModelsAccepted from "components/statistics/SewModelsAccepted.vue";
-import PackageModelsAccepted from "components/statistics/PackageModelsAccepted.vue";
-import WarehouseModelsAccepted from "components/statistics/WarehouseModelsAccepted.vue";
 
 const dateFrom = ref(new Date().toISOString().split('T')[0]);
 const dateTo = ref(new Date().toISOString().split('T')[0]);
@@ -33,22 +30,6 @@ const dateTo = ref(new Date().toISOString().split('T')[0]);
     </q-btn>
   </div>
 
-  <div class="row q-col-gutter-md">
-    <div class="col-12">
-      <SewModelsAccepted :date-to="dateTo" :date-from="dateFrom" />
-    </div>
-
-    <div class="col-12">
-      <PackageModelsAccepted :date-to="dateTo" :date-from="dateFrom" />
-    </div>
-
-    <div class="col-12">
-      <WarehouseModelsAccepted :date-to="dateTo" :date-from="dateFrom" />
-    </div>
-
-    <div class="col-12">
-      <AllReports :date-from="dateFrom" :date-to="dateTo" />
-    </div>
-  </div>
+  <AllReports :date-from="dateFrom" :date-to="dateTo" />
 </template>
 

@@ -32,7 +32,7 @@ function getModels () {
   filterProps.toWarehouse = cutDefectWarehouse;
   filterProps.status = 'pending';
   filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
-  filterProps.createddAtTo = props.dateTo + 'T23:59:59';
+  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
   filterProps.noPagination = true;
 
   useProductWarehouse().getAll(filterProps)

@@ -23,16 +23,18 @@ const splitterModel = ref(50);
 const models = ref([]);
 const loading = ref(false);
 const packagerWarehouse = '/api/warehouses/7';
+const packagerReadyWarehouse = '/api/warehouses/8';
 async function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
 
   let filterProps = {};
 
-  filterProps.toWarehouse = packagerWarehouse;
-  filterProps.status = 'accepted'
-  filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
-  filterProps.receivedAtTo = props.dateTo + 'T23:59:59';
+  filterProps.fromWarehouse = packagerWarehouse;
+  filterProps.toWarehouse = packagerReadyWarehouse;
+  filterProps.status = 'pending'
+  filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
+  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
   filterProps.noPagination = true;
 
   await useProductWarehouse().getAll(filterProps || '')
@@ -61,9 +63,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-card flat bordered class="q-pa-sm text-green q-mb-md">
+  <q-card flat bordered class="q-pa-sm text-warning q-mb-md">
     <q-card-section class="flex justify-between">
-      <div class="text-h6 text-primary">Upakovkaga qabul qilingan mahsulotlar:</div>
+      <div class="text-h6 text-primary">Tasdiqni kutayotgan mahsulotlar:</div>
       <refresh-button dense :action="getModels" />
     </q-card-section>
 

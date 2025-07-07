@@ -22,7 +22,7 @@ const splitterModel = ref(50);
 // Accepted Orders
 const models = ref([]);
 const loading = ref(false);
-const sewWarehouse = '/api/warehouses/7';
+const sewWarehouse = '/api/warehouses/5';
 async function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
@@ -63,7 +63,7 @@ onMounted(() => {
 <template>
   <q-card flat bordered class="q-pa-sm text-green q-mb-md">
     <q-card-section class="flex justify-between">
-      <div class="text-h6 text-primary">Tikilgan mahsulotlar:</div>
+      <div class="text-h6 text-primary">Tikuvga qabul qilingan mahsulotlar:</div>
       <refresh-button dense :action="getModels" />
     </q-card-section>
 

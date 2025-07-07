@@ -19,23 +19,24 @@ const emit = defineEmits(['retrieveData']);
 
 const splitterModel = ref(50);
 
-// Accepted Orders
 const models = ref([]);
 const loading = ref(false);
 const packagerWarehouse = '/api/warehouses/7';
-async function getModels () {
+const cutDefectWarehouse = '/api/warehouses/2';
+function getModels () {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
 
   let filterProps = {};
 
-  filterProps.toWarehouse = packagerWarehouse;
-  filterProps.status = 'accepted'
-  filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
-  filterProps.receivedAtTo = props.dateTo + 'T23:59:59';
+  filterProps.fromWarehouse = packagerWarehouse;
+  filterProps.toWarehouse = cutDefectWarehouse;
+  filterProps.status = 'pending';
+  filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
+  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
   filterProps.noPagination = true;
 
-  await useProductWarehouse().getAll(filterProps || '')
+  useProductWarehouse().getAll(filterProps)
     .then((res) => {
       models.value = res.data['hydra:member'];
       sendData();
@@ -61,9 +62,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-card flat bordered class="q-pa-sm text-green q-mb-md">
+  <q-card flat bordered class="q-pa-sm text-warning">
     <q-card-section class="flex justify-between">
-      <div class="text-h6 text-primary">Upakovkaga qabul qilingan mahsulotlar:</div>
+      <div class="text-h6 text-primary">Upakovkadan -> Bichuv bragga ~ (Kutilmoqda):</div>
       <refresh-button dense :action="getModels" />
     </q-card-section>
 
