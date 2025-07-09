@@ -52,34 +52,44 @@ function getModels () {
 function getStats(sales) {
   const stats = {};
   const totalPrices = {};
+  const totalPaidPrices = {};
   let totalQuantity = 0;
   const allCurrencies = new Set();
 
   if (Array.isArray(sales)) {
     sales.forEach(sale => {
       const saleProducts = sale.saleProduct || [];
-
-      // Normalize currency name
       let rawCurrency = sale.budget?.name || 'Unknown';
       if (rawCurrency.toLowerCase().includes("so'm")) {
         rawCurrency = 'Uzs';
       }
 
-      const currencyKey = `total${rawCurrency.charAt(0).toUpperCase()}${rawCurrency.slice(1).toLowerCase()}`;
+      const currencyKey = rawCurrency.charAt(0).toUpperCase() + rawCurrency.slice(1).toLowerCase();
+      const totalKey = `totalPrice${currencyKey}`;
+      const paidKey = `totalPaidPrice${currencyKey}`;
       allCurrencies.add(currencyKey);
 
+      const paidPrice = parseFloat(sale.paidPrice || 0);
+      const totalSalePrice = parseFloat(sale.totalPrice || 0);
+
+      // Track global paid/price totals
+      totalPrices[totalKey] = (totalPrices[totalKey] || 0) + totalSalePrice;
+      totalPaidPrices[paidKey] = (totalPaidPrices[paidKey] || 0) + paidPrice;
+
+      // Distribute payment proportionally to each product
+      const productCount = saleProducts.length;
       saleProducts.forEach(product => {
         const modelName = product.productModel?.name || 'Unknown Model';
         const quantities = product.quantities || [];
 
         let modelQuantity = 0;
-        let currencyTotal = 0;
+        let modelPrice = 0;
 
         quantities.forEach(item => {
           const quantity = item.quantity || 0;
-          const price = parseFloat(item.price || 0);
+          const unitPrice = parseFloat(item.price || 0);
           modelQuantity += quantity;
-          currencyTotal += quantity * price;
+          modelPrice += quantity * unitPrice;
         });
 
         if (!stats[modelName]) {
@@ -87,30 +97,34 @@ function getStats(sales) {
         }
 
         stats[modelName].quantity += modelQuantity;
-        stats[modelName][currencyKey] = (stats[modelName][currencyKey] || 0) + currencyTotal;
+        stats[modelName][totalKey] = (stats[modelName][totalKey] || 0) + modelPrice;
+
+        // Proportional paid price (e.g. 2 products → divide paid by 2)
+        const proportionalPaid = productCount > 0 ? paidPrice / productCount : 0;
+        stats[modelName][paidKey] = (stats[modelName][paidKey] || 0) + proportionalPaid;
 
         totalQuantity += modelQuantity;
-        totalPrices[currencyKey] = (totalPrices[currencyKey] || 0) + currencyTotal;
       });
     });
   }
 
-  // Ensure every model has all currencies
+  // Ensure all currency fields exist and round
   for (const model in stats) {
-    for (const currencyKey of allCurrencies) {
-      if (stats[model][currencyKey] === undefined) {
-        stats[model][currencyKey] = 0;
-      } else {
-        stats[model][currencyKey] = Math.round(stats[model][currencyKey] * 100) / 100;
-      }
+    for (const currency of allCurrencies) {
+      const totalKey = `totalPrice${currency}`;
+      const paidKey = `totalPaidPrice${currency}`;
+      stats[model][totalKey] = Math.round((stats[model][totalKey] || 0) * 100) / 100;
+      stats[model][paidKey] = Math.round((stats[model][paidKey] || 0) * 100) / 100;
     }
   }
 
-  // Global totals with rounding
+  // Build global totals
   const globalTotals = {};
-  for (const currencyKey of allCurrencies) {
-    const amount = totalPrices[currencyKey] || 0;
-    globalTotals[currencyKey] = Math.round(amount * 100) / 100;
+  for (const currency of allCurrencies) {
+    const totalKey = `totalPrice${currency}`;
+    const paidKey = `totalPaidPrice${currency}`;
+    globalTotals[totalKey] = Math.round((totalPrices[totalKey] || 0) * 100) / 100;
+    globalTotals[paidKey] = Math.round((totalPaidPrices[paidKey] || 0) * 100) / 100;
   }
 
   return {
@@ -172,7 +186,7 @@ onMounted(() => {
             </template>
 
             <template v-slot:after>
-              <q-card-section>{{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalUsd ? `$ ${(count.totalUsd / count.quantity).toFixed(2)}` : '' }} {{ count.totalUzs ? `| So'm ${(count.totalUzs / count.quantity).toFixed(2)}` : '' }}</q-card-section>
+              <q-card-section>{{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${(formatFloatToInteger((count.totalPriceUsd / count.quantity).toFixed(2)))}$` : '' }} {{ count.totalPriceUzs ? `| ${(formatFloatToInteger((count.totalPriceUzs / count.quantity).toFixed(2)))}so'm` : '' }}</q-card-section>
             </template>
           </q-splitter>
           <q-separator inset />
@@ -180,9 +194,11 @@ onMounted(() => {
       </q-card>
     </q-expansion-item>
 
-    <q-card-section>
-      <div class="text-bold">Jami: {{ formatFloatToInteger(modelsStats.totalQuantity) }} {{ $t('piece') }}</div>
-      <div class="text-bold">Jami Narxi: {{ modelsStats.totalUsd && `$ ${formatFloatToInteger(modelsStats.totalUsd)}` }} {{ modelsStats.totalUzs && `+ So'm ${formatFloatToInteger(modelsStats.totalUzs)}` }}</div>
+    <q-card-section class="text-h6">
+      <div class="text-bold text-primary">Jami: {{ formatFloatToInteger(modelsStats.totalQuantity) }} {{ $t('piece') }}</div>
+      <div class="text-bold text-primary">Jami Narxi: {{ modelsStats.totalPriceUsd && `${formatFloatToInteger(modelsStats.totalPriceUsd)}$` }} {{ modelsStats.totalPriceUzs && `+ ${formatFloatToInteger(modelsStats.totalPriceUzs)}so'm` }}</div>
+      <div class="text-bold text-green">To'langan: {{ modelsStats.totalPaidPriceUsd && `${formatFloatToInteger(modelsStats.totalPaidPriceUsd)}$` }} {{ modelsStats.totalPaidPriceUzs && `+ ${formatFloatToInteger(modelsStats.totalPaidPriceUzs)}so'm` }}</div>
+      <div class="text-bold text-red">Qarzga: {{modelsStats.totalPriceUsd ? `${formatFloatToInteger((modelsStats.totalPriceUsd - modelsStats.totalPaidPriceUsd).toFixed(2))}$` : '' }} {{modelsStats.totalPriceUzs ? `| ${formatFloatToInteger((modelsStats.totalPriceUzs - modelsStats.totalPaidPriceUzs).toFixed(2))}so'm` : '' }}</div>
     </q-card-section>
   </q-card>
 </template>
