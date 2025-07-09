@@ -94,6 +94,7 @@ export default defineConfig((ctx) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
+      lang: 'uz-Cyrl',
       config: {
         brand: {
           // Override Quasar's default colors
