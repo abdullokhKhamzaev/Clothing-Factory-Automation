@@ -24,6 +24,13 @@ export const useSale = defineStore('sales', () => {
       url += '&isPayed=' + filterProps.isPayed
     }
 
+    if (filterProps?.createdAtFrom) {
+      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    }
+    if (filterProps?.createdAtTo) {
+      url += '&createdAt[before]=' + filterProps.createdAtTo;
+    }
+
     try {
       return client.get('sales' + url)
     } catch (e) {
@@ -44,6 +51,13 @@ export const useSale = defineStore('sales', () => {
 
     if (typeof filterProps?.isPayed !== 'undefined' && typeof filterProps.isPayed === 'boolean') {
       url += '&isPayed=' + filterProps.isPayed
+    }
+
+    if (filterProps?.createdAtFrom) {
+      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    }
+    if (filterProps?.createdAtTo) {
+      url += '&createdAt[before]=' + filterProps.createdAtTo;
     }
 
     try {

@@ -31,6 +31,7 @@ import PackageModelsAccepted from "components/statistics/PackageModelsAccepted.v
 import PackageModelsPending from "components/statistics/PackageModelsPending.vue";
 import PackageModelsProductWarehouseAccepted from "components/statistics/PackageModelsProductWarehouseAccepted.vue";
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
+import SaleProducts from "components/statistics/SaleProducts.vue";
 
 const props = defineProps({
   dateFrom: {
@@ -173,14 +174,15 @@ function getPackageModelsProductWarehousePending(data) {
 <template>
   <div class="flex justify-end q-gutter-x-md q-mb-sm">
     <q-btn color="primary" icon="mdi-chevron-double-left" @click="$refs.stepper.previous()" :disable="step === 1" />
-    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 4" />
+    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 5" />
   </div>
   <q-stepper
     v-model="step"
     ref="stepper"
     color="primary"
     animated
-    class="q-mx-auto w-full"
+    alternative-labels
+    :vertical="$q.screen.lt.md"
   >
     <q-step
       :name="1"
@@ -349,6 +351,7 @@ function getPackageModelsProductWarehousePending(data) {
       :title="t('menus.sideBar.package')"
       :caption="packageReadyModelsAcceptedData.value?.total || 0"
       icon="mdi-package-down"
+      :done="step > 4"
     >
       <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">
         <q-expansion-item
@@ -397,6 +400,14 @@ function getPackageModelsProductWarehousePending(data) {
       <PackageModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsCutDefectPending" />
       <PackageModelsProductWarehouseAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehouseAccepted" />
       <PackageModelsProductWarehousePending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehousePending" />
+    </q-step>
+    <q-step
+      :name="5"
+      :title="t('menus.sideBar.sales')"
+      caption="0"
+      icon="mdi-cart-percent"
+    >
+      <SaleProducts :date-to="props.dateTo" :date-from="props.dateFrom" />
     </q-step>
   </q-stepper>
 </template>
