@@ -10,7 +10,7 @@ export default {
     payedForMaterialPurchaseDebt: 'Material savdosining qarzi uchun to\'landi',
     payedForPaintingDebt: 'Bo\'yoq savdosining qarzi uchun to\'landi',
     payedForAccessoryDebt: 'Aksessuar savdosining qarzi uchun to\'landi',
-    payedForPaintMaterial: 'B\'yoq uchun to\'landi',
+    payedForPaintMaterial: 'Bo\'yoq uchun to\'landi',
     payedCustomerAdvance: 'Avans berildi',
     payedCustomerSalary: 'Maosh berildi',
     receivedSaleDebt: 'Savdoning qarzi qabul qilindi',

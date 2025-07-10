@@ -27,10 +27,10 @@ const columns = [
   { name: 'id', label: t('tables.transaction.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.transaction.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'description', label: t('tables.transaction.columns.description'), align: 'left', field: 'description' },
+  { name: 'price', label: t('tables.transaction.columns.price'), align: 'left', field: 'price' },
   { name: 'paidPrice', label: t('tables.transaction.columns.paidPrice'), align: 'left', field: 'paidPrice' },
   { name: 'createdBy', label: t('tables.transaction.columns.createdBy'), align: 'left', field: 'createdBy' },
   { name: 'budget', label: t('tables.transaction.columns.budget'), align: 'left', field: 'budget' },
-  { name: 'price', label: t('tables.transaction.columns.price'), align: 'left', field: 'price' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 </script>
@@ -79,7 +79,17 @@ const visibleColumns = ref(columns.map(column => column.name));
             {{ formatDate(props.row.createdAt) }}
           </div>
           <div v-else-if="col.name === 'description'">
-            {{ props.row.description.startsWith('other') ? props.row.description.slice(6) : $t('transaction.' + props.row.description) }}
+            {{ props.row.description.startsWith('other') ? props.row.description.slice(6) : $t('transaction.' + props.row.description.split(" ")[0]) + ': ' + props.row.description.trim().split(/\s+/).slice(1).join(" ")}}
+          </div>
+          <div v-else-if="col.name === 'price'">
+            <span class="q-pa-xs rounded-borders">
+              <span class="q-mr-xs">
+                {{ formatFloatToInteger(props.row.price) }}
+              </span>
+              <span>
+                {{ props.row.budget.name }}
+              </span>
+            </span>
           </div>
           <div v-else-if="col.name === 'paidPrice'">
             <span
@@ -102,16 +112,6 @@ const visibleColumns = ref(columns.map(column => column.name));
           </div>
           <div v-else-if="col.name === 'createdBy'">
             {{ props.row.createdBy.fullName }}
-          </div>
-          <div v-else-if="col.name === 'price'">
-            <span class="q-pa-xs rounded-borders">
-              <span class="q-mr-xs">
-                {{ formatFloatToInteger(props.row.price) }}
-              </span>
-              <span>
-                {{ props.row.budget.name }}
-              </span>
-            </span>
           </div>
           <div v-else>
             {{ props.row[col.field] }}

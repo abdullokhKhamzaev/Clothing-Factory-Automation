@@ -56,15 +56,16 @@ function getAccessories () {
 }
 function createAction() {
   if (purchaseLoading.value) return; // Prevent multiple rapid calls
-  if (!user.about['@id']) {
-    console.warn('user not found');
+
+  if (!user.about['@id'] || !selectedData.value.accessory['@id']) {
+    console.warn('user or accessory not found');
     return
   }
 
   purchaseLoading.value = true;
 
   let input = {
-    accessory: selectedData.value.accessory,
+    accessory: selectedData.value.accessory['@id'],
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
     totalPrice: String(selectedData.value.quantity * selectedData.value.price),
@@ -75,7 +76,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: 'accessoryPurchased',
+      description: `accessoryPurchased ${selectedData.value.accessory.name} - ${selectedData.value.quantity} ${selectedData.value.accessory.measurement} x ${selectedData.value.price}`,
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)
@@ -202,6 +203,9 @@ function clearAction() {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
+      <pre>
+        {{ selectedData }}
+      </pre>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -230,7 +234,6 @@ function clearAction() {
             :store="accessory"
             fetch-method="fetchAccessories"
             :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']}"
-            item-value="@id"
             item-label="name"
             :rule-message="$t('forms.accessoryPurchase.fields.accessory.validation.required')"
             class="col-12"

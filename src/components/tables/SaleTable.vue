@@ -114,12 +114,12 @@ function createAction () {
     totalPrice: String(total.value),
     budget: selectedData.value.budget['@id'],
     paidPrice: selectedData.value.paidPrice,
-    customer: selectedData.value.customer,
+    customer: selectedData.value.customer['@id'],
     transaction: [{
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: true,
-      description: 'productSold',
+      description: 'productSold ' + `-> ${selectedData.value.customer.fullName}`,
       budget: selectedData.value.budget['@id'],
       isOldInAndOut: false,
       price: String(total.value)
@@ -207,7 +207,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'receivedSaleDebt',
+    description: 'receivedSaleDebt #' + selectedData.value.id,
     isIncome: true,
     sale: selectedData.value['@id']
   }
@@ -389,6 +389,9 @@ onMounted(() => {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
+      <pre>
+        {{ selectedData }}
+      </pre>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -416,7 +419,6 @@ onMounted(() => {
             :label="$t('forms.sale.fields.customer.label')"
             :store="customer"
             fetch-method="fetchCustomers"
-            item-value="@id"
             item-label="fullName"
             :rule-message="$t('forms.sale.fields.customer.validation.required')"
             class="col-12"

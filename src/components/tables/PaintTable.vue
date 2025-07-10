@@ -148,7 +148,7 @@ function receiveAction() {
         paidPrice: selectedData.value.payedPrice,
         createdBy: user.about['@id'],
         isIncome: false,
-        description: 'payedForPaintMaterial',
+        description: 'payedForPaintMaterial #' + selectedData.value.id,
         budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: selectedData.value.servicePrice
@@ -498,6 +498,9 @@ function finishOrderAction() {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
+      <pre>
+        {{ selectedData }}
+      </pre>
       <q-form @submit.prevent="receiveAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"

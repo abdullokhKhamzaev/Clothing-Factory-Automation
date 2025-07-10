@@ -59,7 +59,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'payedForAccessoryDebt',
+    description: 'payedForAccessoryDebt #' + selectedData.value.id,
     isIncome: false,
     accessoryPurchase: selectedData.value['@id']
   }

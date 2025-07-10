@@ -58,8 +58,8 @@ function clearAction() {
 function createAction() {
   if (purchaseLoading.value) return; // Prevent multiple rapid calls
 
-  if (!user.about['@id']) {
-    console.warn('user not found');
+  if (!user.about['@id'] || !selectedData.value.ripeMaterial['@id']) {
+    console.warn('user or material not found');
     return
   }
 
@@ -77,7 +77,7 @@ function createAction() {
     const totalPrice = String(quantity * price);
 
     input = {
-      ripeMaterial: selectedData.value.ripeMaterial,
+      ripeMaterial: selectedData.value.ripeMaterial['@id'],
       quantity: quantity,
       price: String(price),
       roll: roll,
@@ -89,7 +89,7 @@ function createAction() {
         paidPrice: paidPrice,
         createdBy: user.about['@id'],
         isIncome: false,
-        description: 'materialPurchased',
+        description: `materialPurchased ${selectedData.value.ripeMaterial.name} - ${selectedData.value.quantity} ${selectedData.value.ripeMaterial.measurement} x ${selectedData.value.price}`,
         budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: totalPrice
@@ -318,7 +318,6 @@ function sendAction() {
             :label="$t('forms.ripeMaterialPurchase.fields.ripeMaterial.label')"
             :store="ripeMaterial"
             fetch-method="fetchRipeMaterials"
-            item-value="@id"
             item-label="name"
             :rule-message="$t('forms.ripeMaterialPurchase.fields.ripeMaterial.validation.required')"
             class="col-12"
@@ -327,6 +326,17 @@ function sendAction() {
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort1" label="Sort 1" />
             <q-radio v-model="selectedData.whichSort" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="sort2" label="Sort 2" />
           </div>
+          <selectable-list
+            v-model="selectedData.budget"
+            v-if="selectedData.whichSort"
+            :label="$t('forms.threadPurchase.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
+            class="col-12"
+          />
           <q-input
             v-if="selectedData.whichSort === 'sort1'"
             v-model="selectedData.quantity"
@@ -418,17 +428,6 @@ function sendAction() {
             :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantitySort2 * selectedData.priceSort2) || $t('forms.ripeMaterialPurchase.fields.paidPrice.validation.required')]"
             hide-bottom-space
             :class="selectedData.whichSort ? 'col-6' : 'col-12'"
-          />
-          <selectable-list
-            v-model="selectedData.budget"
-            v-if="selectedData.whichSort"
-            :label="$t('forms.threadPurchase.fields.budget.label')"
-            :store="budget"
-            fetch-method="fetchBudgets"
-            item-value="@id"
-            item-label="name"
-            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
-            class="col-12"
           />
         </div>
         <q-separator/>

@@ -53,15 +53,15 @@ function clearAction() {
 function createAction() {
   if (purchaseLoading.value) return; // Prevent multiple rapid calls
 
-  if (!user.about['@id']) {
-    console.warn('user not found');
+  if (!user.about['@id'] || !selectedData.value.thread['@id']) {
+    console.warn('user or thread not found');
     return
   }
 
   purchaseLoading.value = true;
 
   let input = {
-    thread: selectedData.value.thread,
+    thread: selectedData.value.thread['@id'],
     quantity: selectedData.value.quantity,
     price: selectedData.value.price,
     totalPrice: String(selectedData.value.quantity * selectedData.value.price),
@@ -72,7 +72,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: 'threadPurchased',
+      description: `threadPurchased ${selectedData.value.thread.name} - ${selectedData.value.quantity} ${selectedData.value.thread.measurement} x ${selectedData.value.price}`,
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)
@@ -154,6 +154,9 @@ function createAction() {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
+      <pre>
+        {{ selectedData }}
+      </pre>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -181,7 +184,6 @@ function createAction() {
             :label="$t('forms.threadPurchase.fields.thread.label')"
             :store="thread"
             fetch-method="fetchThreads"
-            item-value="@id"
             item-label="name"
             :rule-message="$t('forms.threadPurchase.fields.thread.validation.required')"
             class="col-12"
