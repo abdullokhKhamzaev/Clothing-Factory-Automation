@@ -19,6 +19,8 @@ export default {
     gas: 'Газ',
     water: 'Сув',
     repair: 'Тамирлаш',
+    fare: 'Йўл киро',
+    saleShare: 'Сотув улуш',
     food: 'Озик-овкат',
     other: 'Бошка'
   },

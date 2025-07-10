@@ -53,8 +53,16 @@ export const TRANSACTION_REASONS = [
     value: 'repair'
   },
   {
+    label: 'Fare',
+    value: 'fare'
+  },
+  {
     label: 'Food',
     value: 'food'
+  },
+  {
+    label: 'SaleShare',
+    value: 'saleShare'
   },
   {
     label: 'Other',

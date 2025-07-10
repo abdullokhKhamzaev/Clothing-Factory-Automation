@@ -19,6 +19,8 @@ export default {
     gas: 'Gas',
     water: 'Water',
     repair: 'Repair',
+    fare: 'Fare',
+    saleShare: 'Sale Share',
     food: 'Food',
     other: 'Other'
   },

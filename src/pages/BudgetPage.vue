@@ -6,9 +6,12 @@ import { formatFloatToInteger, TRANSACTION_REASONS } from "src/libraries/constan
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import RouteTabs from "components/RouteTabs.vue";
+import SelectableList from "components/selectableList.vue";
+import {useUser} from "stores/user/user.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
+const user = useUser();
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
 const showMinusModal = ref(false);
@@ -26,6 +29,8 @@ const addQuantity = ref(0);
 const minusQuantity = ref(0);
 const reason = ref(null);
 const reasonText = ref(null);
+const saleShareDateRange = ref(null);
+const saleShareFor = ref(null);
 
 const budget = useBudget();
 const budgets = ref([]);
@@ -143,11 +148,15 @@ function minusAction() {
 
   loading.value = true;
 
-  const input = {
+  let input = {
     budget: selectedData.value['@id'],
     quantity: minusQuantity.value,
     description: reason.value === 'other' ? reason.value + ' ' + reasonText.value : reason.value,
     isIncome: false
+  }
+
+  if (reason.value === 'saleShare') {
+    input.description = 'saleShare ' + saleShareDateRange.value.from + '->' + saleShareDateRange.value.to + ' ' + saleShareFor.value;
   }
 
   budget.add(input)
@@ -425,12 +434,27 @@ onMounted(() => {
             required
             class="col-12 q-mt-md"
           />
+          <div v-if="reason === 'saleShare'">
+            <q-date v-model="saleShareDateRange" range class="full-width"/>
+
+            <selectable-list
+              v-model="saleShareFor"
+              dense
+              clearable
+              :label="$t('tables.users.header.title')"
+              :store="user"
+              fetch-method="fetchUsers"
+              item-value="fullName"
+              item-label="fullName"
+              class="full-width"
+            />
+          </div>
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
             no-caps
-            :disable="loading"
+            :disable="loading || reason === 'saleShare' && !saleShareDateRange?.from"
             :loading="loading"
             :label="$t('pay')"
             type="submit"
