@@ -20,7 +20,7 @@ export default {
     water: 'Water',
     repair: 'Repair',
     fare: 'Fare',
-    saleShare: 'Sale Share',
+    saleShare: 'Sale Share 3%',
     food: 'Food',
     other: 'Other'
   },

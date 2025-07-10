@@ -20,7 +20,7 @@ export default {
     water: 'Suv',
     repair: 'Ta\'mirlash',
     fare: 'Yo\'l kiro',
-    saleShare: 'Sotuv Ulush',
+    saleShare: 'Sotuv Ulush 3%',
     food: 'Oziq-ovqat',
     other: 'Boshqa'
   },
