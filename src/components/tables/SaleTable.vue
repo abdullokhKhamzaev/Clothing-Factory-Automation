@@ -281,6 +281,7 @@ const oweByCurrency = computed(() => {
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <selectable-list
+            v-if="!route.params.id"
             v-model="filters.customer"
             dense
             clearable
