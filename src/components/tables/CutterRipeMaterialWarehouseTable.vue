@@ -1,27 +1,11 @@
 <script setup>
-import SkeletonTable from "components/tables/SkeletonTable.vue";
-import { useI18n } from "vue-i18n";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRipeMaterialAction} from "stores/ripeMaterialAction.js";
-import {useQuasar} from "quasar";
 import {useAbout} from "stores/user/about.js";
-
-const emit = defineEmits(['submit']);
-let props = defineProps({
-  materials: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import {useCutterRipeMaterialWarehouse} from "stores/cutterRipeMaterialWarehouse.js";
+import {useI18n} from "vue-i18n";
+import {useQuasar} from "quasar";
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -43,6 +27,47 @@ const columns = [
   { name: 'action', label: '', align: 'left', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useCutterRipeMaterialWarehouse();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.list({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 
 function clearAction() {
   selectedData.value = {};
@@ -81,7 +106,7 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch((res) => {
       sendActionErr.value = res.response.data['hydra:description'];
@@ -98,40 +123,41 @@ function sendAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || materialLoading"
-  />
   <q-table
-    v-show="!props.loading && !materialLoading"
     flat
     bordered
-    :rows="props.materials"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.repaint.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 flex items-center justify-between">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.cutterRipeMaterial.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : ''"
-        />
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">
@@ -278,8 +304,8 @@ function sendAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || materialLoading"
-            :loading="props.loading || materialLoading"
+            :disable="loading || materialLoading"
+            :loading="loading || materialLoading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

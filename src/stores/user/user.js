@@ -3,20 +3,18 @@ import { client } from "boot/axios.js";
 
 export const useUser = defineStore('user', () => {
   async function fetchUsers(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
-    if (filterProps?.fullName) {
-      url += '&fullName=' + filterProps.fullName
+    if (filterProps.fullName) {
+      params.set('fullName', filterProps.fullName);
     }
 
     try {
-      return client.get('users' + url)
+      return await client.get(`users?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

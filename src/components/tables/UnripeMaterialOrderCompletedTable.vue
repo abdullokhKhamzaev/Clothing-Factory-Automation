@@ -1,26 +1,11 @@
 <script setup>
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { formatDate, isToday } from "src/libraries/constants/defaults.js";
 import ReportList from "components/ReportList.vue";
-import {ref} from "vue";
+import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
 const { t } = useI18n();
 
 const columns = [
@@ -39,43 +24,85 @@ const columns = [
   { name: 'status', label: t('tables.unripeMaterialOrder.columns.status'), align: 'left', field: 'status' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useUnripeMaterialOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'completed'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchUnripeMaterialOrder({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading"
-  />
   <q-table
-    v-show="!props.loading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.completedUnripeMaterialOrder.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.completedUnripeMaterialOrder.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          class="q-my-md"
-        />
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">

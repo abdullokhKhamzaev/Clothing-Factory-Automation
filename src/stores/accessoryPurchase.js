@@ -3,16 +3,14 @@ import { client } from "boot/axios.js";
 
 export const useAccessoryPurchase = defineStore('accessory_purchase', () => {
   async function fetchPurchases(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
     try {
-      return client.get('accessory_purchases' + url)
+      return await client.get(`accessory_purchases?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

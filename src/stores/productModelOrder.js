@@ -2,27 +2,25 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useProductModelOrder = defineStore('product_model_order', () => {
-  async function fetchOrders(filterProps) {
-    let url = ''
+  async function fetchOrders(filterProps = {}) {
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
+
+    if (filterProps.status) {
+      params.set('status', filterProps.status);
     }
 
-    if ( filterProps?.status ) {
-      url += '&status=' + filterProps.status
-    }
-
-    if ( filterProps?.statuses ) {
-      filterProps.statuses.forEach((status) => {
-        url += '&status[]=' + status
-      })
+    if (filterProps.statuses) {
+      filterProps.statuses.forEach(status => {
+        params.append('status[]', status);
+      });
     }
 
     try {
-      return await client.get('product_model_orders' + url);
+      return await client.get(`product_model_orders?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

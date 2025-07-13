@@ -13,6 +13,16 @@ const props = defineProps({
     required: false,
     default: null
   },
+  whichObject: {
+    type: String,
+    required: false,
+    default: null
+  },
+  filters: {
+    type: Object,
+    required: false,
+    default: Object
+  },
   disable: {
     type: Boolean,
     required: false,
@@ -61,11 +71,19 @@ const props = defineProps({
 });
 
 const selectedItem = ref(null);
-const total = ref(10);
 const items = ref([]);
 const filteredOptions = ref([]);
 const loading = ref(false);
-const page = ref(1);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: '~',
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  ...props.filters
+});
 
 const options = computed(() => {
   return items.value.map(item => ({
@@ -74,35 +92,28 @@ const options = computed(() => {
   }));
 });
 
-async function getItems(filterProps = {}) {
-  if (loading.value || items.value.length >= total.value) {
-    return;
-  }
-
-  if ( props.methodProps?.types ) {
-    filterProps.types = props.methodProps.types
-  }
+async function getItems() {
+  if (loading.value) return;
 
   loading.value = true;
   try {
-    const response = await props.store[props.fetchMethod](filterProps);
-    total.value = response.data[props.totalItemsKey];
-    items.value = [...items.value, ...response.data[props.itemsKey]];
+    const response = await props.store[props.fetchMethod]({...pagination.value, ...filters.value});
+
+    if (props.whichObject) {
+      items.value = response.data[props.itemsKey][0][props.whichObject]
+    } else {
+      items.value = response.data[props.itemsKey]
+    }
+
+    pagination.value.rowsNumber = response.data[props.totalItemsKey];
     stringOptions.value = options.value;
     filteredOptions.value = options.value;
-    page.value++;
   } catch (e) {
     console.error(e);
   } finally {
     loading.value = false;
   }
 }
-
-const loadMore = () => {
-  if (!loading.value && items.value.length < total.value) {
-    getItems({ page: page.value });
-  }
-};
 
 function filterFn(val, update) {
   if (val === '') {
@@ -119,7 +130,7 @@ function filterFn(val, update) {
 }
 
 onMounted(() => {
-  getItems({ page: page.value });
+  getItems();
 });
 </script>
 
@@ -142,7 +153,6 @@ onMounted(() => {
     :rules="[val => !!val || ruleMessage]"
     hide-bottom-space
     @filter="filterFn"
-    @virtual-scroll="loadMore"
   >
     <template v-slot:loading>
       <q-spinner color="primary" />

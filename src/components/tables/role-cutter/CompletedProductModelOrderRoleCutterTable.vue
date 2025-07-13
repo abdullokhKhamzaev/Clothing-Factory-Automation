@@ -1,28 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useI18n } from "vue-i18n";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import CutReportList from "components/CutReportList.vue";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
+import { formatDate, isToday } from "src/libraries/constants/defaults.js";
 
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const {t} = useI18n();
-const orderLoading = ref(false);
+const { t } = useI18n();
 
 const columns = [
   {name: 'id', label: '#ID', align: 'left', field: 'id'},
@@ -33,23 +16,64 @@ const columns = [
   {name: 'productModelOrderCompleteds', label: t('tables.modelOrder.columns.productModelOrderCompleteds'), align: 'left', field: 'productModelOrderCompleteds'},
   {name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status'},
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useProductModelOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'completed'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
-    :columns="columns"
-    :no-data-label="$t('tables.modelOrder.header.empty')"
     color="primary"
+    :no-data-label="$t('tables.modelOrder.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
       <div class="col-12">

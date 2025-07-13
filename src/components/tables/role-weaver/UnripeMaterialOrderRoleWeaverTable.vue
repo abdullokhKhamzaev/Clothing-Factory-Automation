@@ -1,37 +1,18 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useThread } from "stores/thread.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
-
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const emit = defineEmits(['submit']);
+import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
 const { t } = useI18n();
 const thread = useThread();
-const order = useUnripeMaterialOrder();
 const selectedData = ref({});
 const whichSort = ref(null);
 const rows = ref([{ thread: '', quantity: '' }]);
@@ -53,12 +34,51 @@ const columns = [
   { name: 'completedUnripeMaterialOrders', label: t('tables.unripeMaterialOrder.columns.completedUnripeMaterialOrders'), align: 'left', field: 'completedUnripeMaterialOrders' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useUnripeMaterialOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  statuses: ['confirmed', 'pending']
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchUnripeMaterialOrder({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'notAccepted');
-}
-function getOrders () {
-  emit('submit');
 }
 function clearAction() {
   selectedData.value = {};
@@ -76,7 +96,7 @@ function confirmOrder() {
 
   orderLoading.value = true;
 
-  order.confirmUnripeMaterialOrder(selectedData.value.id)
+  repository.confirmUnripeMaterialOrder(selectedData.value.id)
     .then(() => {
       $q.notify({
         type: 'positive',
@@ -85,7 +105,7 @@ function confirmOrder() {
         message: t('forms.unripeMaterialOrder.confirmation.successCreated')
       })
       showAcceptModal.value = false;
-      getOrders();
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -140,7 +160,7 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.successCreated')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
@@ -163,21 +183,43 @@ function prefill () {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
-    :columns="columns"
-    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
     color="primary"
+    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
+    <template v-slot:top>
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
+        <div class="q-table__title">{{ $t('tables.unripeMaterialOrder.header.title') }}</div>
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
+      </div>
+    </template>
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
@@ -271,8 +313,8 @@ function prefill () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps :label="$t('dialogs.accept.buttons.accept')" color="green" @click="confirmOrder();" />
       </q-card-actions>
     </q-card>
@@ -369,8 +411,8 @@ function prefill () {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || orderLoading"
-            :loading="props.loading || orderLoading"
+            :disable="loading || orderLoading"
+            :loading="loading || orderLoading"
             no-caps
             :label="$t('forms.completedMaterialOrderReport.buttons.create')"
             type="submit"

@@ -3,20 +3,18 @@ import { client } from "boot/axios.js";
 
 export const useAttendance = defineStore('attendance', () => {
   async function fetchAttendances(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
-    if (filterProps?.date) {
-      url += '&date=' + filterProps.date
+    if (filterProps.date) {
+      params.set('date[after]', filterProps.date);
     }
 
     try {
-      return client.get('attendances' + url)
+      return await client.get(`attendances?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

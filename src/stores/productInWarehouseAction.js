@@ -2,59 +2,55 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useProductWarehouse = defineStore('product_in_warehouse_action', () => {
-  async function getAll(filterProps) {
-    let url = ''
+  async function list(filterProps) {
+    const params = new URLSearchParams();
 
-    if ( filterProps?.noPagination ) {
-      url += '/all'
-    }
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
+    if (filterProps.status) {
+      params.set('status', filterProps.status);
     }
 
-    if ( filterProps?.status ) {
-      url += '&status=' + filterProps.status
+    if (filterProps.toWarehouse) {
+      params.set('toWarehouse', filterProps.toWarehouse);
     }
 
-    if ( filterProps?.toWarehouse ) {
-      url += '&toWarehouse=' + filterProps.toWarehouse
+    if (filterProps.toWarehouses) {
+      filterProps.toWarehouses.forEach(warehouse => {
+        params.append('toWarehouses[]', warehouse);
+      });
     }
 
-    if ( filterProps?.toWarehouses ) {
-      filterProps.toWarehouses.forEach((warehouse) => {
-        url += '&toWarehouse[]=' + warehouse
-      })
+    if (filterProps.fromWarehouse) {
+      params.set('fromWarehouse', filterProps.fromWarehouse);
     }
 
-    if ( filterProps?.fromWarehouse ) {
-      url += '&fromWarehouse=' + filterProps.fromWarehouse
+    if (filterProps.fromWarehouses) {
+      filterProps.fromWarehouses.forEach(warehouse => {
+        params.append('fromWarehouses[]', warehouse);
+      });
     }
 
-    if ( filterProps?.fromWarehouses ) {
-      filterProps.fromWarehouses.forEach((warehouse) => {
-        url += '&fromWarehouse[]=' + warehouse
-      })
+    if (filterProps.receivedAtFrom) {
+      params.set('receivedAt[after]', filterProps.receivedAtFrom);
     }
 
-    if (filterProps?.receivedAtFrom) {
-      url += '&receivedAt[after]=' + filterProps.receivedAtFrom;
-    }
-    if (filterProps?.receivedAtTo) {
-      url += '&receivedAt[before]=' + filterProps.receivedAtTo;
+    if (filterProps.receivedAtTo) {
+      params.set('receivedAtTo[before]', filterProps.receivedAtTo);
     }
 
-    if (filterProps?.createdAtFrom) {
-      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    if (filterProps.createdAtFrom) {
+      params.set('createdAtFrom[after]', filterProps.createdAtFrom);
     }
-    if (filterProps?.createdAtTo) {
-      url += '&createdAt[before]=' + filterProps.createdAtTo;
+
+    if (filterProps.createdAtTo) {
+      params.set('createdAtTo[before]', filterProps.createdAtTo);
     }
 
     try {
-      return await client.get('product_in_warehouse_actions' + url);
+      return await client.get(`product_in_warehouse_actions?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }
@@ -84,6 +80,5 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
     }
   }
 
-
-  return { getAll, send, accept, reject }
+  return { list, send, accept, reject }
 })

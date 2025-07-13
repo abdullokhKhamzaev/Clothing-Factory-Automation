@@ -34,9 +34,9 @@ function getModels () {
   filterProps.status = 'accepted';
   filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
   filterProps.receivedAtTo = props.dateTo + 'T23:59:59';
-  filterProps.noPagination = true;
+  filterProps.rowsPerPage = '~';
 
-  useProductWarehouse().getAll(filterProps)
+  useProductWarehouse().list(filterProps)
     .then((res) => {
       models.value = res.data['hydra:member'];
       sendData();

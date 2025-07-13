@@ -1,25 +1,10 @@
 <script setup>
+import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
+import {useRipeMaterialOrder} from "stores/ripeMaterialOrder.js";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import PaintReportList from "components/PaintReportList.vue";
-import {ref} from "vue";
-
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 
@@ -38,43 +23,85 @@ const columns = [
   { name: 'ripeMaterialOrderAccepteds', label: t('tables.paint.columns.ripeMaterialOrderAccepteds'), align: 'left', field: 'ripeMaterialOrderAccepteds' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useRipeMaterialOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'accepted'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchRipeMaterialOrder({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading"
-  />
   <q-table
-    v-show="!props.loading"
     flat
     bordered
-    :rows="props.orders"
-    :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.paint.header.empty')"
     color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
-        <div class="q-table__title">{{ $t('tables.paint.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          class="q-mt-md"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : ''"
-        />
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
+        <div class="q-table__title">{{ $t('tables.header.header.title') }}</div>
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">

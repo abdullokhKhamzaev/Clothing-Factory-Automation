@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
@@ -7,32 +7,13 @@ import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useAccessoryPurchase } from "stores/accessoryPurchase.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  accessories: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
 
-const accessory = useAccessory();
 const budget = useBudget();
 const user = useAbout();
 
@@ -51,9 +32,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getAccessories () {
-  emit('submit');
+// Table Data
+const repository = useAccessory();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchAccessories({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function createAction() {
   if (purchaseLoading.value) return; // Prevent multiple rapid calls
 
@@ -95,7 +114,7 @@ function createAction() {
         message: t('forms.accessoryPurchase.confirmation.successBought')
       })
       clearAction();
-      getAccessories();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -116,29 +135,35 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || purchaseLoading"
-  />
   <q-table
-    v-show="!props.loading && !purchaseLoading"
     flat
     bordered
-    :rows="props.accessories"
+    color="primary"
+    :no-data-label="$t('tables.accessory.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.accessory.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.accessory.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.accessory.buttons.purchase')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showPurchaseModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -150,17 +175,8 @@ function clearAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+            class="w-full"
           />
-          <div>
-            <q-btn
-              color="primary"
-              icon-right="add"
-              :label="$t('tables.accessory.buttons.purchase')"
-              no-caps
-              @click="showPurchaseModal = true"
-            />
-          </div>
         </div>
       </div>
     </template>
@@ -203,9 +219,6 @@ function clearAction() {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <pre>
-        {{ selectedData }}
-      </pre>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -231,7 +244,7 @@ function clearAction() {
           <selectable-list
             v-model="selectedData.accessory"
             :label="$t('forms.accessoryPurchase.fields.accessory.label')"
-            :store="accessory"
+            :store="repository"
             fetch-method="fetchAccessories"
             :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']}"
             item-label="name"
@@ -287,8 +300,8 @@ function clearAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || purchaseLoading"
-            :loading="props.loading || purchaseLoading"
+            :disable="loading || purchaseLoading"
+            :loading="loading || purchaseLoading"
             no-caps
             :label="$t('forms.accessoryPurchase.buttons.buy')"
             type="submit"

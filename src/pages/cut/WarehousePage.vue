@@ -68,7 +68,7 @@ function getWarehouseAction (filterProps) {
 
   props.fromWarehouse = warehouse.value['@id'];
 
-  useProductWarehouse().getAll(props || '')
+  useProductWarehouse().list(props || '')
     .then((res) => {
       warehouseActions.value = res.data['hydra:member'];
       warehouseActionTotal.value = res.data['hydra:totalItems'];

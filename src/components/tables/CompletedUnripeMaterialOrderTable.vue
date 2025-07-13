@@ -1,29 +1,9 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
-
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -45,9 +25,46 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getOrders () {
-  emit('submit');
+// Table Data
+const repository = useCompletedUnripeMaterialOrders();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'notAccepted'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 function clearAction() {
   selectedData.value = {};
 }
@@ -55,7 +72,7 @@ function acceptAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
 
   orderLoading.value = true;
-  useCompletedUnripeMaterialOrders().acceptOrder(selectedData.value.id, { status: 'accepted' })
+  repository.acceptOrder(selectedData.value.id, { status: 'accepted' })
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -65,7 +82,7 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      getOrders()
+      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -81,7 +98,7 @@ function rejectAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
 
   orderLoading.value = true;
-  useCompletedUnripeMaterialOrders().rejectOrder(selectedData.value.id, { status: 'rejected' })
+  repository.rejectOrder(selectedData.value.id, { status: 'rejected' })
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
@@ -91,7 +108,7 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      emit('submit');
+      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -106,21 +123,19 @@ function rejectAction () {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.completedUnripeMaterialOrder.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.completedUnripeMaterialOrder.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
       <div class="col-12 flex justify-between">
@@ -217,8 +232,8 @@ function rejectAction () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps
           :label="$t('dialogs.accept.buttons.accept')"
           color="green"
@@ -240,8 +255,8 @@ function rejectAction () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps
           :label="$t('dialogs.reject.buttons.reject')"
           color="red"

@@ -1,35 +1,15 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useCustomer } from "stores/customer.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  customers: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
-const customer = useCustomer();
 
 const customerLoading = ref(false);
 const selectedData = ref({});
-const searchTitle = ref('');
 const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showUpdateModal = ref(false);
@@ -44,9 +24,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getCustomers () {
-  emit('submit', { fullName: searchTitle.value });
+// Table Data
+const repository = useCustomer();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  fullName: '',
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchCustomers({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function createAction () {
   if (customerLoading.value) return; // Prevent multiple rapid calls
 
@@ -56,7 +74,7 @@ function createAction () {
     selectedData.value.quantity = String(selectedData.value.quantity);
   }
 
-  customer.create(selectedData.value)
+  repository.create(selectedData.value)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -66,7 +84,7 @@ function createAction () {
         message: t('forms.customer.confirmation.successCreated')
       })
       clearAction();
-      getCustomers();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -86,7 +104,7 @@ function updateAction() {
 
     customerLoading.value = true;
 
-    customer.update(selectedData.value.id, selectedData.value)
+    repository.update(selectedData.value.id, selectedData.value)
       .then(() => {
         showUpdateModal.value = false;
         $q.notify({
@@ -96,7 +114,7 @@ function updateAction() {
           message: t('forms.customer.confirmation.successEdited')
         });
         clearAction();
-        getCustomers()
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -120,7 +138,7 @@ function deleteAction() {
 
     customerLoading.value = true;
 
-    customer.deleteCustomer(selectedData.value.id)
+    repository.deleteCustomer(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
         $q.notify({
@@ -130,7 +148,7 @@ function deleteAction() {
           message: t('forms.customer.confirmation.successDeleted')
         });
         clearAction();
-        getCustomers();
+        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -153,45 +171,41 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || customerLoading"
-  />
   <q-table
-    v-show="!props.loading && !customerLoading"
     flat
     bordered
-    :rows="props.customers"
+    color="primary"
+    :no-data-label="$t('tables.customer.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.customer.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="q-table__title full-width">
-        {{ $t('tables.customer.header.title') }}
-        <q-separator class="q-mt-sm q-mb-md" />
-      </div>
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
+        <div class="q-table__title">{{ $t('tables.customer.header.title') }}</div>
 
-      <div class="col-12">
-        <div class="flex justify-between">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <q-input
             style="min-width: 225px"
             dense
             outlined
             clearable
-            v-model="searchTitle"
+            v-model="filters.fullName"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
-            @update:model-value="emit('submit', { fullName: searchTitle });"
+            @update:model-value="getItems"
           >
             <template v-slot:append>
               <q-icon name="search" color="primary" />
             </template>
           </q-input>
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-btn
             color="primary"
             icon-right="add"
@@ -199,22 +213,21 @@ function clearAction() {
             no-caps
             @click="showCreateModal = true"
           />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
         </div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          class="q-mt-md"
-        />
       </div>
     </template>
     <template v-slot:body="props">
@@ -313,8 +326,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || customerLoading"
-            :loading="props.loading || customerLoading"
+            :disable="loading || customerLoading"
+            :loading="loading || customerLoading"
             no-caps
             :label="$t('forms.customer.buttons.create')"
             type="submit"
@@ -383,8 +396,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || customerLoading"
-            :loading="props.loading || customerLoading"
+            :disable="loading || customerLoading"
+            :loading="loading || customerLoading"
             no-caps
             :label="$t('forms.customer.buttons.edit')"
             type="submit"
@@ -409,8 +422,8 @@ function clearAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || customerLoading"
-          :loading="props.loading || customerLoading"
+          :disable="loading || customerLoading"
+          :loading="loading || customerLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteAction"
@@ -419,6 +432,3 @@ function clearAction() {
     </q-card>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

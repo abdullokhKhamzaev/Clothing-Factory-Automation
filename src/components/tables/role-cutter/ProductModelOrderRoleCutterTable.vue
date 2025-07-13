@@ -1,38 +1,18 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useAbout } from "stores/user/about.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import CutReportList from "components/CutReportList.vue";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const emit = defineEmits(['submit']);
-
 const $q = useQuasar();
 const { t } = useI18n();
 const user = useAbout();
-const order = useProductModelOrder();
 const cutterWarehouse = useCutterRipeMaterialWarehouse();
 
 const selectedData = ref({});
@@ -88,11 +68,47 @@ const columns = [
   {name: 'status', label: t('tables.modelOrder.columns.status'), align: 'left', field: 'status'},
   {name: 'action', label: '', align: 'right', field: 'action'}
 ];
+const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useProductModelOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  statuses: ['confirmed', 'pending']
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
 
 function shouldShowAction(data) {
   return !data.some(order => order.status === 'pending');
 }
-
 function clearAction() {
   selectedData.value = {};
   reportActionErr.value = false;
@@ -111,7 +127,6 @@ function clearAction() {
     wasteRemainingSort2: ''
   }];
 }
-
 function prefill() {
   let sizes = [];
   selectedData.value.productSize.forEach((size) => {
@@ -134,7 +149,7 @@ function confirmOrder() {
     status: 'confirmed'
   }
 
-  order.confirm(selectedData.value.id, input)
+  repository.confirm(selectedData.value.id, input)
     .then(() => {
       $q.notify({
         type: 'positive',
@@ -143,7 +158,7 @@ function confirmOrder() {
         message: t('forms.modelOrder.confirmation.successReceived')
       })
       showAcceptModal.value = false;
-      getOrders();
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -206,8 +221,7 @@ function reportOrderAction() {
         timeout: 1000,
         message: t('forms.completedMaterialOrderReport.confirmation.successCreated')
       })
-      // clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
@@ -220,26 +234,26 @@ function reportOrderAction() {
     })
     .finally(() => orderLoading.value = false);
 }
-function getOrders() {
-  emit('submit');
-}
+
+onMounted(() => {
+  refresh();
+})
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
-    :columns="columns"
-    :no-data-label="$t('tables.modelOrder.header.empty')"
     color="primary"
+    :no-data-label="$t('tables.modelOrder.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
       <div class="col-12">
@@ -329,8 +343,8 @@ function getOrders() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps :label="$t('dialogs.accept.buttons.accept')" color="green" @click="confirmOrder();" />
       </q-card-actions>
     </q-card>
@@ -400,7 +414,7 @@ function getOrders() {
             v-model="row.cutterRipeMaterialWarehouse"
             :label="$t('forms.modelOrder.fields.cutterRipeMaterialWarehouse.label')"
             :store="cutterWarehouse"
-            fetch-method="getAll"
+            fetch-method="list"
             :item-label="{ label: 'ripeMaterial', path: 'name' }"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
             class="col-12"
@@ -531,8 +545,8 @@ function getOrders() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || orderLoading"
-            :loading="props.loading || orderLoading"
+            :disable="loading || orderLoading"
+            :loading="loading || orderLoading"
             no-caps
             :label="$t('forms.completedMaterialOrderReport.buttons.create')"
             type="submit"

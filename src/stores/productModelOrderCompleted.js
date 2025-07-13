@@ -2,40 +2,26 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useProductModelOrderCompleted = defineStore('product_model_order_completed', () => {
-  async function getAll(filterProps) {
-    let url = '/all'
+  async function getOrders(filterProps) {
+    const params = new URLSearchParams();
 
-    if ( filterProps?.status ) {
-      url += '?status=' + filterProps.status
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
+
+    if (filterProps.status) {
+      params.set('status', filterProps.status);
     }
 
-    if (filterProps?.createdAtFrom) {
-      url += '&createdAt[after]=' + filterProps.createdAtFrom;
+    if (filterProps.createdAtFrom) {
+      params.set('createdAt[after]', filterProps.createdAtFrom);
     }
-    if (filterProps?.createdAtTo) {
-      url += '&createdAt[before]=' + filterProps.createdAtTo;
+    if (filterProps.createdAtTo) {
+      params.set('createdAt[before]', filterProps.createdAtTo);
     }
 
     try {
-      return await client.get('product_model_order_completeds' + url);
-    } catch (e) {
-      console.log(e)
-    }
-  }
-  function getOrders(filterProps) {
-    let url = ''
-
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
-
-    if ( filterProps?.status ) {
-      url += '&status=' + filterProps.status
-    }
-    try {
-      return client.get('product_model_order_completeds' + url)
+      return await client.get(`product_model_order_completeds?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }
@@ -63,5 +49,5 @@ export const useProductModelOrderCompleted = defineStore('product_model_order_co
     }
   }
 
-  return { getAll, getOrders, createReport, accept, reject }
+  return { getOrders, createReport, accept, reject }
 })

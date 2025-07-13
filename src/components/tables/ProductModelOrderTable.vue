@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useProductModels } from "stores/productModel.js";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
@@ -7,32 +7,13 @@ import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import CutReportList from "components/CutReportList.vue";
 import SelectableList from "components/selectableList.vue";
-
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const emit = defineEmits(['submit']);
+import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
 const { t } = useI18n();
 const user = useAbout();
-const order = useProductModelOrder();
 const model = useProductModels();
 const cutterWarehouse = useCutterRipeMaterialWarehouse();
 
@@ -74,6 +55,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
+// Table Data
+const repository = useProductModelOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  statuses: ['pending', 'confirmed']
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function prefill() {
   let sizes = [];
   selectedData.value.productModel.sizes.forEach((size) => {
@@ -101,9 +123,6 @@ function prefillForUpdate() {
     });
   });
   expectedConsumeRows.value = consumes;
-}
-function getOrders () {
-  emit('submit');
 }
 function clearAction () {
   selectedData.value = {};
@@ -147,7 +166,7 @@ function createOrderAction () {
     createdBy: user.about['@id']
   }
 
-  order.createOrder(input)
+  repository.createOrder(input)
     .then(() => {
       showOrderCreateModal.value = false;
       $q.notify({
@@ -157,7 +176,7 @@ function createOrderAction () {
         message: t('forms.modelOrder.confirmation.successCreated')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       createOrderErr.value = res.response.data['hydra:description'];
@@ -205,7 +224,7 @@ function updateOrderAction () {
     createdBy: user.about['@id']
   }
 
-  order.updateOrder(selectedData.value.id, input)
+  repository.updateOrder(selectedData.value.id, input)
     .then(() => {
       showOrderUpdateModal.value = false;
       $q.notify({
@@ -215,7 +234,7 @@ function updateOrderAction () {
         message: t('forms.modelOrder.confirmation.successEdited')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       updateOrderErr.value = res.response.data['hydra:description'];
@@ -239,7 +258,7 @@ function finishOrderAction() {
 
   orderLoading.value = true;
 
-  order.complete(selectedData.value.id)
+  repository.complete(selectedData.value.id)
     .then(() => {
       showOrderFinishModal.value = false;
       $q.notify({
@@ -249,7 +268,7 @@ function finishOrderAction() {
         message: t('forms.modelOrder.confirmation.successCompleted')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -264,29 +283,35 @@ function finishOrderAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.modelOrder.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.modelOrder.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showOrderCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -298,14 +323,7 @@ function finishOrderAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.modelOrder.buttons.add')"
-            no-caps
-            @click="showOrderCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -456,6 +474,7 @@ function finishOrderAction() {
             item-label="name"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
             @update:model-value="prefill"
+            clearable
             class="col-12"
           />
           <div
@@ -503,9 +522,10 @@ function finishOrderAction() {
             v-model="row.cutterRipeMaterialWarehouse"
             :label="$t('forms.modelOrder.fields.cutterRipeMaterialWarehouse.label')"
             :store="cutterWarehouse"
-            fetch-method="getAll"
+            fetch-method="list"
             :item-label="{ label: 'ripeMaterial', path: 'name' }"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
+            clearable
             class="col-12"
           />
           <q-input
@@ -559,8 +579,8 @@ function finishOrderAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || orderLoading"
-            :loading="props.loading || orderLoading"
+            :disable="loading || orderLoading"
+            :loading="loading || orderLoading"
             no-caps
             :label="$t('forms.modelOrder.buttons.create')"
             type="submit"
@@ -606,6 +626,7 @@ function finishOrderAction() {
             item-label="name"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
             @update:model-value="prefill"
+            clearable
             class="col-12"
           />
           <div
@@ -653,9 +674,10 @@ function finishOrderAction() {
             v-model="row.cutterRipeMaterialWarehouse"
             :label="$t('forms.modelOrder.fields.cutterRipeMaterialWarehouse.label')"
             :store="cutterWarehouse"
-            fetch-method="getAll"
+            fetch-method="list"
             :item-label="{ label: 'ripeMaterial', path: 'name' }"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
+            clearable
             class="col-12"
           />
           <q-input
@@ -709,8 +731,8 @@ function finishOrderAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || orderLoading"
-            :loading="props.loading || orderLoading"
+            :disable="loading || orderLoading"
+            :loading="loading || orderLoading"
             no-caps
             :label="$t('forms.modelOrder.buttons.edit')"
             type="submit"
@@ -734,8 +756,8 @@ function finishOrderAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           :label="$t('dialogs.complete.buttons.complete')"
           color="primary"
           @click="finishOrderAction"

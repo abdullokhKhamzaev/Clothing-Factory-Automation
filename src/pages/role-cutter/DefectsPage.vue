@@ -151,7 +151,7 @@ function getWarehouseAction (filterProps) {
 
   props.toWarehouse = warehouse.value['@id'];
 
-  useProductWarehouse().getAll(props || '')
+  useProductWarehouse().list(props || '')
     .then((res) => {
       warehouseActions.value = res.data['hydra:member'];
       warehouseActionTotal.value = res.data['hydra:totalItems'];
@@ -536,7 +536,7 @@ const filteredProducts = computed(() => {
             v-model="row.cutterRipeMaterialWarehouse"
             :label="$t('forms.modelOrder.fields.cutterRipeMaterialWarehouse.label')"
             :store="cutterWarehouse"
-            fetch-method="getAll"
+            fetch-method="list"
             :item-label="{ label: 'ripeMaterial', path: 'name' }"
             :rule-message="$t('forms.modelOrder.fields.productModel.validation.required')"
             class="col-12"

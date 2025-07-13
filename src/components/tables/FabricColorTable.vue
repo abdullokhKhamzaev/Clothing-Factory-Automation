@@ -1,31 +1,12 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useColor } from "stores/color.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  colors: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
-const color = useColor();
 
 const colorLoading = ref(false);
 const selectedData = ref({});
@@ -39,16 +20,55 @@ const columns = [
   { name: 'name', label: t('tables.fabric.columns.name'), align: 'left', field: 'name' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
+const visibleColumns = ref(columns.map(column => column.name));
 
-function getColors () {
-  emit('submit');
+// Table Data
+const repository = useColor();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchColors({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function createColorAction() {
   if (colorLoading.value) return; // Prevent multiple rapid calls
 
   colorLoading.value = true;
 
-  color.createColor(selectedData.value)
+  repository.createColor(selectedData.value)
     .then(() => {
       showColorCreateModal.value = false;
       $q.notify({
@@ -58,7 +78,7 @@ function createColorAction() {
         message: t('forms.color.confirmation.successCreated')
       })
       clearAction();
-      getColors();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -78,7 +98,7 @@ function updateColorAction() {
 
     colorLoading.value = true;
 
-    color.editColor(selectedData.value.id, selectedData.value)
+    repository.editColor(selectedData.value.id, selectedData.value)
       .then(() => {
         showColorUpdateModal.value = false;
         $q.notify({
@@ -88,7 +108,7 @@ function updateColorAction() {
           message: t('forms.color.confirmation.successEdited')
         });
         clearAction();
-        getColors();
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -112,7 +132,7 @@ function deleteColorAction() {
 
     colorLoading.value = true;
 
-    color.deleteColor(selectedData.value.id)
+    repository.deleteColor(selectedData.value.id)
       .then(() => {
         showColorDeleteModal.value = false;
         $q.notify({
@@ -122,7 +142,7 @@ function deleteColorAction() {
           message: t('forms.color.confirmation.successDeleted')
         });
         clearAction();
-        getColors();
+        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -146,31 +166,47 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || colorLoading"
-  />
   <q-table
-    v-show="!props.loading && !colorLoading"
     flat
     bordered
-    :rows="props.colors"
-    :columns="columns"
-    :no-data-label="$t('tables.color.header.empty')"
     color="primary"
+    :no-data-label="$t('tables.color.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 flex justify-between">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.color.header.title') }}</div>
-        <div class="text-right">
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-btn
             color="primary"
             icon-right="add"
             :label="$t('tables.color.buttons.add')"
             no-caps
             @click="showColorCreateModal = true"
+            class="q-mb-md q-mb-sm-none"
+          />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
           />
         </div>
       </div>
@@ -241,8 +277,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || colorLoading"
-            :loading="props.loading || colorLoading"
+            :disable="loading || colorLoading"
+            :loading="loading || colorLoading"
             no-caps
             :label="$t('forms.color.buttons.create')"
             type="submit"
@@ -292,8 +328,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || colorLoading"
-            :loading="props.loading || colorLoading"
+            :disable="loading || colorLoading"
+            :loading="loading || colorLoading"
             no-caps
             :label="$t('forms.color.buttons.edit')"
             type="submit"
@@ -318,8 +354,8 @@ function clearAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || colorLoading"
-          :loading="props.loading || colorLoading"
+          :disable="loading || colorLoading"
+          :loading="loading || colorLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteColorAction"

@@ -1,6 +1,6 @@
 <script setup>
-import {ref} from "vue";
-import {DATE_FORMAT} from "src/libraries/constants/defaults.js";
+import { ref } from "vue";
+import { DATE_FORMAT } from "src/libraries/constants/defaults.js";
 import AllReports from "components/statistics/AllReports.vue";
 
 const dateFrom = ref(new Date().toISOString().split('T')[0]);

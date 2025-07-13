@@ -1,37 +1,18 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
 import { formatFloatToInteger, MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
 import { useAddFile } from "stores/mediaObject/addFile.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  accessories: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
 const file = ref();
-const accessory = useAccessory();
 const budget = useBudget();
 
 const accessoryLoading = ref(false);
@@ -52,9 +33,46 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getAccessories () {
-  emit('submit');
+// Table Data
+const repository = useAccessory();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchAccessories({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 function createAction () {
   if (accessoryLoading.value) return; // Prevent multiple rapid calls
   accessoryLoading.value = true;
@@ -68,7 +86,7 @@ function createAction () {
       .then((res) => {
         selectedData.value.image = res.data['@id']
 
-        accessory.create(selectedData.value)
+        repository.create(selectedData.value)
           .then(() => {
             showCreateModal.value = false;
             $q.notify({
@@ -78,7 +96,7 @@ function createAction () {
               message: t('forms.accessory.confirmation.successCreated')
             })
             clearAction();
-            getAccessories();
+            refresh();
           })
           .catch((res) => {
             createActionErr.value = res.response.data['hydra:description'];
@@ -93,7 +111,7 @@ function createAction () {
           .finally(() => accessoryLoading.value = false);
       })
   } else {
-    accessory.create(selectedData.value)
+    repository.create(selectedData.value)
       .then(() => {
         showCreateModal.value = false;
         $q.notify({
@@ -103,7 +121,7 @@ function createAction () {
           message: t('forms.accessory.confirmation.successCreated')
         })
         clearAction();
-        getAccessories();
+        refresh();
       })
       .catch((res) => {
         createActionErr.value = res.response.data['hydra:description'];
@@ -123,7 +141,7 @@ function updateAction() {
     if (accessoryLoading.value) return; // Prevent multiple rapid calls
     accessoryLoading.value = true;
 
-    accessory.update(selectedData.value.id, selectedData.value)
+    repository.update(selectedData.value.id, selectedData.value)
       .then(() => {
         showUpdateModal.value = false;
         $q.notify({
@@ -133,7 +151,7 @@ function updateAction() {
           message: t('forms.accessory.confirmation.successEdited')
         });
         clearAction();
-        getAccessories();
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -156,7 +174,7 @@ function deleteAction() {
     if (accessoryLoading.value) return; // Prevent multiple rapid calls
     accessoryLoading.value = true;
 
-    accessory.deleteAccessory(selectedData.value.id)
+    repository.deleteAccessory(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
         $q.notify({
@@ -166,7 +184,7 @@ function deleteAction() {
           message: t('forms.accessory.confirmation.successDeleted')
         });
         clearAction();
-        getAccessories();
+        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -190,29 +208,35 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || accessoryLoading"
-  />
   <q-table
-    v-show="!props.loading && !accessoryLoading"
     flat
     bordered
-    :rows="props.accessories"
+    color="primary"
+    :no-data-label="$t('tables.accessory.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.accessory.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.accessory.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.accessory.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -224,14 +248,7 @@ function clearAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.accessory.buttons.add')"
-            no-caps
-            @click="showCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -394,8 +411,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || accessoryLoading"
-            :loading="props.loading || accessoryLoading"
+            :disable="loading || accessoryLoading"
+            :loading="loading || accessoryLoading"
             no-caps
             :label="$t('forms.accessory.buttons.create')"
             type="submit"
@@ -503,8 +520,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || accessoryLoading"
-            :loading="props.loading || accessoryLoading"
+            :disable="loading || accessoryLoading"
+            :loading="loading || accessoryLoading"
             no-caps
             :label="$t('forms.accessory.buttons.edit')"
             type="submit"
@@ -529,8 +546,8 @@ function clearAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || accessoryLoading"
-          :loading="props.loading || accessoryLoading"
+          :disable="loading || accessoryLoading"
+          :loading="loading || accessoryLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteAction"

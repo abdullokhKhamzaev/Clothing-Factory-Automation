@@ -3,24 +3,22 @@ import { client } from "boot/axios.js";
 
 export const useOrder = defineStore('orders', () => {
   async function fetchOrders(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
+
+    if (filterProps.customer) {
+      params.set('customer.fullName', filterProps.customer);
     }
 
-    if (filterProps?.customer) {
-      url += '&customer.fullName=' + filterProps.customer
-    }
-
-    if (filterProps?.status) {
-      url += '&status=' + filterProps.status
+    if (filterProps.status) {
+      params.set('status', filterProps.status);
     }
 
     try {
-      return client.get('orders' + url)
+      return await client.get(`orders?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

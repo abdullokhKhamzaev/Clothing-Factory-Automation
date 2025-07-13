@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAbout } from "stores/user/about.js";
@@ -8,28 +8,11 @@ import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialOrder } from "stores/ripeMaterialOrder.js";
 import { useBudget } from "stores/budget.js";
-import {DATE_FORMAT, formatDate, isToday} from "src/libraries/constants/defaults.js"
+import { DATE_FORMAT, formatDate, isToday } from "src/libraries/constants/defaults.js"
 import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
 import PaintReportList from "components/PaintReportList.vue";
-
-const emit = defineEmits(['submit']);
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -62,6 +45,47 @@ const columns = [
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useRipeMaterialOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status:'expected'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchRipeMaterialOrder({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 
 function clearAction() {
   selectedData.value = {};
@@ -100,7 +124,7 @@ function createAction() {
     }
   }
 
-  useRipeMaterialOrder().createRipeMaterialOrder(input)
+  repository.createRipeMaterialOrder(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -110,7 +134,7 @@ function createAction() {
         message: t('forms.paint.confirmation.successOrderCreated')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -176,7 +200,7 @@ function receiveAction() {
         message: t('forms.paint.confirmation.successOrderReceived')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch((res) => {
       receiveActionErr.value = res.response.data['hydra:description'];
@@ -206,7 +230,7 @@ function finishOrderAction() {
     receivedAt: new Date(),
   }
 
-  useRipeMaterialOrder().completeRipeMaterialOrder(selectedData.value.id, input)
+  repository.completeRipeMaterialOrder(selectedData.value.id, input)
     .then(() => {
       showOrderFinishModal.value = false;
       $q.notify({
@@ -216,7 +240,7 @@ function finishOrderAction() {
         message: t('forms.paint.confirmation.successOrderCompleted')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -231,29 +255,28 @@ function finishOrderAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || paintLoading"
-  />
   <q-table
-    v-show="!props.loading && !paintLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.paint.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.paint.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.paint.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn no-caps :label="$t('tables.paint.buttons.add')" color="primary" @click="showCreateModal = true" />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -265,9 +288,8 @@ function finishOrderAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+            class="w-full"
           />
-          <q-btn no-caps :label="$t('tables.paint.buttons.add')" color="primary" @click="showCreateModal = true" />
         </div>
       </div>
     </template>
@@ -482,8 +504,8 @@ function finishOrderAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || paintLoading"
-            :loading="props.loading || paintLoading"
+            :disable="loading || paintLoading"
+            :loading="loading || paintLoading"
             no-caps
             :label="$t('forms.paint.buttons.order')"
             type="submit"
@@ -498,9 +520,6 @@ function finishOrderAction() {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <pre>
-        {{ selectedData }}
-      </pre>
       <q-form @submit.prevent="receiveAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -644,8 +663,8 @@ function finishOrderAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || paintLoading"
-            :loading="props.loading || paintLoading"
+            :disable="loading || paintLoading"
+            :loading="loading || paintLoading"
             no-caps
             :label="$t('forms.ripeMaterialAccepted.buttons.accept')"
             type="submit"
@@ -668,8 +687,8 @@ function finishOrderAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || paintLoading"
-          :loading="props.loading || paintLoading"
+          :disable="loading || paintLoading"
+          :loading="loading || paintLoading"
           :label="$t('dialogs.complete.buttons.complete')"
           color="primary"
           @click="finishOrderAction"

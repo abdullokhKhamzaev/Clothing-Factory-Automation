@@ -3,65 +3,34 @@ import { client } from "boot/axios.js";
 
 export const useSale = defineStore('sales', () => {
   async function fetchSales(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
+
+    if (filterProps.id) {
+      params.set('customer.id', filterProps.id);
     }
 
-    if (filterProps?.id) {
-      url += '&customer.id=' + filterProps.id
-      console.log(filterProps);
-    }
-
-    if (filterProps?.customer) {
-      url += '&customer.fullName=' + filterProps.customer
+    if (filterProps.customer) {
+      params.set('customer.fullName', filterProps.customer);
     }
 
     if (typeof filterProps?.isPayed !== 'undefined' && typeof filterProps.isPayed === 'boolean') {
-      url += '&isPayed=' + filterProps.isPayed
+      params.set('isPayed', filterProps.isPayed);
     }
 
-    if (filterProps?.createdAtFrom) {
-      url += '&createdAt[after]=' + filterProps.createdAtFrom;
-    }
-    if (filterProps?.createdAtTo) {
-      url += '&createdAt[before]=' + filterProps.createdAtTo;
+    if (filterProps.createdAtFrom) {
+      params.set('createdAt[after]', filterProps.createdAtFrom);
     }
 
-    try {
-      return client.get('sales' + url)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  async function fetchSalesAll(filterProps) {
-    let url = ''
-
-    if (filterProps?.id) {
-      url += '&customer.id=' + filterProps.id
-    }
-
-    if (filterProps?.customer) {
-      url += '&customer.fullName=' + filterProps.customer
-    }
-
-    if (typeof filterProps?.isPayed !== 'undefined' && typeof filterProps.isPayed === 'boolean') {
-      url += '&isPayed=' + filterProps.isPayed
-    }
-
-    if (filterProps?.createdAtFrom) {
-      url += '&createdAt[after]=' + filterProps.createdAtFrom;
-    }
-    if (filterProps?.createdAtTo) {
-      url += '&createdAt[before]=' + filterProps.createdAtTo;
+    if (filterProps.createdAtTo) {
+      params.set('createdAt[before]', filterProps.createdAtTo);
     }
 
     try {
-      return client.get('sales/all?' + url)
+      return await client.get(`sales?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }
@@ -91,5 +60,5 @@ export const useSale = defineStore('sales', () => {
   //   }
   // }
 
-  return { fetchSales, fetchSalesAll, create }
+  return { fetchSales, create }
 })

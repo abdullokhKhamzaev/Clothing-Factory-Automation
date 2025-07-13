@@ -3,19 +3,17 @@ import { client } from "boot/axios.js";
 
 export const useRipeMaterialRepaint = defineStore('ripe_material_repaint', () => {
   async function fetchRepaintOrders(filterProps) {
-    let url = ''
+    const params = new URLSearchParams();
 
-    if (filterProps?.page) {
-      url += '?page=' + filterProps.page
-    } else {
-      url += '?page=1'
-    }
+    params.set('page', filterProps?.page || 1);
+    params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
+    params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
-    if ( filterProps?.status ) {
-      url += '&status=' + filterProps.status
+    if (filterProps.status) {
+      params.set('status', filterProps.status);
     }
     try {
-      return await client.get('ripe_material_repaints' + url);
+      return await client.get(`ripe_material_repaints?${params.toString()}`);
     } catch (e) {
       console.log(e)
     }

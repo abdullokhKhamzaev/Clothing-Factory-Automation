@@ -1,36 +1,16 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useBudget } from "stores/budget.js";
 import { ROLES } from 'src/libraries/constants/defaults';
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
-
-// Props
-let props = defineProps({
-  users: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
 const { t } = useI18n();
-const emit = defineEmits(['submit']);
-
-const user = useUser();
 const budget = useBudget();
 
 // Dialogs
@@ -42,7 +22,6 @@ const updateActionErr = ref(null);
 
 const isPwd = ref(false);
 const section = ref('user');
-const searchTitle = ref('');
 const selectedData = ref({});
 
 const userLoading = ref(false);
@@ -58,10 +37,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-// functions
-function getUsers() {
-  emit('submit', { fullName: searchTitle.value });
+// Table Data
+const repository = useUser();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  fullName: ''
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchUsers({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
@@ -92,7 +108,7 @@ function createAction() {
     roles: [selectedData.value.roles],
   }
 
-  user.createUser(input)
+  repository.createUser(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -102,7 +118,7 @@ function createAction() {
         message: t('forms.user.confirmation.successCreated')
       })
       clearAction();
-      getUsers();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -124,7 +140,7 @@ function updateAction() {
     userLoading.value = true;
 
     if ( section.value === 'password' ) {
-      user.editPassword(selectedData.value.id, { password: selectedData.value.password })
+      repository.editPassword(selectedData.value.id, { password: selectedData.value.password })
         .then(() => {
           showUpdateModal.value = false;
           $q.notify({
@@ -134,7 +150,7 @@ function updateAction() {
             message: t('forms.user.confirmation.successEdited')
           });
           clearAction();
-          getUsers();
+          refresh();
         })
         .catch((res) => {
           updateActionErr.value = res.response.data['hydra:description'];
@@ -156,7 +172,7 @@ function updateAction() {
         roles: [selectedData.value.roles]
       }
 
-      user.editUser(selectedData.value.id, input)
+      repository.editUser(selectedData.value.id, input)
         .then(() => {
           showUpdateModal.value = false;
           $q.notify({
@@ -166,7 +182,7 @@ function updateAction() {
             message: t('forms.user.confirmation.successEdited')
           });
           clearAction();
-          getUsers();
+          refresh();
         })
         .catch((res) => {
           updateActionErr.value = res.response.data['hydra:description'];
@@ -188,7 +204,7 @@ function deleteAction() {
 
   if ( selectedData?.value?.id ) {
     userLoading.value = true;
-    user.deleteUser(selectedData.value.id)
+    repository.deleteUser(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
         $q.notify({
@@ -198,7 +214,7 @@ function deleteAction() {
           message: t('forms.user.confirmation.successDeleted')
         });
         clearAction();
-        getUsers();
+        refresh();
       })
       .finally(() => userLoading.value = false)
   } else {
@@ -268,41 +284,57 @@ function exportTable(users) {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || userLoading"
-  />
   <q-table
-    v-show="!loading && !userLoading"
     flat
     bordered
-    :rows="props.users"
-    :columns="columns"
-    :no-data-label="$t('tables.users.header.empty')"
-    :loading="props.loading || userLoading"
-    :visible-columns="visibleColumns"
     color="primary"
-    :pagination="props.pagination"
-    hide-pagination
+    :no-data-label="$t('tables.users.header.empty')"
+    :columns="columns"
+    :visible-columns="visibleColumns"
+    :rows="items"
+    row-key="id"
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 flex">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
+        <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-input
             style="min-width: 225px"
             dense
             outlined
             clearable
-            v-model="searchTitle"
+            v-model="filters.fullName"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
-            @update:model-value="emit('submit', { fullName: searchTitle });"
+            @update:model-value="getItems"
           >
             <template v-slot:append>
               <q-icon name="search" color="primary" />
             </template>
           </q-input>
+          <q-btn
+            :class="$q.screen.lt.sm ? '' : 'q-mr-sm'"
+            color="primary"
+            icon-right="outbox"
+            no-caps
+            outline
+            @click="exportTable(items)"
+          />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.users.buttons.add')"
+            no-caps
+            @click="showCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -314,28 +346,10 @@ function exportTable(users) {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-ml-auto q-mr-sm'"
+            class="w-full"
           />
-          <div
-            :class="$q.screen.lt.sm ? 'flex full-width justify-between': 'flex'"
-          >
-            <q-btn
-              :class="$q.screen.lt.sm ? '' : 'q-mr-sm'"
-              color="primary"
-              icon-right="outbox"
-              no-caps
-              outline
-              @click="exportTable(users)"
-            />
-            <q-btn
-              color="primary"
-              icon-right="add"
-              :label="$t('tables.users.buttons.add')"
-              no-caps
-              @click="showCreateModal = true"
-            />
-          </div>
         </div>
+      </div>
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
@@ -500,8 +514,8 @@ function exportTable(users) {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || userLoading"
-            :loading="props.loading || userLoading"
+            :disable="loading || userLoading"
+            :loading="loading || userLoading"
             no-caps
             :label="$t('forms.user.buttons.create')"
             type="submit"
@@ -630,8 +644,8 @@ function exportTable(users) {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || userLoading"
-            :loading="props.loading || userLoading"
+            :disable="loading || userLoading"
+            :loading="loading || userLoading"
             no-caps
             :label="$t('forms.user.buttons.edit')"
             type="submit"
@@ -656,8 +670,8 @@ function exportTable(users) {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || userLoading"
-          :loading="props.loading || userLoading"
+          :disable="loading || userLoading"
+          :loading="loading || userLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteAction"
@@ -666,6 +680,3 @@ function exportTable(users) {
     </q-card>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

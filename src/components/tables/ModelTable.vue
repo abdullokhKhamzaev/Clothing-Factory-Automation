@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
@@ -7,31 +7,12 @@ import { useBudget } from "stores/budget.js";
 import { useAccessory } from "stores/accessory.js";
 import { useEmbroidery } from "stores/embroidery.js";
 import { useAddFile } from "stores/mediaObject/addFile.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  models: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const domain = ref(import.meta.env.VITE_API_DOMEN);
-const model = useProductModels();
 const budget = useBudget();
 const accessory = useAccessory();
 const embroidery = useEmbroidery();
@@ -54,6 +35,46 @@ const columns = [
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+// Table Data
+const repository = useProductModels();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchProductModels({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 
 function addRow() {
   rows.value.push(
@@ -95,10 +116,6 @@ function prefill() {
 
   rows.value = sizes;
 }
-
-function getModels () {
-  emit('submit');
-}
 function createAction() {
   if (modelLoading.value) return; // Prevent multiple rapid calls
 
@@ -122,7 +139,7 @@ function createAction() {
       .then((res) => {
         input.image = res.data['@id']
 
-        model.create(input)
+        repository.create(input)
           .then(() => {
             showCreateModal.value = false;
             $q.notify({
@@ -132,7 +149,7 @@ function createAction() {
               message: t('forms.model.confirmation.successCreated')
             })
             clearAction();
-            getModels();
+            refresh();
           })
           .catch((res) => {
             createActionErr.value = res.response.data['hydra:description'];
@@ -147,7 +164,7 @@ function createAction() {
           .finally(() => modelLoading.value = false);
       })
   } else {
-    model.create(input)
+    repository.create(input)
       .then(() => {
         showCreateModal.value = false;
         $q.notify({
@@ -157,7 +174,7 @@ function createAction() {
           message: t('forms.model.confirmation.successCreated')
         })
         clearAction();
-        getModels();
+        refresh();
       })
       .catch((res) => {
         createActionErr.value = res.response.data['hydra:description'];
@@ -192,7 +209,7 @@ function updateAction() {
       embroideries: selectedData.value.embroideries
     }
 
-    model.update(selectedData.value.id, input)
+    repository.update(selectedData.value.id, input)
       .then(() => {
         showUpdateModal.value = false;
         $q.notify({
@@ -202,7 +219,7 @@ function updateAction() {
           message: t('forms.model.confirmation.successEdited')
         });
         clearAction();
-        getModels();
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -230,29 +247,35 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || modelLoading"
-  />
   <q-table
-    v-show="!props.loading && !modelLoading"
     flat
     bordered
-    :rows="props.models"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.model.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.model.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.model.buttons.add')"
+            no-caps
+            @click="showCreateModal = true"
+            class="q-mb-md q-mb-sm-none"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -264,14 +287,7 @@ function clearAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.model.buttons.add')"
-            no-caps
-            @click="showCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -491,8 +507,8 @@ function clearAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || modelLoading"
-            :loading="props.loading || modelLoading"
+            :disable="loading || modelLoading"
+            :loading="loading || modelLoading"
             no-caps
             :label="$t('forms.model.buttons.create')"
             type="submit"
@@ -658,14 +674,11 @@ function clearAction() {
             </div>
           </div>
         </div>
-<!--        <div class="text-right q-ma-md">-->
-<!--          <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>-->
-<!--        </div>-->
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || modelLoading"
-            :loading="props.loading || modelLoading"
+            :disable="loading || modelLoading"
+            :loading="loading || modelLoading"
             no-caps
             :label="$t('forms.color.buttons.edit')"
             type="submit"
@@ -676,6 +689,3 @@ function clearAction() {
     </div>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

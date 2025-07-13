@@ -1,29 +1,12 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
+import { useThreadPurchase } from 'src/stores/threadPurchase.js'
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
-
-// Props
-let props = defineProps({
-  purchases: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const emit = defineEmits(['refresh']);
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -31,19 +14,6 @@ const showPayModal = ref(false);
 const paymentLoading = ref(false);
 const payActionErr = ref(null);
 const selectedData = ref({});
-const budgets = ref([]);
-const budgetLoading = ref(false);
-
-function getBudgets () {
-  budgetLoading.value = true;
-  useBudget().fetchBudgets('')
-    .then((res) => {
-      budgets.value = res.data['hydra:member'];
-    })
-    .finally(() => {
-      budgetLoading.value = false;
-    });
-}
 function clearAction () {
   selectedData.value = {};
   payActionErr.value = null;
@@ -59,7 +29,7 @@ function payAction () {
   paymentLoading.value = true;
 
   const input = {
-    budget: selectedBudget.value[0]['@id'],
+    budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
     description: 'payedForThreadPurchaseDebt #' + selectedData.value.id,
     isIncome: false,
@@ -76,7 +46,7 @@ function payAction () {
         message: t('forms.threadPurchase.confirmation.successCreated')
       })
       clearAction();
-      emit('refresh');
+      refresh();
     })
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
@@ -98,50 +68,84 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-const selectedBudget = computed(() => {
-  return budgets.value.filter((budget) => budget.currency['@id'] === selectedData?.value?.budget.currency);
-})
+// Table Data
+const repository = useThreadPurchase();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchPurchases({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
 
 onMounted(() => {
-  getBudgets();
+  refresh();
 })
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || paymentLoading"
-  />
   <q-table
-    v-show="!props.loading && !paymentLoading"
     flat
     bordered
-    :rows="props.purchases"
+    color="primary"
+    :no-data-label="$t('tables.threadPurchase.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.threadPurchase.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.threadPurchase.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          class="q-my-md"
-        />
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">
@@ -246,13 +250,11 @@ onMounted(() => {
             hide-bottom-space
           />
         </div>
-
         <q-separator />
-
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || paymentLoading"
-            :loading="props.loading || paymentLoading"
+            :disable="loading || paymentLoading"
+            :loading="loading || paymentLoading"
             no-caps
             :label="$t('forms.threadPurchase.buttons.payDebt')"
             type="submit"
@@ -263,6 +265,3 @@ onMounted(() => {
     </div>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

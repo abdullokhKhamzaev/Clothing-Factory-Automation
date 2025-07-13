@@ -1,35 +1,16 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { useBudget } from "stores/budget.js";
 import { useColor } from "stores/color.js";
 import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  materials: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
-const material = useRipeMaterial();
 const budget = useBudget();
 
 const materialLoading = ref(false);
@@ -52,9 +33,46 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getMaterials () {
-  emit('submit');
+// Table Data
+const repository = useRipeMaterial();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchRipeMaterials({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 function createAction() {
   if (materialLoading.value) return; // Prevent multiple rapid calls
 
@@ -64,7 +82,7 @@ function createAction() {
     selectedData.value.paintFabricColor = selectedData.value.paintFabricColor['@id'];
   }
 
-  material.createRipeMaterial(selectedData.value)
+  repository.createRipeMaterial(selectedData.value)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -74,7 +92,7 @@ function createAction() {
         message: t('forms.ripeMaterial.confirmation.successCreated')
       })
       clearAction();
-      getMaterials();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -98,7 +116,7 @@ function updateAction() {
       selectedData.value.paintFabricColor = selectedData.value.paintFabricColor['@id'];
     }
 
-    material.editRipeMaterial(selectedData.value.id, selectedData.value)
+    repository.editRipeMaterial(selectedData.value.id, selectedData.value)
       .then(() => {
         showUpdateModal.value = false;
         $q.notify({
@@ -108,7 +126,7 @@ function updateAction() {
           message: t('forms.ripeMaterial.confirmation.successEdited')
         });
         clearAction();
-        getMaterials();
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -132,7 +150,7 @@ function deleteAction() {
   if (selectedData.value.id) {
     materialLoading.value = true;
 
-    material.deleteRipeMaterial(selectedData.value.id)
+    repository.deleteRipeMaterial(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
         $q.notify({
@@ -142,7 +160,7 @@ function deleteAction() {
           message: t('forms.ripeMaterial.confirmation.successDeleted')
         });
         clearAction();
-        getMaterials();
+        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -172,29 +190,35 @@ function prefill () {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || materialLoading"
-  />
   <q-table
-    v-show="!props.loading && !materialLoading"
     flat
     bordered
-    :rows="props.materials"
+    color="primary"
+    :no-data-label="$t('tables.ripeMaterial.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.ripeMaterial.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.ripeMaterial.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.ripeMaterial.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -206,15 +230,7 @@ function prefill () {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.ripeMaterial.buttons.add')"
-            no-caps
-            @click="showCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -385,8 +401,8 @@ function prefill () {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || materialLoading"
-            :loading="props.loading || materialLoading"
+            :disable="loading || materialLoading"
+            :loading="loading || materialLoading"
             no-caps
             :label="$t('forms.ripeMaterial.buttons.create')"
             type="submit"
@@ -524,8 +540,8 @@ function prefill () {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || materialLoading"
-            :loading="props.loading || materialLoading"
+            :disable="loading || materialLoading"
+            :loading="loading || materialLoading"
             no-caps
             :label="$t('forms.ripeMaterial.buttons.edit')"
             type="submit"
@@ -550,8 +566,8 @@ function prefill () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || materialLoading"
-          :loading="props.loading || materialLoading"
+          :disable="loading || materialLoading"
+          :loading="loading || materialLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteAction"
@@ -560,6 +576,3 @@ function prefill () {
     </q-card>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

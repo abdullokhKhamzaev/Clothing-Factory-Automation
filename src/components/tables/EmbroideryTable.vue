@@ -1,36 +1,17 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useEmbroidery } from "stores/embroidery.js";
 import { useBudget } from "stores/budget.js";
 import { useAddFile } from "stores/mediaObject/addFile.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  embroideries: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
 const file = ref();
-const embroidery = useEmbroidery();
 const budget = useBudget();
 
 const embroideryLoading = ref(false);
@@ -49,9 +30,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getEmbroideries () {
-  emit('submit');
+// Table Data
+const repository = useEmbroidery();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchEmbroideries({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function createAction () {
   if (embroideryLoading.value) return; // Prevent multiple rapid calls
 
@@ -66,7 +85,7 @@ function createAction () {
       .then((res) => {
         selectedData.value.image = res.data['@id']
 
-        embroidery.create(selectedData.value)
+        repository.create(selectedData.value)
           .then(() => {
             showCreateModal.value = false;
             $q.notify({
@@ -76,7 +95,7 @@ function createAction () {
               message: t('forms.embroidery.confirmation.successCreated')
             })
             clearAction();
-            getEmbroideries();
+            refresh();
           })
           .catch((res) => {
             createActionErr.value = res.response.data['hydra:description'];
@@ -91,7 +110,7 @@ function createAction () {
           .finally(() => embroideryLoading.value = false);
       })
   } else {
-    embroidery.create(selectedData.value)
+    repository.create(selectedData.value)
       .then(() => {
         showCreateModal.value = false;
         $q.notify({
@@ -101,7 +120,7 @@ function createAction () {
           message: t('forms.embroidery.confirmation.successCreated')
         })
         clearAction();
-        getEmbroideries();
+        refresh();
       })
       .catch((res) => {
         createActionErr.value = res.response.data['hydra:description'];
@@ -122,7 +141,7 @@ function updateAction() {
 
     embroideryLoading.value = true;
 
-    embroidery.update(selectedData.value.id, selectedData.value)
+    repository.update(selectedData.value.id, selectedData.value)
       .then(() => {
         showUpdateModal.value = false;
         $q.notify({
@@ -132,7 +151,7 @@ function updateAction() {
           message: t('forms.embroidery.confirmation.successEdited')
         });
         clearAction();
-        getEmbroideries()
+        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -156,7 +175,7 @@ function deleteAction() {
 
     embroideryLoading.value = true;
 
-    embroidery.deleteEmbroidery(selectedData.value.id)
+    repository.deleteEmbroidery(selectedData.value.id)
       .then(() => {
         showDeleteModal.value = false;
         $q.notify({
@@ -166,7 +185,7 @@ function deleteAction() {
           message: t('forms.embroidery.confirmation.successDeleted')
         });
         clearAction();
-        getEmbroideries();
+        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -190,29 +209,35 @@ function clearAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || embroideryLoading"
-  />
   <q-table
-    v-show="!props.loading && !embroideryLoading"
     flat
     bordered
-    :rows="props.embroideries"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.embroidery.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.embroidery.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.embroidery.buttons.add')"
+            no-caps
+            @click="showCreateModal = true"
+            class="q-mb-md q-mb-sm-none"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -224,14 +249,7 @@ function clearAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.embroidery.buttons.add')"
-            no-caps
-            @click="showCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -350,8 +368,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || embroideryLoading"
-            :loading="props.loading || embroideryLoading"
+            :disable="loading || embroideryLoading"
+            :loading="loading || embroideryLoading"
             no-caps
             :label="$t('forms.embroidery.buttons.create')"
             type="submit"
@@ -421,8 +439,8 @@ function clearAction() {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || embroideryLoading"
-            :loading="props.loading || embroideryLoading"
+            :disable="loading || embroideryLoading"
+            :loading="loading || embroideryLoading"
             no-caps
             :label="$t('forms.embroidery.buttons.edit')"
             type="submit"
@@ -447,8 +465,8 @@ function clearAction() {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || embroideryLoading"
-          :loading="props.loading || embroideryLoading"
+          :disable="loading || embroideryLoading"
+          :loading="loading || embroideryLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteAction"

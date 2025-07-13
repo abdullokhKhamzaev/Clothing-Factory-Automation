@@ -1,25 +1,9 @@
 <script setup>
+import { onMounted, ref } from "vue";
+import { useTransaction } from "stores/transaction.js";
 import { useI18n } from "vue-i18n";
-import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
-import {ref} from "vue";
-
-// Props
-let props = defineProps({
-  transactions: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 
@@ -33,43 +17,85 @@ const columns = [
   { name: 'budget', label: t('tables.transaction.columns.budget'), align: 'left', field: 'budget' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+
+// Table Data
+const repository = useTransaction();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  // ...
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.list({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading"
-  />
   <q-table
-    v-show="!props.loading"
     flat
     bordered
-    :rows="props.transactions"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.transaction.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.transaction.header.title') }}</div>
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          class="q-my-md"
-        />
+
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">
@@ -121,6 +147,3 @@ const visibleColumns = ref(columns.map(column => column.name));
     </template>
   </q-table>
 </template>
-
-<style scoped>
-</style>

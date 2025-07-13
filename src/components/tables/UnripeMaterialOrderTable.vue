@@ -1,36 +1,17 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
-import {formatDate, isToday} from "../../libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { formatDate, isToday } from "../../libraries/constants/defaults.js";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
-
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-const emit = defineEmits(['submit']);
+import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
 const { t } = useI18n();
-const order = useUnripeMaterialOrder();
 const thread = useThread();
 const unripeMaterial = useMaterial();
 
@@ -64,9 +45,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getOrders () {
-  emit('submit');
+// Table Data
+const repository = useUnripeMaterialOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  statuses: ['confirmed', 'pending']
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchUnripeMaterialOrder({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function clearAction() {
   selectedData.value = {};
   rows.value = [{ thread: '', quantity: '' }];
@@ -91,7 +110,7 @@ function createOrderAction() {
     expectedConsumeDtos: expectedData
   }
 
-  order.createUnripeMaterialOrder(input)
+  repository.createUnripeMaterialOrder(input)
     .then(() => {
       showOrderCreateModal.value = false;
       $q.notify({
@@ -101,7 +120,7 @@ function createOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successCreated')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       createOrderErr.value = res.response.data['hydra:description'];
@@ -125,7 +144,7 @@ function finishOrderAction() {
 
   orderLoading.value = true;
 
-  order.finishUnripeMaterialOrder(selectedData.value.id)
+  repository.finishUnripeMaterialOrder(selectedData.value.id)
     .then(() => {
       showOrderFinishModal.value = false;
       $q.notify({
@@ -135,7 +154,7 @@ function finishOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successCompleted')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -155,7 +174,7 @@ function deleteOrderAction() {
     return;
   }
   orderLoading.value = true;
-  order.deleteUnripeMaterialOrder(selectedData.value.id)
+  repository.deleteUnripeMaterialOrder(selectedData.value.id)
     .then(() => {
       showOrderDeleteModal.value = false;
       $q.notify({
@@ -165,7 +184,7 @@ function deleteOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successDeleted')
       });
       clearAction();
-      getOrders()
+      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -188,29 +207,35 @@ function removeRow(index) {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.unripeMaterialOrder.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.unripeMaterialOrder.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.unripeMaterialOrder.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showOrderCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -222,14 +247,7 @@ function removeRow(index) {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.unripeMaterialOrder.buttons.add')"
-            no-caps
-            @click="showOrderCreateModal = true"
+            class="w-full"
           />
         </div>
       </div>
@@ -400,8 +418,8 @@ function removeRow(index) {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || orderLoading"
-            :loading="props.loading || orderLoading"
+            :disable="loading || orderLoading"
+            :loading="loading || orderLoading"
             no-caps
             :label="$t('forms.unripeMaterialOrder.buttons.create')"
             type="submit"
@@ -427,8 +445,8 @@ function removeRow(index) {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.delete.buttons.cancel')" color="primary" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           :label="$t('dialogs.delete.buttons.confirm')"
           color="red"
           @click="deleteOrderAction"
@@ -449,8 +467,8 @@ function removeRow(index) {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn :label="$t('dialogs.complete.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           :label="$t('dialogs.complete.buttons.complete')"
           color="primary"
           @click="finishOrderAction"

@@ -1,43 +1,25 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import { useSale } from "stores/sale.js";
 import { useWarehouse } from "stores/warehouse.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import {formatDate, formatFloatToInteger, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import SaleList from "components/SaleList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  sales: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
+const route = useRoute();
 const user = useAbout();
 const budget = useBudget();
-const sale = useSale();
 const customer = useCustomer();
-const products = ref([]);
-const productsLoading = ref(false);
+const warehouse = useWarehouse();
 
 const saleLoading = ref(false);
 const selectedData = ref({});
@@ -45,10 +27,6 @@ const showCreateModal = ref(false);
 const createActionErr = ref(null);
 const showPayModal = ref(false);
 const payActionErr = ref(null);
-const filters = reactive({
-  customer: '',
-  isPayed: null
-});
 
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
@@ -63,6 +41,49 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
+// Table Data
+const repository = useSale();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: route.params.customerId ? '~' : 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  id: route.params.customerId,
+  customer: '',
+  isPayed: null
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchSales({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 const rows = ref([
   { productModel: '', productInWarehouse: '', quantities: [] }
 ])
@@ -74,23 +95,6 @@ function removeRow(index) {
   if (rows.value.length > 1) {
     rows.value.splice(index, 1);
   }
-}
-function getSales () {
-  emit('submit', filters);
-  getProducts()
-}
-function getProducts (filterProps) {
-  let props = filterProps || {};
-
-  productsLoading.value = true;
-
-  props.name = 'productsWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      products.value = res.data['hydra:member'][0];
-    })
-    .finally(() => productsLoading.value = false)
 }
 function createAction () {
   if (saleLoading.value) return; // Prevent multiple rapid calls
@@ -105,7 +109,7 @@ function createAction () {
   let saleProduct = [];
 
   rows.value.forEach((row) => {
-    saleProduct.push({productModel: row.productModel.value.productModel['@id'], productInWarehouse: row.productInWarehouse, quantities: row.quantities})
+    saleProduct.push({productModel: row.productModel.productModel['@id'], productInWarehouse: row.productInWarehouse, quantities: row.quantities})
   })
 
   const input = {
@@ -128,7 +132,7 @@ function createAction () {
 
   input.isPayed = Number(selectedData.value.paidPrice) === Number(total.value);
 
-  sale.create(input)
+  repository.create(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -138,7 +142,7 @@ function createAction () {
         message: t('forms.sale.confirmation.successCreated')
       })
       clearAction();
-      getSales();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -157,16 +161,6 @@ function clearAction() {
   createActionErr.value = null;
   rows.value = [{ productModel: '', productInWarehouse: '', quantities: [] }];
 }
-const productOptions = computed(() => {
-  let options = [];
-  for (let i in products.value.productInWarehouses) {
-    options.push({
-      label: products.value.productInWarehouses[i].productModel.name,
-      value: products.value.productInWarehouses[i]
-    });
-  }
-  return options
-})
 const total = computed(() => {
   let totalPrice = 0;
 
@@ -182,13 +176,13 @@ function prefill(model, index) {
   let models = [];
   let sizes = [];
 
-  model.value.productModel.sizes.forEach((size) => {
+  model.productModel.sizes.forEach((size) => {
     sizes.push({ size: size.size, quantity: '', price: size.price});
   });
 
   models.push({
     productModel: model,
-    productInWarehouse: model.value['@id'],
+    productInWarehouse: model['@id'],
     quantities: sizes
   });
 
@@ -222,42 +216,101 @@ function payAction () {
         message: t('forms.ripeMaterialPurchase.confirmation.successCreated')
       })
       clearAction();
-      emit('refresh');
+      refresh();
     })
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
     })
     .finally(() => saleLoading.value = false)
 }
-onMounted(() => {
-  getProducts();
-})
+
+const oweByCurrency = computed(() => {
+  const map = {};
+
+  if (!items.value) {
+    return null
+  }
+
+  items.value.forEach((sale) => {
+    const total = parseFloat(sale.totalPrice || 0);
+    const paid = parseFloat(sale.paidPrice || 0);
+    const debt = total - paid;
+    const currency = sale.budget?.name || 'Unknown';
+
+    if (!map[currency]) {
+      map[currency] = 0;
+    }
+
+    map[currency] += debt;
+  });
+
+  return Object.entries(map).map(([currency, amount]) => ({
+    currency,
+    quantity: amount.toFixed(2),
+  }));
+});
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || saleLoading"
-  />
+  <q-card class="q-mb-md">
+    <q-card-section>
+      <div class="text-red">
+        {{ $t('oweUs') }}:
+      </div>
+      <div class="q-ml-sm" v-for="(owe, i) in oweByCurrency" :key="i"> {{ formatFloatToInteger(owe.quantity) }} {{ owe.currency }} <q-separator /> </div>
+    </q-card-section>
+  </q-card>
+
   <q-table
-    v-show="!props.loading"
     flat
     bordered
-    :rows="props.sales"
+    color="primary"
+    :no-data-label="$t('tables.sale.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.sale.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.sale.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <selectable-list
+            v-model="filters.customer"
+            dense
+            clearable
+            :label="$t('tables.users.header.searchTitle')"
+            :store="customer"
+            fetch-method="fetchCustomers"
+            item-value="fullName"
+            item-label="fullName"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            @update:model-value="getItems"
+          />
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.sale.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showCreateModal = true"
+          />
+          <q-toggle
+            v-model="filters.isPayed"
+            checked-icon="check"
+            unchecked-icon="clear"
+            :false-value="true"
+            :true-value="false"
+            :label="$t('debts')"
+            @update:model-value="getItems"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -269,40 +322,7 @@ onMounted(() => {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <div>
-            <q-btn
-              color="primary"
-              icon-right="add"
-              :label="$t('tables.sale.buttons.add')"
-              no-caps
-              @click="showCreateModal = true"
-            />
-          </div>
-        </div>
-
-        <div>
-          <selectable-list
-            v-model="filters.customer"
-            dense
-            clearable
-            :label="$t('tables.users.header.searchTitle')"
-            :store="customer"
-            fetch-method="fetchCustomers"
-            item-value="fullName"
-            item-label="fullName"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-            @update:model-value="emit('submit', filters);"
-          />
-          <q-toggle
-            v-model="filters.isPayed"
-            checked-icon="check"
-            unchecked-icon="clear"
-            :false-value="true"
-            :true-value="false"
-            :label="$t('debts')"
-            @update:model-value="emit('submit', filters);"
+            class="w-full"
           />
         </div>
       </div>
@@ -345,7 +365,7 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'debt'" class="text-orange text-bold">
             <div v-if="Number(props.row.totalPrice) - Number(props.row.paidPrice)">
-              {{ formatFloatToInteger(Number(props.row.totalPrice) - Number(props.row.paidPrice)) }} {{ props.row.budget.name }}
+              {{ formatFloatToInteger((props.row.totalPrice - props.row.paidPrice).toFixed(2)) }} {{ props.row.budget.name }}
             </div>
             <div v-else>-</div>
           </div>
@@ -389,9 +409,6 @@ onMounted(() => {
       class="bg-white shadow-3"
       style="width: 900px; max-width: 80vw;"
     >
-      <pre>
-        {{ selectedData }}
-      </pre>
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm text-white flex justify-between"
@@ -440,18 +457,16 @@ onMounted(() => {
               <div v-if="index" class="col-12 flex items-center">
                 <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>
               </div>
-              <q-select
+              <selectable-list
                 v-model="row.productModel"
-                filled
-                map-options
-                :loading="productsLoading"
-                :options="productOptions"
                 :label="$t('forms.sale.fields.productModel.label')"
-                option-value="value"
-                option-label="label"
-                :rules="[val => !!val || $t('forms.sale.fields.productModel.validation.required')]"
+                :store="warehouse"
+                fetch-method="fetchWarehouses"
+                which-object="productInWarehouses"
+                :filters="{name: 'productsWarehouse'}"
+                :item-label="{label: 'productModel', path: 'name'}"
+                :rule-message="$t('forms.sale.fields.productModel.validation.required')"
                 class="col-12"
-                hide-bottom-space
                 @update:model-value="prefill(row.productModel, index)"
               />
               <div
@@ -514,8 +529,8 @@ onMounted(() => {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || productsLoading"
-            :loading="props.loading || productsLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
             :label="$t('forms.sale.buttons.create')"
             type="submit"
@@ -569,8 +584,8 @@ onMounted(() => {
 
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || saleLoading"
-            :loading="props.loading || saleLoading"
+            :disable="loading || saleLoading"
+            :loading="loading || saleLoading"
             no-caps
             :label="$t('forms.sale.buttons.receiveDebt')"
             type="submit"

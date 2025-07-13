@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useOrder } from "stores/order.js";
@@ -7,45 +7,21 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import { DATE_FORMAT, formatDate, formatFloatToInteger, isToday, LANGUAGES } from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { DATE_FORMAT, formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
 const $q = useQuasar();
 const { t } = useI18n();
 const user = useAbout();
 const budget = useBudget();
-const order = useOrder();
 const customer = useCustomer();
-const products = ref([]);
-const productsLoading = ref(false);
+const warehouse = useWarehouse();
 
 const orderLoading = ref(false);
 const selectedData = ref({});
 const showCreateModal = ref(false);
 const createActionErr = ref(null);
-const filters = reactive({
-  customer: '',
-  status: ''
-});
 
 const columns = [
   { name: 'id', label: 'ID', align: 'left', field: 'id' },
@@ -60,10 +36,44 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
+// Table Data
+const repository = useOrder();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+const filters = ref({
+  customer: '',
+  status: ''
+});
 const rows = ref([
   { productModel: '', productInWarehouse: '', quantities: [] }
 ])
 
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
 function addRow() {
   rows.value.push({ productModel: '', productInWarehouse: '', quantities: [] });
 }
@@ -71,25 +81,6 @@ function removeRow(index) {
   if (rows.value.length > 1) {
     rows.value.splice(index, 1);
   }
-}
-function getOrders () {
-  emit('submit', filters);
-  getProducts()
-}
-function getProducts (filterProps) {
-  if (productsLoading.value) return; // Prevent multiple rapid calls
-
-  let props = filterProps || {};
-
-  productsLoading.value = true;
-
-  props.name = 'productsWarehouse';
-
-  useWarehouse().fetchWarehouses(props || '')
-    .then((res) => {
-      products.value = res.data['hydra:member'][0];
-    })
-    .finally(() => productsLoading.value = false)
 }
 function createAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
@@ -103,7 +94,7 @@ function createAction () {
   let orderedProducts = [];
 
   rows.value.forEach((row) => {
-    orderedProducts.push({productModel: row.productModel.value.productModel['@id'], productInWarehouse: row.productInWarehouse, quantities: row.quantities})
+    orderedProducts.push({productModel: row.productModel.productModel['@id'], productInWarehouse: row.productInWarehouse, quantities: row.quantities})
   })
 
   const input = {
@@ -115,7 +106,7 @@ function createAction () {
     dealDate: selectedData.value.dealDate,
   }
 
-  order.create(input)
+  repository.create(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -125,7 +116,7 @@ function createAction () {
         message: t('forms.sale.confirmation.successCreated')
       })
       clearAction();
-      getOrders();
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -144,16 +135,23 @@ function clearAction() {
   createActionErr.value = null;
   rows.value = [{ productModel: '', productInWarehouse: '', quantities: [] }];
 }
-const productOptions = computed(() => {
-  let options = [];
-  for (let i in products.value.productInWarehouses) {
-    options.push({
-      label: products.value.productInWarehouses[i].productModel.name,
-      value: products.value.productInWarehouses[i]
-    });
-  }
-  return options
-})
+function prefill(model, index) {
+  let models = [];
+  let sizes = [];
+
+  model.productModel.sizes.forEach((size) => {
+    sizes.push({ size: size.size, quantity: '', price: size.price});
+  });
+
+  models.push({
+    productModel: model,
+    productInWarehouse: model['@id'],
+    quantities: sizes
+  });
+
+  rows.value[index] = models[0]
+}
+
 const total = computed(() => {
   let totalPrice = 0
   rows.value.forEach((row) => {
@@ -163,52 +161,53 @@ const total = computed(() => {
   })
   return totalPrice
 })
-function prefill(model, index) {
-  let models = [];
-  let sizes = [];
 
-  model.value.productModel.sizes.forEach((size) => {
-    sizes.push({ size: size.size, quantity: '', price: size.price});
-  });
-
-  models.push({
-    productModel: model,
-    productInWarehouse: model.value['@id'],
-    quantities: sizes
-  });
-
-  rows.value[index] = models[0]
-}
 onMounted(() => {
-  getProducts();
+  refresh();
 })
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || orderLoading"
-  />
-
   <q-table
-    v-show="!props.loading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.transaction.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.order.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.order.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            color="primary"
+            icon-right="add"
+            :label="$t('tables.order.buttons.add')"
+            no-caps
+            class="q-mb-md q-mb-sm-none"
+            @click="showCreateModal = true"
+          />
+          <selectable-list
+            v-model="filters.customer"
+            dense
+            clearable
+            :label="$t('tables.users.header.searchTitle')"
+            :store="customer"
+            fetch-method="fetchCustomers"
+            item-value="fullName"
+            item-label="fullName"
+            @update:model-value="onRequest"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -220,44 +219,7 @@ onMounted(() => {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-          <div>
-            <q-btn
-              color="primary"
-              icon-right="add"
-              :label="$t('tables.order.buttons.add')"
-              no-caps
-              @click="showCreateModal = true"
-            />
-          </div>
-        </div>
-
-        <div class="q-gutter-y-md q-mt-md">
-          <selectable-list
-            v-model="filters.customer"
-            dense
-            clearable
-            :label="$t('tables.users.header.searchTitle')"
-            :store="customer"
-            fetch-method="fetchCustomers"
-            item-value="fullName"
-            item-label="fullName"
-            @update:model-value="emit('submit', filters);"
-          />
-
-          <q-select
-            v-model="filters.status"
-            :options="LANGUAGES"
-            :label="$t('tables.order.columns.status')"
-            dense
-            filled
-            emit-value
-            map-options
-            option-value="value"
-            option-label="label"
-            hide-bottom-space
-            @update:model-value="emit('submit', filters);"
+            class="w-full"
           />
         </div>
       </div>
@@ -362,18 +324,16 @@ onMounted(() => {
               <div v-if="index" class="col-12 flex items-center">
                 <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>
               </div>
-              <q-select
+              <selectable-list
                 v-model="row.productModel"
-                filled
-                map-options
-                :loading="productsLoading"
-                :options="productOptions"
                 :label="$t('forms.sale.fields.productModel.label')"
-                option-value="value"
-                option-label="label"
-                :rules="[val => !!val || $t('forms.sale.fields.productModel.validation.required')]"
+                :store="warehouse"
+                fetch-method="fetchWarehouses"
+                which-object="productInWarehouses"
+                :filters="{name: 'productsWarehouse'}"
+                :item-label="{label: 'productModel', path: 'name'}"
+                :rule-message="$t('forms.sale.fields.productModel.validation.required')"
                 class="col-12"
-                hide-bottom-space
                 @update:model-value="prefill(row.productModel, index)"
               />
               <div
@@ -459,8 +419,8 @@ onMounted(() => {
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || productsLoading"
-            :loading="props.loading || productsLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
             :label="$t('forms.sale.buttons.create')"
             type="submit"
@@ -472,6 +432,3 @@ onMounted(() => {
     </div>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

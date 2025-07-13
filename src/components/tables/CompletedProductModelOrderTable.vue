@@ -1,29 +1,10 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import {formatDate, isToday} from "src/libraries/constants/defaults.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
-
-// Props
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
-
-const emit = defineEmits(['submit']);
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -45,9 +26,47 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
-function getOrders () {
-  emit('submit');
+// Table Data
+const repository = useProductModelOrderCompleted();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'pending'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.getOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
+
 function clearAction () {
   selectedData.value = {};
 }
@@ -55,7 +74,7 @@ function acceptAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
 
   orderLoading.value = true;
-  useProductModelOrderCompleted().accept(selectedData.value.id, { status: 'accepted' })
+  repository.accept(selectedData.value.id, { status: 'accepted' })
     .then(() => {
       showAcceptModal.value = false;
       $q.notify({
@@ -65,7 +84,7 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      getOrders()
+      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -81,7 +100,7 @@ function rejectAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
 
   orderLoading.value = true;
-  useProductModelOrderCompleted().reject(selectedData.value.id, { status: 'rejected' })
+  repository.reject(selectedData.value.id, { status: 'rejected' })
     .then(() => {
       showRejectModal.value = false;
       $q.notify({
@@ -91,7 +110,7 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      emit('submit');
+      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -106,41 +125,41 @@ function rejectAction () {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="loading || orderLoading"
-  />
   <q-table
-    v-show="!props.loading && !orderLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.completedProductModelOrder.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.completedProductModelOrder.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.completedProductModelOrder.header.title') }}</div>
 
-        <q-select
-          style="min-width: 100px;"
-          dense
-          multiple
-          outlined
-          options-dense
-          emit-value
-          map-options
-          v-model="visibleColumns"
-          :display-value="$q.lang.table.columns"
-          :options="columns"
-          option-value="name"
-          :label="$t('columns')"
-          :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-        />
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-select
+            dense
+            multiple
+            outlined
+            options-dense
+            emit-value
+            map-options
+            v-model="visibleColumns"
+            :display-value="$q.lang.table.columns"
+            :options="columns"
+            option-value="name"
+            :label="$t('columns')"
+            class="w-full"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:body="props">
@@ -286,8 +305,8 @@ function rejectAction () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps
           :label="$t('dialogs.accept.buttons.accept')"
           color="green"
@@ -309,8 +328,8 @@ function rejectAction () {
       <q-card-actions align="right" class="q-px-md q-mb-sm">
         <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
         <q-btn
-          :disable="props.loading || orderLoading"
-          :loading="props.loading || orderLoading"
+          :disable="loading || orderLoading"
+          :loading="loading || orderLoading"
           no-caps
           :label="$t('dialogs.reject.buttons.reject')"
           color="red"

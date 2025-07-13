@@ -1,31 +1,14 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
-import {DATE_FORMAT, formatDate, isToday} from "src/libraries/constants/defaults.js";
-import SkeletonTable from "components/tables/SkeletonTable.vue";
+import { DATE_FORMAT, formatDate, isToday } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
-
-const emit = defineEmits(['submit']);
-let props = defineProps({
-  orders: {
-    type: Array,
-    required: true
-  },
-  pagination: {
-    type: Object,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    required: false,
-    default: false
-  }
-});
+import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -55,6 +38,46 @@ const columns = [
   { name: 'action', label: '', align: 'left', field: 'action' },
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+// Table Data
+const repository = useRipeMaterialRepaint();
+const items = ref([]);
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  descending: true
+});
+
+const filters = ref({
+  status: 'expected'
+});
+
+function getItems () {
+  if (loading.value) return; // Prevent multiple rapid calls
+  loading.value = true;
+
+  repository.fetchRepaintOrders({...pagination.value, ...filters.value})
+    .then((res) => {
+      items.value = res.data['hydra:member'];
+      pagination.value.rowsNumber = res.data['hydra:totalItems'];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function onRequest(params) {
+  pagination.value = {...pagination.value, ...params.pagination};
+  getItems();
+}
+function refresh () {
+  getItems();
+}
+
+onMounted(() => {
+  refresh();
+})
 
 function clearAction() {
   selectedData.value = {};
@@ -93,7 +116,7 @@ function createAction() {
     }
   }
 
-  useRipeMaterialRepaint().createOrder(input)
+  repository.createOrder(input)
     .then(() => {
       showCreateModal.value = false;
       $q.notify({
@@ -103,7 +126,7 @@ function createAction() {
         message: t('forms.repaint.confirmation.successOrderCreated')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -137,7 +160,7 @@ function receiveAction() {
     receivedRollSort2: selectedData.value.receivedRollSort2,
   };
 
-  useRipeMaterialRepaint().receive(selectedData.value.id, input)
+  repository.receive(selectedData.value.id, input)
     .then(() => {
       showReceiveModal.value = false;
       $q.notify({
@@ -147,7 +170,7 @@ function receiveAction() {
         message: t('forms.repaint.confirmation.successOrderReceived')
       })
       clearAction();
-      emit('submit');
+      refresh();
     })
     .catch((res) => {
       receiveActionErr.value = res.response.data['hydra:description'];
@@ -164,29 +187,34 @@ function receiveAction() {
 </script>
 
 <template>
-  <skeleton-table
-    :loading="props.loading || paintLoading"
-  />
   <q-table
-    v-show="!props.loading && !paintLoading"
     flat
     bordered
-    :rows="props.orders"
+    color="primary"
+    :no-data-label="$t('tables.repaint.header.empty')"
     :columns="columns"
     :visible-columns="visibleColumns"
-    :no-data-label="$t('tables.repaint.header.empty')"
-    color="primary"
+    :rows="items"
     row-key="id"
-    :pagination="props.pagination"
-    hide-bottom
+    v-model:pagination.sync="pagination"
+    :rows-per-page-options="[10, 25, 50, 100, '~']"
+    :loading="loading"
+    @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.repaint.header.title') }}</div>
 
-        <div class="flex items-center justify-between q-my-md">
+        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            no-caps
+            :label="$t('tables.repaint.buttons.add')"
+            color="primary"
+            class="q-mb-md q-mb-sm-none"
+            @click="showCreateModal = true"
+          />
           <q-select
-            style="min-width: 100px;"
             dense
             multiple
             outlined
@@ -198,9 +226,8 @@ function receiveAction() {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
+            class="w-full"
           />
-          <q-btn no-caps :label="$t('tables.repaint.buttons.add')" color="primary" @click="showCreateModal = true" />
         </div>
       </div>
     </template>
@@ -386,8 +413,8 @@ function receiveAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || paintLoading"
-            :loading="props.loading || paintLoading"
+            :disable="loading || paintLoading"
+            :loading="loading || paintLoading"
             no-caps
             :label="$t('forms.repaint.buttons.order')"
             type="submit"
@@ -474,8 +501,8 @@ function receiveAction() {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="props.loading || paintLoading"
-            :loading="props.loading || paintLoading"
+            :disable="loading || paintLoading"
+            :loading="loading || paintLoading"
             no-caps
             :label="$t('forms.repaint.buttons.accept')"
             type="submit"
