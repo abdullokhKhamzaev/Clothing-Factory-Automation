@@ -47,13 +47,13 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: route.params.customerId ? '~' : 10,
+  rowsPerPage: route.params.id ? '~' : 10,
   rowsNumber: 0,
   descending: true
 });
 
 const filters = ref({
-  id: route.params.customerId,
+  id: route.params.id,
   customer: '',
   isPayed: null
 });
