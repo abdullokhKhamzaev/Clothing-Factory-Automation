@@ -32,6 +32,7 @@ import PackageModelsPending from "components/statistics/PackageModelsPending.vue
 import PackageModelsProductWarehouseAccepted from "components/statistics/PackageModelsProductWarehouseAccepted.vue";
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
 import SaleProducts from "components/statistics/SaleProducts.vue";
+import ExpensesTransactions from "components/statistics/ExpensesTransactions.vue";
 
 const props = defineProps({
   dateFrom: {
@@ -78,6 +79,7 @@ const packageModelsCutDefectAcceptedData = ref([])
 const packageModelsCutDefectPendingData = ref([])
 const packageModelsProductWarehouseAcceptedData = ref([])
 const packageModelsProductWarehousePendingData = ref([])
+const saleProductsData = ref([])
 
 function getCutModelsAcceptedData(data) {
   cutModelsAcceptedData.value = data;
@@ -169,19 +171,24 @@ function getPackageModelsProductWarehouseAccepted(data) {
 function getPackageModelsProductWarehousePending(data) {
   packageModelsProductWarehousePendingData.value = data;
 }
+function getSaleProducts(data) {
+  saleProductsData.value = data;
+}
 </script>
 
 <template>
   <div class="flex justify-end q-gutter-x-md q-mb-sm">
     <q-btn color="primary" icon="mdi-chevron-double-left" @click="$refs.stepper.previous()" :disable="step === 1" />
-    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 5" />
+    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 6" />
   </div>
   <q-stepper
+    flat
     v-model="step"
     ref="stepper"
     color="primary"
     animated
     alternative-labels
+    keep-alive
     :vertical="$q.screen.lt.md"
   >
     <q-step
@@ -404,10 +411,18 @@ function getPackageModelsProductWarehousePending(data) {
     <q-step
       :name="5"
       :title="t('menus.sideBar.sales')"
-      caption="0"
+      :caption="saleProductsData.value?.totalQuantity || 0"
       icon="mdi-cart-percent"
+      :done="step > 5"
     >
-      <SaleProducts :date-to="props.dateTo" :date-from="props.dateFrom" />
+      <SaleProducts :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSaleProducts" />
+    </q-step>
+    <q-step
+      :name="6"
+      :title="t('menus.sideBar.expenses')"
+      icon="mdi-wallet"
+    >
+      <ExpensesTransactions :date-to="props.dateTo" :date-from="props.dateFrom" />
     </q-step>
   </q-stepper>
 </template>

@@ -9,9 +9,21 @@ export const useTransaction = defineStore('transaction', () => {
     params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
-    // if (filterProps.status) {
-    //   params.set('status', filterProps.status);
-    // }
+    if (filterProps.createdAtFrom) {
+      params.set('createdAt[after]', filterProps.createdAtFrom);
+    }
+
+    if (filterProps.createdAtTo) {
+      params.set('createdAt[before]', filterProps.createdAtTo);
+    }
+
+    if (filterProps.minPaidPrice != null) {
+      params.set('paidPrice[gt]', filterProps.minPaidPrice);
+    }
+
+    if (typeof filterProps.isIncome === 'boolean') {
+      params.set('isIncome', filterProps.isIncome);
+    }
 
     try {
       return await client.get(`transactions?${params.toString()}`);

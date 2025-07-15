@@ -154,7 +154,8 @@ export default {
       orders: 'Буюртмалар',
       users: 'Фойдаланувчилар',
       weaving: 'Тўкув',
-      warehouse: 'Oмбор'
+      warehouse: 'Oмбор',
+      expenses: 'Харажатлар'
     },
     weaver: {
       orders: 'Буюртмалар'

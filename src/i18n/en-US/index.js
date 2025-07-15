@@ -154,7 +154,8 @@ export default {
       orders: 'Orders',
       users: 'Users',
       weaving: 'Weaving',
-      warehouse: 'Warehouse'
+      warehouse: 'Warehouse',
+      expenses: 'Expenses'
     },
     weaver: {
       orders: 'Orders'
