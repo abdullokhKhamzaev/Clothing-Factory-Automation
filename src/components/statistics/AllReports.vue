@@ -216,23 +216,10 @@ function getSaleProducts(data) {
               </q-splitter>
               <q-separator inset />
             </div>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Qabul qilingan brag mahsulotlar:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ cutModelsDefectAcceptedData.value?.total || 0 }} {{ cutModelsDefectPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsDefectPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
           </q-card>
         </q-expansion-item>
         <q-card-section>
           <div class="text-bold">Bichildi: {{ cutModelsAcceptedData.value?.total }} {{ cutModelsPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Vishivkaga Jo'natildi -> {{ cutModelsEmbroideryAcceptedData.value?.total || 0 }} {{ cutModelsEmbroideryPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsEmbroideryPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Tikuvga Jo'natildi -> {{ cutModelsSewAcceptedData.value?.total || 0 }} {{ cutModelsSewPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsSewPendingData.value.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 
@@ -270,24 +257,10 @@ function getSaleProducts(data) {
               </q-splitter>
               <q-separator inset />
             </div>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Bichuv bragga jo'natildi:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ embroideryModelsCutDefectAcceptedData.value?.total || 0 }} {{ embroideryModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsCutDefectPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
           </q-card>
         </q-expansion-item>
         <q-card-section>
-          <div class="text-bold">Qabul Qilindi -> {{ cutModelsEmbroideryAcceptedData.value?.total || 0 }} {{ cutModelsEmbroideryPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsEmbroideryPendingData.value.total})` : ''  }}</div>
           <div class="text-bold">Vishivka Urildi: {{ embroideryModelsAcceptedData.value?.total || 0 }} {{ embroideryModelsPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Bichuv Bragga Jo'natildi -> {{ embroideryModelsCutDefectAcceptedData.value?.total || 0 }} {{ embroideryModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsCutDefectPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Tikuvga Jo'natildi -> {{ embroideryModelsSewAcceptedData.value?.total || 0 }} {{ embroideryModelsSewPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsSewPendingData.value.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 
@@ -337,10 +310,7 @@ function getSaleProducts(data) {
           </q-card>
         </q-expansion-item>
         <q-card-section>
-          <div class="text-bold">Qabul Qilindi -> {{ sewModelsAcceptedData.value?.total || 0 }} {{ sewModelsPendingData.value?.total ? `(+ Kutilmoqda: ${sewModelsPendingData.value.total})` : ''  }}</div>
           <div class="text-bold">Tikildi: {{ sewReadyModelsAcceptedData.value?.total || 0 }} {{ sewReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${sewReadyModelsPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Bichuv Bragga Jo'natildi -> {{ sewModelsCutDefectAcceptedData.value?.total || 0 }} {{ sewModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${sewModelsCutDefectPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Upakovkaga Jo'natildi -> {{ sewModelsPackageAcceptedData.value?.total || 0 }} {{ sewModelsPackagePendingData.value?.total ? `(+ Kutilmoqda: ${sewModelsPackagePendingData.value.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 
@@ -392,10 +362,7 @@ function getSaleProducts(data) {
           </q-card>
         </q-expansion-item>
         <q-card-section>
-          <div class="text-bold">Qabul Qilindi -> {{ packageModelsAcceptedData.value?.total || 0 }} {{ packageModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsPendingData.value.total})` : ''  }}</div>
           <div class="text-bold">Qadoqlandi: {{ packageReadyModelsAcceptedData.value?.total || 0 }} {{ packageReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageReadyModelsPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Bichuv Bragga Jo'natildi -> {{ packageModelsCutDefectAcceptedData.value?.total || 0 }} {{ packageModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsCutDefectPendingData.value.total})` : ''  }}</div>
-          <div class="text-bold">Skladga Jo'natildi -> {{ packageModelsProductWarehouseAcceptedData.value?.total || 0 }} {{ packageModelsProductWarehousePendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsProductWarehousePendingData.value.total})` : ''  }}</div>
         </q-card-section>
       </q-card>
 
