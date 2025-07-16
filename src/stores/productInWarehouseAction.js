@@ -17,6 +17,10 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
       params.set('sentBy', filterProps.sentBy);
     }
 
+    if (filterProps.date) {
+      params.set('createdAt', filterProps.date);
+    }
+
     if (filterProps.toWarehouse) {
       params.set('toWarehouse', filterProps.toWarehouse);
     }

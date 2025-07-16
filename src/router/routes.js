@@ -104,7 +104,7 @@ const routes = [
           {
             path: 'salary',
             name: 'club.users.salary',
-            component: () => import('pages/user/SalaryPage.vue')
+            component: () => import('pages/user/SalariesPage.vue')
           }
         ]
       },
@@ -530,6 +530,11 @@ const routes = [
             path: 'ready',
             name: 'club.packager.ready',
             component: () => import('pages/role-packager/ReadyPage.vue'),
+          },
+          {
+            path: 'salary',
+            name: 'club.packager.salary',
+            component: () => import('pages/user/SalaryPage.vue'),
           },
         ]
       }

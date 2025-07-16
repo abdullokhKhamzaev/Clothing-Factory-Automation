@@ -155,10 +155,8 @@ export default {
       users: 'Users',
       weaving: 'Weaving',
       warehouse: 'Warehouse',
-      expenses: 'Expenses'
-    },
-    weaver: {
-      orders: 'Orders'
+      expenses: 'Expenses',
+      salary:'Salary'
     }
   },
   dialogs: {

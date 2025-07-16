@@ -155,10 +155,8 @@ export default {
       users: 'Foydalanuvchilar',
       weaving: 'To\'quv',
       warehouse: 'Ombor',
-      expenses: 'Xarajatlar'
-    },
-    weaver: {
-      orders: 'Buyurtmalar'
+      expenses: 'Xarajatlar',
+      salary:'Maosh'
     }
   },
   dialogs: {
