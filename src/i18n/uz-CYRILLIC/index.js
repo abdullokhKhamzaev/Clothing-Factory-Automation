@@ -71,6 +71,7 @@ export default {
   ripeMaterialPurchase: 'Материал савдоси',
   ripeMaterialPaintPurchase: 'Боёк савдоси',
   transactions: 'Транзакциялар',
+  sale: 'Савдо',
   quantity: 'Микдор',
   warehouse: 'Омбор',
   unripeMaterial: 'Тўкув материал',

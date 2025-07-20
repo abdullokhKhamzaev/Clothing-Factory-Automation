@@ -306,6 +306,11 @@ const routes = [
             component: () => import('pages/budget/TransactionPage.vue')
           },
           {
+            path: 'sale',
+            name: 'club.budget.sale',
+            component: () => import('pages/budget/SalePage.vue')
+          },
+          {
             path: 'thread',
             name: 'club.budget.thread',
             component: () => import('pages/budget/ThreadPage.vue')

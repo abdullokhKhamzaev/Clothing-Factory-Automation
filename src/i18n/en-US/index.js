@@ -71,6 +71,7 @@ export default {
   ripeMaterialPurchase: 'Ripe Material Purchase',
   ripeMaterialPaintPurchase: 'Paint Purchase',
   transactions: 'Transactions',
+  sale: 'Sale',
   quantity: 'Quantity',
   warehouse: 'Warehouse',
   unripeMaterial: 'Unripe Material',

@@ -210,6 +210,10 @@ const routes = computed(() => {
       value: router.resolve( { name: 'club.budget.transactions' } )
     },
     {
+      label: t('sale'),
+      value: router.resolve( { name: 'club.budget.sale' } )
+    },
+    {
       label: t('thread'),
       value: router.resolve( { name: 'club.budget.thread' } )
     },

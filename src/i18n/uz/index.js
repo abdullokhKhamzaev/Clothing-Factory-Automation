@@ -71,6 +71,7 @@ export default {
   ripeMaterialPurchase: 'Material savdosi',
   ripeMaterialPaintPurchase: 'Bo\'yoq savdosi',
   transactions: 'Tranzaksiyalar',
+  sale: 'Savdo',
   quantity: 'Miqdor',
   warehouse: 'Ombor',
   unripeMaterial: 'To\'quv material',
