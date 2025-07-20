@@ -120,7 +120,6 @@ function createOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createOrderErr.value = res.response.data['hydra:description'];
@@ -132,7 +131,10 @@ function createOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false);
+    .finally(() => {
+      orderLoading.value = false;
+      refresh();
+    });
 }
 function finishOrderAction() {
   if (orderLoading.value) return; // Prevent multiple rapid calls
@@ -154,7 +156,6 @@ function finishOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successCompleted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -164,7 +165,10 @@ function finishOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false);
+    .finally(() => {
+      orderLoading.value = false;
+      refresh();
+    });
 }
 function deleteOrderAction() {
   if (orderLoading.value) return; // Prevent multiple rapid calls
@@ -184,7 +188,6 @@ function deleteOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.successDeleted')
       });
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -194,7 +197,10 @@ function deleteOrderAction() {
         message: t('forms.unripeMaterialOrder.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false)
+    .finally(() => {
+      orderLoading.value = false;
+      refresh();
+    })
 }
 function addRow() {
   rows.value.push({thread: '', quantity: ''});

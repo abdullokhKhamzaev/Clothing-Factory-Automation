@@ -1641,7 +1641,8 @@ export default {
         price: 'Narx',
       },
       buttons: {
-        add: 'Ip qo\'shish'
+        add: 'Qo\'shish',
+        buy: 'Sotib olish',
       },
     },
     threadPurchase: {
@@ -1821,6 +1822,7 @@ export default {
       },
       buttons: {
         add: 'Qo\'shish',
+        buy: 'Sotib olish',
         sendToCutter: 'Bichuvchi omboriga yuborish'
       }
     },

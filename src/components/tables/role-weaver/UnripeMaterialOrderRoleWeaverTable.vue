@@ -160,7 +160,6 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
@@ -171,7 +170,10 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false);
+    .finally(() => {
+      orderLoading.value = false;
+      refresh();
+    });
 }
 function prefill () {
   let consumes = [];

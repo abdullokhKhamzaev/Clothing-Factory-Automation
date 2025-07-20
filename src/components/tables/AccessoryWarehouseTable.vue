@@ -1,26 +1,14 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import { useAccessory } from "stores/accessory.js";
-import { useBudget } from "stores/budget.js";
-import { useAbout } from "stores/user/about.js";
-import { useAccessoryPurchase } from "stores/accessoryPurchase.js";
-import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
 const domain = ref(import.meta.env.VITE_API_DOMEN);
 const $q = useQuasar();
 const { t } = useI18n();
-
-const budget = useBudget();
-const user = useAbout();
-
-const selectedData = ref({});
-const showPurchaseModal = ref(false);
-const purchaseLoading = ref(false);
-const createActionErr = ref(null);
 
 const columns = [
   { name: 'name', label: t('tables.accessory.columns.name'), align: 'left', field: 'name' },
@@ -72,68 +60,6 @@ function refresh () {
 onMounted(() => {
   refresh();
 })
-
-function createAction() {
-  if (purchaseLoading.value) return; // Prevent multiple rapid calls
-
-  if (!user.about['@id'] || !selectedData.value.accessory['@id']) {
-    console.warn('user or accessory not found');
-    return
-  }
-
-  purchaseLoading.value = true;
-
-  let input = {
-    accessory: selectedData.value.accessory['@id'],
-    quantity: selectedData.value.quantity,
-    price: selectedData.value.price,
-    totalPrice: String(selectedData.value.quantity * selectedData.value.price),
-    budget: selectedData.value.budget,
-    paidPrice: selectedData.value.paidPrice,
-    purchasedBy: user.about['@id'],
-    transaction: [{
-      paidPrice: selectedData.value.paidPrice,
-      createdBy: user.about['@id'],
-      isIncome: false,
-      description: `accessoryPurchased ${selectedData.value.accessory.name} - ${selectedData.value.quantity} ${selectedData.value.accessory.measurement} x ${selectedData.value.price}`,
-      budget: selectedData.value.budget,
-      isOldInAndOut: false,
-      price: String(selectedData.value.quantity * selectedData.value.price)
-    }]
-  }
-
-  input.isPayed = Number(selectedData.value.paidPrice) === Number(selectedData.value.quantity * selectedData.value.price);
-
-  useAccessoryPurchase().createPurchase(input)
-    .then(() => {
-      showPurchaseModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.accessoryPurchase.confirmation.successBought')
-      })
-      clearAction();
-    })
-    .catch((res) => {
-      createActionErr.value = res.response.data['hydra:description'];
-
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.accessoryPurchase.confirmation.failure')
-      })
-    })
-    .finally(() => {
-      purchaseLoading.value = false;
-      refresh();
-    })
-}
-function clearAction() {
-  selectedData.value = {};
-  createActionErr.value = null;
-}
 </script>
 
 <template>
@@ -157,14 +83,6 @@ function clearAction() {
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.accessory.buttons.purchase')"
-            no-caps
-            class="q-mb-md q-mb-sm-none"
-            @click="showPurchaseModal = true"
-          />
           <q-select
             dense
             multiple
@@ -215,104 +133,4 @@ function clearAction() {
       </q-tr>
     </template>
   </q-table>
-  <!-- Dialogs -->
-  <q-dialog v-model="showPurchaseModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
-      <q-form @submit.prevent="createAction">
-        <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
-        >
-          <div class="text-h6"> {{ $t('dialogs.accessoryPurchase.barCreate') }}</div>
-          <q-btn icon="close" flat round dense v-close-popup />
-        </div>
-        <div v-if="createActionErr">
-          <q-separator color="white" />
-          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
-            <q-icon
-              class="q-mr-sm"
-              name="mdi-alert-circle-outline"
-              size="md"
-              color="white"
-            />
-            {{ createActionErr }}
-          </div>
-          <q-separator color="white" />
-        </div>
-        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <selectable-list
-            v-model="selectedData.accessory"
-            :label="$t('forms.accessoryPurchase.fields.accessory.label')"
-            :store="repository"
-            fetch-method="fetchAccessories"
-            :methodProps="{types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse']}"
-            item-label="name"
-            :rule-message="$t('forms.accessoryPurchase.fields.accessory.validation.required')"
-            class="col-12"
-          />
-          <selectable-list
-            v-model="selectedData.budget"
-            :label="$t('forms.accessoryPurchase.fields.budget.label')"
-            :store="budget"
-            fetch-method="fetchBudgets"
-            item-value="@id"
-            item-label="name"
-            :rule-message="$t('forms.accessoryPurchase.fields.budget.validation.required')"
-            class="col-12"
-          />
-          <q-input
-            v-model="selectedData.quantity"
-            type="number"
-            filled
-            :disable="!selectedData.accessory"
-            :label="$t('forms.accessoryPurchase.fields.quantity.label')"
-            lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.accessoryPurchase.fields.quantity.validation.required')]"
-            hide-bottom-space
-            class="col-12 col-md-6"
-          />
-          <q-input
-            v-model="selectedData.price"
-            type="number"
-            filled
-            :disable="!selectedData.budget || !selectedData.accessory || !selectedData.quantity > 0"
-            :prefix="selectedData?.budget === '/api/budgets/1' ? 'so\'m:' : '$:'"
-            :label="$t('forms.accessoryPurchase.fields.price.label')"
-            lazy-rules
-            :rules="[ val => val && val > 0 || $t('forms.accessoryPurchase.fields.price.validation.required')]"
-            hide-bottom-space
-            class="col-12 col-md-6"
-          />
-          <q-input
-            v-model="selectedData.paidPrice"
-            type="number"
-            filled
-            :disable="!selectedData.price || !selectedData.budget || !selectedData.accessory || !selectedData.quantity > 0"
-            :prefix="selectedData?.budget === '/api/budgets/1' ? `${selectedData.quantity * selectedData.price} so'm ${$t('from')}` : `${selectedData.quantity * selectedData.price} $ ${$t('from')}`"
-            :label="$t('forms.accessoryPurchase.fields.paidPrice.label')"
-            lazy-rules
-            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantity * selectedData.price) || $t('forms.accessoryPurchase.fields.paidPrice.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-        </div>
-        <q-separator/>
-        <div class="q-px-md q-py-sm text-center">
-          <q-btn
-            :disable="loading || purchaseLoading"
-            :loading="loading || purchaseLoading"
-            no-caps
-            :label="$t('forms.accessoryPurchase.buttons.buy')"
-            type="submit"
-            color="primary"
-          />
-        </div>
-      </q-form>
-    </div>
-  </q-dialog>
 </template>
-<style scoped>
-</style>

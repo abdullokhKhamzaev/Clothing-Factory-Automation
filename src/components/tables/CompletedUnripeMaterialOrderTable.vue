@@ -82,7 +82,6 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -92,7 +91,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false)
+    .finally(() => {
+      orderLoading.value = false;
+      refresh()
+    })
 }
 function rejectAction () {
   if (orderLoading.value) return; // Prevent multiple rapid calls
@@ -108,7 +110,6 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      refresh()
     })
     .catch(() => {
       $q.notify({
@@ -118,7 +119,10 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => orderLoading.value = false)
+    .finally(() => {
+      orderLoading.value = false;
+      refresh()
+    })
 }
 </script>
 

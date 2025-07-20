@@ -106,7 +106,6 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       sendActionErr.value = res.response.data['hydra:description'];
@@ -118,7 +117,10 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => materialLoading.value = false)
+    .finally(() => {
+      materialLoading.value = false;
+      refresh()
+    })
 }
 </script>
 

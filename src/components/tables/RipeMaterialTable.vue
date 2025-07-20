@@ -164,7 +164,6 @@ function deleteAction() {
           message: t('forms.ripeMaterial.confirmation.successDeleted')
         });
         clearAction();
-        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -174,7 +173,10 @@ function deleteAction() {
           message: t('forms.ripeMaterial.confirmation.failure')
         })
       })
-      .finally(() => materialLoading.value = false)
+      .finally(() => {
+        materialLoading.value = false;
+        refresh();
+      })
   } else {
     console.warn('data is empty');
   }

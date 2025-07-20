@@ -103,12 +103,14 @@ function payAction () {
         message: t('forms.paintPurchase.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
     })
-    .finally(() => paymentLoading.value = false)
+    .finally(() => {
+      paymentLoading.value = false;
+      refresh();
+    })
 }
 </script>
 

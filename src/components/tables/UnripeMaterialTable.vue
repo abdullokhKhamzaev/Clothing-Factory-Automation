@@ -91,7 +91,6 @@ function createMaterialAction () {
         message: t('forms.unripeMaterial.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -103,7 +102,10 @@ function createMaterialAction () {
         message: t('forms.unripeMaterial.confirmation.failure')
       })
     })
-    .finally(() => materialLoading.value = false);
+    .finally(() => {
+      materialLoading.value = false;
+      refresh();
+    });
 }
 function updateMaterialAction() {
   if (materialLoading.value) return; // Prevent multiple rapid calls

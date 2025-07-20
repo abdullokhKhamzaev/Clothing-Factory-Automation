@@ -1,12 +1,15 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useThreadPurchase } from 'src/stores/threadPurchase.js'
+import { useThread } from "stores/thread.js";
 import { useBudget } from "stores/budget.js";
+import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
+import SelectableList from "components/selectableList.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -14,6 +17,13 @@ const showPayModal = ref(false);
 const paymentLoading = ref(false);
 const payActionErr = ref(null);
 const selectedData = ref({});
+const showPurchaseModal = ref(false);
+const createActionErr = ref(null);
+
+const budget = useBudget();
+const user = useAbout();
+const thread = useThread();
+
 function clearAction () {
   selectedData.value = {};
   payActionErr.value = null;
@@ -70,6 +80,64 @@ const columns = [
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
+function createAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
+  if (!user.about['@id'] || !selectedData.value.thread['@id']) {
+    console.warn('user or thread not found');
+    return
+  }
+
+  loading.value = true;
+
+  let input = {
+    thread: selectedData.value.thread['@id'],
+    quantity: selectedData.value.quantity,
+    price: selectedData.value.price,
+    totalPrice: String(selectedData.value.quantity * selectedData.value.price),
+    budget: selectedData.value.budget,
+    paidPrice: selectedData.value.paidPrice,
+    purchasedBy: user.about['@id'],
+    transaction: [{
+      paidPrice: selectedData.value.paidPrice,
+      createdBy: user.about['@id'],
+      isIncome: false,
+      description: `threadPurchased ${selectedData.value.thread.name} - ${selectedData.value.quantity} ${selectedData.value.thread.measurement} x ${selectedData.value.price}`,
+      budget: selectedData.value.budget,
+      isOldInAndOut: false,
+      price: String(selectedData.value.quantity * selectedData.value.price)
+    }]
+  }
+
+  input.isPayed = Number(selectedData.value.paidPrice) === Number(selectedData.value.quantity * selectedData.value.price);
+
+  useThreadPurchase().createPurchase(input)
+    .then(() => {
+      showPurchaseModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.threadPurchase.confirmation.successBought')
+      })
+      clearAction();
+    })
+    .catch((res) => {
+      createActionErr.value = res.response.data['hydra:description'];
+
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: t('forms.threadPurchase.confirmation.failure')
+      })
+    })
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
+}
+
 // Table Data
 const repository = useThreadPurchase();
 const items = ref([]);
@@ -98,7 +166,6 @@ function getItems () {
       loading.value = false;
     });
 }
-
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
   getItems();
@@ -133,6 +200,13 @@ onMounted(() => {
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn
+            no-caps
+            :label="$t('tables.thread.buttons.buy')"
+            color="primary"
+            class="q-mb-md q-mb-sm-none"
+            @click="showPurchaseModal = true"
+          />
           <q-select
             dense
             multiple
@@ -214,6 +288,103 @@ onMounted(() => {
       </q-tr>
     </template>
   </q-table>
+  <!-- Dialogs -->
+  <q-dialog v-model="showPurchaseModal" persistent @hide="clearAction">
+    <div
+      class="bg-white shadow-3"
+      style="width: 900px; max-width: 80vw;"
+    >
+      <q-form @submit.prevent="createAction">
+        <div
+          class="q-px-md q-py-sm text-white flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+        >
+          <div class="text-h6"> {{ $t('dialogs.threadPurchase.barCreate') }}</div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </div>
+        <div v-if="createActionErr">
+          <q-separator color="white" />
+          <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
+            <q-icon
+              class="q-mr-sm"
+              name="mdi-alert-circle-outline"
+              size="md"
+              color="white"
+            />
+            {{ createActionErr }}
+          </div>
+          <q-separator color="white" />
+        </div>
+        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <selectable-list
+            v-model="selectedData.thread"
+            :label="$t('forms.threadPurchase.fields.thread.label')"
+            :store="thread"
+            fetch-method="fetchThreads"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.thread.validation.required')"
+            class="col-12"
+          />
+          <selectable-list
+            v-model="selectedData.budget"
+            :label="$t('forms.threadPurchase.fields.budget.label')"
+            :store="budget"
+            fetch-method="fetchBudgets"
+            item-value="@id"
+            item-label="name"
+            :rule-message="$t('forms.threadPurchase.fields.budget.validation.required')"
+            class="col-12"
+          />
+          <q-input
+            v-model="selectedData.quantity"
+            type="number"
+            filled
+            :disable="!selectedData.thread"
+            :label="$t('forms.threadPurchase.fields.quantity.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.quantity.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+          <q-input
+            v-model="selectedData.price"
+            type="number"
+            filled
+            :disable="!selectedData.budget || !selectedData.thread || !selectedData.quantity > 0"
+            :prefix="selectedData?.budget === '/api/budgets/1' ? 'so\'m:' : '$:'"
+            :label="$t('forms.threadPurchase.fields.price.label')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || $t('forms.threadPurchase.fields.price.validation.required')]"
+            hide-bottom-space
+            class="col-12 col-md-6"
+          />
+          <q-input
+            v-model="selectedData.paidPrice"
+            type="number"
+            filled
+            :disable="!selectedData.price || !selectedData.budget || !selectedData.thread || !selectedData.quantity > 0"
+            :prefix="selectedData?.budget === '/api/budgets/1' ? `${selectedData.quantity * selectedData.price} so'm ${$t('from')}` : `${selectedData.quantity * selectedData.price} $ ${$t('from')}`"
+            :label="$t('forms.threadPurchase.fields.paidPrice.label')"
+            lazy-rules
+            :rules="[ val => val && val >= 0 && val <= Number(selectedData.quantity * selectedData.price) || $t('forms.threadPurchase.fields.paidPrice.validation.required')]"
+            hide-bottom-space
+            class="col-12"
+          />
+        </div>
+        <q-separator/>
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            :disable="purchaseLoading"
+            :loading="purchaseLoading"
+            no-caps
+            :label="$t('forms.threadPurchase.buttons.buy')"
+            type="submit"
+            color="primary"
+          />
+        </div>
+      </q-form>
+    </div>
+  </q-dialog>
   <q-dialog v-model="showPayModal" persistent @hide="clearAction">
     <div
       class="bg-white shadow-3"

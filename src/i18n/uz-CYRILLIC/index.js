@@ -1641,7 +1641,8 @@ export default {
         price: 'Нарх',
       },
       buttons: {
-        add: 'Ип қўшиш'
+        add: 'Ип қўшиш',
+        buy: 'Сотиб олиш',
       },
     },
     threadPurchase: {
@@ -1821,6 +1822,7 @@ export default {
       },
       buttons: {
         add: 'Қўшиш',
+        buy: 'Сотиб олиш',
         sendToCutter: 'Бичувчи омборига юбориш'
       }
     },

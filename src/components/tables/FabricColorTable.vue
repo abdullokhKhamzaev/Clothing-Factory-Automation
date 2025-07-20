@@ -78,7 +78,6 @@ function createColorAction() {
         message: t('forms.color.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -90,7 +89,10 @@ function createColorAction() {
         message: t('forms.color.confirmation.failure')
       })
     })
-    .finally(() => colorLoading.value = false);
+    .finally(() => {
+      colorLoading.value = false;
+      refresh();
+    });
 }
 function updateColorAction() {
   if (selectedData.value.id) {
@@ -108,7 +110,6 @@ function updateColorAction() {
           message: t('forms.color.confirmation.successEdited')
         });
         clearAction();
-        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -120,7 +121,10 @@ function updateColorAction() {
           message: t('forms.color.confirmation.failure')
         })
       })
-      .finally(() => colorLoading.value = false);
+      .finally(() => {
+        colorLoading.value = false;
+        refresh();
+      });
   } else {
     console.warn('data is empty');
   }
@@ -142,7 +146,6 @@ function deleteColorAction() {
           message: t('forms.color.confirmation.successDeleted')
         });
         clearAction();
-        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -152,7 +155,10 @@ function deleteColorAction() {
           message: t('forms.color.confirmation.failure')
         })
       })
-      .finally(() => colorLoading.value = false)
+      .finally(() => {
+        colorLoading.value = false;
+        refresh();
+      })
   } else {
     console.warn('data is empty');
   }

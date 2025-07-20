@@ -142,7 +142,6 @@ function createAction () {
         message: t('forms.sale.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -154,7 +153,10 @@ function createAction () {
         message: t('forms.sale.confirmation.failure')
       })
     })
-    .finally(() => saleLoading.value = false);
+    .finally(() => {
+      saleLoading.value = false;
+      refresh();
+    });
 }
 function clearAction() {
   selectedData.value = {};
@@ -216,12 +218,14 @@ function payAction () {
         message: t('forms.ripeMaterialPurchase.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
     })
-    .finally(() => saleLoading.value = false)
+    .finally(() => {
+      saleLoading.value = false;
+      refresh();
+    })
 }
 
 const oweByCurrency = computed(() => {

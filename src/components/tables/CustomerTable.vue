@@ -84,7 +84,6 @@ function createAction () {
         message: t('forms.customer.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -96,7 +95,10 @@ function createAction () {
         message: t('forms.customer.confirmation.failure')
       })
     })
-    .finally(() => customerLoading.value = false);
+    .finally(() => {
+      customerLoading.value = false;
+      refresh()
+    });
 }
 function updateAction() {
   if (selectedData.value.id) {

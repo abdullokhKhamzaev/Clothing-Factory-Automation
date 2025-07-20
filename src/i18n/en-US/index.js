@@ -1641,7 +1641,8 @@ export default {
         price: 'Price',
       },
       buttons: {
-        add: 'Add Thread'
+        add: 'Add',
+        buy: 'Purchase',
       },
     },
     threadPurchase: {
@@ -1821,6 +1822,7 @@ export default {
       },
       buttons: {
         add: 'Add',
+        buy: 'Purchase',
         sendToCutter: 'Send to Cutter Warehouse'
       }
     },

@@ -147,7 +147,6 @@ function deleteFabricAction() {
           message: t('forms.fabric.confirmation.successDeleted')
         });
         clearAction();
-        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -157,7 +156,10 @@ function deleteFabricAction() {
           message: t('forms.fabric.confirmation.failure')
         })
       })
-      .finally(() => fabricLoading.value = false)
+      .finally(() => {
+        fabricLoading.value = false;
+        refresh();
+      })
   } else {
     console.warn('data is empty');
   }

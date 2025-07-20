@@ -105,7 +105,6 @@ function paySalaryAction () {
         message: t('forms.salary.confirmation.successPayed')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       salaryActionErr.value = res.response.data['hydra:description'];
@@ -117,7 +116,10 @@ function paySalaryAction () {
         message: t('forms.salary.confirmation.failure')
       })
     })
-    .finally(() => salaryLoading.value = false)
+    .finally(() => {
+      salaryLoading.value = false;
+      refresh();
+    })
 }
 function payAdvanceAction () {
   if (salaryLoading.value) return; // Prevent multiple rapid calls
@@ -143,7 +145,6 @@ function payAdvanceAction () {
         message: t('forms.salary.confirmation.successPayed')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       advanceActionErr.value = res.response.data['hydra:description'];
@@ -155,7 +156,10 @@ function payAdvanceAction () {
         message: t('forms.salary.confirmation.failure')
       })
     })
-    .finally(() => salaryLoading.value = false)
+    .finally(() => {
+      salaryLoading.value = false;
+      refresh();
+    })
 }
 </script>
 

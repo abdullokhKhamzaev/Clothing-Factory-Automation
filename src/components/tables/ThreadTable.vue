@@ -93,7 +93,6 @@ function createThreadAction() {
         message: t('forms.thread.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -105,7 +104,10 @@ function createThreadAction() {
         message: t('forms.thread.confirmation.failure')
       })
     })
-    .finally(() => threadLoading.value = false);
+    .finally(() => {
+      threadLoading.value = false;
+      refresh();
+    });
 }
 function updateThreadAction() {
   if (threadLoading.value) return; // Prevent multiple rapid calls
