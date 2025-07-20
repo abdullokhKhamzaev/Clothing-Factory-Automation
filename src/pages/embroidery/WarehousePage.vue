@@ -410,6 +410,7 @@ const filteredProducts = computed(() => {
                   </q-item-section>
                 </q-item>
                 <q-item
+                  v-if="false"
                   v-close-popup
                   class="text-red"
                   clickable
@@ -429,6 +430,7 @@ const filteredProducts = computed(() => {
                 </q-item>
                 <q-separator />
                 <q-item
+                  v-if="false"
                   v-close-popup
                   class="text-primary"
                   clickable
