@@ -29,7 +29,7 @@ const pagination = ref({
 });
 
 const filters = ref({
-  // ...
+  name: null
 });
 
 function getItems () {
@@ -80,6 +80,21 @@ onMounted(() => {
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-input
+            style="min-width: 225px"
+            dense
+            outlined
+            clearable
+            v-model="filters.name"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            :label="$t('tables.users.header.searchTitle')"
+            :debounce="1000"
+            @update:model-value="getItems"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="primary" />
+            </template>
+          </q-input>
           <q-select
             dense
             multiple

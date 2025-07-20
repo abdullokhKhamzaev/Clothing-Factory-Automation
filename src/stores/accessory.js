@@ -9,6 +9,10 @@ export const useAccessory = defineStore('accessory', () => {
     params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
+    if (filterProps.name) {
+      params.set('name', filterProps.name);
+    }
+
     if (filterProps.types) {
       filterProps.types.forEach(status => {
         params.append('type[]', status);

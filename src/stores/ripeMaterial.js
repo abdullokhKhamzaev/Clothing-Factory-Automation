@@ -9,6 +9,10 @@ export const useRipeMaterial = defineStore('ripe_material', () => {
     params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
+    if (filterProps.name) {
+      params.set('name', filterProps.name);
+    }
+
     try {
       return await client.get(`ripe_materials?${params.toString()}`);
     } catch (e) {

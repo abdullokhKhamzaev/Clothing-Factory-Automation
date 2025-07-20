@@ -192,6 +192,7 @@ function clearAction() {
         <div class="q-table__title">{{ $t('tables.customer.header.title') }}</div>
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-input
             style="min-width: 225px"
             dense
@@ -207,7 +208,6 @@ function clearAction() {
               <q-icon name="search" color="primary" />
             </template>
           </q-input>
-          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-btn
             color="primary"
             icon-right="add"

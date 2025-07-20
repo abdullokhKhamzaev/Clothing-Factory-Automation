@@ -9,6 +9,10 @@ export const useProductModels = defineStore('product_model', () => {
     params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
+    if (filterProps.name) {
+      params.set('name', filterProps.name);
+    }
+
     try {
       return await client.get(`product_models?${params.toString()}`);
     } catch (e) {
