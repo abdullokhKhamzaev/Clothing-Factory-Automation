@@ -122,7 +122,6 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       sendActionErr.value = res.response.data['hydra:description'];
@@ -134,7 +133,10 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function hasEmbroidery(data) {
   return data.some(size => size.embroidery.length > 0);

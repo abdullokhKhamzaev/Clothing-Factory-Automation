@@ -92,7 +92,6 @@ function createAction() {
         message: t('forms.ripeMaterial.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -104,7 +103,10 @@ function createAction() {
         message: t('forms.ripeMaterial.confirmation.failure')
       })
     })
-    .finally(() => materialLoading.value = false);
+    .finally(() => {
+      materialLoading.value = false;
+      refresh();
+    });
 }
 function updateAction() {
   if (materialLoading.value) return; // Prevent multiple rapid calls
@@ -126,7 +128,6 @@ function updateAction() {
           message: t('forms.ripeMaterial.confirmation.successEdited')
         });
         clearAction();
-        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -138,7 +139,10 @@ function updateAction() {
           message: t('forms.ripeMaterial.confirmation.failure')
         })
       })
-      .finally(() => materialLoading.value = false);
+      .finally(() => {
+        materialLoading.value = false;
+        refresh();
+      });
   } else {
     console.warn('data is empty');
   }

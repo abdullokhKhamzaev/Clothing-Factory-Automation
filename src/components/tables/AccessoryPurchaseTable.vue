@@ -50,7 +50,10 @@ function payAction () {
     .catch((res) => {
       payActionErr.value = res.response.data['hydra:description'];
     })
-    .finally(() => paymentLoading.value = false)
+    .finally(() => {
+      paymentLoading.value = false;
+      refresh();
+    })
 }
 
 const columns = [

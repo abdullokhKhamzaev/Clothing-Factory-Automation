@@ -224,6 +224,10 @@ const routes = computed(() => {
     {
       label: t('accessory'),
       value: router.resolve( { name: 'club.budget.accessory' } )
+    },
+    {
+      label: t('indebtedness'),
+      value: router.resolve( { name: 'club.budget.indebtedness' } )
     }
   ];
 })

@@ -96,7 +96,6 @@ function createAction () {
               message: t('forms.accessory.confirmation.successCreated')
             })
             clearAction();
-            refresh();
           })
           .catch((res) => {
             createActionErr.value = res.response.data['hydra:description'];
@@ -108,7 +107,10 @@ function createAction () {
               message: t('forms.accessory.confirmation.failure')
             })
           })
-          .finally(() => accessoryLoading.value = false);
+          .finally(() => {
+            accessoryLoading.value = false;
+            refresh();
+          });
       })
   } else {
     repository.create(selectedData.value)
@@ -121,7 +123,6 @@ function createAction () {
           message: t('forms.accessory.confirmation.successCreated')
         })
         clearAction();
-        refresh();
       })
       .catch((res) => {
         createActionErr.value = res.response.data['hydra:description'];
@@ -133,7 +134,10 @@ function createAction () {
           message: t('forms.accessory.confirmation.failure')
         })
       })
-      .finally(() => accessoryLoading.value = false);
+      .finally(() => {
+        accessoryLoading.value = false;
+        refresh();
+      });
   }
 }
 function updateAction() {
@@ -151,7 +155,6 @@ function updateAction() {
           message: t('forms.accessory.confirmation.successEdited')
         });
         clearAction();
-        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -163,7 +166,10 @@ function updateAction() {
           message: t('forms.accessory.confirmation.failure')
         })
       })
-      .finally(() => accessoryLoading.value = false);
+      .finally(() => {
+        accessoryLoading.value = false;
+        refresh();
+      });
   } else {
     console.warn('data is empty');
   }
@@ -184,7 +190,6 @@ function deleteAction() {
           message: t('forms.accessory.confirmation.successDeleted')
         });
         clearAction();
-        refresh();
       })
       .catch(() => {
         $q.notify({
@@ -194,7 +199,10 @@ function deleteAction() {
           message: t('forms.accessory.confirmation.failure')
         })
       })
-      .finally(() => accessoryLoading.value = false)
+      .finally(() => {
+        accessoryLoading.value = false;
+        refresh();
+      })
   } else {
     console.warn('data is empty');
   }

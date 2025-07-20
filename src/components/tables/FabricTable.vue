@@ -79,7 +79,6 @@ function createFabricAction() {
         message: t('forms.fabric.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -91,7 +90,10 @@ function createFabricAction() {
         message: t('forms.fabric.confirmation.failure')
       })
     })
-    .finally(() => fabricLoading.value = false);
+    .finally(() => {
+      fabricLoading.value = false;
+      refresh();
+    });
 }
 function updateFabricAction() {
   if (selectedData.value.id) {
@@ -109,7 +111,6 @@ function updateFabricAction() {
           message: t('forms.fabric.confirmation.successEdited')
         });
         clearAction();
-        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -121,7 +122,10 @@ function updateFabricAction() {
           message: t('forms.fabric.confirmation.failure')
         })
       })
-      .finally(() => fabricLoading.value = false);
+      .finally(() => {
+        fabricLoading.value = false;
+        refresh();
+      });
   } else {
     console.warn('data is empty');
   }

@@ -114,7 +114,6 @@ function createAction() {
         message: t('forms.accessoryPurchase.confirmation.successBought')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -126,7 +125,10 @@ function createAction() {
         message: t('forms.accessoryPurchase.confirmation.failure')
       })
     })
-    .finally(() => purchaseLoading.value = false)
+    .finally(() => {
+      purchaseLoading.value = false;
+      refresh();
+    })
 }
 function clearAction() {
   selectedData.value = {};

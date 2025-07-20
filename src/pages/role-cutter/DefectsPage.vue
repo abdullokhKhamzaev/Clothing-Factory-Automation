@@ -94,7 +94,6 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -104,7 +103,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
@@ -118,7 +120,6 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -128,7 +129,10 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
@@ -211,7 +215,6 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
@@ -222,7 +225,10 @@ function reportOrderAction() {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => loading.value = false);
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    });
 }
 
 function clearAction() {

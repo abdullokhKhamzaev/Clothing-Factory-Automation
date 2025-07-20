@@ -67,7 +67,6 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -77,7 +76,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function rejectAction () {
   if (!user.about['@id'] || !selectedData.value['@id']) {
@@ -102,7 +104,6 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -112,7 +113,10 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};

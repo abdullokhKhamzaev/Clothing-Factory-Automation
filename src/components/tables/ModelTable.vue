@@ -149,7 +149,6 @@ function createAction() {
               message: t('forms.model.confirmation.successCreated')
             })
             clearAction();
-            refresh();
           })
           .catch((res) => {
             createActionErr.value = res.response.data['hydra:description'];
@@ -161,7 +160,10 @@ function createAction() {
               message: t('forms.model.confirmation.failure')
             })
           })
-          .finally(() => modelLoading.value = false);
+          .finally(() => {
+            modelLoading.value = false;
+            refresh();
+          });
       })
   } else {
     repository.create(input)
@@ -174,7 +176,6 @@ function createAction() {
           message: t('forms.model.confirmation.successCreated')
         })
         clearAction();
-        refresh();
       })
       .catch((res) => {
         createActionErr.value = res.response.data['hydra:description'];
@@ -186,7 +187,10 @@ function createAction() {
           message: t('forms.model.confirmation.failure')
         })
       })
-      .finally(() => modelLoading.value = false);
+      .finally(() => {
+        modelLoading.value = false;
+        refresh();
+      });
   }
 }
 function updateAction() {
@@ -219,7 +223,6 @@ function updateAction() {
           message: t('forms.model.confirmation.successEdited')
         });
         clearAction();
-        refresh();
       })
       .catch((res) => {
         updateActionErr.value = res.response.data['hydra:description'];
@@ -231,7 +234,10 @@ function updateAction() {
           message: t('forms.model.confirmation.failure')
         })
       })
-      .finally(() => modelLoading.value = false);
+      .finally(() => {
+        modelLoading.value = false;
+        refresh();
+      });
   } else {
     console.warn('data is empty');
   }

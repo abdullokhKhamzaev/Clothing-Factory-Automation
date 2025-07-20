@@ -10,6 +10,7 @@ export default {
     payedForMaterialPurchaseDebt: 'Материал савдосининг қарзи учун тўланди',
     payedForPaintingDebt: 'Бўёқ савдосининг қарзи учун тўланди',
     payedForAccessoryDebt: 'Аксессуар савдосининг қарзи учун тўланди',
+    payedForIndebtedness: 'Қарздорлик учун тўланди',
     payedForPaintMaterial: 'Бўёқ учун тўланди',
     payedCustomerAdvance: 'Аванс берилди',
     payedCustomerSalary: 'Моаш берилди',
@@ -35,6 +36,7 @@ export default {
   salary: 'Моаш',
   add: 'Қўшиш',
   accessory: 'Аксессуар',
+  indebtedness: 'Қарздорлик',
   accept: 'Қабул қилиш',
   balance: 'Баланс',
   confirmed: 'Тасдиқланган',
@@ -230,6 +232,10 @@ export default {
     accessoryPurchase: {
       barCreate: 'Аксессуар сотиб олиш',
       barPayDebt: 'Аксессуар савдосининг қарзини тўлаш'
+    },
+    indebtedness: {
+      barCreate: 'Қарз Олиш',
+      barPayDebt: 'Қарзни тўлаш'
     },
     unripeMaterial: {
       barCreate: 'Тўқув материал яратиш',
@@ -566,6 +572,54 @@ export default {
       confirmation: {
         successBought: 'Аксессуар муваффақиятли сотиб олинди.',
         failure: 'Аксессуар сотиб олишда хатолик юз берди.'
+      }
+    },
+    indebtedness: {
+      fields: {
+        name: {
+          label: 'Ном',
+          validation: {
+            required: 'Ном талаб қилинади.'
+          }
+        },
+        description: {
+          label: 'Таснифи',
+          validation: {
+            required: 'Тасниф мажбурий.',
+          }
+        },
+        budget: {
+          label: 'Бюджет',
+          validation: {
+            required: 'Бюджет талаб қилинади.'
+          }
+        },
+        quantity: {
+          label: 'Миқдор',
+          validation: {
+            required: 'Миқдор талаб қилинади.'
+          }
+        },
+        price: {
+          label: 'Нарҳ',
+          validation: {
+            required: 'Нарҳ талаб қилинади.'
+          }
+        },
+        dealDate: {
+          label: 'Келишилган муддат',
+          validation: {
+            required: 'Санани киритиш мажбурий.',
+          }
+        },
+      },
+      buttons: {
+        borrow: 'Қарз олиш',
+        payIndebtedness: 'Қарзни тўлаш',
+      },
+      confirmation: {
+        successBought: 'Successfully borrowed',
+        failure: 'There was an error borrowing.'
       }
     },
     unripeMaterial: {
@@ -1555,6 +1609,25 @@ export default {
         isWork: 'Ишда',
         cutMoney: 'Ундурилган сумма',
         isTimelyDeparture: 'Вақтдан олдин кетган',
+      }
+    },
+    indebtedness: {
+      header: {
+        title: 'Қарздорлик',
+        empty: 'Ҳеч қандай Қарздорлик топилмади'
+      },
+      columns: {
+        id: 'id',
+        createdAt: 'Сана',
+        dealDate: 'Келишилган сана',
+        name: 'Ном',
+        description: 'Тасниф',
+        quantity: 'Миқдор',
+        remainingAmount: 'Қолган Қарз',
+        transaction: 'Тасниф'
+      },
+      buttons: {
+        add: 'Қарз олиш'
       }
     },
     thread: {

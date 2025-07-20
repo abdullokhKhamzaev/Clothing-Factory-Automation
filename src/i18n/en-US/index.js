@@ -10,6 +10,7 @@ export default {
     payedForMaterialPurchaseDebt: 'Payed for material purchase debt',
     payedForPaintingDebt: 'Payed for painting debt',
     payedForAccessoryDebt: 'Payed for accessory debt',
+    payedForIndebtedness: 'Payed for indebtedness',
     payedForPaintMaterial: 'Payed for paint material',
     payedCustomerAdvance: 'Payed advance for customer',
     payedCustomerSalary: 'Payed salary for customer',
@@ -35,6 +36,7 @@ export default {
   salary: 'Salary',
   add: 'Add',
   accessory: 'Accessory',
+  indebtedness: 'Indebtedness',
   accept: 'Accept',
   balance: 'Balance',
   confirmed: 'Confirmed',
@@ -230,6 +232,10 @@ export default {
     accessoryPurchase: {
       barCreate: 'Buy Accessory',
       barPayDebt: 'Pay Accessory Purchase Debt'
+    },
+    indebtedness: {
+      barCreate: 'Borrow',
+      barPayDebt: 'Pay Indebtedness'
     },
     unripeMaterial: {
       barCreate: 'Create Unripe Material',
@@ -566,6 +572,54 @@ export default {
       confirmation: {
         successBought: 'Accessory was successfully bought.',
         failure: 'There was an error buying Accessory.'
+      }
+    },
+    indebtedness: {
+      fields: {
+        name: {
+          label: 'Name',
+          validation: {
+            required: 'Name is required.',
+          }
+        },
+        description: {
+          label: 'Description',
+          validation: {
+            required: 'Description is required.',
+          }
+        },
+        budget: {
+          label: 'Budget',
+          validation: {
+            required: 'Budget is required.',
+          }
+        },
+        quantity: {
+          label: 'Quantity',
+          validation: {
+            required: 'Quantity is required.',
+          }
+        },
+        price: {
+          label: 'Price',
+          validation: {
+            required: 'Price is required.'
+          }
+        },
+        dealDate: {
+          label: 'Deal Date',
+          validation: {
+            required: 'Date is required.',
+          }
+        },
+      },
+      buttons: {
+        borrow: 'Borrow',
+        payIndebtedness: 'Pay indebtedness',
+      },
+      confirmation: {
+        successBought: 'Successfully borrowed',
+        failure: 'There was an error borrowing.'
       }
     },
     unripeMaterial: {
@@ -1555,6 +1609,25 @@ export default {
         isWork: 'At work',
         cutMoney: 'Cut money',
         isTimelyDeparture: 'Early departure',
+      }
+    },
+    indebtedness: {
+      header: {
+        title: 'Indebtedness',
+        empty: 'There is no available Indebtedness'
+      },
+      columns: {
+        id: 'id',
+        createdAt: 'Date',
+        dealDate: 'Deal Date',
+        name: 'Name',
+        description: 'Description',
+        quantity: 'Quantity',
+        remainingAmount: 'Remaining Amount',
+        transaction: 'Transaction'
+      },
+      buttons: {
+        add: 'Borrow'
       }
     },
     thread: {

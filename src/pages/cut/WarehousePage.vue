@@ -126,7 +126,6 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       sendActionErr.value = res.response.data['hydra:description'];
@@ -138,7 +137,10 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function updateAction() {
   if (!selectedData.value.id) {
@@ -168,7 +170,6 @@ function updateAction() {
         message: t('forms.warehouse.confirmation.successUpdated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       updateActionErr.value = res.response.data['hydra:description'];
@@ -180,7 +181,10 @@ function updateAction() {
         message: t('forms.warehouse.confirmation.failure')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function hasEmbroidery(data) {
   return data.some(size => size.embroidery.length > 0);

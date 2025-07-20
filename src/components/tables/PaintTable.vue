@@ -134,7 +134,6 @@ function createAction() {
         message: t('forms.paint.confirmation.successOrderCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -146,7 +145,10 @@ function createAction() {
         message: t('forms.paint.confirmation.failure')
       })
     })
-    .finally(() => paintLoading.value = false)
+    .finally(() => {
+      paintLoading.value = false;
+      refresh();
+    })
 }
 function receiveAction() {
   if (paintLoading.value) return; // Prevent multiple rapid calls
@@ -200,7 +202,6 @@ function receiveAction() {
         message: t('forms.paint.confirmation.successOrderReceived')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       receiveActionErr.value = res.response.data['hydra:description'];
@@ -212,7 +213,10 @@ function receiveAction() {
         message: t('forms.paint.confirmation.failure')
       })
     })
-    .finally(() => paintLoading.value = false)
+    .finally(() => {
+      paintLoading.value = false;
+      refresh();
+    })
 }
 function finishOrderAction() {
   if (paintLoading.value) return; // Prevent multiple rapid calls
@@ -240,7 +244,6 @@ function finishOrderAction() {
         message: t('forms.paint.confirmation.successOrderCompleted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -250,7 +253,10 @@ function finishOrderAction() {
         message: t('forms.paint.confirmation.failure')
       })
     })
-    .finally(() => paintLoading.value = false);
+    .finally(() => {
+      paintLoading.value = false;
+      refresh();
+    });
 }
 </script>
 

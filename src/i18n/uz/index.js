@@ -10,6 +10,7 @@ export default {
     payedForMaterialPurchaseDebt: 'Material savdosining qarzi uchun to\'landi',
     payedForPaintingDebt: 'Bo\'yoq savdosining qarzi uchun to\'landi',
     payedForAccessoryDebt: 'Aksessuar savdosining qarzi uchun to\'landi',
+    payedForIndebtedness: 'Qarzdolrik uchun to\'landi',
     payedForPaintMaterial: 'Bo\'yoq uchun to\'landi',
     payedCustomerAdvance: 'Avans berildi',
     payedCustomerSalary: 'Maosh berildi',
@@ -35,6 +36,7 @@ export default {
   salary: 'Maosh',
   add: 'Qo\'shish',
   accessory: 'Aksessuar',
+  indebtedness: 'Qarzdorlik',
   accept: 'Qabul qilish',
   balance: 'Balans',
   confirmed: 'Tasdiqlangan',
@@ -230,6 +232,10 @@ export default {
     accessoryPurchase: {
       barCreate: 'Aksessuar sotib olish',
       barPayDebt: 'Aksessuar savdosining qarzini to\'lash'
+    },
+    indebtedness: {
+      barCreate: 'Qarz olish',
+      barPayDebt: 'Qarzni to\'lash'
     },
     unripeMaterial: {
       barCreate: 'To\'quv material yaratish',
@@ -566,6 +572,54 @@ export default {
       confirmation: {
         successBought: 'Aksessuar muvaffaqiyatli sotib olindi.',
         failure: 'Aksessuar sotib olishda xatolik yuz berdi.'
+      }
+    },
+    indebtedness: {
+      fields: {
+        name: {
+          label: 'Nomi',
+          validation: {
+            required: 'Nom talab qilinadi.'
+          }
+        },
+        description: {
+          label: 'Tasnif',
+          validation: {
+            required: 'Tasnif talab qilinadi.'
+          }
+        },
+        budget: {
+          label: 'Qaysi byudjetdan?',
+          validation: {
+            required: 'Byudjet nomi talab qilinadi.'
+          }
+        },
+        quantity: {
+          label: 'Miqdor',
+          validation: {
+            required: 'Miqdor talab qilinadi.'
+          }
+        },
+        price: {
+          label: '1kg narxi?',
+          validation: {
+            required: 'Narx talab qilinadi.'
+          }
+        },
+        dealDate: {
+          label: 'Kelishilgan muddat',
+          validation: {
+            required: 'Sanani kiritish majburiy.',
+          }
+        },
+      },
+      buttons: {
+        borrow: 'Qarz olish',
+        payIndebtedness: 'Qarzni to\'lash'
+      },
+      confirmation: {
+        successBought: 'Qarz muvaffaqiyatli olindi.',
+        failure: 'Qarz olishda xatolik yuz berdi.'
       }
     },
     unripeMaterial: {
@@ -1555,6 +1609,25 @@ export default {
         isWork: 'Ishda',
         cutMoney: 'Undurilgan summa',
         isTimelyDeparture: 'Vaqtdan oldin ketgan',
+      }
+    },
+    indebtedness: {
+      header: {
+        title: 'Qarzdorlik',
+        empty: 'Hech qanday qarzdorlik topilmadi'
+      },
+      columns: {
+        id: 'id',
+        createdAt: 'Sana',
+        dealDate: 'Kelishilgan sana',
+        name: 'Nom',
+        description: 'Tasnif',
+        quantity: 'Miqdor',
+        remainingAmount: 'Qolgan qarz',
+        transaction: 'Tasnif'
+      },
+      buttons: {
+        add: 'Qarz olish',
       }
     },
     thread: {

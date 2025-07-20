@@ -60,7 +60,6 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -70,7 +69,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function rejectAction () {
   warehouseActionLoading.value = true;
@@ -84,7 +86,6 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -94,7 +95,10 @@ function rejectAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => warehouseActionLoading.value = false)
+    .finally(() => {
+      warehouseActionLoading.value = false;
+      refresh();
+    })
 }
 function getWarehouse (filterProps) {
   let props = filterProps || {};
@@ -161,7 +165,6 @@ function updateAction() {
         message: t('forms.warehouse.confirmation.successUpdated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       updateActionErr.value = res.response.data['hydra:description'];
@@ -173,7 +176,10 @@ function updateAction() {
         message: t('forms.warehouse.confirmation.failure')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function sendAction() {
   if (!user.about['@id'] || !selectedData.value['@id'] || !sendingWarehouse.value || !warehouse.value['@id']) {
@@ -208,7 +214,6 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       sendActionErr.value = res.response.data['hydra:description'];
@@ -220,7 +225,10 @@ function sendAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 
 function clearAction() {

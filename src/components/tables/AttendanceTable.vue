@@ -102,7 +102,6 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh();
     })
     .catch(() => {
       $q.notify({
@@ -112,7 +111,10 @@ function acceptAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => attendanceLoading.value = false)
+    .finally(() => {
+      attendanceLoading.value = false;
+      refresh();
+    })
 }
 function departureAction () {
   if (attendanceLoading.value) return; // Prevent multiple rapid calls
@@ -143,7 +145,6 @@ function departureAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       departureActionErr.value = res.response.data['hydra:description'];
@@ -155,7 +156,10 @@ function departureAction () {
         message: t('forms.completedMaterialOrderReport.confirmation.failure')
       })
     })
-    .finally(() => attendanceLoading.value = false)
+    .finally(() => {
+      attendanceLoading.value = false;
+      refresh();
+    })
 }
 </script>
 

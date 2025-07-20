@@ -118,7 +118,6 @@ function createAction() {
         message: t('forms.user.confirmation.successCreated')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       createActionErr.value = res.response.data['hydra:description'];
@@ -131,6 +130,7 @@ function createAction() {
     })
     .finally(() => {
       userLoading.value = false;
+      refresh();
     })
 }
 function updateAction() {
@@ -150,7 +150,6 @@ function updateAction() {
             message: t('forms.user.confirmation.successEdited')
           });
           clearAction();
-          refresh();
         })
         .catch((res) => {
           updateActionErr.value = res.response.data['hydra:description'];
@@ -161,7 +160,10 @@ function updateAction() {
             message: t('forms.user.confirmation.failure')
           })
         })
-        .finally(() => userLoading.value = false);
+        .finally(() => {
+          userLoading.value = false;
+          refresh();
+        });
     } else {
       const input = {
         phone: selectedData.value.phone,
@@ -182,7 +184,6 @@ function updateAction() {
             message: t('forms.user.confirmation.successEdited')
           });
           clearAction();
-          refresh();
         })
         .catch((res) => {
           updateActionErr.value = res.response.data['hydra:description'];
@@ -193,7 +194,10 @@ function updateAction() {
             message: t('forms.user.confirmation.failure')
           })
         })
-        .finally(() => userLoading.value = false);
+        .finally(() => {
+          userLoading.value = false;
+          refresh();
+        });
     }
   } else {
     console.warn('data is empty');
@@ -214,9 +218,11 @@ function deleteAction() {
           message: t('forms.user.confirmation.successDeleted')
         });
         clearAction();
+      })
+      .finally(() => {
+        userLoading.value = false;
         refresh();
       })
-      .finally(() => userLoading.value = false)
   } else {
     console.warn('data is empty');
   }

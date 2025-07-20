@@ -325,6 +325,11 @@ const routes = [
             name: 'club.budget.accessory',
             component: () => import('pages/budget/AccessoryPage.vue')
           },
+          {
+            path: 'indebtedness',
+            name: 'club.budget.indebtedness',
+            component: () => import('pages/budget/IndebtednessPage.vue')
+          },
         ]
       },
       {

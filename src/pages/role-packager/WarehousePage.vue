@@ -115,7 +115,6 @@ function defectAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       defectActionErr.value = res.response.data['hydra:description'];
@@ -127,7 +126,10 @@ function defectAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function reportAction() {
   if (!user.about['@id'] || !selectedData.value['@id'] || !readyWarehouse.value || !warehouse.value['@id']) {
@@ -163,7 +165,6 @@ function reportAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.successSent')
       })
       clearAction();
-      refresh();
     })
     .catch((res) => {
       reportActionErr.value = res.response.data['hydra:description'];
@@ -175,7 +176,10 @@ function reportAction() {
         message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
       })
     })
-    .finally(() => loading.value = false)
+    .finally(() => {
+      loading.value = false;
+      refresh();
+    })
 }
 function clearAction() {
   selectedData.value = {};
