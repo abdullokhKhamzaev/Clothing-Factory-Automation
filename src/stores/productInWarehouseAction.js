@@ -27,7 +27,7 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
 
     if (filterProps.toWarehouses) {
       filterProps.toWarehouses.forEach(warehouse => {
-        params.append('toWarehouses[]', warehouse);
+        params.append('toWarehouse[]', warehouse);
       });
     }
 
@@ -37,7 +37,7 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
 
     if (filterProps.fromWarehouses) {
       filterProps.fromWarehouses.forEach(warehouse => {
-        params.append('fromWarehouses[]', warehouse);
+        params.append('fromWarehouse[]', warehouse);
       });
     }
 

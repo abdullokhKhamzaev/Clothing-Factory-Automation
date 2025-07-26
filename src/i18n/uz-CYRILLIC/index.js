@@ -1572,6 +1572,21 @@ export default {
     },
   },
   tables: {
+    workEntry: {
+      header: {
+        title: 'Бажарилган ишлар рўйхат',
+        empty: 'Ҳеч қандай ишлар топилмади'
+      },
+      columns: {
+        createdAt: 'Кун',
+        workerBy: 'Исм',
+        productAccessory: 'Модель номи',
+        quantity: 'Миқдор',
+        unitPrice: 'Донасининг нархи',
+        totalPrice: 'Жами нархи',
+        confirmedBy: 'Тасдиқлади',
+      },
+    },
     users: {
       header: {
         title: 'Фойдаланувчилар',

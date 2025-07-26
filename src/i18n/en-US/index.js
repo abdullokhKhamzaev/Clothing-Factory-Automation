@@ -1572,6 +1572,21 @@ export default {
     },
   },
   tables: {
+    workEntry: {
+      header: {
+        title: 'Salary Work Entry',
+        empty: 'There is no available work entry'
+      },
+      columns: {
+        createdAt: 'Date',
+        workerBy: 'Customer',
+        productAccessory: 'Model Name',
+        quantity: 'Quantity',
+        unitPrice: 'Unit Price',
+        totalPrice: 'Total Price',
+        confirmedBy: 'Confirmed By',
+      },
+    },
     users: {
       header: {
         title: 'Users',

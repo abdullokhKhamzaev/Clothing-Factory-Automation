@@ -1572,6 +1572,21 @@ export default {
     },
   },
   tables: {
+    workEntry: {
+      header: {
+        title: 'Bajarilgan ishlar ro\'yxat',
+        empty: 'Hech qanday ishl topilmadi'
+      },
+      columns: {
+        createdAt: 'Kun',
+        workerBy: 'Ism',
+        productAccessory: 'Madel nomi',
+        quantity: 'Miqdor',
+        unitPrice: 'Donasining narxi',
+        totalPrice: 'Jami narxi',
+        confirmedBy: 'Tasdiqladi',
+      },
+    },
     users: {
       header: {
         title: 'Foydalanuvchilar',

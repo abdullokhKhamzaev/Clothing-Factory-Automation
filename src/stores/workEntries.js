@@ -17,6 +17,10 @@ export const useWorkEntries = defineStore('work_entries', () => {
       params.set('createdAt', filterProps.date);
     }
 
+    if (filterProps.unitPrice != null) {
+      params.set('unitPrice[gt]', filterProps.unitPrice);
+    }
+
     try {
       return await client.get(`work_entries?${params.toString()}`);
     } catch (e) {
