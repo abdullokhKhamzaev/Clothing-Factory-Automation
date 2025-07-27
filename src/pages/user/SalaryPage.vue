@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
-import PackagerSalary from "components/statistics/PackagerSalary.vue";
+import UserSalaryCalculation from "components/statistics/UserSalaryCalculation.vue";
 
 const now = new Date();
 const selectedYear = ref(now.getFullYear());
@@ -50,6 +50,6 @@ const date = computed(() => String(selectedYear.value) + '-' + String(selectedMo
       class="w-full"
     />
   </div>
-  <PackagerSalary :date="date" />
+  <UserSalaryCalculation :date="date" />
 </template>
 

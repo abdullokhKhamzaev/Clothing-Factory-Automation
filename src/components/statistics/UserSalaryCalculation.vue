@@ -1,7 +1,7 @@
 <script setup>
-import {computed, onMounted, ref} from "vue"
+import {computed, onMounted, ref, watch} from "vue"
 import {useAbout} from "stores/user/about.js";
-import { useWorkEntries } from "stores/workEntries.js";
+import {useWorkEntries} from "stores/workEntries.js";
 import RefreshButton from "components/RefreshButton.vue";
 import {formatDate, formatFloatToInteger} from "../../libraries/constants/defaults.js";
 import {useI18n} from "vue-i18n";
@@ -36,8 +36,7 @@ const pagination = ref({
   descending: true
 });
 
-const filters = ref({
-  workerBy: user.about['@id'],
+let filters = ref({
   date: props.date,
   status: 'accepted',
   unitPrice: 0,
@@ -66,12 +65,18 @@ function refresh () {
   getItems();
 }
 
-onMounted(() => {
-  refresh();
-})
-
 const totalQuantity = computed(() => {
   return items.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
+})
+
+watch([user, props], () => {
+  filters.value.workerBy = user.about['@id'];
+  filters.value.date = props.date;
+  refresh();
+}, {deep: true});
+
+onMounted(async () => {
+  await user.fetchAbout();
 })
 </script>
 

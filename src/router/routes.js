@@ -483,6 +483,11 @@ const routes = [
             name: 'club.embroiderer.ready',
             component: () => import('pages/role-embroiderer/ReadyWarehousePage.vue'),
           },
+          {
+            path: 'salary',
+            name: 'club.embroiderer.salary',
+            component: () => import('pages/user/SalaryPage.vue'),
+          },
         ]
       }
     ]
@@ -511,6 +516,11 @@ const routes = [
             path: 'ready',
             name: 'club.sewer.ready',
             component: () => import('pages/role-sewer/ReadyPage.vue'),
+          },
+          {
+            path: 'salary',
+            name: 'club.sewer.salary',
+            component: () => import('pages/user/SalaryPage.vue'),
           },
         ]
       }

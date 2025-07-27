@@ -100,7 +100,6 @@
 
         <side-bar-link
           v-for="link in linksList"
-          menu-route="weaver"
           :key="link.title"
           v-bind="link"
         />

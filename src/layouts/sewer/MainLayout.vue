@@ -100,7 +100,6 @@
 
         <side-bar-link
           v-for="link in linksList"
-          menu-route="weaver"
           :key="link.title"
           v-bind="link"
         />
@@ -132,6 +131,11 @@ const linksList = [
     title: 'orders',
     icon: 'mdi-bell-alert-outline',
     to: { name: 'club.sewer.warehouse' }
+  },
+  {
+    title: 'salary',
+    icon: 'mdi-cash',
+    to: { name: 'club.sewer.salary' }
   }
 ]
 
