@@ -3,7 +3,7 @@ import {computed, onMounted, ref, watch} from "vue"
 import {useAbout} from "stores/user/about.js";
 import {useWorkEntries} from "stores/workEntries.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatDate, formatFloatToInteger} from "../../libraries/constants/defaults.js";
+import {formatDate, formatFloatToInteger, isToday} from "../../libraries/constants/defaults.js";
 import {useI18n} from "vue-i18n";
 
 const { t } = useI18n();
@@ -18,6 +18,7 @@ const columns = [
   { name: 'createdAt', label: t('tables.workEntry.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'workerBy', label: t('tables.workEntry.columns.workerBy'), align: 'left', field: 'workerBy' },
   { name: 'productAccessory', label: t('tables.workEntry.columns.productAccessory'), align: 'left', field: 'productAccessory' },
+  { name: 'embroidery', label: t('tables.workEntry.columns.embroidery'), align: 'left', field: 'embroidery' },
   { name: 'quantity', label: t('tables.workEntry.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'unitPrice', label: t('tables.workEntry.columns.unitPrice'), align: 'left', field: 'unitPrice' },
   { name: 'totalPrice', label: t('tables.workEntry.columns.totalPrice'), align: 'left', field: 'totalPrice' },
@@ -120,7 +121,7 @@ onMounted(async () => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
@@ -128,7 +129,10 @@ onMounted(async () => {
             {{ props.row.workerBy.fullName }}
           </div>
           <div v-else-if="col.name === 'productAccessory'">
-            {{ props.row.productAccessory?.productSize?.productModel?.name }}
+            {{ props.row.productAccessory?.productSize?.productModel?.name || '-' }}
+          </div>
+          <div v-else-if="col.name === 'embroidery'">
+            {{ props.row.embroidery?.name }}
           </div>
           <div v-else-if="col.name === 'quantity'">
             {{ formatFloatToInteger(props.row.quantity) }} {{ $t('piece').toLowerCase() }}

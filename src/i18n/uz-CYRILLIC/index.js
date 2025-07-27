@@ -1581,6 +1581,7 @@ export default {
         createdAt: 'Кун',
         workerBy: 'Исм',
         productAccessory: 'Модель номи',
+        embroidery: 'Вышивка',
         quantity: 'Миқдор',
         unitPrice: 'Донасининг нархи',
         totalPrice: 'Жами нархи',
@@ -1756,8 +1757,8 @@ export default {
     },
     embroidery: {
       header: {
-        title: 'Вишивка',
-        empty: 'Ҳеч қандай Вишивка топилмади'
+        title: 'Вышивка',
+        empty: 'Ҳеч қандай Вышивка топилмади'
       },
       columns: {
         name: 'Ном',
@@ -1765,7 +1766,7 @@ export default {
         workerPrice: 'Ишчи ҳаққи',
       },
       buttons: {
-        add: 'Вишивка қўшиш',
+        add: 'Вышивка қўшиш',
       },
     },
     customer: {

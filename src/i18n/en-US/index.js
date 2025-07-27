@@ -1581,6 +1581,7 @@ export default {
         createdAt: 'Date',
         workerBy: 'Customer',
         productAccessory: 'Model Name',
+        embroidery: 'Embroidery',
         quantity: 'Quantity',
         unitPrice: 'Unit Price',
         totalPrice: 'Total Price',

@@ -1581,6 +1581,7 @@ export default {
         createdAt: 'Kun',
         workerBy: 'Ism',
         productAccessory: 'Madel nomi',
+        embroidery: 'Vishivka',
         quantity: 'Miqdor',
         unitPrice: 'Donasining narxi',
         totalPrice: 'Jami narxi',
