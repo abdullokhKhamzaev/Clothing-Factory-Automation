@@ -1,8 +1,9 @@
 <script setup>
-import {computed, onMounted, ref, watch} from "vue";
-import {useTransaction} from "stores/transaction.js";
+import { computed, onMounted, ref, watch } from "vue";
+import { useTransaction } from "stores/transaction.js";
+import { useI18n } from "vue-i18n";
+import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -13,28 +14,28 @@ const props = defineProps({
     type: String,
     required: true,
   }
-})
+});
 
+const { t } = useI18n();
 const emit = defineEmits(['retrieveData']);
 
 const splitterModel = ref(50);
-
-// Accepted Orders
 const models = ref([]);
 const loading = ref(false);
-async function getModels () {
-  if (loading.value) return; // Prevent multiple rapid calls
+
+async function getModels() {
+  if (loading.value) return;
   loading.value = true;
 
-  let filterProps = {};
+  const filterProps = {
+    createdAtFrom: props.dateFrom + 'T00:00:00',
+    createdAtTo: props.dateTo + 'T23:59:59',
+    isIncome: false,
+    rowsPerPage: '~',
+    minPaidPrice: 0,
+  };
 
-  filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
-  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
-  filterProps.isIncome = false;
-  filterProps.rowsPerPage = '~';
-  filterProps.minPaidPrice = 0;
-
-  await useTransaction().list(filterProps || '')
+  await useTransaction().list(filterProps)
     .then((res) => {
       models.value = res.data['hydra:member'];
       sendData();
@@ -45,11 +46,11 @@ async function getModels () {
 }
 
 function sendData() {
-  emit('retrieveData', modelsStats)
+  emit('retrieveData', modelsStats);
 }
 
 function getStats(transactions) {
-  let stats = {
+  const stats = {
     productCost: [],
     periodCost: []
   };
@@ -59,45 +60,30 @@ function getStats(transactions) {
   let totalPeriodCostPriceUsd = 0;
   let totalPeriodCostPriceUzs = 0;
 
-  if (transactions) {
-    transactions.forEach(transaction => {
-      const title = transaction.description || 'Unknown Description';
-      const paid = parseFloat(transaction.paidPrice) || 0;
-      const currency = transaction.budget?.name || '';
+  transactions?.forEach(transaction => {
+    const title = transaction.description || 'Unknown Description';
+    const paid = parseFloat(transaction.paidPrice) || 0;
+    const currency = transaction.budget?.name || '';
 
-      // Skip if description contains 'ayriboshlash' (case-insensitive)
-      if (title.toLowerCase().includes('ayriboshlash')) {
-        return;
-      }
+    if (title.toLowerCase().includes('ayriboshlash')) return;
 
-      const isProduct = title.toLowerCase().includes('productcost');
-      const category = isProduct ? 'productCost' : 'periodCost';
+    const isProduct = title.toLowerCase().includes('productcost');
+    const category = isProduct ? 'productCost' : 'periodCost';
 
-      // Check if the title already exists in the selected category
-      let existing = stats[category].find(item => item.title === title);
-      if (!existing) {
-        existing = { title, price: { paidPriceUsd: 0, paidPriceUzs: 0 } };
-        stats[category].push(existing);
-      }
+    let existing = stats[category].find(item => item.title === title);
+    if (!existing) {
+      existing = { title, price: { paidPriceUsd: 0, paidPriceUzs: 0 } };
+      stats[category].push(existing);
+    }
 
-      // Update the existing record and totals
-      if (currency === 'USD') {
-        existing.price.paidPriceUsd += paid;
-        if (isProduct) {
-          totalProductCostPriceUsd += paid;
-        } else {
-          totalPeriodCostPriceUsd += paid;
-        }
-      } else if (currency === "SO'M") {
-        existing.price.paidPriceUzs += paid;
-        if (isProduct) {
-          totalProductCostPriceUzs += paid;
-        } else {
-          totalPeriodCostPriceUzs += paid;
-        }
-      }
-    });
-  }
+    if (currency === 'USD') {
+      existing.price.paidPriceUsd += paid;
+      isProduct ? totalProductCostPriceUsd += paid : totalPeriodCostPriceUsd += paid;
+    } else if (currency === "SO'M") {
+      existing.price.paidPriceUzs += paid;
+      isProduct ? totalProductCostPriceUzs += paid : totalPeriodCostPriceUzs += paid;
+    }
+  });
 
   return {
     stats,
@@ -110,13 +96,18 @@ function getStats(transactions) {
 
 const modelsStats = computed(() => getStats(models.value));
 
+const statsLabels = computed(() => ({
+  productCost: `${t('productCost')}: ${formatFloatToInteger(Number(modelsStats.value.totalProductCostPriceUsd).toFixed(2))}$ & ${formatFloatToInteger(Number(modelsStats.value.totalProductCostPriceUzs).toFixed(2))} So'm`,
+  periodCost: `${t('periodCost')}: ${formatFloatToInteger(Number(modelsStats.value.totalPeriodCostPriceUsd).toFixed(2))}$ & ${formatFloatToInteger(Number(modelsStats.value.totalPeriodCostPriceUzs).toFixed(2))} So'm`
+}));
+
 watch(props, () => {
   getModels();
-}, {deep: true})
+}, { deep: true });
 
 onMounted(() => {
-  getModels()
-})
+  getModels();
+});
 </script>
 
 <template>
@@ -133,18 +124,26 @@ onMounted(() => {
       v-for="(state, index) in modelsStats.stats"
       :key="String(index)"
       expand-separator
-      :label="index === 'productCost' ? `${$t('productCost')}: ${formatFloatToInteger(modelsStats.totalProductCostPriceUsd)}$ & ${formatFloatToInteger(modelsStats.totalProductCostPriceUzs)}So'm` : `${$t(index)}: ${formatFloatToInteger(modelsStats.totalPeriodCostPriceUsd)}$ & ${formatFloatToInteger(modelsStats.totalPeriodCostPriceUzs)}So'm` "
+      :label="statsLabels[index]"
       header-class="text-red text-h6"
     >
       <q-card class="text-h6">
         <div v-for="(modelName, index) in state" :key="index">
           <q-splitter v-model="splitterModel">
             <template v-slot:before>
-              <q-card-section>{{ modelName.title.startsWith('other') ? modelName.title.slice(6) : $t('transaction.' + modelName.title.split(" ")[0]) + ': ' + modelName.title.trim().split(/\s+/).slice(1).join(" ")}}</q-card-section>
+              <q-card-section>
+                {{ modelName.title.startsWith('other')
+                ? modelName.title.slice(6)
+                : $t('transaction.' + modelName.title.split(" ")[0]) + ': ' + modelName.title.trim().split(/\s+/).slice(1).join(" ") }}
+              </q-card-section>
             </template>
 
             <template v-slot:after>
-              <q-card-section class="text-red">- {{ modelName.price.paidPriceUsd ? `${Number(modelName.price.paidPriceUsd).toFixed(2)} $` : '' }} {{ modelName.price.paidPriceUzs ? `${Number(modelName.price.paidPriceUzs).toFixed(2)} so'm` : '' }} </q-card-section>
+              <q-card-section class="text-red">
+                -
+                {{ modelName.price.paidPriceUsd ? `${formatFloatToInteger(Number(modelName.price.paidPriceUsd).toFixed(2))} $` : '' }}
+                {{ modelName.price.paidPriceUzs ? `${formatFloatToInteger(Number(modelName.price.paidPriceUzs).toFixed(2))} so'm` : '' }}
+              </q-card-section>
             </template>
           </q-splitter>
           <q-separator inset />
@@ -153,8 +152,8 @@ onMounted(() => {
     </q-expansion-item>
 
     <q-card-section class="text-h6 text-primary">
-      <div class="text-bold">USD: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUsd).toFixed(2) + Number(modelsStats.totalPeriodCostPriceUsd).toFixed(2)) }} $</div>
-      <div class="text-bold">UZS: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUzs).toFixed(2) + Number(modelsStats.totalPeriodCostPriceUzs).toFixed(2)) }} So'm</div>
+      <div class="text-bold">USD: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUsd + modelsStats.totalPeriodCostPriceUsd).toFixed(2)) }} $</div>
+      <div class="text-bold">UZS: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUzs + modelsStats.totalPeriodCostPriceUzs).toFixed(2)) }} So'm</div>
     </q-card-section>
   </q-card>
 </template>
