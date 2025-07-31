@@ -88,7 +88,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'payedForPaintingDebt #' + selectedData.value.id,
+    description: 'productCost.payedForPaintingDebt #' + selectedData.value.id,
     isIncome: false,
     ripeMaterialOrderAccepted: selectedData.value['@id']
   }

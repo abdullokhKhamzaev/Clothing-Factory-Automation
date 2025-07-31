@@ -99,7 +99,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'payedForMaterialPurchaseDebt #' + selectedData.value.id,
+    description: 'productCost.payedForMaterialPurchaseDebt #' + selectedData.value.id,
     isIncome: false,
     ripeMaterialPurchase: selectedData.value['@id']
   }
@@ -157,7 +157,7 @@ function createAction() {
         paidPrice: paidPrice,
         createdBy: user.about['@id'],
         isIncome: false,
-        description: `materialPurchased ${selectedData.value.ripeMaterial.name} - ${selectedData.value.quantity} ${selectedData.value.ripeMaterial.measurement} x ${selectedData.value.price}`,
+        description: `productCost.materialPurchased ${selectedData.value.ripeMaterial.name} - ${selectedData.value.quantity} ${selectedData.value.ripeMaterial.measurement} x ${selectedData.value.price}`,
         budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: totalPrice

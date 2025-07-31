@@ -45,13 +45,19 @@ async function getModels () {
 }
 
 function sendData() {
-  emit('retrieveData', 'fopo')
+  emit('retrieveData', modelsStats)
 }
 
 function getStats(transactions) {
-  const stats = {};
-  let totalPriceUsd = 0;
-  let totalPriceUzs = 0;
+  let stats = {
+    productCost: [],
+    periodCost: []
+  };
+
+  let totalProductCostPriceUsd = 0;
+  let totalProductCostPriceUzs = 0;
+  let totalPeriodCostPriceUsd = 0;
+  let totalPeriodCostPriceUzs = 0;
 
   if (transactions) {
     transactions.forEach(transaction => {
@@ -64,21 +70,42 @@ function getStats(transactions) {
         return;
       }
 
-      if (!stats[title]) {
-        stats[title] = { paidPriceUsd: 0, paidPriceUzs: 0 };
+      const isProduct = title.toLowerCase().includes('productcost');
+      const category = isProduct ? 'productCost' : 'periodCost';
+
+      // Check if the title already exists in the selected category
+      let existing = stats[category].find(item => item.title === title);
+      if (!existing) {
+        existing = { title, price: { paidPriceUsd: 0, paidPriceUzs: 0 } };
+        stats[category].push(existing);
       }
 
+      // Update the existing record and totals
       if (currency === 'USD') {
-        stats[title].paidPriceUsd += paid;
-        totalPriceUsd += paid;
+        existing.price.paidPriceUsd += paid;
+        if (isProduct) {
+          totalProductCostPriceUsd += paid;
+        } else {
+          totalPeriodCostPriceUsd += paid;
+        }
       } else if (currency === "SO'M") {
-        stats[title].paidPriceUzs += paid;
-        totalPriceUzs += paid;
+        existing.price.paidPriceUzs += paid;
+        if (isProduct) {
+          totalProductCostPriceUzs += paid;
+        } else {
+          totalPeriodCostPriceUzs += paid;
+        }
       }
     });
   }
 
-  return { stats, totalPriceUsd, totalPriceUzs };
+  return {
+    stats,
+    totalProductCostPriceUsd,
+    totalProductCostPriceUzs,
+    totalPeriodCostPriceUsd,
+    totalPeriodCostPriceUzs
+  };
 }
 
 const modelsStats = computed(() => getStats(models.value));
@@ -103,19 +130,21 @@ onMounted(() => {
     <q-separator v-else />
 
     <q-expansion-item
+      v-for="(state, index) in modelsStats.stats"
+      :key="String(index)"
       expand-separator
-      label="Qo'shimcha ma'lumotlar"
-      header-class="text-primary"
+      :label="index === 'productCost' ? `${$t('productCost')}: ${formatFloatToInteger(modelsStats.totalProductCostPriceUsd)}$ & ${formatFloatToInteger(modelsStats.totalProductCostPriceUzs)}So'm` : `${$t(index)}: ${formatFloatToInteger(modelsStats.totalPeriodCostPriceUsd)}$ & ${formatFloatToInteger(modelsStats.totalPeriodCostPriceUzs)}So'm` "
+      header-class="text-red text-h6"
     >
-      <q-card>
-        <div v-for="(count, modelName) in modelsStats.stats" :key="modelName">
+      <q-card class="text-h6">
+        <div v-for="(modelName, index) in state" :key="index">
           <q-splitter v-model="splitterModel">
             <template v-slot:before>
-              <q-card-section>{{ modelName.startsWith('other') ? modelName.slice(6) : $t('transaction.' + modelName.split(" ")[0]) + ': ' + modelName.trim().split(/\s+/).slice(1).join(" ")}}</q-card-section>
+              <q-card-section>{{ modelName.title.startsWith('other') ? modelName.title.slice(6) : $t('transaction.' + modelName.title.split(" ")[0]) + ': ' + modelName.title.trim().split(/\s+/).slice(1).join(" ")}}</q-card-section>
             </template>
 
             <template v-slot:after>
-              <q-card-section class="text-red">- {{ count?.paidPriceUsd ? `${count.paidPriceUsd} $` : '' }} {{ count?.paidPriceUzs ? `${count.paidPriceUzs} so'm` : '' }} </q-card-section>
+              <q-card-section class="text-red">- {{ modelName.price.paidPriceUsd ? `${modelName.price.paidPriceUsd} $` : '' }} {{ modelName.price.paidPriceUzs ? `${modelName.price.paidPriceUzs} so'm` : '' }} </q-card-section>
             </template>
           </q-splitter>
           <q-separator inset />
@@ -124,8 +153,8 @@ onMounted(() => {
     </q-expansion-item>
 
     <q-card-section class="text-h6 text-primary">
-      <div class="text-bold">USD: - {{ formatFloatToInteger(modelsStats.totalPriceUsd) }} $</div>
-      <div class="text-bold">UZS: - {{ formatFloatToInteger(modelsStats.totalPriceUzs) }} So'm</div>
+      <div class="text-bold">USD: - {{ formatFloatToInteger(modelsStats.totalProductCostPriceUsd + modelsStats.totalPeriodCostPriceUsd) }} $</div>
+      <div class="text-bold">UZS: - {{ formatFloatToInteger(modelsStats.totalProductCostPriceUzs + modelsStats.totalPeriodCostPriceUzs) }} So'm</div>
     </q-card-section>
   </q-card>
 </template>

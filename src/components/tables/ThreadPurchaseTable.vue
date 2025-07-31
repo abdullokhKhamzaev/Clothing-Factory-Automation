@@ -41,7 +41,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'payedForThreadPurchaseDebt #' + selectedData.value.id,
+    description: 'productCost.payedForThreadPurchaseDebt #' + selectedData.value.id,
     isIncome: false,
     threadPurchase: selectedData.value['@id']
   }
@@ -102,7 +102,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: `threadPurchased ${selectedData.value.thread.name} - ${selectedData.value.quantity} ${selectedData.value.thread.measurement} x ${selectedData.value.price}`,
+      description: `productCost.threadPurchased ${selectedData.value.thread.name} - ${selectedData.value.quantity} ${selectedData.value.thread.measurement} x ${selectedData.value.price}`,
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)

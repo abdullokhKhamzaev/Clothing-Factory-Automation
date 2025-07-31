@@ -174,7 +174,7 @@ function receiveAction() {
         paidPrice: selectedData.value.payedPrice,
         createdBy: user.about['@id'],
         isIncome: false,
-        description: 'payedForPaintMaterial #' + selectedData.value.id,
+        description: 'productCost.payedForPaintMaterial #' + selectedData.value.id,
         budget: selectedData.value.budget,
         isOldInAndOut: false,
         price: selectedData.value.servicePrice

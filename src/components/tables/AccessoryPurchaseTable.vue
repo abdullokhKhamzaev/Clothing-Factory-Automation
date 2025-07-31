@@ -45,7 +45,7 @@ function createAction() {
       paidPrice: selectedData.value.paidPrice,
       createdBy: user.about['@id'],
       isIncome: false,
-      description: `accessoryPurchased ${selectedData.value.accessory.name} - ${selectedData.value.quantity} ${selectedData.value.accessory.measurement} x ${selectedData.value.price}`,
+      description: `productCost.accessoryPurchased ${selectedData.value.accessory.name} - ${selectedData.value.quantity} ${selectedData.value.accessory.measurement} x ${selectedData.value.price}`,
       budget: selectedData.value.budget,
       isOldInAndOut: false,
       price: String(selectedData.value.quantity * selectedData.value.price)
@@ -97,7 +97,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'payedForAccessoryDebt #' + selectedData.value.id,
+    description: 'productCost.payedForAccessoryDebt #' + selectedData.value.id,
     isIncome: false,
     accessoryPurchase: selectedData.value['@id']
   }

@@ -194,7 +194,7 @@ function getSaleProducts(data) {
     <q-step
       :name="1"
       :title="t('menus.sideBar.cutting')"
-      :caption="cutModelsAcceptedData.value?.total"
+      :caption="cutModelsAcceptedData.value?.total || '0'"
       icon="mdi-scissors-cutting"
       :done="step > 1"
     >
@@ -235,7 +235,7 @@ function getSaleProducts(data) {
     <q-step
       :name="2"
       :title="t('menus.sideBar.embroidery')"
-      :caption="embroideryModelsAcceptedData.value?.total || 0"
+      :caption="embroideryModelsAcceptedData.value?.total || '0'"
       icon="mdi-draw"
       :done="step > 2"
     >
@@ -274,7 +274,7 @@ function getSaleProducts(data) {
     <q-step
       :name="3"
       :title="t('menus.sideBar.sewing')"
-      :caption="sewReadyModelsAcceptedData.value?.total || 0"
+      :caption="sewReadyModelsAcceptedData.value?.total || '0'"
       icon="mdi-nail"
       :done="step > 3"
     >
@@ -326,7 +326,7 @@ function getSaleProducts(data) {
     <q-step
       :name="4"
       :title="t('menus.sideBar.package')"
-      :caption="packageReadyModelsAcceptedData.value?.total || 0"
+      :caption="packageReadyModelsAcceptedData.value?.total || '0'"
       icon="mdi-package-down"
       :done="step > 4"
     >
@@ -378,7 +378,7 @@ function getSaleProducts(data) {
     <q-step
       :name="5"
       :title="t('menus.sideBar.sales')"
-      :caption="saleProductsData.value?.totalQuantity || 0"
+      :caption="saleProductsData.value?.totalQuantity || '0'"
       icon="mdi-cart-percent"
       :done="step > 5"
     >
