@@ -144,7 +144,7 @@ onMounted(() => {
             </template>
 
             <template v-slot:after>
-              <q-card-section class="text-red">- {{ modelName.price.paidPriceUsd ? `${modelName.price.paidPriceUsd} $` : '' }} {{ modelName.price.paidPriceUzs ? `${modelName.price.paidPriceUzs} so'm` : '' }} </q-card-section>
+              <q-card-section class="text-red">- {{ modelName.price.paidPriceUsd ? `${Number(modelName.price.paidPriceUsd).toFixed(2)} $` : '' }} {{ modelName.price.paidPriceUzs ? `${Number(modelName.price.paidPriceUzs).toFixed(2)} so'm` : '' }} </q-card-section>
             </template>
           </q-splitter>
           <q-separator inset />
@@ -153,8 +153,8 @@ onMounted(() => {
     </q-expansion-item>
 
     <q-card-section class="text-h6 text-primary">
-      <div class="text-bold">USD: - {{ formatFloatToInteger(modelsStats.totalProductCostPriceUsd + modelsStats.totalPeriodCostPriceUsd) }} $</div>
-      <div class="text-bold">UZS: - {{ formatFloatToInteger(modelsStats.totalProductCostPriceUzs + modelsStats.totalPeriodCostPriceUzs) }} So'm</div>
+      <div class="text-bold">USD: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUsd).toFixed(2) + Number(modelsStats.totalPeriodCostPriceUsd).toFixed(2)) }} $</div>
+      <div class="text-bold">UZS: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUzs).toFixed(2) + Number(modelsStats.totalPeriodCostPriceUzs).toFixed(2)) }} So'm</div>
     </q-card-section>
   </q-card>
 </template>
