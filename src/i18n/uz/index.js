@@ -2086,7 +2086,7 @@ export default {
     },
     model: {
       header: {
-        title: 'Modellar',
+        title: 'Madellar',
         empty: 'Hech qanday model topilmadi'
       },
       columns: {

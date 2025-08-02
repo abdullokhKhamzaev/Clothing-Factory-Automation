@@ -8,28 +8,16 @@ const { t } = useI18n();
 const router = useRouter();
 const routes = computed(() => {
   return [
-    // {
-    //   label: t('warehouses.embroideryWarehouse'),
-    //   value: router.resolve( { name: 'club.master.embroidery.warehouse' } )
-    // },
     {
-      label: t('warehouses.embroideryReadyWarehouse'),
+      label: t('menus.sideBar.embroidery'),
       value: router.resolve( { name: 'club.master.embroidery.ready' } )
     },
     {
-      label: t('warehouses.sewerWarehouse'),
-      value: router.resolve( { name: 'club.master.sewing.warehouse' } )
-    },
-    {
-      label: t('warehouses.sewerReadyWarehouse'),
+      label: t('menus.sideBar.sewing'),
       value: router.resolve( { name: 'club.master.sewing.ready' } )
     },
-    // {
-    //   label: t('warehouses.packagerWarehouse'),
-    //   value: router.resolve( { name: 'club.master.packaging.warehouse' } )
-    // },
     {
-      label: t('warehouses.packagerReadyWarehouse'),
+      label: t('menus.sideBar.package'),
       value: router.resolve( { name: 'club.master.packaging.ready' } )
     },
   ];

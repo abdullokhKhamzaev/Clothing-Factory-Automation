@@ -576,29 +576,14 @@ const routes = [
         component: () => import('pages/role-master/IndexPage.vue'),
         children: [
           {
-            path: 'embroidery',
-            name: 'club.master.embroidery.warehouse',
-            component: () => import('pages/role-master/EmbroideryWarehousePage.vue'),
-          },
-          {
             path: 'embroidery/ready',
             name: 'club.master.embroidery.ready',
             component: () => import('pages/role-master/EmbroideryReadyWarehousePage.vue'),
           },
           {
-            path: 'sewing',
-            name: 'club.master.sewing.warehouse',
-            component: () => import('pages/role-master/SewerWarehousePage.vue'),
-          },
-          {
             path: 'sewing/ready',
             name: 'club.master.sewing.ready',
             component: () => import('pages/role-master/SewerReadyWarehouse.vue'),
-          },
-          {
-            path: 'packaging',
-            name: 'club.master.packaging.warehouse',
-            component: () => import('pages/role-master/PackagerWarehousePage.vue'),
           },
           {
             path: 'packaging/ready',

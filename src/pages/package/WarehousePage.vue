@@ -52,12 +52,12 @@ const columns = [
 const visibleColumns = ref(columns.map(column => column.name));
 
 function acceptAction () {
+  warehouseActionLoading.value = true;
+
   if (!user.about['@id'] || !selectedData.value['@id']) {
     console.warn('data not found');
     return
   }
-
-  warehouseActionLoading.value = true;
 
   const input = {
     status: 'accepted',

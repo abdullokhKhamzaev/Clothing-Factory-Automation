@@ -130,17 +130,17 @@ const linksList = [
   {
     title: 'embroidery',
     icon: 'mdi-warehouse',
-    to: { name: 'club.master.embroidery.warehouse' }
+    to: { name: 'club.master.embroidery.ready' }
   },
   {
     title: 'sewing',
     icon: 'mdi-warehouse',
-    to: { name: 'club.master.sewing.warehouse' }
+    to: { name: 'club.master.sewing.ready' }
   },
   {
     title: 'package',
     icon: 'mdi-warehouse',
-    to: { name: 'club.master.packaging.warehouse' }
+    to: { name: 'club.master.packaging.ready' }
   }
 ]
 
