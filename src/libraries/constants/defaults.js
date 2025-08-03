@@ -117,6 +117,17 @@ export const PAGINATION_DEFAULTS = {
   rowsNumber: 0
 };
 
+export const WAREHOUSES = {
+  cutterWarehouse: '/api/warehouses/1',
+  cutterWarehouseDefective: '/api/warehouses/2',
+  embroideryWarehouse: '/api/warehouses/3',
+  embroideryReadyWarehouse: '/api/warehouses/4',
+  sewerWarehouse: '/api/warehouses/5',
+  packagerWarehouse: '/api/warehouses/7',
+  packagerReadyWarehouse: '/api/warehouses/8',
+  productsWarehouse: '/api/warehouses/9',
+};
+
 export const ROLES = [
   { label: 'ROLE_ADMIN', value: 'ROLE_ADMIN' },
   { label: 'ROLE_USER', value: 'ROLE_USER' },

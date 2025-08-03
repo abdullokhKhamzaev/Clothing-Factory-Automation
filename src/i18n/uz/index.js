@@ -26,6 +26,7 @@ export default {
     food: 'Oziq-ovqat',
     other: 'Boshqa'
   },
+  send: 'Jo\'natish',
   productCost: 'Maxsulot tan narxiga oid rasxodlar',
   periodCost: 'Maxsulot tan narxiga oid bo\'lmagan rasxodlar',
   paySalary: 'Maosh to\'lash',

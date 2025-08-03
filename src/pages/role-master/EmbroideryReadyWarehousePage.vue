@@ -33,7 +33,6 @@ const filters = {
   <ProductInWarehouseAction
     :filters="filters"
     :title="t('tables.warehouseAction.header.title')"
-    accept-type="embroidery"
   />
   <q-separator color="primary" class="q-my-md" />
   <ProductInWarehouse name="embroideryWarehouse" />

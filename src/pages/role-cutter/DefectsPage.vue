@@ -1,37 +1,23 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
-import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
+import { WAREHOUSES } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import SelectableList from "components/selectableList.vue";
-import RefreshButton from "components/RefreshButton.vue";
+import ProductInWarehouseAction from "components/tables/ProductInWarehouseAction.vue";
 
 const user = useAbout();
 const cutterWarehouse = useCutterRipeMaterialWarehouse();
 const { t } = useI18n();
 const $q = useQuasar();
 const selectedData = ref({});
-const showAcceptModal = ref(false);
-const showRejectModal = ref(false);
 const showOrderReportModal = ref(false);
 const reportActionErr = ref(false);
-
 const warehouse = ref([]);
-const warehouseActions = ref([]);
-const warehouseActionTotal = ref(0);
-const warehouseActionLoading = ref(false);
-const warehouseActionPagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
-
 const loading = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const consumedRows = ref([
@@ -69,75 +55,10 @@ function removeRow(index) {
     this.consumedRows.splice(index, 1);
   }
 }
-const columns = [
-  { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
-  { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
-  { name: 'sentBy', label: t('tables.warehouseAction.columns.sentBy'), align: 'left', field: 'sentBy' },
-  { name: 'productModel', label: t('tables.warehouseAction.columns.productModel'), align: 'left', field: 'productModel' },
-  { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
-  { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
-  { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
-  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' },
-  { name: 'action', label: '', align: 'right', field: 'action' }
-];
-const visibleColumns = ref(columns.map(column => column.name));
 
-function acceptAction () {
-  warehouseActionLoading.value = true;
-  useProductWarehouse().accept(selectedData.value.id, {status: 'accepted'})
-    .then(() => {
-      showAcceptModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successAccepted')
-      })
-      clearAction();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => {
-      warehouseActionLoading.value = false;
-      refresh();
-    })
-}
-function rejectAction () {
-  warehouseActionLoading.value = true;
-  useProductWarehouse().reject(selectedData.value.id, {status: 'rejected'})
-    .then(() => {
-      showRejectModal.value = false;
-      $q.notify({
-        type: 'positive',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.successRejected')
-      })
-      clearAction();
-    })
-    .catch(() => {
-      $q.notify({
-        type: 'negative',
-        position: 'top',
-        timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
-      })
-    })
-    .finally(() => {
-      warehouseActionLoading.value = false;
-      refresh();
-    })
-}
 function getWarehouse (filterProps) {
+  if (loading.value) return; // Prevent multiple rapid calls
   let props = filterProps || {};
-
-  loading.value = true;
 
   props.name = 'cutterDefectiveWarehouse';
 
@@ -146,23 +67,6 @@ function getWarehouse (filterProps) {
       warehouse.value = res.data['hydra:member'][0];
       loading.value = false;
     })
-    .then(getWarehouseAction)
-}
-function getWarehouseAction (filterProps) {
-  let props = filterProps || {};
-
-  warehouseActionLoading.value = true;
-
-  props.toWarehouse = warehouse.value['@id'];
-
-  useProductWarehouse().list(props || '')
-    .then((res) => {
-      warehouseActions.value = res.data['hydra:member'];
-      warehouseActionTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      warehouseActionLoading.value = false;
-    });
 }
 function reportOrderAction() {
   if (!selectedData.value.productModel['@id']) {
@@ -263,143 +167,18 @@ const filteredProducts = computed(() => {
 </script>
 
 <template>
-  <div class="q-my-md flex justify-end">
-    <refresh-button :action="refresh" />
-  </div>
-
-  <div v-show="loading" class=" q-mb-md flex justify-center">
-    <q-spinner
-      color="primary"
-      size="4em"
-    />
-  </div>
-
   <div class="q-mb-lg shadow-3">
-    <q-table
-      :loading="loading || warehouseActionLoading"
-      flat
-      bordered
-      :rows="warehouseActions"
-      :columns="columns"
-      :visible-columns="visibleColumns"
-      :no-data-label="$t('tables.transaction.header.empty')"
-      color="primary"
-      row-key="id"
-      :pagination="warehouseActionPagination"
-      hide-bottom
-    >
-      <template v-slot:top>
-        <div class="col-12 flex justify-between">
-          <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
-          <q-select
-            style="min-width: 100px;"
-            dense
-            multiple
-            outlined
-            options-dense
-            emit-value
-            map-options
-            v-model="visibleColumns"
-            :display-value="$q.lang.table.columns"
-            :options="columns"
-            option-value="name"
-            :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-        </div>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td v-for="col in columns" :key="col.name" :props="props">
-            <div v-if="col.name === 'sentBy'">
-              {{ props.row.sentBy.fullName }}
-            </div>
-            <div v-else-if="col.name === 'productModel'">
-              {{ props.row.productModel.name }}
-            </div>
-            <div v-else-if="col.name === 'productSize'">
-              <div
-                v-for="consume in props.row.productSize"
-                :key="consume"
-              >
-                {{ consume.size }} : {{ consume.quantity }}
-              </div>
-            </div>
-            <div v-else-if="col.name === 'fromWarehouse'">
-              {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
-            </div>
-            <div v-else-if="col.name === 'toWarehouse'">
-              {{ $t('warehouses.' + props.row.toWarehouse.name) }}
-            </div>
-            <div v-else-if="col.name === 'status'">
-              <div v-if="props.row.status === 'pending'" class="text-red">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-              <div v-else-if="props.row.status === 'accepted'" class="text-green">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-              <div v-else class="text-orange">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-            </div>
-            <div v-else-if="col.name === 'action' && props.row.status === 'pending'">
-              <div class="flex no-wrap q-gutter-x-sm">
-                <q-btn
-                  dense
-                  no-caps
-                  no-wrap
-                  color="green"
-                  icon-right="mdi-check"
-                  @click="selectedData = {...props.row}; showAcceptModal = true;"
-                >
-                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                    {{ $t('accept') }}
-                  </q-tooltip>
-                </q-btn>
-                <q-btn
-                  dense
-                  no-caps
-                  no-wrap
-                  size="md"
-                  color="red"
-                  icon-right="mdi-cancel"
-                  @click="selectedData = {...props.row}; showRejectModal = true;"
-                >
-                  <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
-                    {{ $t('reject') }}
-                  </q-tooltip>
-                </q-btn>
-              </div>
-            </div>
-            <div v-else>
-              {{ props.row[col.field] }}
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
-    <div
-    v-show="!loading && !warehouseActionLoading"
-    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="warehouseActionLoading"
-      v-model="warehouseActionPagination.page"
-      input-class="text-bold text-black"
-      :max="warehouseActionPagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
+    <ProductInWarehouseAction
+      :filters="{toWarehouse: WAREHOUSES.cutterWarehouseDefective}"
+      :title="t('tables.warehouseAction.header.title')"
+      can-accept
+      can-reject
     />
-  </div>
   </div>
 
   <h4 class="q-mb-sm">
     {{ $t('tables.model.header.title') }}
   </h4>
-
   <q-list
     v-show="!loading"
     bordered
@@ -474,7 +253,6 @@ const filteredProducts = computed(() => {
       </q-item-section>
     </q-item>
   </q-list>
-
   <!-- Dialogs -->
   <q-dialog v-model="showOrderReportModal" persistent @hide="clearAction">
     <div
@@ -676,8 +454,8 @@ const filteredProducts = computed(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading || warehouseActionLoading"
-            :loading="loading || warehouseActionLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
             :label="$t('forms.completedMaterialOrderReport.buttons.create')"
             type="submit"
@@ -687,51 +465,5 @@ const filteredProducts = computed(() => {
         <q-separator />
       </q-form>
     </div>
-  </q-dialog>
-  <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.accept.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.accept.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.accept.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.accept.buttons.accept')"
-          color="green"
-          @click="acceptAction();"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-  <q-dialog v-model="showRejectModal" persistent @hide="clearAction">
-    <q-card>
-      <q-card-section class="row q-pb-none">
-        <div class="text-h6"> {{ $t('dialogs.reject.bar') }}</div>
-      </q-card-section>
-
-      <q-card-section>
-        {{ $t('dialogs.reject.info') }}
-      </q-card-section>
-
-      <q-card-actions align="right" class="q-px-md q-mb-sm">
-        <q-btn no-caps :label="$t('dialogs.reject.buttons.cancel')" color="grey" v-close-popup />
-        <q-btn
-          :disable="loading || warehouseActionLoading"
-          :loading="loading || warehouseActionLoading"
-          no-caps
-          :label="$t('dialogs.reject.buttons.reject')"
-          color="red"
-          @click="rejectAction()"
-        />
-      </q-card-actions>
-    </q-card>
   </q-dialog>
 </template>

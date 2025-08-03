@@ -26,6 +26,7 @@ export default {
     food: 'Food',
     other: 'Other'
   },
+  send: 'Send',
   productCost: 'Expenses: included the price of Models',
   periodCost: 'Expenses: didn\'t included the price of Models',
   paySalary: 'Pay salary',
