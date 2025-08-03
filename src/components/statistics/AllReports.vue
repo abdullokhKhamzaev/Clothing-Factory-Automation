@@ -15,8 +15,6 @@ import CutModelsEmbroideryPending from "components/statistics/CutModelsEmbroider
 import CutModelsSewPending from "components/statistics/CutModelsSewPending.vue";
 import EmbroideryModelsSewAccepted from "components/statistics/EmbroideryModelsSewAccepted.vue";
 import EmbroideryModelsSewPending from "components/statistics/EmbroideryModelsSewPending.vue";
-import SewModelsAccepted from "components/statistics/SewModelsAccepted.vue";
-import SewModelsPending from "components/statistics/SewModelsPending.vue";
 import SewReadyModelsAccepted from "components/statistics/SewReadyModelsAccepted.vue";
 import SewReadyModelsPending from "components/statistics/SewReadyModelsPending.vue";
 import SewModelsCutDefectAccepted from "components/statistics/SewModelsCutDefectAccepted.vue";
@@ -27,8 +25,6 @@ import PackageReadyModelsAccepted from "components/statistics/PackageReadyModels
 import PackageReadyModelsPending from "components/statistics/PackageReadyModelsPending.vue";
 import PackageModelsCutDefectAccepted from "components/statistics/PackageModelsCutDefectAccepted.vue";
 import PackageModelsCutDefectPending from "components/statistics/PackageModelsCutDefectPending.vue";
-import PackageModelsAccepted from "components/statistics/PackageModelsAccepted.vue";
-import PackageModelsPending from "components/statistics/PackageModelsPending.vue";
 import PackageModelsProductWarehouseAccepted from "components/statistics/PackageModelsProductWarehouseAccepted.vue";
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
 import SaleProducts from "components/statistics/SaleProducts.vue";
@@ -46,7 +42,6 @@ const props = defineProps({
 })
 
 const step = ref(1);
-const splitterModel = ref(50);
 const { t } = useI18n();
 
 const cutModelsAcceptedData = ref([])
@@ -63,16 +58,12 @@ const embroideryModelsCutDefectAcceptedData = ref([])
 const embroideryModelsCutDefectPendingData = ref([])
 const embroideryModelsSewAcceptedData = ref([])
 const embroideryModelsSewPendingData = ref([])
-const sewModelsAcceptedData = ref([])
-const sewModelsPendingData = ref([])
 const sewReadyModelsAcceptedData = ref([])
 const sewReadyModelsPendingData = ref([])
 const sewModelsCutDefectAcceptedData = ref([])
 const sewModelsCutDefectPendingData = ref([])
 const sewModelsPackageAcceptedData = ref([])
 const sewModelsPackagePendingData = ref([])
-const packageModelsAcceptedData = ref([])
-const packageModelsPendingData = ref([])
 const packageReadyModelsAcceptedData = ref([])
 const packageReadyModelsPendingData = ref([])
 const packageModelsCutDefectAcceptedData = ref([])
@@ -123,12 +114,6 @@ function getEmbroideryModelsSewAccepted(data) {
 function getEmbroideryModelsSewPending(data) {
   embroideryModelsSewPendingData.value = data;
 }
-function getSewModelsAccepted(data) {
-  sewModelsAcceptedData.value = data;
-}
-function getSewModelsPending(data) {
-  sewModelsPendingData.value = data;
-}
 function getSewReadyModelsAccepted(data) {
   sewReadyModelsAcceptedData.value = data;
 }
@@ -146,12 +131,6 @@ function getSewModelsPackageAccepted(data) {
 }
 function getSewModelsPackagePending(data) {
   sewModelsPackagePendingData.value = data;
-}
-function getPackageModelsAccepted(data) {
-  packageModelsAcceptedData.value = data;
-}
-function getPackageModelsPending(data) {
-  packageModelsPendingData.value = data;
 }
 function getPackageReadyModelsAccepted(data) {
   packageReadyModelsAcceptedData.value = data;
@@ -174,6 +153,10 @@ function getPackageModelsProductWarehousePending(data) {
 function getSaleProducts(data) {
   saleProductsData.value = data;
 }
+const cutTab = ref('done');
+const embroideryTab = ref('done');
+const sewTab = ref('done');
+const packageTab = ref('done');
 </script>
 
 <template>
@@ -198,39 +181,55 @@ function getSaleProducts(data) {
       icon="mdi-scissors-cutting"
       :done="step > 1"
     >
-      <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">
-        <q-expansion-item
-          expand-separator
-          label="Qo'shimcha ma'lumotlar"
-          header-class="text-primary"
+      <q-card>
+        <q-tabs
+          v-model="cutTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          outside-arrows
+          no-caps
+          narrow-indicator
         >
-          <q-card>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Bichilgan mahsulotlar:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ cutModelsAcceptedData.value?.total || 0 }} {{ cutModelsPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-          </q-card>
-        </q-expansion-item>
-        <q-card-section>
-          <div class="text-bold">Bichildi: {{ cutModelsAcceptedData.value?.total }} {{ cutModelsPendingData.value?.total ? `(+ Kutilmoqda: ${cutModelsPendingData.value.total})` : ''  }}</div>
-        </q-card-section>
+          <q-tab name="done" label="Bichildi" />
+          <q-tab name="donePending" label="Bichildi (kutilmoqda)" />
+          <q-tab name="defect" label="Brag" />
+          <q-tab name="defectPending" label="Brag (kutilmoqda)" />
+          <q-tab name="toEmbroideryDone" label="Vishivkaga jo'natildi" />
+          <q-tab name="toEmbroideryPending" label="Vishivkani (Kutilmoqda)" />
+          <q-tab name="toSewDone" label="Tikuvga jo'natildi" />
+          <q-tab name="toSewPending" label="Tikuvni (Kutilmoqda)" />
+        </q-tabs>
+        <q-separator />
+        <q-tab-panels v-model="cutTab" animated>
+          <q-tab-panel name="done">
+            <CutModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsAcceptedData" />
+          </q-tab-panel>
+          <q-tab-panel name="donePending">
+            <CutModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsPendingData" />
+          </q-tab-panel>
+          <q-tab-panel name="defect">
+            <CutModelsDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsDefectAcceptedData" />
+          </q-tab-panel>
+          <q-tab-panel name="defectPending">
+            <CutModelsDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsDefectPendingData" />
+          </q-tab-panel>
+          <q-tab-panel name="toEmbroideryDone">
+            <CutModelsEmbroideryAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsEmbroideryAccepted" />
+          </q-tab-panel>
+          <q-tab-panel name="toEmbroideryPending">
+            <CutModelsEmbroideryPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsEmbroideryPending" />
+          </q-tab-panel>
+          <q-tab-panel name="toSewDone">
+            <CutModelsSewAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsSewAccepted" />
+          </q-tab-panel>
+          <q-tab-panel name="toSewPending">
+            <CutModelsSewPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsSewPending" />
+          </q-tab-panel>
+        </q-tab-panels>
       </q-card>
-
-      <CutModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsAcceptedData" />
-      <CutModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsPendingData" />
-      <CutModelsDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsDefectAcceptedData" />
-      <CutModelsDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsDefectPendingData" />
-      <CutModelsEmbroideryAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsEmbroideryAccepted" />
-      <CutModelsEmbroideryPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsEmbroideryPending" />
-      <CutModelsSewAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsSewAccepted" />
-      <CutModelsSewPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getCutModelsSewPending" />
     </q-step>
     <q-step
       :name="2"
@@ -239,37 +238,47 @@ function getSaleProducts(data) {
       icon="mdi-draw"
       :done="step > 2"
     >
-      <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">
-        <q-expansion-item
-          expand-separator
-          label="Qo'shimcha ma'lumotlar"
-          header-class="text-primary"
+      <q-card>
+        <q-tabs
+          v-model="embroideryTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          outside-arrows
+          no-caps
+          narrow-indicator
         >
-          <q-card>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Vishivka urilgan mahsulotlar:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ embroideryModelsAcceptedData.value?.total || 0 }} {{ embroideryModelsPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-          </q-card>
-        </q-expansion-item>
-        <q-card-section>
-          <div class="text-bold">Vishivka Urildi: {{ embroideryModelsAcceptedData.value?.total || 0 }} {{ embroideryModelsPendingData.value?.total ? `(+ Kutilmoqda: ${embroideryModelsPendingData.value.total})` : ''  }}</div>
-        </q-card-section>
+          <q-tab name="done" label="Vishivka urildi" />
+          <q-tab name="donePending" label="Vishivka urildi (kutilmoqda)" />
+          <q-tab name="toDefect" label="Brakga jo'natildi" />
+          <q-tab name="toDefectPending" label="Brakni (kutilmoqda)" />
+          <q-tab name="toSewDone" label="Tikuvga jo'natildi" />
+          <q-tab name="toSewPending" label="Tikuvni (Kutilmoqda)" />
+        </q-tabs>
+        <q-separator />
+        <q-tab-panels v-model="embroideryTab" animated>
+          <q-tab-panel name="done">
+            <EmbroideryModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsAcceptedData" />
+          </q-tab-panel>
+          <q-tab-panel name="donePending">
+            <EmbroideryModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsPendingData" />
+          </q-tab-panel>
+          <q-tab-panel name="toDefect">
+            <EmbroideryModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsCutDefectAccepted" />
+          </q-tab-panel>
+          <q-tab-panel name="toDefectPending">
+            <EmbroideryModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsCutDefectPending" />
+          </q-tab-panel>
+          <q-tab-panel name="toSewDone">
+            <EmbroideryModelsSewAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsSewAccepted" />
+          </q-tab-panel>
+          <q-tab-panel name="toSewPending">
+            <EmbroideryModelsSewPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsSewPending" />
+          </q-tab-panel>
+        </q-tab-panels>
       </q-card>
-
-      <EmbroideryModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsAcceptedData" />
-      <EmbroideryModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsPendingData" />
-      <EmbroideryModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsCutDefectAccepted" />
-      <EmbroideryModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsCutDefectPending" />
-      <EmbroideryModelsSewAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsSewAccepted" />
-      <EmbroideryModelsSewPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getEmbroideryModelsSewPending" />
     </q-step>
     <q-step
       :name="3"
@@ -278,50 +287,45 @@ function getSaleProducts(data) {
       icon="mdi-nail"
       :done="step > 3"
     >
-      <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">
-        <q-expansion-item
-          expand-separator
-          label="Qo'shimcha ma'lumotlar"
-          header-class="text-primary"
-        >
-          <q-card>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Tiligan mahsulotlar:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ sewReadyModelsAcceptedData.value?.total || 0 }} {{ sewReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${sewReadyModelsPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Bichuv bragga jo'natildi:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ sewModelsCutDefectAcceptedData.value?.total || 0 }} {{ sewModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${sewModelsCutDefectPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-          </q-card>
-        </q-expansion-item>
-        <q-card-section>
-          <div class="text-bold">Tikildi: {{ sewReadyModelsAcceptedData.value?.total || 0 }} {{ sewReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${sewReadyModelsPendingData.value.total})` : ''  }}</div>
-        </q-card-section>
-      </q-card>
-
-      <SewModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsAccepted" />
-      <SewModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsPending" />
-      <SewReadyModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewReadyModelsAccepted" />
-      <SewReadyModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewReadyModelsPending" />
-      <SewModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsCutDefectAccepted" />
-      <SewModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsCutDefectPending" />
-      <SewModelsPackageAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsPackageAccepted" />
-      <SewModelsPackagePending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsPackagePending" />
+      <q-tabs
+        v-model="sewTab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        outside-arrows
+        no-caps
+        narrow-indicator
+      >
+        <q-tab name="done" label="Tikildi" />
+        <q-tab name="donePending" label="Tikildi (kutilmoqda)" />
+        <q-tab name="toDefect" label="Brakga jo'natildi" />
+        <q-tab name="toDefectPending" label="Brakni (kutilmoqda)" />
+        <q-tab name="toPackage" label="Upakovkaga jo'natildi" />
+        <q-tab name="toPackagePending" label="Upakovkani (kutilmoqda)" />
+      </q-tabs>
+      <q-separator />
+      <q-tab-panels v-model="sewTab" animated>
+        <q-tab-panel name="done">
+          <SewReadyModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewReadyModelsAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="donePending">
+          <SewReadyModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewReadyModelsPending" />
+        </q-tab-panel>
+        <q-tab-panel name="toDefect">
+          <SewModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsCutDefectAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="toDefectPending">
+          <SewModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsCutDefectPending" />
+        </q-tab-panel>
+        <q-tab-panel name="toPackage">
+          <SewModelsPackageAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsPackageAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="toPackagePending">
+          <SewModelsPackagePending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSewModelsPackagePending" />
+        </q-tab-panel>
+      </q-tab-panels>
     </q-step>
     <q-step
       :name="4"
@@ -330,50 +334,45 @@ function getSaleProducts(data) {
       icon="mdi-package-down"
       :done="step > 4"
     >
-      <q-card flat bordered class="q-pa-sm text-weight-medium q-mb-md">
-        <q-expansion-item
-          expand-separator
-          label="Qo'shimcha ma'lumotlar"
-          header-class="text-primary"
-        >
-          <q-card>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Qadoqlangan mahsulotlar:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ packageReadyModelsAcceptedData.value?.total || 0 }} {{ packageReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageReadyModelsPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-            <div>
-              <q-splitter v-model="splitterModel">
-                <template v-slot:before>
-                  <q-card-section>Bichuv bragga jo'natildi:</q-card-section>
-                </template>
-                <template v-slot:after>
-                  <q-card-section>{{ packageModelsCutDefectAcceptedData.value?.total || 0 }} {{ packageModelsCutDefectPendingData.value?.total ? `(+ Kutilmoqda: ${packageModelsCutDefectPendingData.value?.total})` : ''  }}</q-card-section>
-                </template>
-              </q-splitter>
-              <q-separator inset />
-            </div>
-          </q-card>
-        </q-expansion-item>
-        <q-card-section>
-          <div class="text-bold">Qadoqlandi: {{ packageReadyModelsAcceptedData.value?.total || 0 }} {{ packageReadyModelsPendingData.value?.total ? `(+ Kutilmoqda: ${packageReadyModelsPendingData.value.total})` : ''  }}</div>
-        </q-card-section>
-      </q-card>
-
-      <PackageModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsAccepted" />
-      <PackageModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsPending" />
-      <PackageReadyModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageReadyModelsAccepted" />
-      <PackageReadyModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageReadyModelsPending" />
-      <PackageModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsCutDefectAccepted" />
-      <PackageModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsCutDefectPending" />
-      <PackageModelsProductWarehouseAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehouseAccepted" />
-      <PackageModelsProductWarehousePending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehousePending" />
+      <q-tabs
+        v-model="packageTab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        outside-arrows
+        no-caps
+        narrow-indicator
+      >
+        <q-tab name="done" label="Qadoqlandi" />
+        <q-tab name="donePending" label="Qadoqni (kutilmoqda)" />
+        <q-tab name="toDefect" label="Brakga jo'natildi" />
+        <q-tab name="toDefectPending" label="Brakni (kutilmoqda)" />
+        <q-tab name="toWarehouse" label="Omborga jo'natildi" />
+        <q-tab name="toWarehousePending" label="Omborni (kutilmoqda)" />
+      </q-tabs>
+      <q-separator />
+      <q-tab-panels v-model="packageTab" animated>
+        <q-tab-panel name="done">
+          <PackageReadyModelsAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageReadyModelsAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="donePending">
+          <PackageReadyModelsPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageReadyModelsPending" />
+        </q-tab-panel>
+        <q-tab-panel name="toDefect">
+          <PackageModelsCutDefectAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsCutDefectAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="toDefectPending">
+          <PackageModelsCutDefectPending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsCutDefectPending" />
+        </q-tab-panel>
+        <q-tab-panel name="toWarehouse">
+          <PackageModelsProductWarehouseAccepted :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehouseAccepted" />
+        </q-tab-panel>
+        <q-tab-panel name="toWarehousePending">
+          <PackageModelsProductWarehousePending :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getPackageModelsProductWarehousePending" />
+        </q-tab-panel>
+      </q-tab-panels>
     </q-step>
     <q-step
       :name="5"
