@@ -52,7 +52,7 @@ function redirectUserByRole() {
   } else if (isPackager()) {
     router.push({name: 'club.packager.warehouse'});
   } else if(isMaster()) {
-    router.push({name: 'club.master'});
+    router.push({name: 'club.master.embroidery.ready'});
   } else {
     router.push('/login');
   }
