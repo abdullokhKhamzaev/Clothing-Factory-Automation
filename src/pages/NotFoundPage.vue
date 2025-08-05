@@ -9,15 +9,26 @@
         Упс. Хэчнарса топилмади...
       </div>
 
-      <q-btn
-        class="q-mt-xl"
-        color="white"
-        text-color="blue"
-        unelevated
-        label="Бош Сахифага Ýтиш"
-        no-caps
-        @click="redirectUserByRole"
-      />
+      <div class="flex justify-center q-gutter-md">
+        <q-btn
+          class="q-mt-xl"
+          color="white"
+          text-color="blue"
+          unelevated
+          label="Бош Сахифага Ýтиш"
+          no-caps
+          @click="redirectUserByRole"
+        />
+
+        <q-btn
+          class="q-mt-xl"
+          color="red"
+          unelevated
+          label="Тизимдан чикиш"
+          no-caps
+          @click="logout"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -56,6 +67,11 @@ function redirectUserByRole() {
   } else {
     router.push('/login');
   }
+}
+
+function logout() {
+  localStorage.removeItem('accessToken')
+  router.push('/login')
 }
 
 onMounted(() => redirectUserByRole());
