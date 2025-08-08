@@ -323,30 +323,26 @@ function departureAction () {
     </q-card>
   </q-dialog>
   <q-dialog v-model="showDepartureModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="departureAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="departureActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="departureActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.departure.bar') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="departureActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
             />
             {{ departureActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -371,6 +367,6 @@ function departureAction () {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 </template>

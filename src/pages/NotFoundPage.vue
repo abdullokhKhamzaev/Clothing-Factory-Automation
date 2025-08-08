@@ -12,7 +12,6 @@
       <div class="flex justify-center q-gutter-md">
         <q-btn
           class="q-mt-xl"
-          color="white"
           text-color="blue"
           unelevated
           label="Бош Сахифага Ýтиш"

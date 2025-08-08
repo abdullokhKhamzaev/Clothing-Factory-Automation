@@ -224,10 +224,7 @@ function deleteAction() {
 
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="createAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('dialogs.user.barCreate') }} </div>
@@ -268,13 +265,10 @@ function deleteAction() {
           <q-btn no-caps :label="$t('forms.user.buttons.create')" type="submit" color="primary"/>
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="updateAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('dialogs.user.barEdit') }} </div>
@@ -315,7 +309,7 @@ function deleteAction() {
           <q-btn no-caps :label="$t('forms.user.buttons.edit')" type="submit" color="primary"/>
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showDeleteModal" persistent @hide="clearAction">
     <q-card>

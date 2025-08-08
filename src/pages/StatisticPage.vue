@@ -9,7 +9,7 @@ const dateTo = ref(new Date().toISOString().split('T')[0]);
 
 
 <template>
-  <div class="flex justify-between q-card q-mb-md q-pa-sm">
+  <q-card class="flex justify-between q-mb-md q-pa-sm">
     <q-btn outline icon="event" :label="dateFrom" color="primary">
       <q-popup-proxy cover transition-show="scale" transition-hide="scale">
         <q-date v-model="dateFrom" :mask="DATE_FORMAT">
@@ -28,7 +28,7 @@ const dateTo = ref(new Date().toISOString().split('T')[0]);
         </q-date>
       </q-popup-proxy>
     </q-btn>
-  </div>
+  </q-card>
 
   <AllReports :date-from="dateFrom" :date-to="dateTo" />
 </template>

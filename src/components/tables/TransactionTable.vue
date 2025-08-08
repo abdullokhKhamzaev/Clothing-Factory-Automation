@@ -100,7 +100,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green'">
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
@@ -120,7 +120,7 @@ onMounted(() => {
           <div v-else-if="col.name === 'paidPrice'">
             <span
               class="q-pa-xs rounded-borders"
-              :class="props.row.isIncome ? 'bg-green-3' : 'bg-red-3'"
+              :class="props.row.isIncome ? 'bg-green' : 'bg-red'"
             >
               <span class="q-mr-xs">
                 {{ props.row.isIncome ? '+' : '-' }}

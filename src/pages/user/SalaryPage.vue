@@ -28,7 +28,7 @@ const date = computed(() => String(selectedYear.value) + '-' + String(selectedMo
 </script>
 
 <template>
-  <div class="flex justify-between q-card q-mb-md q-pa-sm">
+  <q-card class="flex justify-between q-mb-md q-pa-sm">
     <q-select
       v-model="selectedYear"
       :options="years"
@@ -49,7 +49,7 @@ const date = computed(() => String(selectedYear.value) + '-' + String(selectedMo
       outlined
       class="w-full"
     />
-  </div>
+  </q-card>
   <UserSalaryCalculation :date="date" />
 </template>
 

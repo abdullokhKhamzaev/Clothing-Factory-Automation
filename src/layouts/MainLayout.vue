@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar>
+      <q-toolbar :class="isDark ? 'bg-dark text-white' : 'bg-white text-dark'">
         <q-btn
           flat
           dense
@@ -15,7 +15,6 @@
           flat
           dense
           size="lg"
-          color="white"
           icon="mdi-logout"
           @click="logout"
           class="q-mr-md"
@@ -28,8 +27,13 @@
             {{ $t('logout') }}
           </q-tooltip>
         </q-btn>
+        <q-icon
+          size="md"
+          name="mdi-theme-light-dark"
+          class="q-mr-md"
+          @click="toggleTheme"
+        />
         <q-btn-dropdown
-          color="white"
           icon="language"
           flat
           dense
@@ -42,7 +46,6 @@
               clickable
               v-close-popup
               @click="changeLang(language.value)"
-              :class="locale === language.value ? 'bg-primary text-white' : ''"
             >
               <q-item-section>
                 <q-item-label>{{ language.label }}</q-item-label>
@@ -50,7 +53,6 @@
             </q-item>
           </q-list>
         </q-btn-dropdown>
-<!--        <q-toggle v-model="isDark" label="Dark Mode" />-->
       </q-toolbar>
     </q-header>
 
@@ -58,11 +60,10 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      class="bg-primary text-white"
     >
       <q-list>
         <q-item-label
-          class="text-white text-h5 text-weight-medium"
+          class="text-h5 text-weight-medium"
           header
         >
           Kids Club
@@ -71,7 +72,7 @@
         <q-separator />
 
         <q-item-label
-          class="bg-white text-h5 text-weight-medium"
+          class="text-h5 text-weight-medium"
           header
         >
           <q-item
@@ -85,7 +86,7 @@
             </q-item-section>
 
             <q-item-section>
-              <q-item-label class="text-subtitle1 text-blue-grey-10">
+              <q-item-label class="text-subtitle1">
                 {{ user.about.fullName }}
               </q-item-label>
               <q-item-label caption>
@@ -109,7 +110,7 @@
     </q-drawer>
 
     <q-page-container>
-      <q-page class="bg-white q-py-lg q-px-md">
+      <q-page class="q-py-lg q-px-md">
         <router-view />
       </q-page>
     </q-page-container>
@@ -117,26 +118,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from "vue-router";
 import SideBarLink from 'components/SideBarLink.vue'
 import { useAbout } from 'stores/user/about.js';
+import { useTheme } from 'src/composables/useTheme.js';
 import { LANGUAGES } from 'src/libraries/constants/defaults.js';
-// import {useQuasar} from "quasar";
 
 const { locale } = useI18n();
 const user = useAbout();
 const router = useRouter();
 const leftDrawerOpen = ref(false)
 
-// const $q = useQuasar();
-// const isDark = ref($q.dark.isActive)
-
-// Watch toggle and apply dark mode
-// watch(isDark, (val) => {
-//   $q.dark.set(val)
-// })
+// Theme management with localStorage persistence
+const { isDark, toggleTheme } = useTheme()
 const linksList = [
   {
     title: 'users',

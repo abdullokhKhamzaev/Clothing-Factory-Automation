@@ -3,21 +3,20 @@
     clickable
     :to="props.to"
     class="flex"
-    active-class="bg-light-blue"
+    :active-class="$q.dark.isActive ? 'bg-grey text-white' : 'bg-primary text-white'"
   >
     <q-item-section
       v-if="props.icon"
       style="max-width: 24px"
     >
       <q-icon
-        color="white"
         :name="props.icon"
         size="sm"
       />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label class="text-white text-subtitle1">
+      <q-item-label class="text-subtitle1">
         {{ $t(`menus.${menuRoute}.${props.title}`) }}
       </q-item-label>
       <q-item-label

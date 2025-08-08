@@ -263,8 +263,8 @@ onMounted(() => {
             {{ budget.name }} {{ $t('balance') }}
           </div>
           <div class="flex q-gutter-x-md">
-            <q-btn icon="mdi-cash-minus" round text-color="red" color="white" @click="showMinusModal = true; selectedData = budget" />
-            <q-btn icon="mdi-cash-plus" round text-color="green" color="white" @click="showAddModal = true; selectedData = budget" />
+            <q-btn icon="mdi-cash-minus" round text-color="red" @click="showMinusModal = true; selectedData = budget" />
+            <q-btn icon="mdi-cash-plus" round text-color="green" @click="showAddModal = true; selectedData = budget" />
           </div>
         </div>
         <q-separator />
@@ -300,10 +300,7 @@ onMounted(() => {
 
   <!-- Dialogs -->
   <q-dialog v-model="showConvertModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="convertAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('convert') }} </div>
@@ -361,13 +358,10 @@ onMounted(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showAddModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="addAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
@@ -397,13 +391,10 @@ onMounted(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showMinusModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="minusAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
           <div class="text-h6"> {{ $t('add') }} </div>
@@ -471,7 +462,7 @@ onMounted(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 
   <route-tabs

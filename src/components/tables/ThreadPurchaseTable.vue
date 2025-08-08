@@ -226,7 +226,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green'">
           <div v-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
           </div>
@@ -290,30 +290,26 @@ onMounted(() => {
   </q-table>
   <!-- Dialogs -->
   <q-dialog v-model="showPurchaseModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="createAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.threadPurchase.barCreate') }}</div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
             />
             {{ createActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <selectable-list
@@ -383,33 +379,29 @@ onMounted(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showPayModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="payAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="payActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="payActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.threadPurchase.barPayDebt') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="payActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
             />
             {{ payActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -435,6 +427,6 @@ onMounted(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 </template>

@@ -14,7 +14,8 @@ export default defineConfig((ctx) => {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'i18n',
-      'axios'
+      'axios',
+      'theme'
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -43,7 +44,7 @@ export default defineConfig((ctx) => {
         node: 'node20'
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -117,7 +118,7 @@ export default defineConfig((ctx) => {
       // Quasar plugins
       plugins: [
         'Notify',
-        // 'Dark'
+        'Dark'
       ]
     },
 

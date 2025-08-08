@@ -131,7 +131,7 @@ const filteredProducts = computed(() => {
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
+          <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green'">
             <div v-if="col.name === 'sentBy'">
               {{ props.row.sentBy.fullName }}
             </div>

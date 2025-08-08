@@ -237,7 +237,7 @@ function clearAction() {
         <q-td v-for="col in columns" :key="col.name" :props="props">
           <div v-if="col.name === 'fullName'">
             <router-link
-              class="text-black"
+              class="text-primary"
               :to="{
                 name: 'club.customer',
                 params: { id:props.row.id },
@@ -270,30 +270,27 @@ function clearAction() {
   </q-table>
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="createAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="createActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="createActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.customer.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ createActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -337,33 +334,30 @@ function clearAction() {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="updateAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.customer.barEdit') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ updateActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -407,7 +401,7 @@ function clearAction() {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showDeleteModal" persistent @hide="clearAction">
     <q-card>

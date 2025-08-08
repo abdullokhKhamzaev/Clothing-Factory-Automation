@@ -255,30 +255,27 @@ const filteredProducts = computed(() => {
   </q-list>
   <!-- Dialogs -->
   <q-dialog v-model="showOrderReportModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="reportOrderAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="reportActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="reportActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ reportActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div
           v-for="(row, index) in rows" :key="index"
@@ -464,6 +461,6 @@ const filteredProducts = computed(() => {
         </div>
         <q-separator />
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 </template>

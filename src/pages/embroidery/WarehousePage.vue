@@ -491,7 +491,7 @@ const filteredProducts = computed(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-1'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green'">
           <div v-if="col.name === 'sentBy'">
             {{ props.row.sentBy.fullName }}
           </div>
@@ -584,30 +584,27 @@ const filteredProducts = computed(() => {
 
   <!-- Dialogs -->
   <q-dialog v-model="showDefectModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="defectAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="defectActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="defectActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.ripeMaterial.barSend') }}</div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="defectActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ defectActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -656,33 +653,30 @@ const filteredProducts = computed(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showReportModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="reportAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="reportActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="reportActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.completedMaterialOrderReport.barCreate') }} </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="reportActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ reportActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -731,7 +725,7 @@ const filteredProducts = computed(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
   <q-dialog v-model="showAcceptModal" persistent @hide="clearAction">
     <q-card>
@@ -780,30 +774,27 @@ const filteredProducts = computed(() => {
     </q-card>
   </q-dialog>
   <q-dialog v-model="showUpdateModal" persistent @hide="clearAction">
-    <div
-      class="bg-white shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="updateAction">
         <div
-          class="q-px-md q-py-sm text-white flex justify-between"
-          :class="updateActionErr ? 'bg-red' : 'bg-primary q-mb-lg'"
+          class="q-px-md q-py-sm flex justify-between"
+          :class="updateActionErr ? 'bg-red' : 'q-my-sm'"
         >
           <div class="text-h6"> {{ $t('dialogs.warehouse.barUpdate') }}</div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="updateActionErr">
-          <q-separator color="white" />
+          <q-separator />
           <div class="bg-red q-pa-md text-h6 flex items-center q-mb-lg text-white">
             <q-icon
               class="q-mr-sm"
               name="mdi-alert-circle-outline"
               size="md"
-              color="white"
+
             />
             {{ updateActionErr }}
           </div>
-          <q-separator color="white" />
+          <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input
@@ -848,6 +839,6 @@ const filteredProducts = computed(() => {
           />
         </div>
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 </template>

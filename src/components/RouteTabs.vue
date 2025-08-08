@@ -14,7 +14,8 @@ const props = defineProps({
     dense
     outside-arrows
     mobile-arrows
-    :class="`q-card overflow-hidden bg-primary text-white ${ $q.screen.xs ? 'full-width' : '' }`"
+    active-color="primary"
+    :class="`shadow-3 overflow-hidden ${ $q.screen.xs ? 'full-width' : '' }`"
   >
     <q-route-tab
       v-for="( route, routeKey ) in props.routes"
