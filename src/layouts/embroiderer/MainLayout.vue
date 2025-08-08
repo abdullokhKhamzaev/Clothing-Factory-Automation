@@ -78,15 +78,8 @@
           <q-item
             class="flex q-pa-none q-ma-none"
           >
-            <q-item-section
-              style="max-width: 40px"
-              avatar
-            >
-              <q-img src="favicon.png" />
-            </q-item-section>
-
             <q-item-section>
-              <q-item-label class="text-subtitle1">
+              <q-item-label class="text-weight-medium">
                 {{ user.about.fullName }}
               </q-item-label>
               <q-item-label caption>
