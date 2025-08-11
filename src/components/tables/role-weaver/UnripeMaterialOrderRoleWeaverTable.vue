@@ -322,10 +322,7 @@ function prefill () {
     </q-card>
   </q-dialog>
   <q-dialog v-model="showOrderReportModal" persistent @hide="clearAction">
-    <div
-      class="shadow-3"
-      style="width: 900px; max-width: 80vw;"
-    >
+    <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="reportOrderAction">
         <div
           class="q-px-md q-py-sm flex justify-between"
@@ -423,6 +420,6 @@ function prefill () {
         </div>
         <q-separator />
       </q-form>
-    </div>
+    </q-card>
   </q-dialog>
 </template>
