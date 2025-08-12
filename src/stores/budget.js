@@ -1,5 +1,6 @@
-import { defineStore } from "pinia";
-import { client } from "boot/axios.js";
+import {defineStore} from "pinia";
+import {client} from "boot/axios.js";
+import {isSuperAdmin} from "src/router/routes.js";
 
 export const useBudget = defineStore('budget', () => {
   async function fetchBudgets(filterProps) {
@@ -10,7 +11,13 @@ export const useBudget = defineStore('budget', () => {
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
     try {
-      return await client.get(`budgets?${params.toString()}`);
+      const res = await client.get(`budgets?${params.toString()}`);
+
+      if(!isSuperAdmin()) {
+        res.data['hydra:member'] = res.data['hydra:member'].filter(item => item.name !== 'Main USD')
+      }
+
+      return res
     } catch (e) {
       console.log(e)
     }
@@ -32,6 +39,14 @@ export const useBudget = defineStore('budget', () => {
     }
   }
 
+  async function send(data) {
+    try {
+      return client.post('/budgets/send', data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   async function payDebt(data) {
     try {
       return client.post('/budgets/payDebt', data)
@@ -40,5 +55,5 @@ export const useBudget = defineStore('budget', () => {
     }
   }
 
-  return { fetchBudgets, convert, add, payDebt }
+  return { fetchBudgets, convert, add, send, payDebt }
 })

@@ -14,6 +14,7 @@ const { t } = useI18n();
 const user = useUser();
 const showConvertModal = ref(false);
 const showAddModal = ref(false);
+const showSendModal = ref(false);
 const showMinusModal = ref(false);
 const selectedData = ref({
   from: {
@@ -138,6 +139,49 @@ function addAction() {
       loading.value = false;
     })
 }
+function sendAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
+  loading.value = true;
+
+  const input = {
+    fromBudget: {
+      budget: '/api/budgets/2',
+      quantity: selectedData.value.sendQuantity,
+      description: `USD hisobdan Asosiy USD hisobiga ${selectedData.value.sendQuantity} yuborilmoqda`,
+      isIncome: false
+    },
+    toBudget: {
+      budget: '/api/budgets/3',
+      quantity: selectedData.value.sendQuantity,
+      description: `Asosiy USD hisobdan USD hisobiga ${selectedData.value.sendQuantity} qabul qilinmoqda`,
+      isIncome: true
+    }
+  }
+
+  budget.send(input)
+    .then(() => {
+      showSendModal.value = false;
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: "Successfully Sent!"
+      });
+      getBudgets();
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        position: 'top',
+        timeout: 1000,
+        message: "Error while sending"
+      })
+    })
+    .finally(() => {
+      loading.value = false;
+    })
+}
 function minusAction() {
   if (loading.value) return; // Prevent multiple rapid calls
 
@@ -232,6 +276,10 @@ const routes = computed(() => {
     {
       label: t('indebtedness'),
       value: router.resolve( { name: 'club.budget.indebtedness' } )
+    },
+    {
+      label: t('exchanges'),
+      value: router.resolve( { name: 'club.budget.exchange' } )
     }
   ];
 })
@@ -265,6 +313,7 @@ onMounted(() => {
           <div class="flex q-gutter-x-md">
             <q-btn icon="mdi-cash-minus" round text-color="red" @click="showMinusModal = true; selectedData = budget" />
             <q-btn icon="mdi-cash-plus" round text-color="green" @click="showAddModal = true; selectedData = budget" />
+            <q-btn v-if="budget.name === 'USD'" icon="mdi-send-clock-outline" round text-color="white" @click="showSendModal = true; selectedData = budget" />
           </div>
         </div>
         <q-separator />
@@ -388,6 +437,39 @@ onMounted(() => {
             type="submit"
             color="green"
             icon-right="mdi-cash-plus"
+          />
+        </div>
+      </q-form>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showSendModal" persistent @hide="clearAction">
+    <q-card style="width: 900px; max-width: 80vw;">
+      <q-form @submit.prevent="sendAction">
+        <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
+          <div class="text-h6"> {{ $t('send') }} </div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </div>
+
+        <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
+          <q-input
+            type="number"
+            v-model.number="selectedData.sendQuantity"
+            :label="$t('quantity')"
+            lazy-rules
+            :rules="[ val => val && val > 0 || '' ]"
+            class="col-12"
+          />
+        </div>
+        <q-separator />
+        <div class="q-px-md q-py-sm text-center">
+          <q-btn
+            no-caps
+            :disable="loading"
+            :loading="loading"
+            :label="$t('send')"
+            type="submit"
+            color="green"
+            icon-right="mdi-send-clock-outline"
           />
         </div>
       </q-form>

@@ -41,6 +41,7 @@ export default {
   add: 'Add',
   accessory: 'Accessory',
   indebtedness: 'Indebtedness',
+  exchanges: 'Exchanges',
   accept: 'Accept',
   balance: 'Balance',
   confirmed: 'Confirmed',
@@ -1589,6 +1590,23 @@ export default {
         quantity: 'Quantity',
         unitPrice: 'Unit Price',
         totalPrice: 'Total Price',
+        confirmedBy: 'Confirmed By',
+      },
+    },
+    exchange: {
+      header: {
+        title: 'Money Exchanges',
+        empty: 'There is no available exchanges'
+      },
+      columns: {
+        id: 'ID',
+        createdAt: 'Date',
+        fromBudget: 'From',
+        toBudget: 'To',
+        quantity: 'Quantity',
+        description: 'Description',
+        status: 'Status',
+        createdBy: 'Created By',
         confirmedBy: 'Confirmed By',
       },
     },
