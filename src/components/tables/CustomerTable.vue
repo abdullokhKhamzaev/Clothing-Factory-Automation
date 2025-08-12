@@ -4,6 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useCustomer } from "stores/customer.js";
 import RefreshButton from "components/RefreshButton.vue";
+import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -20,6 +21,8 @@ const columns = [
   { name: 'fullName', label: t('tables.customer.columns.fullName'), align: 'left', field: 'fullName' },
   { name: 'username', label: t('tables.customer.columns.username'), align: 'left', field: 'username' },
   { name: 'phone', label: t('tables.customer.columns.phone'), align: 'left', field: 'phone' },
+  { name: 'uzsDebts', label: t('tables.customer.columns.debt'), align: 'left', field: 'uzsDebts' },
+  { name: 'usdDebts', label: t('tables.customer.columns.debt'), align: 'left', field: 'usdDebts' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
@@ -37,6 +40,7 @@ const pagination = ref({
 
 const filters = ref({
   fullName: '',
+  hasDebt: null,
 });
 
 function getItems () {
@@ -215,6 +219,13 @@ function clearAction() {
             no-caps
             @click="showCreateModal = true"
           />
+          <q-toggle
+            v-model="filters.hasDebt"
+            checked-icon="check"
+            unchecked-icon="clear"
+            :label="$t('debts')"
+            @update:model-value="getItems"
+          />
           <q-select
             dense
             multiple
@@ -246,6 +257,12 @@ function clearAction() {
             >
               {{ props.row.fullName }}
             </router-link>
+          </div>
+          <div v-else-if="col.name === 'uzsDebts'">
+            {{ formatFloatToInteger(props.row.uzsDebts) }} So'm
+          </div>
+          <div v-else-if="col.name === 'usdDebts'">
+            {{ formatFloatToInteger(props.row.usdDebts) }} $
           </div>
           <div class="flex justify-end" v-else-if="col.name === 'action'">
             <div class="flex no-wrap q-gutter-x-sm">

@@ -13,6 +13,10 @@ export const useCustomer = defineStore('customers', () => {
       params.set('fullName', filterProps.fullName);
     }
 
+    if (typeof filterProps?.hasDebt !== 'undefined' && typeof filterProps.hasDebt === 'boolean') {
+      params.set('hasDebt', filterProps.hasDebt);
+    }
+
     try {
       return await client.get(`customers?${params.toString()}`);
     } catch (e) {

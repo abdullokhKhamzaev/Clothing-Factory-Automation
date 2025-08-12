@@ -1799,7 +1799,8 @@ export default {
       columns: {
         fullName: 'Name',
         username: 'Username',
-        phone: 'Phone'
+        phone: 'Phone',
+        debt: 'Debt',
       },
       buttons: {
         add: 'Add Customer'

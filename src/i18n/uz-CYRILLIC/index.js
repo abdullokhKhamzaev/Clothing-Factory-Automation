@@ -1799,7 +1799,8 @@ export default {
       columns: {
         fullName: 'Исм & Фамилия',
         username: 'Фойдаланувчи номи',
-        phone: 'Телефон'
+        phone: 'Телефон',
+        debt: 'Карз',
       },
       buttons: {
         add: 'Мижоз қўшиш',
