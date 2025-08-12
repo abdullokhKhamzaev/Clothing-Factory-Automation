@@ -9,6 +9,14 @@ export const useExchange = defineStore('exchange', () => {
     params.set('itemsPerPage', filterProps?.rowsPerPage || 10);
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
+    if (filterProps.createdAtFrom) {
+      params.set('createdAt[after]', filterProps.createdAtFrom);
+    }
+
+    if (filterProps.createdAtTo) {
+      params.set('createdAt[before]', filterProps.createdAtTo);
+    }
+
     try {
       return await client.get(`budget_sends?${params.toString()}`);
     } catch (e) {

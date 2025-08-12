@@ -1,10 +1,21 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import { useExchange } from "stores/exchange.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import {formatDate, formatFloatToInteger} from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
+
+const props = defineProps({
+  dateFrom: {
+    type: String,
+    default: null
+  },
+  dateTo: {
+    type: String,
+    default: null
+  }
+});
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -37,15 +48,20 @@ const pagination = ref({
   descending: true
 });
 
-const filters = ref({
-  // ...
-});
-
 function getItems () {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
 
-  repository.list({...pagination.value, ...filters.value})
+  let filterProps = {};
+  if (props.dateFrom) {
+    filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
+  }
+
+  if (props.dateTo) {
+    filterProps.createdAtTo = props.dateTo + 'T23:59:59';
+  }
+
+  repository.list({...pagination.value, ...filterProps})
     .then((res) => {
       items.value = res.data['hydra:member'];
       pagination.value.rowsNumber = res.data['hydra:totalItems'];
@@ -127,9 +143,25 @@ function rejectAction () {
       refresh()
     })
 }
+const totalQuantity = computed(() => {
+  return items.value.filter(item => item.status === "accepted").reduce((sum, item) => sum + parseFloat(item.quantity), 0);
+})
+
+watch(props, () => {
+  getItems();
+}, { deep: true });
 </script>
 
 <template>
+  <q-card class="q-mb-md">
+    <q-card-section class="text-h6">
+      <div class="text-green">
+        {{ $t('total') }}:
+      </div>
+      {{ formatFloatToInteger(totalQuantity) }}$
+    </q-card-section>
+  </q-card>
+
   <q-table
     flat
     bordered

@@ -29,6 +29,7 @@ import PackageModelsProductWarehouseAccepted from "components/statistics/Package
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
 import SaleProducts from "components/statistics/SaleProducts.vue";
 import ExpensesTransactions from "components/statistics/ExpensesTransactions.vue";
+import ExchangeTable from "components/tables/ExchangeTable.vue";
 
 const props = defineProps({
   dateFrom: {
@@ -162,7 +163,7 @@ const packageTab = ref('done');
 <template>
   <div class="flex justify-end q-gutter-x-md q-mb-sm">
     <q-btn color="primary" icon="mdi-chevron-double-left" @click="$refs.stepper.previous()" :disable="step === 1" />
-    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 6" />
+    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 7" />
   </div>
   <q-stepper
     flat
@@ -387,8 +388,16 @@ const packageTab = ref('done');
       :name="6"
       :title="t('menus.sideBar.expenses')"
       icon="mdi-wallet"
+      :done="step > 6"
     >
       <ExpensesTransactions :date-to="props.dateTo" :date-from="props.dateFrom" />
+    </q-step>
+    <q-step
+      :name="7"
+      :title="t('exchanges')"
+      icon="mdi-send-clock-outline"
+    >
+      <exchange-table :date-to="props.dateTo" :date-from="props.dateFrom" />
     </q-step>
   </q-stepper>
 </template>
