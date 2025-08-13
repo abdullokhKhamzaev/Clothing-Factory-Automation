@@ -260,7 +260,7 @@ function removeRow(index) {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green text-white'">
           <div v-if="col.name === 'action'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
