@@ -67,6 +67,10 @@ export const TRANSACTION_REASONS = [
   {
     label: 'Other',
     value: 'other'
+  },
+  {
+    label: 'Other Product cost',
+    value: 'productcost'
   }
 ]
 

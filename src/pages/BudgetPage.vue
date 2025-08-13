@@ -2,12 +2,12 @@
 import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
+import { useUser } from "stores/user/user.js";
 import { formatFloatToInteger, TRANSACTION_REASONS } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import RouteTabs from "components/RouteTabs.vue";
 import SelectableList from "components/selectableList.vue";
-import {useUser} from "stores/user/user.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -195,7 +195,7 @@ function minusAction() {
   let input = {
     budget: selectedData.value['@id'],
     quantity: minusQuantity.value,
-    description: reason.value === 'other' ? reason.value + ' ' + reasonText.value : reason.value,
+    description: reason.value === 'other' || reason.value === 'productcost' ? reason.value + ' ' + reasonText.value : reason.value,
     isIncome: false
   }
 
@@ -507,7 +507,7 @@ onMounted(() => {
             hide-bottom-space
           />
           <q-input
-            v-if="reason === 'other'"
+            v-if="reason === 'other' || reason === 'productcost'"
             v-model="reasonText"
             type="textarea"
             :label="$t('forms.budget.fields.reason.label')"

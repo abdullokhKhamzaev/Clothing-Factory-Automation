@@ -132,9 +132,11 @@ onMounted(() => {
           <q-splitter v-model="splitterModel">
             <template v-slot:before>
               <q-card-section>
-                {{ modelName.title.startsWith('other')
-                ? modelName.title.slice(6)
-                : $t('transaction.' + modelName.title.split(" ")[0]) + ': ' + modelName.title.trim().split(/\s+/).slice(1).join(" ") }}
+                {{
+                  modelName.title.startsWith('other') || modelName.title.startsWith('productcost')
+                    ? modelName.title.slice(modelName.title.startsWith('productcost') ? 11 : 6)
+                    : $t('transaction.' + modelName.title.split(" ")[0]) + ': ' + modelName.title.trim().split(/\s+/).slice(1).join(" ")
+                }}
               </q-card-section>
             </template>
 
