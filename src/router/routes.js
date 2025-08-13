@@ -105,6 +105,11 @@ const routes = [
             path: 'salary',
             name: 'club.users.salary',
             component: () => import('pages/user/SalariesPage.vue')
+          },
+          {
+            path: 'salaries/:id',
+            name: 'club.user.salary',
+            component: () => import('pages/user/SalaryPage.vue'),
           }
         ]
       },

@@ -5,9 +5,11 @@ import {useWorkEntries} from "stores/workEntries.js";
 import RefreshButton from "components/RefreshButton.vue";
 import {formatDate, formatFloatToInteger, isToday} from "../../libraries/constants/defaults.js";
 import {useI18n} from "vue-i18n";
+import {useRoute} from "vue-router";
 
 const { t } = useI18n();
 const user = useAbout();
+const route = useRoute();
 const props = defineProps({
   date: {
     type: String,
@@ -71,7 +73,7 @@ const totalQuantity = computed(() => {
 })
 
 watch([user, props], () => {
-  filters.value.workerBy = user.about['@id'];
+  filters.value.workerBy = route.params.id ? route.params.id : user.about['@id'];
   filters.value.date = props.date;
   refresh();
 }, {deep: true});

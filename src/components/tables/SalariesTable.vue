@@ -237,7 +237,15 @@ function payAdvanceAction () {
           :props="props"
         >
           <div v-if="col.name === 'worker'">
-            {{ props.row.worker.fullName }}
+            <router-link
+              class="text-primary"
+              :to="{
+                name: 'club.user.salary',
+                params: { id:props.row.worker['@id'] },
+              }"
+            >
+              {{ props.row.worker.fullName }}
+            </router-link>
           </div>
           <div v-else-if="col.name === 'month'">
             {{ formatDate(props.row.month).slice(0, 10) }}
