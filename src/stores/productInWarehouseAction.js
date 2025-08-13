@@ -46,7 +46,7 @@ export const useProductWarehouse = defineStore('product_in_warehouse_action', ()
     }
 
     if (filterProps.receivedAtTo) {
-      params.set('receivedAtTo[before]', filterProps.receivedAtTo);
+      params.set('receivedAt[before]', filterProps.receivedAtTo);
     }
 
     if (filterProps.createdAtFrom) {
