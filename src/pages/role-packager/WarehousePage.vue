@@ -64,7 +64,7 @@ function getWarehouseAction (filterProps) {
 
   warehouseActionLoading.value = true;
 
-  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id'], readyWarehouse.value];
+  props.toWarehouses = [cutterDefectiveWarehouse.value, readyWarehouse.value];
 
   useProductWarehouse().list(props || '')
     .then((res) => {

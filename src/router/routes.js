@@ -220,12 +220,7 @@ const routes = [
             path: 'warehouse',
             name: 'club.sew.warehouse',
             component: () => import('pages/sew/WarehousePage.vue')
-          },
-          {
-            path: 'ready',
-            name: 'club.sew.ready',
-            component: () => import('pages/sew/ReadyPage.vue')
-          },
+          }
         ]
       },
       {

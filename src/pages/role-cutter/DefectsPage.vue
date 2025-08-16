@@ -164,12 +164,16 @@ const filteredProducts = computed(() => {
     item.productModel.name.toLowerCase().includes(searchTitle.value.toLowerCase())
   );
 });
+
+const filters = {
+  toWarehouse: WAREHOUSES.cutterWarehouseDefective
+}
 </script>
 
 <template>
   <div class="q-mb-lg shadow-3">
     <ProductInWarehouseAction
-      :filters="{toWarehouse: WAREHOUSES.cutterWarehouseDefective}"
+      :filters="filters"
       :title="t('tables.warehouseAction.header.title')"
       can-accept
       can-reject

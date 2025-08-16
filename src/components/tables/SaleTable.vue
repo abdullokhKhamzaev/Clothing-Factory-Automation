@@ -203,7 +203,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
-    description: 'receivedSaleDebt #' + selectedData.value.id,
+    description: 'receivedSaleDebt #' + selectedData.value.id + ' from ' + selectedData.value.customer.fullName,
     isIncome: true,
     sale: selectedData.value['@id']
   }
