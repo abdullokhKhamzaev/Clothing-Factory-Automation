@@ -234,13 +234,13 @@ onMounted(() => {
             {{ props.row?.receivedBy?.fullName }}
           </div>
           <div v-else-if="col.name === 'status'">
-            <div v-if="props.row.status === 'pending'" class="text-red">
+            <div v-if="props.row.status === 'pending'">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else-if="props.row.status === 'accepted'" class="text-green">
+            <div v-else-if="props.row.status === 'accepted'">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else class="text-red">
+            <div v-else>
               {{ $t('statuses.' + props.row.status) }}
             </div>
           </div>
