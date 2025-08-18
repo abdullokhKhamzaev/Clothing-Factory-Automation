@@ -2,19 +2,17 @@
 import { useI18n } from "vue-i18n";
 import ProductInWarehouseAction from "components/tables/ProductInWarehouseAction.vue";
 import ProductInWarehouse from "components/ProductInWarehouse.vue";
+import {WAREHOUSES} from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
-const sewerWarehouse = '/api/warehouses/5'
-const packagerWarehouse = '/api/warehouses/7'
 
 const filtersPending = {
-  fromWarehouse: sewerWarehouse,
-  toWarehouse: packagerWarehouse,
+  toWarehouses: [WAREHOUSES.sewerWarehouse, WAREHOUSES.packagerWarehouse],
   status: 'pending',
 }
 
 const filters = {
-  fromWarehouse: sewerWarehouse,
+  fromWarehouse: WAREHOUSES.sewerWarehouse,
   statuses: ['accepted', 'rejected'],
 }
 </script>
