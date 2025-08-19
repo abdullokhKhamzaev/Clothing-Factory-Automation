@@ -17,6 +17,7 @@ const filters = {
     name="packagerReadyWarehouse"
     show-action
     :can-update="isSuperAdmin()"
+    can-send-to-warehouse
   />
 
   <q-separator color="primary" class="q-my-md" />
