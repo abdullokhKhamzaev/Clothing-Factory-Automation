@@ -15,6 +15,7 @@ const filters = {
 <template>
   <ProductInWarehouse
     name="packagerReadyWarehouse"
+    :from-warehouse="WAREHOUSES.packagerReadyWarehouse"
     show-action
     :can-update="isSuperAdmin()"
     can-send-to-warehouse
