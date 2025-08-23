@@ -11,11 +11,7 @@ const routes = computed(() => {
     {
       label: t('warehouse'),
       value: router.resolve( { name: 'club.sewer.warehouse' } )
-    },
-    // {
-    //   label: t('ready'),
-    //   value: router.resolve( { name: 'club.sewer.ready' } )
-    // },
+    }
   ];
 })
 </script>

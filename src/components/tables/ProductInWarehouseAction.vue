@@ -206,7 +206,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt)&& 'bg-green text-white'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt)&& 'bg-green-2 text-black'">
           <div v-if="col.name === 'sentBy'">
             {{ props.row.sentBy.fullName }}
           </div>
@@ -234,13 +234,13 @@ onMounted(() => {
             {{ props.row?.receivedBy?.fullName }}
           </div>
           <div v-else-if="col.name === 'status'">
-            <div v-if="props.row.status === 'pending'">
+            <div v-if="props.row.status === 'pending'" class="text-red">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else-if="props.row.status === 'accepted'">
+            <div v-else-if="props.row.status === 'accepted'" class="text-green">
               {{ $t('statuses.' + props.row.status) }}
             </div>
-            <div v-else>
+            <div v-else class="text-red">
               {{ $t('statuses.' + props.row.status) }}
             </div>
           </div>

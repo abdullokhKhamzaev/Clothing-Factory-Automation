@@ -33,8 +33,8 @@ async function getModels () {
   filterProps.fromWarehouse = sewerWarehouse;
   filterProps.toWarehouse = packagerWarehouse;
   filterProps.status = 'accepted'
-  filterProps.receivedAtFrom = props.dateFrom + 'T00:00:00';
-  filterProps.receivedAtTo = props.dateTo + 'T23:59:59';
+  filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
+  filterProps.createdAtTo = props.dateTo + 'T23:59:59';
   filterProps.rowsPerPage = '~';
 
   await useProductWarehouse().list(filterProps || '')

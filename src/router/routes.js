@@ -518,11 +518,6 @@ const routes = [
             component: () => import('pages/role-sewer/WarehousePage.vue'),
           },
           {
-            path: 'ready',
-            name: 'club.sewer.ready',
-            component: () => import('pages/role-sewer/ReadyPage.vue'),
-          },
-          {
             path: 'salary',
             name: 'club.sewer.salary',
             component: () => import('pages/user/SalaryPage.vue'),
@@ -550,11 +545,6 @@ const routes = [
             path: 'warehouse',
             name: 'club.packager.warehouse',
             component: () => import('pages/role-packager/WarehousePage.vue'),
-          },
-          {
-            path: 'ready',
-            name: 'club.packager.ready',
-            component: () => import('pages/role-packager/ReadyPage.vue'),
           },
           {
             path: 'salary',

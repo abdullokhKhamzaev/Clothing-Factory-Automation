@@ -3,10 +3,10 @@ import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
+import { WAREHOUSES } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
-import RefreshButton from "components/RefreshButton.vue";
+import ProductInWarehouseAction from "components/tables/ProductInWarehouseAction.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -18,32 +18,8 @@ const showDefectModal = ref(false);
 const showReportModal = ref(false);
 const rows = ref([{ size: '', quantity: '', max: '' }]);
 const warehouse = ref([]);
-const cutterDefectiveWarehouse = ref('/api/warehouses/2');
-const readyWarehouse = ref('/api/warehouses/7');
-const warehouseActions = ref([]);
-const warehouseActionTotal = ref(0);
-const warehouseActionLoading = ref(false);
-const warehouseActionPagination = ref({
-  rowsPerPage: 10,
-  page: 1,
-  descending: true,
-  rowsNumber: 0
-});
-const warehouseActionPagesNumber = computed(() => Math.ceil(warehouseActionTotal.value / warehouseActionPagination.value.rowsPerPage));
 
 const loading = ref(false);
-const columns = [
-  { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
-  { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
-  { name: 'sentBy', label: t('tables.warehouseAction.columns.sentBy'), align: 'left', field: 'sentBy' },
-  { name: 'productModel', label: t('tables.warehouseAction.columns.productModel'), align: 'left', field: 'productModel' },
-  { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
-  { name: 'fromWarehouse', label: t('tables.warehouseAction.columns.fromWarehouse'), align: 'left', field: 'fromWarehouse' },
-  { name: 'toWarehouse', label: t('tables.warehouseAction.columns.toWarehouse'), align: 'left', field: 'toWarehouse' },
-  { name: 'receivedToSewingBy', label: t('checkedBy'), align: 'left', field: 'receivedToSewingBy' },
-  { name: 'status', label: t('tables.warehouseAction.columns.status'), align: 'left', field: 'status' }
-];
-const visibleColumns = ref(columns.map(column => column.name));
 function getWarehouse (filterProps) {
   let props = filterProps || {};
 
@@ -56,23 +32,6 @@ function getWarehouse (filterProps) {
       warehouse.value = res.data['hydra:member'][0];
       loading.value = false;
     })
-    .then(getWarehouseAction)
-}
-function getWarehouseAction (filterProps) {
-  let props = filterProps || {};
-
-  warehouseActionLoading.value = true;
-
-  props.toWarehouses = [cutterDefectiveWarehouse.value, warehouse.value['@id'], readyWarehouse.value];
-
-  useProductWarehouse().list(props || '')
-    .then((res) => {
-      warehouseActions.value = res.data['hydra:member'];
-      warehouseActionTotal.value = res.data['hydra:totalItems'];
-    })
-    .finally(() => {
-      warehouseActionLoading.value = false;
-    });
 }
 function prefill() {
   let sizes = [];
@@ -82,7 +41,7 @@ function prefill() {
   rows.value = sizes;
 }
 function defectAction() {
-  if (!user.about['@id'] || !selectedData.value['@id'] || !cutterDefectiveWarehouse.value || !warehouse.value['@id']) {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !warehouse.value['@id']) {
     console.warn('data not found');
     return
   }
@@ -99,7 +58,7 @@ function defectAction() {
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
     fromWarehouse: warehouse.value['@id'],
-    toWarehouse: cutterDefectiveWarehouse.value,
+    toWarehouse: WAREHOUSES.cutterWarehouseDefective,
     sentBy: user.about['@id'],
     isDefective: true
   };
@@ -131,7 +90,7 @@ function defectAction() {
     })
 }
 function reportAction() {
-  if (!user.about['@id'] || !selectedData.value['@id'] || !readyWarehouse.value || !warehouse.value['@id']) {
+  if (!user.about['@id'] || !selectedData.value['@id'] || !warehouse.value['@id']) {
     console.warn('data not found');
     return
   }
@@ -148,7 +107,7 @@ function reportAction() {
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
     fromWarehouse: warehouse.value['@id'],
-    toWarehouse: readyWarehouse.value,
+    toWarehouse: WAREHOUSES.packagerWarehouse,
     sentBy: user.about['@id'],
     isDefective: false,
     isReady: true
@@ -190,10 +149,6 @@ function refresh() {
   getWarehouse();
 }
 
-onMounted(() => {
-  refresh()
-})
-
 const searchTitle = ref();
 const filteredProducts = computed(() => {
   if (!searchTitle.value) {
@@ -204,123 +159,24 @@ const filteredProducts = computed(() => {
     item.productModel.name.toLowerCase().includes(searchTitle.value.toLowerCase())
   );
 });
+const filters = {
+  toWarehouses: [WAREHOUSES.sewerWarehouse, WAREHOUSES.packagerWarehouse]
+}
+
+onMounted(() => {
+  refresh()
+})
 </script>
 
 <template>
-  <div class="q-mb-md flex justify-end">
-    <refresh-button :action="refresh" />
-  </div>
-
-  <div v-show="loading" class=" q-mb-md flex justify-center">
-    <q-spinner
-      color="primary"
-      size="4em"
-    />
-  </div>
-
-  <div class="q-mb-lg shadow-3">
-    <q-table
-      :loading="loading || warehouseActionLoading"
-      flat
-      bordered
-      :rows="warehouseActions"
-      :columns="columns"
-      :visible-columns="visibleColumns"
-      :no-data-label="$t('tables.transaction.header.empty')"
-      color="primary"
-      row-key="id"
-      :pagination="warehouseActionPagination"
-      hide-bottom
-    >
-      <template v-slot:top>
-        <div class="col-12 flex justify-between">
-          <div class="q-table__title">{{ $t('tables.warehouseAction.header.title') }}</div>
-          <q-select
-            style="min-width: 100px;"
-            dense
-            multiple
-            outlined
-            options-dense
-            emit-value
-            map-options
-            v-model="visibleColumns"
-            :display-value="$q.lang.table.columns"
-            :options="columns"
-            option-value="name"
-            :label="$t('columns')"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : 'q-mr-sm'"
-          />
-        </div>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green text-white'">
-            <div v-if="col.name === 'sentBy'">
-              {{ props.row.sentBy.fullName }}
-            </div>
-            <div v-else-if="col.name === 'createdAt'">
-              {{ formatDate(props.row.createdAt) }}
-            </div>
-            <div v-else-if="col.name === 'productModel'">
-              {{ props.row.productModel.name }}
-            </div>
-            <div v-else-if="col.name === 'productSize'">
-              <div
-                v-for="consume in props.row.productSize"
-                :key="consume"
-              >
-                {{ consume.size }} : {{ consume.quantity }}
-              </div>
-            </div>
-            <div v-else-if="col.name === 'fromWarehouse'">
-              {{ $t('warehouses.' + props.row.fromWarehouse.name) }}
-            </div>
-            <div v-else-if="col.name === 'toWarehouse'">
-              {{ $t('warehouses.' + props.row.toWarehouse.name) }}
-            </div>
-            <div v-else-if="col.name === 'receivedToSewingBy'">
-              {{ props.row?.receivedToSewingBy?.fullName || '-' }}
-            </div>
-            <div v-else-if="col.name === 'status'">
-              <div v-if="props.row.status === 'pending'" class="text-red">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-              <div v-else-if="props.row.status === 'accepted'" class="text-green">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-              <div v-else class="text-red">
-                {{ $t('statuses.' + props.row.status) }}
-              </div>
-            </div>
-            <div v-else>
-              {{ props.row[col.field] }}
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
-    <div
-    v-show="!loading && !warehouseActionLoading"
-    v-if="warehouseActionTotal > warehouseActionPagination.rowsPerPage"
-    class="row justify-center q-mt-md"
-  >
-    <q-pagination
-      :disable="warehouseActionLoading"
-      v-model="warehouseActionPagination.page"
-      input-class="text-bold text-black"
-      :max="warehouseActionPagesNumber"
-      color="primary"
-      input
-      size="md"
-      @update:model-value="getWarehouseAction({ page: warehouseActionPagination.page })"
-    />
-  </div>
-  </div>
+  <ProductInWarehouseAction
+    :filters="filters"
+    :title="t('tables.warehouseAction.header.title')"
+  />
 
   <h4 class="q-mb-sm">
     {{ $t('tables.model.header.title') }}
   </h4>
-
   <q-list
     v-show="!loading"
     bordered
@@ -477,8 +333,8 @@ const filteredProducts = computed(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading || warehouseActionLoading"
-            :loading="loading || warehouseActionLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"
@@ -549,8 +405,8 @@ const filteredProducts = computed(() => {
         <q-separator/>
         <div class="q-px-md q-py-sm text-center">
           <q-btn
-            :disable="loading || warehouseActionLoading"
-            :loading="loading || warehouseActionLoading"
+            :disable="loading"
+            :loading="loading"
             no-caps
             :label="$t('forms.ripeMaterialPurchase.buttons.send')"
             type="submit"

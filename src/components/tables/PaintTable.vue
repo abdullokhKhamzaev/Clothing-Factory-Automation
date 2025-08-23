@@ -301,7 +301,7 @@ function finishOrderAction() {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green text-white'">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-2 text-black'">
           <div v-if="col.name === 'action' && props.row.status === 'expected'" class="flex justify-end">
             <div class="flex no-wrap q-gutter-x-sm">
               <q-btn
