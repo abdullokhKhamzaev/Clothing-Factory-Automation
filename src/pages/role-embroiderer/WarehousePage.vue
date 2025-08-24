@@ -3,14 +3,17 @@ import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
+import { useEmbroidery } from "stores/embroidery.js";
 import { WAREHOUSES } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import ProductInWarehouseAction from "components/tables/ProductInWarehouseAction.vue";
+import SelectableList from "components/selectableList.vue";
 
 const { t } = useI18n();
 const $q = useQuasar();
 const user = useAbout();
+const embroidery = useEmbroidery();
 const selectedData = ref({});
 const defectActionErr = ref(false);
 const reportActionErr = ref(false);
@@ -104,6 +107,7 @@ function reportAction() {
   })
 
   let input = {
+    selectedEmbroideryIds: selectedData.value.selectedEmbroideryIds,
     productModel: selectedData.value.productModel['@id'],
     productSize: productSize,
     fromWarehouse: warehouse.value['@id'],
@@ -377,6 +381,18 @@ onMounted(() => {
             lazy-rules
             :rules="[ val => val && val >= 1 && val <= Number(selectedData.quantity) || $t('forms.ripeMaterialPurchase.fields.quantity.validation.required')]"
             hide-bottom-space
+            class="col-12"
+          />
+          <selectable-list
+            v-model="selectedData.selectedEmbroideryIds"
+            :label="$t('forms.model.fields.embroideries.label')"
+            :store="embroidery"
+            fetch-method="fetchEmbroideries"
+            item-value="id"
+            item-label="name"
+            :rule-message="$t('forms.model.fields.embroideries.validation.required')"
+            multiple
+            clearable
             class="col-12"
           />
         </div>
