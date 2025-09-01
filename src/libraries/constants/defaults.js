@@ -188,6 +188,9 @@ export const isToday = (dateStr) => {
 
 export function getStats(actions) {
   const stats = {};
+  const statsByUser = {};
+  const userStats = {};
+  const statsByModel = {};
   let total = 0;
 
   if (actions) {
@@ -195,15 +198,41 @@ export function getStats(actions) {
       const modelName = action.productModel?.name || 'Unknown Model';
       const quantities = action.productSize.map(sizeItem => sizeItem.quantity || 0);
       const totalQuantity = quantities.reduce((sum, q) => sum + q, 0);
+      const packagerName = action.sentBy?.fullName || 'Unknown';
 
+      // Track total by model
       if (!stats[modelName]) {
         stats[modelName] = 0;
       }
-
       stats[modelName] += totalQuantity;
+
+      // Track by model and packager (Model -> Packager -> Quantity)
+      if (!statsByUser[modelName]) {
+        statsByUser[modelName] = {};
+      }
+      if (!statsByUser[modelName][packagerName]) {
+        statsByUser[modelName][packagerName] = 0;
+      }
+      statsByUser[modelName][packagerName] += totalQuantity;
+
+      // Track total by user
+      if (!userStats[packagerName]) {
+        userStats[packagerName] = 0;
+      }
+      userStats[packagerName] += totalQuantity;
+
+      // Track by user and model (User -> Model -> Quantity)
+      if (!statsByModel[packagerName]) {
+        statsByModel[packagerName] = {};
+      }
+      if (!statsByModel[packagerName][modelName]) {
+        statsByModel[packagerName][modelName] = 0;
+      }
+      statsByModel[packagerName][modelName] += totalQuantity;
+
       total += totalQuantity;
     });
   }
 
-  return { stats, total };
+  return { stats, statsByUser, userStats, statsByModel, total };
 }
