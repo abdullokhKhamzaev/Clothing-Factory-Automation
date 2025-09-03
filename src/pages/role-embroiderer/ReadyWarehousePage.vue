@@ -19,7 +19,7 @@ const filters = {
   <q-separator color="primary" class="q-my-md" />
 
   <ProductInWarehouse
-    :from-warehouse="WAREHOUSES.packagerReadyWarehouse"
+    :from-warehouse="WAREHOUSES.embroideryReadyWarehouse"
     name="embroideryReadyWarehouse"
     show-action
     can-send-to-sew
