@@ -2,12 +2,11 @@
 import {computed, onMounted, ref, watch} from "vue"
 import {useAbout} from "stores/user/about.js";
 import {useWorkEntries} from "stores/workEntries.js";
-import RefreshButton from "components/RefreshButton.vue";
-import {formatDate, formatFloatToInteger, isToday} from "../../libraries/constants/defaults.js";
-import {useI18n} from "vue-i18n";
+import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
 import {useRoute} from "vue-router";
+import SalaryInfo from "components/statistics/SalaryInfo.vue";
+import WorkActivityTable from "components/statistics/WorkActivityTable.vue";
 
-const { t } = useI18n();
 const user = useAbout();
 const route = useRoute();
 const props = defineProps({
@@ -16,28 +15,11 @@ const props = defineProps({
     required: true,
   }
 })
-const columns = [
-  { name: 'createdAt', label: t('tables.workEntry.columns.createdAt'), align: 'left', field: 'createdAt' },
-  { name: 'workerBy', label: t('tables.workEntry.columns.workerBy'), align: 'left', field: 'workerBy' },
-  { name: 'productAccessory', label: t('tables.workEntry.columns.productAccessory'), align: 'left', field: 'productAccessory' },
-  { name: 'embroidery', label: t('tables.workEntry.columns.embroidery'), align: 'left', field: 'embroidery' },
-  { name: 'quantity', label: t('tables.workEntry.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'unitPrice', label: t('tables.workEntry.columns.unitPrice'), align: 'left', field: 'unitPrice' },
-  { name: 'totalPrice', label: t('tables.workEntry.columns.totalPrice'), align: 'left', field: 'totalPrice' },
-  { name: 'confirmedBy', label: t('tables.workEntry.columns.confirmedBy'), align: 'left', field: 'confirmedBy' },
-];
-const visibleColumns = ref(columns.map(column => column.name));
 
-// Table Data
+// Table Data for summary cards only
 const repository = useWorkEntries();
 const items = ref([]);
 const loading = ref(false);
-const pagination = ref({
-  page: 1,
-  rowsPerPage: 10,
-  rowsNumber: 0,
-  descending: true
-});
 
 let filters = ref({
   date: props.date,
@@ -47,35 +29,34 @@ let filters = ref({
 });
 
 function getItems () {
-  if (loading.value) return; // Prevent multiple rapid calls
+  if (loading.value || !filters.value.workerBy) return;
   loading.value = true;
-
-  repository.list({...pagination.value, ...filters.value})
+  repository.list({page: 1, rowsPerPage: '~', ...filters.value})
     .then((res) => {
       items.value = res.data['hydra:member'];
-      pagination.value.rowsNumber = res.data['hydra:totalItems'];
     })
     .finally(() => {
       loading.value = false;
     });
 }
 
-function onRequest(params) {
-  pagination.value = {...pagination.value, ...params.pagination};
-  getItems();
-}
-function refresh () {
-  getItems();
-}
-
 const totalQuantity = computed(() => {
   return items.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
+})
+
+const totalItems = computed(() => {
+  return items.value.reduce((sum, item) => sum + Number(item.quantity), 0)
+})
+
+const averagePrice = computed(() => {
+  if (totalItems.value === 0) return 0
+  return formatFloatToInteger(Number(totalQuantity.value / totalItems.value).toFixed(2))
 })
 
 watch([user, props], () => {
   filters.value.workerBy = route.params.id ? route.params.id : user.about['@id'];
   filters.value.date = props.date;
-  refresh();
+  getItems();
 }, {deep: true});
 
 onMounted(async () => {
@@ -84,80 +65,71 @@ onMounted(async () => {
 </script>
 
 <template>
-  <q-table
-    flat
-    bordered
-    color="primary"
-    :no-data-label="$t('tables.workEntry.header.empty')"
-    :columns="columns"
-    :visible-columns="visibleColumns"
-    :rows="items"
-    row-key="id"
-    v-model:pagination.sync="pagination"
-    :rows-per-page-options="[10, 25, 50, 100, '~']"
-    :loading="loading"
-    @request="onRequest"
-  >
-    <template v-slot:top>
-      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
-        <div class="q-table__title">{{ $t('tables.workEntry.header.title') }}</div>
+  <!-- Summary Cards -->
+  <div class="row q-col-gutter-md q-mb-lg q-mb-md-md">
+    <div class="col-12 col-md-3">
+      <q-card class="summary-card bg-primary text-white">
+        <q-card-section>
+          <div class="text-h6">{{ $t('total') }}</div>
+          <div class="text-h4">{{ formatFloatToInteger(totalQuantity) }}</div>
+          <div class="text-subtitle2">SO'M</div>
+        </q-card-section>
+      </q-card>
+    </div>
+    <div class="col-12 col-md-3">
+      <q-card class="summary-card bg-positive text-white">
+        <q-card-section>
+          <div class="text-h6">{{ $t('tables.workEntry.columns.quantity') }}</div>
+          <div class="text-h4">{{ totalItems }}</div>
+          <div class="text-subtitle2">{{ $t('piece') }}</div>
+        </q-card-section>
+      </q-card>
+    </div>
+    <div class="col-12 col-md-3">
+      <q-card class="summary-card bg-info text-white">
+        <q-card-section>
+          <div class="text-h6">O'rtacha narx</div>
+          <div class="text-h4">{{ averagePrice }}</div>
+          <div class="text-subtitle2">SO'M</div>
+        </q-card-section>
+      </q-card>
+    </div>
+    <div class="col-12 col-md-3">
+      <q-card class="summary-card bg-warning text-white">
+        <q-card-section>
+          <div class="text-h6">Ishlar soni</div>
+          <div class="text-h4">{{ items.length }}</div>
+          <div class="text-subtitle2">Ta</div>
+        </q-card-section>
+      </q-card>
+    </div>
+  </div>
 
-        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
-          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
-          <q-select
-            dense
-            multiple
-            outlined
-            options-dense
-            emit-value
-            map-options
-            v-model="visibleColumns"
-            :display-value="$q.lang.table.columns"
-            :options="columns"
-            option-value="name"
-            :label="$t('columns')"
-            class="w-full"
-          />
-        </div>
-      </div>
-    </template>
-    <template v-slot:body="props">
-      <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-2 text-black'">
-          <div v-if="col.name === 'createdAt'">
-            {{ formatDate(props.row.createdAt) }}
-          </div>
-          <div v-else-if="col.name === 'workerBy'">
-            {{ props.row.workerBy.fullName }}
-          </div>
-          <div v-else-if="col.name === 'productAccessory'">
-            {{ props.row.productAccessory?.productSize?.productModel?.name || '-' }}
-          </div>
-          <div v-else-if="col.name === 'embroidery'">
-            {{ props.row.embroidery?.name }}
-          </div>
-          <div v-else-if="col.name === 'quantity'">
-            {{ formatFloatToInteger(props.row.quantity) }} {{ $t('piece').toLowerCase() }}
-          </div>
-          <div v-else-if="col.name === 'unitPrice'">
-            {{ formatFloatToInteger(props.row.unitPrice) }} {{ props.row.budget.name }}
-          </div>
-          <div v-else-if="col.name === 'totalPrice'">
-            {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
-          </div>
-          <div v-else-if="col.name === 'confirmedBy'">
-            {{ props.row.confirmedBy.fullName }}
-          </div>
-          <div v-else>
-            {{ props.row[col.field] }}
-          </div>
-        </q-td>
-      </q-tr>
-    </template>
-    <template v-slot:bottom-row>
-      <div class="q-ma-md text-primary text-h6 flex text-no-wrap">
-        {{ $t('total') }}: {{ formatFloatToInteger(totalQuantity) }} SO'M
-      </div>
-    </template>
-  </q-table>
+  <!-- Salary Info Component -->
+  <salary-info
+    :worker="filters.workerBy"
+    :date="props.date"
+    :total-earned="totalQuantity"
+    class="q-mb-lg"
+  />
+
+  <!-- Work Activity Table Component -->
+  <work-activity-table
+    :date="props.date"
+    :worker-by="filters.workerBy"
+  />
 </template>
+
+<style scoped>
+.summary-card {
+  height: 120px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+</style>

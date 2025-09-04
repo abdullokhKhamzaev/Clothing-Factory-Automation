@@ -13,6 +13,10 @@ export const useSalary = defineStore('salaries', () => {
       params.set('month', filterProps.month);
     }
 
+    if (filterProps.worker) {
+      params.set('worker', filterProps.worker);
+    }
+
     try {
       return await client.get(`salaries?${params.toString()}`);
     } catch (e) {
