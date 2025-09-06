@@ -218,7 +218,7 @@ onMounted(() => {
 
           <!-- Modern Salary Info Cards -->
           <div class="row q-col-gutter-md">
-            <div class="col-12 col-sm-6 col-md-6">
+            <div class="col-12 col-sm-6 col-lg-6">
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon
@@ -248,7 +248,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-6">
+            <div class="col-12 col-sm-6 col-lg-6">
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="payments" color="positive" size="sm" class="q-mr-sm" />
@@ -264,7 +264,7 @@ onMounted(() => {
             </div>
 
             <!-- Bonus yoki Qolgan summa -->
-            <div class="col-12 col-sm-6 col-md-6" v-if="bonusAmount > 0">
+            <div class="col-12 col-sm-6 col-lg-6" v-if="bonusAmount > 0">
               <div class="salary-info-item bonus-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="star" color="amber" size="sm" class="q-mr-sm" />
@@ -284,7 +284,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-6" v-else-if="remainingAmount > 0">
+            <div class="col-12 col-sm-6 col-lg-6" v-else-if="remainingAmount > 0">
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="pending" color="warning" size="sm" class="q-mr-sm" />
@@ -300,7 +300,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-6" v-else>
+            <div class="col-12 col-sm-6 col-lg-6" v-else>
               <div class="salary-info-item q-pa-md q-pa-sm-sm" :class="pieceworkEarning === 0 ? 'no-data-item' : 'completed-item'">
                 <div class="salary-info-header">
                   <q-icon
@@ -328,7 +328,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-6">
+            <div class="col-12 col-sm-6 col-lg-6">
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="trending_up" color="info" size="sm" class="q-mr-sm" />

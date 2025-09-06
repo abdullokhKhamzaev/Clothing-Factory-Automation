@@ -104,10 +104,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="date-filter-container bg-white q-pa-md shadow-2 sticky">
+  <div class="date-filter-container bg-white q-pa-md shadow-2">
     <div class="row items-center q-col-gutter-md">
       <!-- Current Selection Display -->
-      <div class="col-12 col-md-3">
+      <div class="col-12 col-sm-12 col-md-12 col-lg-4">
         <div class="selected-date-display">
           <q-icon name="calendar_today" class="q-mr-sm text-primary" />
           <span class="text-h6 text-weight-medium text-primary">
@@ -126,8 +126,8 @@ onMounted(() => {
       </div>
 
       <!-- Quick Shortcuts -->
-      <div class="col-12 col-md-5">
-        <div class="row q-gutter-sm">
+      <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+        <div class="row q-gutter-sm justify-start justify-md-center">
           <q-btn 
             @click="setToday"
             :color="selectedYear === currentYear && selectedMonth === currentMonth ? 'positive' : 'grey-5'"
@@ -154,7 +154,7 @@ onMounted(() => {
       </div>
 
       <!-- Date Selectors -->
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-sm-12 col-md-6 col-lg-4">
         <div class="row q-gutter-sm">
           <div class="col">
             <q-select
@@ -203,10 +203,6 @@ onMounted(() => {
   border-radius: 12px;
   border: 1px solid rgba(33, 150, 243, 0.2);
   margin-bottom: 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.95) !important;
 }
 
@@ -232,14 +228,26 @@ onMounted(() => {
 /* Mobile responsive */
 @media (max-width: 768px) {
   .date-filter-container {
-    position: relative;
-    top: auto;
     margin-bottom: 16px;
   }
   
   .selected-date-display {
     justify-content: center;
     margin-bottom: 12px;
+  }
+}
+
+/* Tablet and medium screens responsive */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .selected-date-display {
+    margin-bottom: 16px;
+  }
+}
+
+/* Large screens with sidebar */
+@media (min-width: 1024px) {
+  .selected-date-display {
+    margin-bottom: 0;
   }
 }
 

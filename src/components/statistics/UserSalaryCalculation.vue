@@ -82,8 +82,8 @@ onMounted(async () => {
 
 <template>
   <!-- Summary Cards -->
-  <div class="row q-col-gutter-md q-mb-lg q-mb-md-md">
-    <div class="col-12 col-md-3">
+  <div class="row q-col-gutter-md q-mb-lg">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3">
       <q-card class="summary-card bg-primary text-white">
         <q-card-section>
           <div class="flex items-center justify-between q-mb-sm">
@@ -95,7 +95,7 @@ onMounted(async () => {
         </q-card-section>
       </q-card>
     </div>
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3">
       <q-card class="summary-card bg-positive text-white">
         <q-card-section>
           <div class="flex items-center justify-between q-mb-sm">
@@ -107,11 +107,11 @@ onMounted(async () => {
         </q-card-section>
       </q-card>
     </div>
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3">
       <q-card class="summary-card bg-info text-white">
         <q-card-section>
           <div class="flex items-center justify-between q-mb-sm">
-          <div class="text-h6">{{ $t('averagePrice') }}</div>
+            <div class="text-h6">{{ $t('averagePrice') }}</div>
             <q-icon name="trending_up" size="md" class="text-white" style="opacity: 0.8" />
           </div>
           <div class="text-h4">{{ averagePrice }}</div>
@@ -119,7 +119,7 @@ onMounted(async () => {
         </q-card-section>
       </q-card>
     </div>
-    <div class="col-12 col-md-3">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-3">
       <q-card class="summary-card bg-warning text-white">
         <q-card-section>
           <div class="flex items-center justify-between q-mb-sm">
