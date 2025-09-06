@@ -105,6 +105,11 @@ export default {
   piece: 'Piece',
   kg: 'KG',
   meter: 'Meter',
+  averagePrice: 'Average Price',
+  workCount: 'Work Count',
+  quantityAndPrice: 'Quantity & Price',
+  today: 'Today',
+  totalPayment: 'Total Payment',
   paint: 'Paint',
   paintFactory: 'Paint Factory',
   model: 'Model',
@@ -2119,5 +2124,78 @@ export default {
         add: 'Add Model'
       },
     }
-  }
+  },
+  // Salary page translations
+  salaryInfo: {
+    title: 'Salary Information',
+    types: {
+      fixed: 'Fixed Salary',
+      piecework: 'Performance-based',
+      none: 'No Data'
+    },
+    tooltips: {
+      fixed: {
+        title: 'Fixed Salary System',
+        monthly: 'Monthly Salary: Same amount paid every month',
+        daily: 'Daily Wage: Number of days worked × daily rate',
+        general: 'Based on monthly or daily rate calculation'
+      },
+      piecework: {
+        title: 'Performance-based Salary',
+        description: 'Calculated based on work quantity and pricing'
+      }
+    },
+    cards: {
+      totalEarned: {
+        fixed: 'Monthly Salary',
+        piecework: 'Total Earned'
+      },
+      lastPayment: 'Last Payment',
+      bonus: 'Bonus',
+      remaining: 'Remaining Amount',
+      status: 'Status',
+      paymentStatus: 'Payment Status'
+    },
+    details: {
+      monthlyRate: 'Monthly Rate',
+      dailyRate: '/day',
+      bonusAwarded: 'Excellent work! Bonus awarded',
+      debtStatus: 'Debt status - needs to be paid',
+      noInfo: 'No salary information',
+      notWorked: 'No work done yet',
+      allPaid: 'All payments completed'
+    },
+    statuses: {
+      withBonus: 'Paid with bonus',
+      fullyPaid: 'Fully calculated',
+      partiallyPaid: 'Partially paid',
+      notPaid: 'Not paid',
+      inProgress: 'In progress',
+      noData: 'No data'
+    }
+  },
+  // DateFilter translations
+  dateFilter: {
+    thisMonth: 'This Month',
+    lastMonth: 'Last Month',
+    selectedPeriod: 'Selected Period',
+    year: 'Year',
+    month: 'Month'
+  },
+  // Month translations
+  months: {
+    january: 'January',
+    february: 'February',
+    march: 'March',
+    april: 'April',
+    may: 'May',
+    june: 'June',
+    july: 'July',
+    august: 'August',
+    september: 'September',
+    october: 'October',
+    november: 'November',
+    december: 'December'
+  },
+  unknown: 'Unknown'
 }

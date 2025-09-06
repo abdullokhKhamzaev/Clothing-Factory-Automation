@@ -105,6 +105,11 @@ export default {
   piece: 'Dona',
   kg: 'KG',
   meter: 'Metr',
+  averagePrice: 'O\'rtacha narx',
+  workCount: 'Ishlar soni',
+  quantityAndPrice: 'Miqdor va Narx',
+  today: 'Bugun',
+  totalPayment: 'Jami to\'lov',
   paint: 'Bo\'yoq',
   paintFactory: 'Bo\'yoq fabrika',
   model: 'Madel',
@@ -2119,5 +2124,78 @@ export default {
         add: 'Model qo\'shish'
       },
     }
-  }
+  },
+  // Salary page translations
+  salaryInfo: {
+    title: 'Maosh haqida ma\'lumot',
+    types: {
+      fixed: 'Belgilangan oylik',
+      piecework: 'Ish natijasiga qarab',
+      none: 'Ma\'lumot yo\'q'
+    },
+    tooltips: {
+      fixed: {
+        title: 'Belgilangan oylik tizimi',
+        monthly: 'Oylik maosh: Har oy bir xil miqdorda to\'lanadi',
+        daily: 'Kunlik ish haqi: Ishlagan kunlar soni × kunlik tarif',
+        general: 'Oylik yoki kunlik tarif asosida hissoblanadi'
+      },
+      piecework: {
+        title: 'Ish natijasiga qarab oylik',
+        description: 'Bajargan ishlar miqdori va narxi asosida hissoblanadi'
+      }
+    },
+    cards: {
+      totalEarned: {
+        fixed: 'Oylik maoshi',
+        piecework: 'Ishlangan summasi'
+      },
+      lastPayment: 'So\'nggi to\'lov',
+      bonus: 'Bonus',
+      remaining: 'Qolgan summa',
+      status: 'Holat',
+      paymentStatus: 'To\'lov holati'
+    },
+    details: {
+      monthlyRate: 'Oylik tarif',
+      dailyRate: '/kun',
+      bonusAwarded: 'Ajoyib natija! Mukofot berildi',
+      debtStatus: 'Qarz holati - to\'lanishi kerak',
+      noInfo: 'Oylik ma\'lumoti yo\'q',
+      notWorked: 'Hali ish bajarilmagan',
+      allPaid: 'Barcha to\'lovlar amalga oshirildi'
+    },
+    statuses: {
+      withBonus: 'Mukofot bilan to\'langan',
+      fullyPaid: 'To\'liq hisoblangan',
+      partiallyPaid: 'Qisman to\'langan',
+      notPaid: 'To\'lanmagan',
+      inProgress: 'Jarayonda',
+      noData: 'Ma\'lumot yo\'q'
+    }
+  },
+  // DateFilter translations
+  dateFilter: {
+    thisMonth: 'Bu oy',
+    lastMonth: 'O\'tgan oy',
+    selectedPeriod: 'Tanlangan davr',
+    year: 'Yil',
+    month: 'Oy'
+  },
+  // Month translations
+  months: {
+    january: 'Yanvar',
+    february: 'Fevral',
+    march: 'Mart',
+    april: 'Aprel',
+    may: 'May',
+    june: 'Iyun',
+    july: 'Iyul',
+    august: 'Avgust',
+    september: 'Sentyabr',
+    october: 'Oktyabr',
+    november: 'Noyabr',
+    december: 'Dekabr'
+  },
+  unknown: 'Noma\'lum'
 }

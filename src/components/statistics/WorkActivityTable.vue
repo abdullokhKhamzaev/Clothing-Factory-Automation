@@ -24,7 +24,7 @@ const columns = [
   { name: 'workerBy', label: t('tables.workEntry.columns.workerBy'), align: 'left', field: 'workerBy' },
   { name: 'productAccessory', label: t('tables.workEntry.columns.productAccessory'), align: 'left', field: 'productAccessory' },
   { name: 'embroidery', label: t('tables.workEntry.columns.embroidery'), align: 'left', field: 'embroidery' },
-  { name: 'quantityPrice', label: 'Miqdor va Narx', align: 'left', field: 'quantityPrice' },
+  { name: 'quantityPrice', label: t('quantityAndPrice'), align: 'left', field: 'quantityPrice' },
   { name: 'confirmedBy', label: t('tables.workEntry.columns.confirmedBy'), align: 'left', field: 'confirmedBy' },
 ]
 
@@ -106,7 +106,7 @@ onMounted(() => {
           <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
             <div class="q-table__title text-primary">
               <q-icon name="work" class="q-mr-sm" />
-              Ish harakatlari ro'yxati
+              {{ $t('tables.workEntry.header.title') }}
             </div>
 
             <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
@@ -137,7 +137,7 @@ onMounted(() => {
                 <q-icon name="event" class="q-mr-xs text-primary" size="sm" />
                 <span>{{ formatDate(props.row.createdAt) }}</span>
                 <q-chip v-if="isToday(props.row.createdAt)" size="sm" color="green" text-color="white" class="q-ml-sm">
-                  Bugun
+                  {{ $t('today') }}
                 </q-chip>
               </div>
 
@@ -180,7 +180,7 @@ onMounted(() => {
                   </div>
                   <div class="col-auto">
                     <div class="text-weight-bold text-primary">
-                      {{ formatFloatToInteger(props.row.totalPrice) }} SO'M
+                      {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
                     </div>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ onMounted(() => {
               <div class="col-auto">
                 <q-chip color="primary" text-color="white" size="md">
                   <q-icon name="payments" class="q-mr-xs" />
-                  Jami to'lov
+                  {{ $t('totalPayment') }}
                 </q-chip>
               </div>
             </div>

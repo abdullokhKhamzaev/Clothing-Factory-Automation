@@ -141,6 +141,11 @@ const linksList = [
     title: 'package',
     icon: 'mdi-warehouse',
     to: { name: 'club.master.packaging.ready' }
+  },
+  {
+    title: 'salary',
+    icon: 'mdi-cash',
+    to: { name: 'club.master.salary' }
   }
 ]
 

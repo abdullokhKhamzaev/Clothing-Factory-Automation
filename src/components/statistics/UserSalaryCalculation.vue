@@ -16,10 +16,13 @@ const props = defineProps({
   }
 })
 
-// Table Data for summary cards only
+// Table data for summary cards only
 const repository = useWorkEntries();
 const items = ref([]);
 const loading = ref(false);
+
+// Salary data for currency info (received from SalaryInfo component)
+const salaryData = ref([]);
 
 let filters = ref({
   date: props.date,
@@ -40,6 +43,11 @@ function getItems () {
     });
 }
 
+// Handle salary data from SalaryInfo component
+function handleSalaryDataLoaded(data) {
+  salaryData.value = data;
+}
+
 const totalQuantity = computed(() => {
   return items.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
 })
@@ -51,6 +59,14 @@ const totalItems = computed(() => {
 const averagePrice = computed(() => {
   if (totalItems.value === 0) return 0
   return formatFloatToInteger(Number(totalQuantity.value / totalItems.value).toFixed(2))
+})
+
+// Currency information from salary data
+const currencyInfo = computed(() => {
+  if (salaryData.value.length > 0 && salaryData.value[0].budget) {
+    return salaryData.value[0].budget;
+  }
+  return { name: 'SO\'M' };
 })
 
 watch([user, props], () => {
@@ -70,16 +86,22 @@ onMounted(async () => {
     <div class="col-12 col-md-3">
       <q-card class="summary-card bg-primary text-white">
         <q-card-section>
-          <div class="text-h6">{{ $t('total') }}</div>
+          <div class="flex items-center justify-between q-mb-sm">
+            <div class="text-h6">{{ $t('total') }}</div>
+            <q-icon name="account_balance_wallet" size="md" class="text-white" style="opacity: 0.8" />
+          </div>
           <div class="text-h4">{{ formatFloatToInteger(totalQuantity) }}</div>
-          <div class="text-subtitle2">SO'M</div>
+          <div class="text-subtitle2">{{ currencyInfo.name }}</div>
         </q-card-section>
       </q-card>
     </div>
     <div class="col-12 col-md-3">
       <q-card class="summary-card bg-positive text-white">
         <q-card-section>
-          <div class="text-h6">{{ $t('tables.workEntry.columns.quantity') }}</div>
+          <div class="flex items-center justify-between q-mb-sm">
+            <div class="text-h6">{{ $t('tables.workEntry.columns.quantity') }}</div>
+            <q-icon name="inventory" size="md" class="text-white" style="opacity: 0.8" />
+          </div>
           <div class="text-h4">{{ totalItems }}</div>
           <div class="text-subtitle2">{{ $t('piece') }}</div>
         </q-card-section>
@@ -88,18 +110,24 @@ onMounted(async () => {
     <div class="col-12 col-md-3">
       <q-card class="summary-card bg-info text-white">
         <q-card-section>
-          <div class="text-h6">O'rtacha narx</div>
+          <div class="flex items-center justify-between q-mb-sm">
+          <div class="text-h6">{{ $t('averagePrice') }}</div>
+            <q-icon name="trending_up" size="md" class="text-white" style="opacity: 0.8" />
+          </div>
           <div class="text-h4">{{ averagePrice }}</div>
-          <div class="text-subtitle2">SO'M</div>
+          <div class="text-subtitle2">{{ currencyInfo.name }}</div>
         </q-card-section>
       </q-card>
     </div>
     <div class="col-12 col-md-3">
       <q-card class="summary-card bg-warning text-white">
         <q-card-section>
-          <div class="text-h6">Ishlar soni</div>
+          <div class="flex items-center justify-between q-mb-sm">
+            <div class="text-h6">{{ $t('workCount') }}</div>
+            <q-icon name="assignment" size="md" class="text-white" style="opacity: 0.8" />
+          </div>
           <div class="text-h4">{{ items.length }}</div>
-          <div class="text-subtitle2">Ta</div>
+          <div class="text-subtitle2">{{ $t('piece') }}</div>
         </q-card-section>
       </q-card>
     </div>
@@ -110,9 +138,9 @@ onMounted(async () => {
     :worker="filters.workerBy"
     :date="props.date"
     :total-earned="totalQuantity"
+    @salary-data-loaded="handleSalaryDataLoaded"
     class="q-mb-lg"
   />
-
   <!-- Work Activity Table Component -->
   <work-activity-table
     :date="props.date"

@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { date } from 'quasar'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const emit = defineEmits(['date-changed'])
 
@@ -29,20 +32,20 @@ const yearOptions = computed(() => {
   return years
 })
 
-const monthOptions = [
-  { label: 'Yanvar', value: 1 },
-  { label: 'Fevral', value: 2 },
-  { label: 'Mart', value: 3 },
-  { label: 'Aprel', value: 4 },
-  { label: 'May', value: 5 },
-  { label: 'Iyun', value: 6 },
-  { label: 'Iyul', value: 7 },
-  { label: 'Avgust', value: 8 },
-  { label: 'Sentabr', value: 9 },
-  { label: 'Oktabr', value: 10 },
-  { label: 'Noyabr', value: 11 },
-  { label: 'Dekabr', value: 12 }
-]
+const monthOptions = computed(() => [
+  { label: t('months.january'), value: 1 },
+  { label: t('months.february'), value: 2 },
+  { label: t('months.march'), value: 3 },
+  { label: t('months.april'), value: 4 },
+  { label: t('months.may'), value: 5 },
+  { label: t('months.june'), value: 6 },
+  { label: t('months.july'), value: 7 },
+  { label: t('months.august'), value: 8 },
+  { label: t('months.september'), value: 9 },
+  { label: t('months.october'), value: 10 },
+  { label: t('months.november'), value: 11 },
+  { label: t('months.december'), value: 12 }
+])
 
 // Computed formatted date
 const formattedDate = computed(() => {
@@ -52,8 +55,8 @@ const formattedDate = computed(() => {
 })
 
 const selectedMonthName = computed(() => {
-  const monthObj = monthOptions.find(m => m.value === selectedMonth.value)
-  return monthObj ? monthObj.label : 'Noma\'lum'
+  const monthObj = monthOptions.value.find(m => m.value === selectedMonth.value)
+  return monthObj ? monthObj.label : t('unknown')
 })
 
 // Quick date functions
@@ -117,7 +120,7 @@ onMounted(() => {
             class="q-ml-sm"
             icon="schedule"
           >
-            Tanlangan davr
+            {{ $t('dateFilter.selectedPeriod') }}
           </q-chip>
         </div>
       </div>
@@ -134,7 +137,7 @@ onMounted(() => {
             no-caps
           >
             <q-icon name="today" class="q-mr-xs" />
-            Bu oy
+            {{ $t('dateFilter.thisMonth') }}
           </q-btn>
           <q-btn 
             @click="setLastMonth"
@@ -145,7 +148,7 @@ onMounted(() => {
             no-caps
           >
             <q-icon name="arrow_back" class="q-mr-xs" />
-            O'tgan oy
+            {{ $t('dateFilter.lastMonth') }}
           </q-btn>
         </div>
       </div>
@@ -163,7 +166,7 @@ onMounted(() => {
               map-options
               outlined
               dense
-              label="Yil"
+              :label="$t('dateFilter.year')"
               @update:model-value="onYearChange"
             >
               <template v-slot:prepend>
@@ -181,7 +184,7 @@ onMounted(() => {
               map-options
               outlined
               dense
-              label="Oy"
+              :label="$t('dateFilter.month')"
               @update:model-value="onMonthChange"
             >
               <template v-slot:prepend>

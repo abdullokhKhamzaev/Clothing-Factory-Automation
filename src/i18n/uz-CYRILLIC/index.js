@@ -105,6 +105,11 @@ export default {
   piece: 'Дона',
   kg: 'КГ',
   meter: 'Метр',
+  averagePrice: 'Ўртача нарх',
+  workCount: 'Ишлар сони',
+  quantityAndPrice: 'Миқдор ва Нарх',
+  today: 'Бугун',
+  totalPayment: 'Жами тўлов',
   paint: 'Бўёқ',
   paintFactory: 'Бўёқ фабрика',
   model: 'Модел',
@@ -2119,5 +2124,78 @@ export default {
         add: 'Модел қўшиш'
       },
     }
-  }
+  },
+  // Salary page translations
+  salaryInfo: {
+    title: 'Моаш ҳақида маълумот',
+    types: {
+      fixed: 'Белгиланган ойлик',
+      piecework: 'Иш натижасига қараб',
+      none: 'Маълумот йўқ'
+    },
+    tooltips: {
+      fixed: {
+        title: 'Белгиланган ойлик тизими',
+        monthly: 'Ойлик моаш: Ҳар ой бир хил миқдорда тўланади',
+        daily: 'Кунлик иш ҳақи: Ишлаган кунлар сони × кунлик тариф',
+        general: 'Ойлик ёки кунлик тариф асосида ҳисобланади'
+      },
+      piecework: {
+        title: 'Иш натижасига қараб ойлик',
+        description: 'Бажарган ишлар миқдори ва нархи асосида ҳисобланади'
+      }
+    },
+    cards: {
+      totalEarned: {
+        fixed: 'Ойлик моаши',
+        piecework: 'Ишланган суммаси'
+      },
+      lastPayment: 'Сўнгги тўлов',
+      bonus: 'Бонус',
+      remaining: 'Қолган сумма',
+      status: 'Ҳолат',
+      paymentStatus: 'Тўлов ҳолати'
+    },
+    details: {
+      monthlyRate: 'Ойлик тариф',
+      dailyRate: '/кун',
+      bonusAwarded: 'Ажойиб натижа! Мукофот берилди',
+      debtStatus: 'Қарз ҳолати - тўланиши керак',
+      noInfo: 'Ойлик маълумоти йўқ',
+      notWorked: 'Ҳали иш бажарилмаган',
+      allPaid: 'Барча тўловлар амалга оширилди'
+    },
+    statuses: {
+      withBonus: 'Мукофот билан тўланган',
+      fullyPaid: 'Тўлиқ ҳисобланган',
+      partiallyPaid: 'Қисман тўланган',
+      notPaid: 'Тўланмаган',
+      inProgress: 'Жараёнда',
+      noData: 'Маълумот йўқ'
+    }
+  },
+  // DateFilter translations
+  dateFilter: {
+    thisMonth: 'Бу ой',
+    lastMonth: 'Ўтган ой',
+    selectedPeriod: 'Танланган давр',
+    year: 'Йил',
+    month: 'Ой'
+  },
+  // Month translations
+  months: {
+    january: 'Январь',
+    february: 'Февраль',
+    march: 'Март',
+    april: 'Апрель',
+    may: 'Май',
+    june: 'Июнь',
+    july: 'Июль',
+    august: 'Август',
+    september: 'Сентябрь',
+    october: 'Октябрь',
+    november: 'Ноябрь',
+    december: 'Декабрь'
+  },
+  unknown: 'Номаълум'
 }

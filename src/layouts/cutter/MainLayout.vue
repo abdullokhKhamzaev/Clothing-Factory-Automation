@@ -132,6 +132,11 @@ const linksList = [
     title: 'orders',
     icon: 'mdi-bell-alert-outline',
     to: { name: 'club.cutter.orders' }
+  },
+  {
+    title: 'salary',
+    icon: 'mdi-cash',
+    to: { name: 'club.cutter.salary' }
   }
 ]
 

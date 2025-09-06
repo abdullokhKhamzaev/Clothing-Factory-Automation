@@ -19,6 +19,9 @@ const props = defineProps({
   }
 })
 
+// Emit salary data to parent
+const emit = defineEmits(['salary-data-loaded'])
+
 // Salary data
 const salaryRepository = useSalary()
 const salaryData = ref([])
@@ -39,10 +42,13 @@ function getSalaryData() {
   salaryRepository.fetchSalaries(salaryFilters)
     .then((res) => {
       salaryData.value = res.data['hydra:member'] || []
+      // Parent ga ma'lumot uzatish
+      emit('salary-data-loaded', salaryData.value)
     })
     .catch((error) => {
       console.error('Salary data fetch error:', error)
       salaryData.value = []
+      emit('salary-data-loaded', [])
     })
     .finally(() => {
       loading.value = false
@@ -54,10 +60,52 @@ const currentSalaryData = computed(() => {
   return salaryData.value.length > 0 ? salaryData.value[0] : null
 })
 
+// Determine salary type
+const salaryType = computed(() => {
+  if (!currentSalaryData.value) return 'none'
+
+  const hasBaseSalary = Number(currentSalaryData.value.baseSalary) > 0
+  const hasDailyWage = Number(currentSalaryData.value.dailyWage) > 0
+  const hasPiecework = Number(currentSalaryData.value.pieceworkEarning) > 0
+
+  if (hasBaseSalary || hasDailyWage) {
+    return 'fixed' // Fixed salary
+  } else if (hasPiecework) {
+    return 'piecework' // Performance-based salary
+  }
+  return 'none'
+})
+
+// Currency information
+const currencyInfo = computed(() => {
+  return currentSalaryData.value?.budget || { name: 'SO\'M' }
+})
+
+// Calculate total earned amount
+const totalEarned = computed(() => {
+  if (!currentSalaryData.value) return props.totalEarned
+
+  // Parse data correctly
+  const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
+  const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
+  const workedDays = Number(currentSalaryData.value.workedDays) || 0
+  const pieceworkEarning = Number(currentSalaryData.value.pieceworkEarning) || 0
+
+  if (salaryType.value === 'fixed') {
+    // Fixed salary or daily wage calculation
+    const result = baseSalary > 0 ? baseSalary : (dailyWage * workedDays)
+    return result
+  } else if (salaryType.value === 'piecework') {
+    // Performance-based calculation
+    return pieceworkEarning > 0 ? pieceworkEarning : props.totalEarned
+  }
+
+  // Return 0 if no data available
+  return 0
+})
+
 const pieceworkEarning = computed(() => {
-  return currentSalaryData.value
-    ? parseFloat(currentSalaryData.value.pieceworkEarning || 0)
-    : props.totalEarned
+  return totalEarned.value
 })
 
 const paidAmount = computed(() => {
@@ -94,7 +142,7 @@ const paymentPercentage = computed(() => {
 
 const lastPaymentDate = computed(() => {
   if (!currentSalaryData.value || !currentSalaryData.value.transaction || currentSalaryData.value.transaction.length === 0) {
-    return 'Ma\'lumot yo\'q'
+    return 'No Data' // Bu keyinroq template da i18n bilan almashtiriladi
   }
   const sortedTransactions = [...currentSalaryData.value.transaction].sort((a, b) =>
     new Date(b.createdAt) - new Date(a.createdAt)
@@ -113,14 +161,58 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-card class="salary-summary-card">
+  <q-card
+    class="salary-summary-card"
+    :class="{
+      'fixed-salary': salaryType === 'fixed',
+      'piecework-salary': salaryType === 'piecework',
+      'no-salary': salaryType === 'none'
+    }"
+  >
     <q-card-section>
       <div class="row items-start">
         <!-- Mobile: Full width, Desktop: 2/3 width -->
         <div class="col-12 col-lg-8">
           <div class="text-h6 text-primary q-mb-md">
             <q-icon name="account_balance_wallet" class="q-mr-sm" />
-            Maosh haqida ma'lumot
+            {{ $t('salaryInfo.title') }}
+            <q-chip
+              :color="salaryType === 'fixed' ? 'secondary' : salaryType === 'piecework' ? 'primary' : 'grey'"
+              text-color="white"
+              size="sm"
+              class="q-ml-sm"
+            >
+              <q-icon
+                :name="salaryType === 'fixed' ? 'schedule' : salaryType === 'piecework' ? 'work' : 'info'"
+                size="xs"
+                class="q-mr-xs"
+              />
+              <span v-if="salaryType === 'fixed'">{{ $t('salaryInfo.types.fixed') }}</span>
+              <span v-else-if="salaryType === 'piecework'">{{ $t('salaryInfo.types.piecework') }}</span>
+              <span v-else>{{ $t('salaryInfo.types.none') }}</span>
+              <q-tooltip v-if="salaryType !== 'none'" class="bg-white text-primary" :offset="[10, 10]">
+                <div class="text-body2 q-mb-xs">
+                  <strong v-if="salaryType === 'fixed'">💼 {{ $t('salaryInfo.tooltips.fixed.title') }}</strong>
+                  <strong v-else>🎯 {{ $t('salaryInfo.tooltips.piecework.title') }}</strong>
+                </div>
+                <div class="text-caption">
+                  <div v-if="salaryType === 'fixed'" class="q-gutter-y-xs">
+                    <div v-if="currentSalaryData?.baseSalary && Number(currentSalaryData.baseSalary) > 0">
+                      📅 {{ $t('salaryInfo.tooltips.fixed.monthly') }}
+                    </div>
+                    <div v-else-if="currentSalaryData?.dailyWage && Number(currentSalaryData.dailyWage) > 0">
+                      📊 {{ $t('salaryInfo.tooltips.fixed.daily') }}
+                    </div>
+                    <div v-else>
+                      ℹ️ {{ $t('salaryInfo.tooltips.fixed.general') }}
+                    </div>
+                  </div>
+                  <div v-else>
+                    🔢 {{ $t('salaryInfo.tooltips.piecework.description') }}
+                  </div>
+                </div>
+              </q-tooltip>
+            </q-chip>
             <q-spinner-dots v-if="loading" class="q-ml-sm" color="primary" size="sm" />
           </div>
 
@@ -129,11 +221,29 @@ onMounted(() => {
             <div class="col-12 col-sm-6 col-md-6">
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
-                  <q-icon name="work_history" color="primary" size="sm" class="q-mr-sm" />
-                  <span class="text-subtitle2 text-grey-7">Ishlangan summasi</span>
+                  <q-icon
+                    :name="salaryType === 'fixed' ? 'account_balance' : 'work_history'"
+                    color="primary"
+                    size="sm"
+                    class="q-mr-sm"
+                  />
+                  <span class="text-subtitle2 text-grey-7">
+                    {{ salaryType === 'fixed' ? $t('salaryInfo.cards.totalEarned.fixed') : $t('salaryInfo.cards.totalEarned.piecework') }}
+                  </span>
                 </div>
                 <div class="salary-info-value text-h5 text-h6-sm text-weight-bold text-primary q-mt-sm">
-                  {{ formatFloatToInteger(pieceworkEarning) }} SO'M
+                  {{ formatFloatToInteger(pieceworkEarning) }} {{ currencyInfo.name }}
+                </div>
+                <!-- Agar fixed salary bo'lsa, qo'shimcha ma'lumot -->
+                <div v-if="salaryType === 'fixed' && currentSalaryData" class="text-caption text-grey-6 q-mt-xs">
+                  <div v-if="Number(currentSalaryData.baseSalary || 0) > 0" class="flex items-center q-gutter-xs">
+                    <q-icon name="account_balance" size="xs" color="grey-6" />
+                    <span>{{ $t('salaryInfo.details.monthlyRate') }}: {{ formatFloatToInteger(currentSalaryData.baseSalary) }} {{ currencyInfo.name }}</span>
+                  </div>
+                  <div v-else-if="Number(currentSalaryData.dailyWage || 0) > 0" class="flex items-center q-gutter-xs">
+                    <q-icon name="today" size="xs" color="grey-6" />
+                    <span>{{ formatFloatToInteger(currentSalaryData.dailyWage) }} {{ currencyInfo.name }}{{ $t('salaryInfo.details.dailyRate') }} × {{ currentSalaryData.workedDays }} kun</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,12 +252,14 @@ onMounted(() => {
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="payments" color="positive" size="sm" class="q-mr-sm" />
-                  <span class="text-subtitle2 text-grey-7">So'nggi to'lov</span>
+                  <span class="text-subtitle2 text-grey-7">{{ $t('salaryInfo.cards.lastPayment') }}</span>
                 </div>
                 <div class="salary-info-value text-h5 text-h6-sm text-weight-bold text-positive q-mt-sm">
-                  {{ formatFloatToInteger(lastPaymentAmount) }} SO'M
+                  {{ formatFloatToInteger(lastPaymentAmount) }} {{ currencyInfo.name }}
                 </div>
-                <div class="text-caption text-grey-6 q-mt-xs">{{ lastPaymentDate }}</div>
+                <div class="text-caption text-grey-6 q-mt-xs">
+                  {{ lastPaymentDate === 'No Data' ? $t('salaryInfo.statuses.noData') : lastPaymentDate }}
+                </div>
               </div>
             </div>
 
@@ -156,16 +268,19 @@ onMounted(() => {
               <div class="salary-info-item bonus-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="star" color="amber" size="sm" class="q-mr-sm" />
-                  <span class="text-subtitle2 text-grey-7">Bonus</span>
+                  <span class="text-subtitle2 text-grey-7">{{ $t('salaryInfo.cards.bonus') }}</span>
                   <q-chip :size="$q.screen.lt.sm ? 'xs' : 'sm'" color="amber" text-color="white" class="q-ml-sm">
                     <q-icon name="celebration" size="xs" class="q-mr-xs" />
-                    Extra!
+                    {{ $t('salaryInfo.cards.bonus') }}!
                   </q-chip>
                 </div>
                 <div class="salary-info-value text-h5 text-h6-sm text-weight-bold text-amber q-mt-sm">
-                  +{{ formatFloatToInteger(bonusAmount) }} SO'M
+                  +{{ formatFloatToInteger(bonusAmount) }} {{ currencyInfo.name }}
                 </div>
-                <div class="text-caption text-grey-6 q-mt-xs">Ajoyib ish uchun mukofot! 🎉</div>
+                <div class="text-caption text-grey-6 q-mt-xs">
+                  <q-icon name="celebration" size="xs" class="q-mr-xs" />
+                  {{ $t('salaryInfo.details.bonusAwarded') }}
+                </div>
               </div>
             </div>
 
@@ -173,12 +288,15 @@ onMounted(() => {
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="pending" color="warning" size="sm" class="q-mr-sm" />
-                  <span class="text-subtitle2 text-grey-7">Qolgan summa</span>
+                  <span class="text-subtitle2 text-grey-7">{{ $t('salaryInfo.cards.remaining') }}</span>
                 </div>
                 <div class="salary-info-value text-h5 text-h6-sm text-weight-bold text-warning q-mt-sm">
-                  {{ formatFloatToInteger(remainingAmount) }} SO'M
+                  {{ formatFloatToInteger(remainingAmount) }} {{ currencyInfo.name }}
                 </div>
-                <div class="text-caption text-grey-6 q-mt-xs">To'lanishi kerak</div>
+                <div class="text-caption text-grey-6 q-mt-xs">
+                  <q-icon name="schedule" size="xs" class="q-mr-xs" />
+                  {{ $t('salaryInfo.details.debtStatus') }}
+                </div>
               </div>
             </div>
 
@@ -191,15 +309,21 @@ onMounted(() => {
                     size="sm"
                     class="q-mr-sm"
                   />
-                  <span class="text-subtitle2 text-grey-7">Holat</span>
+                  <span class="text-subtitle2 text-grey-7">{{ $t('salaryInfo.cards.status') }}</span>
                 </div>
                 <div class="salary-info-value text-h5 text-h6-sm text-weight-bold q-mt-sm" :class="pieceworkEarning === 0 ? 'text-grey-6' : 'text-positive'">
-                  <span v-if="pieceworkEarning === 0">📄 Ma'lumot yo'q</span>
-                  <span v-else>✅ To'liq to'langan</span>
+                  <span v-if="pieceworkEarning === 0">📄 {{ $t('salaryInfo.statuses.noData') }}</span>
+                  <span v-else>✅ {{ $t('salaryInfo.statuses.fullyPaid') }}</span>
                 </div>
                 <div class="text-caption text-grey-6 q-mt-xs">
-                  <span v-if="pieceworkEarning === 0">Hali ish bajarilmagan</span>
-                  <span v-else>Barcha to'lovlar amalga oshirildi</span>
+                  <div v-if="pieceworkEarning === 0" class="flex items-center q-gutter-xs">
+                    <q-icon name="info" size="xs" />
+                    <span>{{ salaryType === 'fixed' ? $t('salaryInfo.details.noInfo') : $t('salaryInfo.details.notWorked') }}</span>
+                  </div>
+                  <div v-else class="flex items-center q-gutter-xs">
+                    <q-icon name="check_circle" size="xs" />
+                    <span>{{ $t('salaryInfo.details.allPaid') }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -208,14 +332,20 @@ onMounted(() => {
               <div class="salary-info-item q-pa-md q-pa-sm-sm">
                 <div class="salary-info-header">
                   <q-icon name="trending_up" color="info" size="sm" class="q-mr-sm" />
-                  <span class="text-subtitle2 text-grey-7">To'lov holati</span>
+                  <span class="text-subtitle2 text-grey-7">{{ $t('salaryInfo.cards.paymentStatus') }}</span>
                 </div>
                 <div class="salary-info-value q-mt-sm">
                   <div class="text-h6 text-subtitle1-sm text-weight-bold" :class="paymentPercentage === 100 ? 'text-positive' : paymentPercentage > 100 ? 'text-amber' : 'text-info'">
                     {{ paymentPercentage }}{{ paymentPercentage > 100 ? '+' : '' }}%
                   </div>
-                  <div class="text-caption text-grey-6 q-mt-xs">
-                    {{ paymentPercentage > 100 ? 'Bonus bilan' : paymentPercentage === 100 ? 'To\'liq to\'langan' : 'Jarayonda' }}
+                  <div class="text-caption text-grey-6 q-mt-xs flex items-center q-gutter-xs">
+                    <q-icon
+                      :name="paymentPercentage > 100 ? 'star' : paymentPercentage === 100 ? 'check_circle' : 'timelapse'"
+                      size="xs"
+                    />
+                    <span>
+                      {{ paymentPercentage > 100 ? $t('salaryInfo.statuses.withBonus') : paymentPercentage === 100 ? $t('salaryInfo.statuses.fullyPaid') : $t('salaryInfo.statuses.inProgress') }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -238,7 +368,7 @@ onMounted(() => {
               {{ paymentPercentage }}{{ paymentPercentage > 100 ? '+' : '' }}%
             </div>
             <div class="text-caption text-grey-7">
-              {{ paymentPercentage > 100 ? 'Bonus' : 'To\'landi' }}
+              {{ paymentPercentage > 100 ? $t('salaryInfo.cards.bonus') : $t('paid') }}
             </div>
           </q-circular-progress>
           <div class="q-mt-md">
@@ -250,19 +380,19 @@ onMounted(() => {
               class="animated-pulse"
             >
               <span v-if="pieceworkEarning === 0">
-                📄 Ma'lumot yo'q
+                📄 {{ salaryType === 'fixed' ? $t('salaryInfo.details.noInfo') : $t('salaryInfo.statuses.noData') }}
               </span>
               <span v-else-if="paymentPercentage > 100">
-                🎉 Bonus bilan to'langan
+                🎉 {{ $t('salaryInfo.statuses.withBonus') }}
               </span>
               <span v-else-if="paymentPercentage === 100">
-                ✅ To'liq to'langan
+                ✅ {{ $t('salaryInfo.statuses.fullyPaid') }}
               </span>
               <span v-else-if="paymentPercentage > 50">
-                ⏳ Qisman to'langan
+                ⏳ {{ $t('salaryInfo.statuses.partiallyPaid') }}
               </span>
               <span v-else>
-                ❌ To'lanmagan
+                🔴 {{ $t('salaryInfo.statuses.notPaid') }}
               </span>
             </q-chip>
           </div>
@@ -277,6 +407,19 @@ onMounted(() => {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-left: 4px solid #2196f3;
+}
+
+/* Salary type specific colors - only border colors */
+.salary-summary-card.fixed-salary {
+  border-left-color: #9c27b0;
+}
+
+.salary-summary-card.piecework-salary {
+  border-left-color: #2196f3;
+}
+
+.salary-summary-card.no-salary {
+  border-left-color: #9e9e9e;
 }
 
 .salary-info-item {
