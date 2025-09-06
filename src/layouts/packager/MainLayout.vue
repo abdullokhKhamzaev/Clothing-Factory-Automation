@@ -1,105 +1,117 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar :class="isDark ? 'bg-dark text-white' : 'bg-white text-dark'">
+  <q-layout view="lHh Lpr lFf" class="modern-layout">
+    <q-header class="modern-header">
+      <q-toolbar class="q-px-lg">
         <q-btn
           flat
           dense
           round
-          :icon="leftDrawerOpen ? 'mdi-chevron-double-left' : 'mdi-chevron-double-right'"
+          :icon="leftDrawerOpen ? 'keyboard_double_arrow_left' : 'menu'"
+          :class="isDark ? 'text-grey-3' : 'text-grey-8'"
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
+
+        <q-toolbar-title>
+          <div class="text-weight-medium">
+            Kids Club - Qadoqlovchi
+          </div>
+        </q-toolbar-title>
+
         <q-space />
-        <q-btn
-          flat
-          dense
-          size="lg"
-          icon="mdi-logout"
-          @click="logout"
-          class="q-mr-md"
-        >
-          <q-tooltip
-            anchor="bottom middle"
-            self="top middle"
-            :offset="[5, 5]"
+
+        <!-- Header actions -->
+        <div class="row q-gutter-sm items-center">
+          <q-btn
+            flat
+            dense
+            round
+            :icon="isDark ? 'light_mode' : 'dark_mode'"
+            :class="isDark ? 'text-orange-4' : 'text-orange-8'"
+            @click="toggleTheme"
           >
-            {{ $t('logout') }}
-          </q-tooltip>
-        </q-btn>
-        <q-icon
-          size="md"
-          name="mdi-theme-light-dark"
-          class="q-mr-md"
-          @click="toggleTheme"
-        />
-        <q-btn-dropdown
-          icon="language"
-          flat
-          dense
-          size="md"
-        >
-          <q-list>
-            <q-item
-              v-for="(language, index) in LANGUAGES"
-              :key="index"
-              clickable
-              v-close-popup
-              @click="changeLang(language.value)"
-            >
-              <q-item-section>
-                <q-item-label>{{ language.label }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+            <q-tooltip class="bg-grey-8">
+              {{ isDark ? 'Light Mode' : 'Dark Mode' }}
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn-dropdown
+            icon="language"
+            flat
+            dense
+            round
+            :class="isDark ? 'text-grey-3' : 'text-grey-8'"
+          >
+            <q-list class="q-pa-sm">
+              <q-item
+                v-for="(language, index) in LANGUAGES"
+                :key="index"
+                clickable
+                v-close-popup
+                @click="changeLang(language.value)"
+                class="rounded-borders q-mb-xs"
+              >
+                <q-item-section>
+                  <q-item-label>{{ language.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+
+          <q-btn
+            flat
+            dense
+            round
+            icon="logout"
+            class="text-red-7"
+            @click="logout"
+          >
+            <q-tooltip class="bg-grey-8">
+              {{ $t('logout') }}
+            </q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
-      bordered
+      :width="280"
+      :class="isDark ? 'bg-dark' : 'bg-grey-1'"
     >
-      <q-list>
-        <q-item-label
-          class="text-h5 text-weight-medium"
-          header
-        >
-          Kids Club
-        </q-item-label>
-
-        <q-separator />
-
-        <q-item-label
-          class="text-h5 text-weight-medium"
-          header
-        >
-          <q-item
-            class="flex q-pa-none q-ma-none"
+      <div class="column full-height">
+        <!-- User Profile Section -->
+        <div class="user-profile-section q-pa-lg q-ma-md rounded-borders text-center">
+          <q-avatar size="60px" class="user-avatar q-mb-md">
+            <q-icon name="person" size="32px" color="white" />
+          </q-avatar>
+          <div :class="isDark ? 'text-h6 text-weight-medium text-grey-3' : 'text-h6 text-weight-medium text-grey-8'">
+            {{ user.about.fullName }}
+          </div>
+          <div :class="isDark ? 'text-caption text-grey-5 q-mb-sm' : 'text-caption text-grey-6 q-mb-sm'">
+            {{ user.about.phone }}
+          </div>
+          <q-badge
+            v-if="user?.about?.roles?.length"
+            color="primary"
+            rounded
+            class="text-caption"
           >
-            <q-item-section>
-              <q-item-label class="text-weight-medium">
-                {{ user.about.fullName }}
-              </q-item-label>
-              <q-item-label caption>
-                {{ user.about.phone }}
-              </q-item-label>
-              <q-item-label v-if="user?.about?.roles?.length">
-                <q-badge align="top">{{ $t('roles.' + user.about.roles[0]) }}</q-badge>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-item-label>
+            {{ $t('roles.' + user.about.roles[0]) }}
+          </q-badge>
+        </div>
 
-        <q-separator />
+        <q-separator class="q-mx-md" />
 
+        <!-- Navigation Links -->
         <side-bar-link
           v-for="link in linksList"
           :key="link.title"
           v-bind="link"
+          class="q-mb-xs"
         />
-      </q-list>
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -130,13 +142,15 @@ const { isDark, toggleTheme } = useTheme()
 const linksList = [
   {
     title: 'orders',
-    icon: 'mdi-bell-alert-outline',
-    to: { name: 'club.packager.warehouse' }
+    icon: 'inventory_2',
+    to: { name: 'club.packager.warehouse' },
+    routePrefix: '/packager/warehouse'
   },
   {
     title: 'salary',
-    icon: 'mdi-cash',
-    to: { name: 'club.packager.salary' }
+    icon: 'payments',
+    to: { name: 'club.packager.salary' },
+    routePrefix: '/packager/salary'
   }
 ]
 
@@ -153,3 +167,4 @@ function changeLang (lang) {
   localStorage.setItem('lang', lang)
 }
 </script>
+

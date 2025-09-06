@@ -414,14 +414,14 @@ const routes = [
             path: 'completed',
             name: 'club.weaver.completed',
             component: () => import('pages/role-weaver/CompletedOrdersPage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.weaver.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
       },
+      {
+        path: 'salary',
+        name: 'club.weaver.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
+      }
     ]
   },
   {
@@ -463,14 +463,14 @@ const routes = [
             path: 'defects',
             name: 'club.cutter.defects',
             component: () => import('pages/role-cutter/DefectsPage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.cutter.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
-      }
+      },
+      {
+        path: 'salary',
+        name: 'club.cutter.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
+      },
     ]
   },
   {
@@ -485,7 +485,7 @@ const routes = [
     },
     children: [
       {
-        path: '',
+        path: 'orders',
         component: () => import('pages/role-embroiderer/IndexPage.vue'),
         children: [
           {
@@ -497,14 +497,14 @@ const routes = [
             path: 'ready',
             name: 'club.embroiderer.ready',
             component: () => import('pages/role-embroiderer/ReadyWarehousePage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.embroiderer.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
-      }
+      },
+      {
+        path: 'salary',
+        name: 'club.embroiderer.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
+      },
     ]
   },
   {
@@ -526,13 +526,13 @@ const routes = [
             path: 'warehouse',
             name: 'club.sewer.warehouse',
             component: () => import('pages/role-sewer/WarehousePage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.sewer.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
+      },
+      {
+        path: 'salary',
+        name: 'club.sewer.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
       }
     ]
   },
@@ -555,14 +555,14 @@ const routes = [
             path: 'warehouse',
             name: 'club.packager.warehouse',
             component: () => import('pages/role-packager/WarehousePage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.packager.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
-      }
+      },
+      {
+        path: 'salary',
+        name: 'club.packager.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
+      },
     ]
   },
   {
@@ -594,14 +594,14 @@ const routes = [
             path: 'packaging/ready',
             name: 'club.master.packaging.ready',
             component: () => import('pages/role-master/PackagerReadyPage.vue'),
-          },
-          {
-            path: 'salary',
-            name: 'club.master.salary',
-            component: () => import('pages/user/SalaryPage.vue'),
-          },
+          }
         ]
-      }
+      },
+      {
+        path: 'salary',
+        name: 'club.master.salary',
+        component: () => import('pages/user/SalaryPage.vue'),
+      },
     ]
   },
   {

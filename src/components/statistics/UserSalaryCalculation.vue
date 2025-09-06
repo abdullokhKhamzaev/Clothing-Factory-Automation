@@ -28,11 +28,12 @@ let filters = ref({
   date: props.date,
   status: 'accepted',
   unitPrice: 0,
-  rowsPerPage: '~'
+  rowsPerPage: '~',
+  workerBy: ''
 });
 
 function getItems () {
-  if (loading.value || !filters.value.workerBy) return;
+  if (loading.value || !filters.value.workerBy || filters.value.workerBy === '') return;
   loading.value = true;
   repository.list({page: 1, rowsPerPage: '~', ...filters.value})
     .then((res) => {

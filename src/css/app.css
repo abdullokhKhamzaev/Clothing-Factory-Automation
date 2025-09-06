@@ -9,3 +9,29 @@
 .q-stepper--vertical .q-stepper__step-inner {
     padding: 0 !important;
 }
+
+/* Modern Layout Styles */
+.modern-header {
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.user-profile-section {
+  background: linear-gradient(135deg, rgba(var(--q-primary-rgb), 0.1) 0%, rgba(var(--q-primary-rgb), 0.05) 100%);
+  
+  .user-avatar {
+    background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
+    box-shadow: 0 4px 16px rgba(var(--q-primary-rgb), 0.3);
+  }
+}
+
+/* Dark mode */
+.body--dark {
+  .modern-header {
+    background: var(--q-dark);
+  }
+  
+  .user-profile-section {
+    background: linear-gradient(135deg, rgba(var(--q-primary-rgb), 0.2) 0%, rgba(var(--q-primary-rgb), 0.1) 100%);
+  }
+}

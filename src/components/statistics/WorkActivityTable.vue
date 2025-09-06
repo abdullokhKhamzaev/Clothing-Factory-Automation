@@ -14,7 +14,8 @@ const props = defineProps({
   },
   workerBy: {
     type: String,
-    required: true,
+    required: false,
+    default: ''
   }
 })
 
@@ -50,7 +51,7 @@ let filters = ref({
 })
 
 function getItems() {
-  if (loading.value || !filters.value.workerBy) return
+  if (loading.value || !filters.value.workerBy || filters.value.workerBy === '') return
   loading.value = true
   repository.list({...pagination.value, ...filters.value})
     .then((res) => {
