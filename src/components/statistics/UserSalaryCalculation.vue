@@ -11,7 +11,7 @@ const user = useAbout();
 const route = useRoute();
 const props = defineProps({
   date: {
-    type: String,
+    type: Object,
     required: true,
   }
 })
@@ -25,7 +25,8 @@ const loading = ref(false);
 const salaryData = ref([]);
 
 let filters = ref({
-  date: props.date,
+  dateFrom: props.date.dateFrom,
+  dateTo: props.date.dateTo,
   status: 'accepted',
   unitPrice: 0,
   rowsPerPage: '~',
@@ -72,7 +73,8 @@ const currencyInfo = computed(() => {
 
 watch([user, props], () => {
   filters.value.workerBy = route.params.id ? route.params.id : user.about['@id'];
-  filters.value.date = props.date;
+  filters.value.dateFrom = props.date.dateFrom;
+  filters.value.dateTo = props.date.dateTo;
   getItems();
 }, {deep: true});
 

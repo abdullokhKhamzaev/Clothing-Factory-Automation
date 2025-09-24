@@ -13,8 +13,11 @@ export const useWorkEntries = defineStore('work_entries', () => {
       params.set('workerBy', filterProps.workerBy);
     }
 
-    if (filterProps.date) {
-      params.set('createdAt', filterProps.date);
+    if (filterProps.dateFrom) {
+      params.set('createdAt[after]', filterProps.dateFrom);
+    }
+    if (filterProps.dateTo) {
+      params.set('createdAt[before]', filterProps.dateTo);
     }
 
     if (filterProps.unitPrice != null) {

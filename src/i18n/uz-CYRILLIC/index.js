@@ -2180,8 +2180,6 @@ export default {
   },
   // Month translations
   months: {
-    january: 'Январь',
-    february: 'Февраль',
     january: 'Январ',
     february: 'Феврал',
     march: 'Март',

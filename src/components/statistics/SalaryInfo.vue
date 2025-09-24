@@ -9,7 +9,7 @@ const props = defineProps({
     required: true,
   },
   date: {
-    type: String,
+    type: Object,
     required: true,
   },
   totalEarned: {
@@ -32,8 +32,12 @@ function getSalaryData() {
 
   loading.value = true
 
+  // Convert dateRange to month format for backend
+  const dateFrom = props.date.dateFrom
+  const month = dateFrom.substring(0, 7) // "2025-09-01" -> "2025-09"
+
   const salaryFilters = {
-    month: props.date,
+    month: month,
     worker: props.worker,
     page: 1,
     rowsPerPage: 10
@@ -81,7 +85,7 @@ const currencyInfo = computed(() => {
   return currentSalaryData.value?.budget || { name: 'SO\'M' }
 })
 
-// Calculate total earned amount
+// Calculate total earned amount based on period
 const totalEarned = computed(() => {
   if (!currentSalaryData.value) return props.totalEarned
 
@@ -89,15 +93,15 @@ const totalEarned = computed(() => {
   const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
   const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
   const workedDays = Number(currentSalaryData.value.workedDays) || 0
-  const pieceworkEarning = Number(currentSalaryData.value.pieceworkEarning) || 0
+  // const pieceworkEarning = Number(currentSalaryData.value.pieceworkEarning) || 0
 
   if (salaryType.value === 'fixed') {
-    // Fixed salary or daily wage calculation
-    const result = baseSalary > 0 ? baseSalary : (dailyWage * workedDays)
-    return result
+    // Fixed salary calculation - divided by 2 for period (half month)
+    const monthlyAmount = baseSalary > 0 ? baseSalary : (dailyWage * workedDays)
+    return monthlyAmount / 2 // Half month for period
   } else if (salaryType.value === 'piecework') {
-    // Performance-based calculation
-    return pieceworkEarning > 0 ? pieceworkEarning : props.totalEarned
+    // Performance-based calculation - use totalEarned from work entries for current period
+    return props.totalEarned || 0
   }
 
   // Return 0 if no data available
@@ -108,16 +112,63 @@ const pieceworkEarning = computed(() => {
   return totalEarned.value
 })
 
+// Calculate payment period based on work period
+const getPaymentPeriod = (workPeriod) => {
+  const workStart = new Date(workPeriod.dateFrom)
+  const workDay = parseInt(workPeriod.dateFrom.substring(8, 10))
+
+  let paymentStart, paymentEnd
+
+  if (workDay === 1) {
+    // Work period: 1-15, Payment period: 16-end of same month
+    const year = workStart.getFullYear()
+    const month = workStart.getMonth()
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate()
+
+    paymentStart = new Date(year, month, 16)
+    paymentEnd = new Date(year, month, lastDayOfMonth, 23, 59, 59, 999)
+  } else {
+    // Work period: 16-end, Payment period: 1-15 of next month
+    const year = workStart.getFullYear()
+    const month = workStart.getMonth()
+
+    paymentStart = new Date(year, month + 1, 1)
+    paymentEnd = new Date(year, month + 1, 15, 23, 59, 59, 999)
+  }
+
+  return { paymentStart, paymentEnd }
+}
+
 const paidAmount = computed(() => {
   if (!currentSalaryData.value || !currentSalaryData.value.transaction) return 0
-  return currentSalaryData.value.transaction.reduce((sum, t) => sum + parseFloat(t.price || 0), 0)
+
+  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
+
+  // Filter transactions by payment period date range
+  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
+    const transactionDate = new Date(transaction.createdAt)
+    return transactionDate >= paymentStart && transactionDate <= paymentEnd
+  })
+
+  return periodTransactions.reduce((sum, t) => sum + parseFloat(t.price || 0), 0)
 })
 
 const lastPaymentAmount = computed(() => {
   if (!currentSalaryData.value || !currentSalaryData.value.transaction || currentSalaryData.value.transaction.length === 0) {
     return 0
   }
-  const sortedTransactions = [...currentSalaryData.value.transaction].sort((a, b) =>
+
+  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
+
+  // Filter transactions by payment period date range
+  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
+    const transactionDate = new Date(transaction.createdAt)
+    return transactionDate >= paymentStart && transactionDate <= paymentEnd
+  })
+
+  if (periodTransactions.length === 0) return 0
+
+  const sortedTransactions = [...periodTransactions].sort((a, b) =>
     new Date(b.createdAt) - new Date(a.createdAt)
   )
   return parseFloat(sortedTransactions[0]?.price || 0)
@@ -142,9 +193,20 @@ const paymentPercentage = computed(() => {
 
 const lastPaymentDate = computed(() => {
   if (!currentSalaryData.value || !currentSalaryData.value.transaction || currentSalaryData.value.transaction.length === 0) {
-    return 'No Data' // Bu keyinroq template da i18n bilan almashtiriladi
+    return 'No Data'
   }
-  const sortedTransactions = [...currentSalaryData.value.transaction].sort((a, b) =>
+
+  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
+
+  // Filter transactions by payment period date range
+  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
+    const transactionDate = new Date(transaction.createdAt)
+    return transactionDate >= paymentStart && transactionDate <= paymentEnd
+  })
+
+  if (periodTransactions.length === 0) return 'No Data'
+
+  const sortedTransactions = [...periodTransactions].sort((a, b) =>
     new Date(b.createdAt) - new Date(a.createdAt)
   )
   return formatDate(sortedTransactions[0]?.createdAt || '').slice(0, 10)

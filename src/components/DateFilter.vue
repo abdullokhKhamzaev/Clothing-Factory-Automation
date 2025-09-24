@@ -53,13 +53,23 @@ const monthOptions = computed(() => [
   { label: t('months.december'), value: 12 }
 ])
 
-
-// Computed formatted date with period
-const formattedDate = computed(() => {
+// Computed date range for filtering
+const dateRange = computed(() => {
   const year = selectedYear.value
-  const month = selectedMonth.value.toString().padStart(2, '0')
-  const period = selectedPeriod.value
-  return `${year}-${month}-${period}`
+  const month = selectedMonth.value
+
+  if (selectedPeriod.value === 1) {
+    // First half: 1st to 15th
+    const dateFrom = `${year}-${month.toString().padStart(2, '0')}-01T00:00:00`
+    const dateTo = `${year}-${month.toString().padStart(2, '0')}-15T23:59:59`
+    return { dateFrom, dateTo }
+  } else {
+    // Second half: 16th to last day of month
+    const lastDayOfMonth = new Date(year, month, 0).getDate()
+    const dateFrom = `${year}-${month.toString().padStart(2, '0')}-16T00:00:00`
+    const dateTo = `${year}-${month.toString().padStart(2, '0')}-${lastDayOfMonth.toString().padStart(2, '0')}T23:59:59`
+    return { dateFrom, dateTo }
+  }
 })
 
 const selectedMonthName = computed(() => {
@@ -135,7 +145,7 @@ function setNextPeriod() {
 }
 
 function emitDateChange() {
-  emit('date-changed', formattedDate.value)
+  emit('date-changed', dateRange.value)
 }
 
 // Watch for changes and emit

@@ -8,8 +8,8 @@ import { date } from "quasar";
 const selectedDate = ref(date.formatDate(Date.now(), 'YYYY-MM'));
 
 // Handle date changes from filter
-function onDateChange(newDate) {
-  selectedDate.value = newDate;
+function onDateChange(dateData) {
+  selectedDate.value = dateData;
 }
 </script>
 
@@ -19,7 +19,7 @@ function onDateChange(newDate) {
     v-model="selectedDate"
     @date-changed="onDateChange"
   />
-  
+
   <!-- User Salary Calculation -->
   <UserSalaryCalculation :date="selectedDate" />
 </template>

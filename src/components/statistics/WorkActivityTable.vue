@@ -9,7 +9,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   date: {
-    type: String,
+    type: Object,
     required: true,
   },
   workerBy: {
@@ -43,7 +43,8 @@ const pagination = ref({
 })
 
 let filters = ref({
-  date: props.date,
+  dateFrom: props.date.dateFrom,
+  dateTo: props.date.dateTo,
   status: 'accepted',
   unitPrice: 0,
   rowsPerPage: '~',
@@ -77,7 +78,8 @@ const totalQuantity = computed(() => {
 })
 
 watch([() => props.date, () => props.workerBy], () => {
-  filters.value.date = props.date
+  filters.value.dateFrom = props.date.dateFrom
+  filters.value.dateTo = props.date.dateTo
   filters.value.workerBy = props.workerBy
   refresh()
 }, {deep: true})
