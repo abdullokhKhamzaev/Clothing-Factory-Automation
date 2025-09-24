@@ -2176,11 +2176,7 @@ export default {
   },
   // DateFilter translations
   dateFilter: {
-    thisMonth: 'Bu oy',
-    lastMonth: 'O\'tgan oy',
-    selectedPeriod: 'Tanlangan davr',
-    year: 'Yil',
-    month: 'Oy'
+    thisPeriod: 'Bu davr'
   },
   // Month translations
   months: {

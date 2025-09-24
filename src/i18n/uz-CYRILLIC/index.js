@@ -2176,26 +2176,24 @@ export default {
   },
   // DateFilter translations
   dateFilter: {
-    thisMonth: 'Бу ой',
-    lastMonth: 'Ўтган ой',
-    selectedPeriod: 'Танланган давр',
-    year: 'Йил',
-    month: 'Ой'
+    thisPeriod: 'Бу давр'
   },
   // Month translations
   months: {
     january: 'Январь',
     february: 'Февраль',
+    january: 'Январ',
+    february: 'Феврал',
     march: 'Март',
-    april: 'Апрель',
+    april: 'Апрел',
     may: 'Май',
-    june: 'Июнь',
-    july: 'Июль',
+    june: 'Июн',
+    july: 'Июл',
     august: 'Август',
-    september: 'Сентябрь',
-    october: 'Октябрь',
-    november: 'Ноябрь',
-    december: 'Декабрь'
+    september: 'Сентябр',
+    october: 'Октябр',
+    november: 'Ноябр',
+    december: 'Декабр'
   },
   unknown: 'Номаълум'
 }

@@ -2176,11 +2176,7 @@ export default {
   },
   // DateFilter translations
   dateFilter: {
-    thisMonth: 'This Month',
-    lastMonth: 'Last Month',
-    selectedPeriod: 'Selected Period',
-    year: 'Year',
-    month: 'Month'
+    thisPeriod: 'Current Period'
   },
   // Month translations
   months: {
