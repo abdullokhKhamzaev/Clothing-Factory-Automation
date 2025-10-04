@@ -35,6 +35,7 @@ export default {
   departure: 'Departure',
   oweUs: 'Owe us',
   total: 'Total',
+  all: 'All',
   paid: 'Paid',
   logout: 'Logout',
   salary: 'Salary',
@@ -150,6 +151,112 @@ export default {
     packagerWarehouse: 'Packager Warehouse',
     packagerReadyWarehouse: 'Packager Ready Warehouse',
     productsWarehouse: 'Products Warehouse',
+  },
+  // Budget component translations
+  budgetStats: {
+    title: 'Budget Statistics',
+    somAccount: 'SO\'M Account',
+    usdAccount: 'USD Account',
+    summary: 'Summary',
+    overview: 'Overview',
+    netBalance: 'Net Balance',
+    totalAccounts: 'Total Accounts',
+    healthStatus: 'Health Status',
+    realTime: 'Real Time',
+    updated: 'Updated',
+    financialHealth: 'Financial Health',
+    health: {
+      excellent: 'Excellent',
+      good: 'Good',
+      warning: 'Warning',
+      critical: 'Critical',
+      unknown: 'Unknown',
+      excellentDescription: 'All accounts in perfect condition',
+      goodDescription: 'Accounts are in good shape',
+      warningDescription: 'Some accounts need attention',
+      criticalDescription: 'Immediate action required',
+      unknownDescription: 'Status unknown'
+    }
+  },
+  budgetActions: {
+    title: 'Quick Actions',
+    subtitle: 'Perform common budget operations',
+    convert: {
+      description: 'Convert between currencies'
+    },
+    refresh: {
+      description: 'Refresh budget data'
+    }
+  },
+  budgetModals: {
+    convert: {
+      subtitle: 'Exchange between currencies',
+      swap: 'Swap currencies'
+    },
+    add: {
+      hint: 'Enter amount to add to balance'
+    },
+    send: {
+      subtitle: 'Transfer funds between accounts'
+    },
+    minus: {
+      insufficientFunds: 'Insufficient funds for this transaction',
+      remainingBalance: 'Remaining balance'
+    }
+  },
+  financial: {
+    clear: 'Clear',
+    hasDebts: 'Has Debts',
+    owesUs: 'Owes Us',
+    mixed: 'Mixed'
+  },
+  // Notification messages
+  notifications: {
+    convertSuccess: 'Currency conversion completed successfully!',
+    convertError: 'Error occurred during currency conversion',
+    addSuccess: 'Amount added to balance successfully!',
+    addError: 'Error occurred while adding amount',
+    sendSuccess: 'Transfer completed successfully!',
+    sendError: 'Error occurred during transfer',
+    minusSuccess: 'Amount deducted successfully!',
+    minusError: 'Error occurred during deduction'
+  },
+  // Wallet-specific translations
+  wallets: {
+    som: {
+      title: 'SO\'M Trading Wallet',
+      description: 'Local currency trading account',
+      statsDescription: 'SO\'M sales and trading operations'
+    },
+    usd: {
+      title: 'USD Trading Wallet',
+      description: 'USD sales and trading account',
+      statsDescription: 'USD sales and trading operations',
+      sendTooltip: 'Transfer to Main USD (Company Manager)',
+      sendModalDescription: 'Transfer funds to company manager\'s main USD account'
+    },
+    mainUsd: {
+      title: 'Main USD Wallet',
+      description: 'Company manager\'s main account',
+      statsDescription: 'Company manager\'s main USD account'
+    },
+    general: {
+      payTooltip: 'Deduct amount from wallet'
+    }
+  },
+  // Additional budget terms
+  currentBalance: 'Current Balance',
+  addAmount: 'Add Amount',
+  deductAmount: 'Deduct Amount',
+  newBalance: 'New Balance',
+  addingAmount: 'Adding Amount',
+  preview: 'Preview',
+  reason: 'Reason',
+  warning: 'Warning',
+  refresh: 'Refresh',
+  cancel: 'Cancel',
+  validation: {
+    required: 'This field is required'
   },
   menus: {
     sideBar: {
@@ -1829,6 +1936,15 @@ export default {
       },
       buttons: {
         add: 'Create'
+      },
+      tooltip: {
+        clickToEnablePagination: 'Click to enable pagination',
+        clickToShowAll: 'Click to show all items'
+      },
+      pagination: {
+        showing: 'Showing',
+        of: 'of',
+        showingAllItems: 'Showing all items'
       }
     },
     order: {
@@ -2076,6 +2192,7 @@ export default {
       columns: {
         id: 'id',
         createdAt: 'Created at',
+        receivedAt: 'Received at',
         sentBy: 'Sent by',
         productModel: 'Model',
         productSize: 'Product sizes',

@@ -187,7 +187,9 @@ onMounted(() => {
             </template>
 
             <template v-slot:after>
-              <q-card-section>{{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${(formatFloatToInteger((count.totalPriceUsd / count.quantity).toFixed(2)))}$` : '' }} {{ count.totalPriceUzs ? `| ${(formatFloatToInteger((count.totalPriceUzs / count.quantity).toFixed(2)))}so'm` : '' }}</q-card-section>
+              <q-card-section>
+                {{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${(formatFloatToInteger((count.totalPriceUsd / count.quantity).toFixed(2)))}$ | Jami: ${count.totalPriceUsd}$` : '' }} {{ count.totalPriceUzs ? `| ${(formatFloatToInteger((count.totalPriceUzs / count.quantity).toFixed(2)))}so'm | Jami: ${count.totalPriceUzs}so'm` : '' }}
+              </q-card-section>
             </template>
           </q-splitter>
           <q-separator inset />

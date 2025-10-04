@@ -35,6 +35,7 @@ export default {
   departure: 'Жўнав кетиш',
   oweUs: 'Биздан қарз',
   total: 'Жами',
+  all: 'Барча',
   paid: 'Тўланди',
   logout: 'Чиқиш',
   salary: 'Моаш',
@@ -150,6 +151,112 @@ export default {
     packagerWarehouse: 'Упаковка омбор',
     packagerReadyWarehouse: 'Упаковка (тайёр) омбор',
     productsWarehouse: 'Склад',
+  },
+  // Бюджет компонентлари таржималари
+  budgetStats: {
+    title: 'Бюджет Статистикаси',
+    somAccount: 'СЎМ Ҳисоб',
+    usdAccount: 'USD Ҳисоб',
+    summary: 'Хулоса',
+    overview: 'Умумий кўриниш',
+    netBalance: 'Соф баланс',
+    totalAccounts: 'Жами ҳисоблар',
+    healthStatus: 'Соғломлик ҳолати',
+    realTime: 'Реал вақт',
+    updated: 'Янгиланган',
+    financialHealth: 'Молиявий соғломлик',
+    health: {
+      excellent: 'Ало',
+      good: 'Яхши',
+      warning: 'Огоҳлантириш',
+      critical: 'Критик',
+      unknown: 'Номаълум',
+      excellentDescription: 'Барча ҳисоблар мукаммал ҳолатда',
+      goodDescription: 'Ҳисоблар яхши ҳолатда',
+      warningDescription: 'Баъзи ҳисоблар эътибор талаб қилади',
+      criticalDescription: 'Зудлик билан чоралар кўриш керак',
+      unknownDescription: 'Ҳолат номаълум'
+    }
+  },
+  budgetActions: {
+    title: 'Тезкор ҳаракатлар',
+    subtitle: 'Бюджет билан боғлиқ асосий амалларни бажариш',
+    convert: {
+      description: 'Валюталар ўртасида айирбошлаш'
+    },
+    refresh: {
+      description: 'Бюджет маълумотларини янгилаш'
+    }
+  },
+  budgetModals: {
+    convert: {
+      subtitle: 'Валюталар ўртасида айирбошлаш',
+      swap: 'Валюталарни алмаштириш'
+    },
+    add: {
+      hint: 'Балансга қўшиладиган миқдорни киритинг'
+    },
+    send: {
+      subtitle: 'Ҳисоблар ўртасида пул ўтказиш'
+    },
+    minus: {
+      insufficientFunds: 'Бу операция учун маблағ етарли эмас',
+      remainingBalance: 'Қолган баланс'
+    }
+  },
+  financial: {
+    clear: 'Тоза',
+    hasDebts: 'Қарзлари бор',
+    owesUs: 'Бизга қарздор',
+    mixed: 'Аралаш'
+  },
+  // Билдиришнома хабарлари
+  notifications: {
+    convertSuccess: 'Валюта айирбошлаш муваффақиятли якунланди!',
+    convertError: 'Валюта айирбошлашда хатолик юз берди',
+    addSuccess: 'Миқдор балансга муваффақиятли қўшилди!',
+    addError: 'Миқдор қўшишда хатолик юз берди',
+    sendSuccess: 'Ўтказма муваффақиятли якунланди!',
+    sendError: 'Ўтказма вақтида хатолик юз берди',
+    minusSuccess: 'Миқдор муваффақиятли ечилди!',
+    minusError: 'Миқдор ечишда хатолик юз берди'
+  },
+  // Wallet-га оид таржималар
+  wallets: {
+    som: {
+      title: 'СЎМ Савдо Хамёни',
+      description: 'Миллий валюта савдо ҳисоби',
+      statsDescription: 'СЎМ савдо ва тижорат операциялари'
+    },
+    usd: {
+      title: 'USD Савдо Хамёни',
+      description: 'USD савдо ва тижорат ҳисоби',
+      statsDescription: 'USD савдо ва тижорат операциялари',
+      sendTooltip: 'Асосий USD га ўтказиш (Корхона раҳбари)',
+      sendModalDescription: 'Корхона раҳбарининг асосий USD ҳисобига пул ўтказиш'
+    },
+    mainUsd: {
+      title: 'Асосий USD Хамёни',
+      description: 'Корхона раҳбарининг асосий ҳисоби',
+      statsDescription: 'Корхона раҳбарининг асосий USD ҳисоби'
+    },
+    general: {
+      payTooltip: 'Хамёндан миқдор ечиш'
+    }
+  },
+  // Қўшимча бюджет атамалар
+  currentBalance: 'Жорий баланс',
+  addAmount: 'Миқдор қўшиш',
+  deductAmount: 'Миқдор ечиш',
+  newBalance: 'Янги баланс',
+  addingAmount: 'Қўшиладиган миқдор',
+  preview: 'Кўриш',
+  reason: 'Сабаб',
+  warning: 'Огоҳлантириш',
+  refresh: 'Янгилаш',
+  cancel: 'Бекор қилиш',
+  validation: {
+    required: 'Бу майдон тўлдирилиши шарт'
   },
   menus: {
     sideBar: {
@@ -1829,6 +1936,15 @@ export default {
       },
       buttons: {
         add: 'Яратиш'
+      },
+      tooltip: {
+        clickToEnablePagination: 'Саҳифалашни ёқиш учун босинг',
+        clickToShowAll: 'Барчасини кўрсатиш учун босинг'
+      },
+      pagination: {
+        showing: 'Кўрсатилмоқда',
+        of: 'дан',
+        showingAllItems: 'Барча элементлар кўрсатилмоқда'
       }
     },
     order: {
@@ -2076,6 +2192,7 @@ export default {
       columns: {
         id: 'Ҳаракат ID',
         createdAt: 'Сана',
+        receivedAt: 'Қабул вақт',
         sentBy: 'Юборди',
         productModel: 'Модел',
         productSize: 'Модел размер',

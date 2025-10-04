@@ -288,17 +288,17 @@ function payAdvanceAction () {
                 :label="$t('paySalary')"
                 @click="selectedData = {...props.row}; showSalaryModal = true;"
               />
-<!--              <q-btn-->
-<!--                v-if="!Number(props.row.advancePayment)"-->
-<!--                dense-->
-<!--                outline-->
-<!--                no-caps-->
-<!--                no-wrap-->
-<!--                color="primary"-->
-<!--                icon-right="mdi-cash"-->
-<!--                :label="$t('payAdvance')"-->
-<!--                @click="selectedData = {...props.row}; showAdvanceModal = true;"-->
-<!--              />-->
+              <q-btn
+                v-if="!Number(props.row.advancePayment)"
+                dense
+                outline
+                no-caps
+                no-wrap
+                color="primary"
+                icon-right="mdi-cash"
+                :label="$t('payAdvance')"
+                @click="selectedData = {...props.row}; showAdvanceModal = true;"
+              />
             </div>
           </div>
 

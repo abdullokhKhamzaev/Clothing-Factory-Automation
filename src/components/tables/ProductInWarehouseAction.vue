@@ -49,6 +49,7 @@ const loading = ref(false);
 const columns = [
   { name: 'id', label: t('tables.warehouseAction.columns.id'), align: 'left', field: 'id' },
   { name: 'createdAt', label: t('tables.warehouseAction.columns.createdAt'), align: 'left', field: 'createdAt' },
+  { name: 'receivedAt', label: t('tables.warehouseAction.columns.receivedAt'), align: 'left', field: 'receivedAt' },
   { name: 'sentBy', label: t('tables.warehouseAction.columns.sentBy'), align: 'left', field: 'sentBy' },
   { name: 'productModel', label: t('tables.warehouseAction.columns.productModel'), align: 'left', field: 'productModel' },
   { name: 'productSize', label: t('tables.warehouseAction.columns.productSize'), align: 'left', field: 'productSize' },
@@ -212,6 +213,9 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'createdAt'">
             {{ formatDate(props.row.createdAt) }}
+          </div>
+          <div v-else-if="col.name === 'receivedAt'">
+            {{ props.row.status === 'accepted' && props.row?.receivedAt ? formatDate(props.row.receivedAt) : $t('statuses.' + props.row.status) }}
           </div>
           <div v-else-if="col.name === 'productModel'">
             {{ props.row.productModel.name }}

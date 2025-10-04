@@ -1,5 +1,6 @@
 <script setup>
 import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import { formatDate } from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   lists: {
@@ -19,60 +20,74 @@ const props = defineProps({
     required: true
   }
 })
+
+// Clean up description by removing redundant parts
+const cleanDescription = (description) => {
+  if (!description) return null;
+  
+  // Remove "productSold -> CustomerName" pattern as customer is already shown above
+  const cleanedDesc = description.replace(/productSold\s*->.*$/i, '').trim();
+  
+  // Remove "receivedSaleDebt" pattern as it's obvious from the transaction
+  const finalDesc = cleanedDesc.replace(/^receivedSaleDebt\s*#?\d*\s*from\s*/i, '').trim();
+  
+  // Only return if there's meaningful text left
+  return finalDesc.length > 0 ? finalDesc : null;
+}
 </script>
 
 <template>
-  <q-list bordered separator style="max-width: 360px">
-    <q-item
-      v-for="order in props.lists"
-      :key="order.id"
-    >
-      <q-item-section>
-        <div class="flex justify-between" :class="order.isIncome ? 'text-green' : 'text-red'">
-          <div>
-            {{ order.isIncome ? '+' : '-' }} {{ formatFloatToInteger(order.paidPrice) }} {{ order.budget.name }}
-          </div>
-          <div>
-            <q-badge color="teal" :label="'#id ' + order.id" />
-          </div>
-        </div>
-        <div class="flex justify-between text-weight-bold text-h6 text-blue">
-          <div> {{ order.createdBy.fullName }} </div>
-          <div> -> </div>
-          <div> {{ customer.username || customer.fullName }} </div>
-        </div>
+  <div class="column q-gutter-sm">
+    <!-- Payment Transaction List -->
+    <q-list bordered separator>
+      <q-item
+        v-for="transaction in props.lists"
+        :key="transaction.id"
+        class="q-pa-md"
+      >
+        <q-item-section side>
+          <q-icon
+            :name="transaction.isIncome ? 'mdi-arrow-down-circle' : 'mdi-arrow-up-circle'"
+            :color="transaction.isIncome ? 'green' : 'red'"
+            size="32px"
+          />
+        </q-item-section>
 
-        <q-separator />
-
-        <q-item
-          v-for="sale in props.saleProduct"
-          :key="sale.id"
-        >
-          <q-item-section>
-            <div class="text-weight-bold">
-              <div> {{ sale.productModel.name }}: </div>
-              <div
-                class="q-pl-md text-warning"
-                v-for="product in sale.quantities"
-                :key="product.id"
-              >
-                {{ product.size }}: {{ product.quantity }} * {{ product.price }} = {{ (product.quantity * product.price).toFixed(2) }} {{ order.budget.name }}
-              </div>
+        <q-item-section>
+          <q-item-label class="row items-center justify-between">
+            <div
+              class="text-h6 text-weight-bold"
+              :class="transaction.isIncome ? 'text-green' : 'text-red'"
+            >
+              {{ transaction.isIncome ? '+' : '-' }} {{ formatFloatToInteger(transaction.paidPrice) }}
+              <span class="text-body2 text-grey-7">{{ transaction.budget.name }}</span>
             </div>
-          </q-item-section>
-        </q-item>
+            <q-badge outline color="grey-7" :label="'#' + transaction.id" />
+          </q-item-label>
 
-        <q-separator />
-        <div class="text-primary">
-          {{ $t('total') }}: {{ formatFloatToInteger(order.price) }} {{ order.budget.name }}
-        </div>
-        <div class="text-primary">
-          {{ $t('paid') }}: {{ formatFloatToInteger(order.paidPrice) }} {{ order.budget.name }}
-        </div>
-      </q-item-section>
-    </q-item>
-    <div class="text-red q-mx-md q-mb-sm" v-if="props.oweUs">
-      {{ $t('oweUs') }}: {{ oweUs }} {{ lists[0].budget.name }}
-    </div>
-  </q-list>
+          <q-item-label caption class="q-mt-xs text-grey-6">
+            <q-icon name="mdi-clock-outline" size="14px" />
+            {{ formatDate(transaction.createdAt) }}
+          </q-item-label>
+
+          <div class="q-mt-sm" v-if="cleanDescription(transaction.description)">
+            <div class="text-caption text-grey-8">
+              <q-icon name="mdi-note-text" size="14px" />
+              {{ cleanDescription(transaction.description) }}
+            </div>
+          </div>
+        </q-item-section>
+      </q-item>
+    </q-list>
+
+    <!-- Debt Summary -->
+    <q-banner v-if="props.oweUs" class="bg-red-1 text-red" rounded>
+      <template v-slot:avatar>
+        <q-icon name="mdi-alert-circle" color="red" />
+      </template>
+      <div class="text-weight-bold">
+        {{ $t('oweUs') }}: {{ formatFloatToInteger(oweUs) }} {{ lists[0].budget.name }}
+      </div>
+    </q-banner>
+  </div>
 </template>

@@ -28,19 +28,6 @@ const createActionErr = ref(null);
 const showPayModal = ref(false);
 const payActionErr = ref(null);
 
-const columns = [
-  { name: 'id', label: 'ID', align: 'left', field: 'id' },
-  { name: 'createdAt', label: t('tables.sale.columns.createdAt'), align: 'left', field: 'createdAt' },
-  { name: 'purchasedBy', label: t('tables.sale.columns.purchasedBy'), align: 'left', field: 'purchasedBy' },
-  { name: 'purchasedTo', label: t('tables.sale.columns.purchasedTo'), align: 'left', field: 'purchasedTo' },
-  { name: 'saleProduct', label: t('tables.sale.columns.saleProduct'), align: 'left', field: 'saleProduct' },
-  { name: 'totalPrice', label: t('tables.sale.columns.totalPrice'), align: 'left', field: 'totalPrice' },
-  { name: 'paidPrice', label: t('tables.sale.columns.paidPrice'), align: 'left', field: 'paidPrice' },
-  { name: 'debt', label: t('tables.sale.columns.debt'), align: 'left', field: 'debt' },
-  { name: 'action', label: '', align: 'right', field: 'action' }
-];
-const visibleColumns = ref(columns.map(column => column.name));
-
 // Table Data
 const repository = useSale();
 const items = ref([]);
@@ -51,6 +38,8 @@ const pagination = ref({
   rowsNumber: 0,
   descending: true
 });
+
+const showAllItems = ref(route.params.id ? true : false);
 
 const filters = ref({
   id: route.params.id,
@@ -77,6 +66,23 @@ function onRequest(params) {
   getItems();
 }
 function refresh () {
+  getItems();
+}
+
+function setPaymentFilter(value) {
+  filters.value.isPayed = value;
+  pagination.value.page = 1;
+  getItems();
+}
+
+function toggleShowAll() {
+  showAllItems.value = !showAllItems.value;
+  if (showAllItems.value) {
+    pagination.value.rowsPerPage = '~'; // '~' means show all in API Platform
+  } else {
+    pagination.value.rowsPerPage = 10; // Back to default pagination
+  }
+  pagination.value.page = 1;
   getItems();
 }
 
@@ -256,158 +262,333 @@ const oweByCurrency = computed(() => {
 </script>
 
 <template>
-  <q-card class="q-mb-md">
-    <q-card-section>
-      <div class="text-red">
-        {{ $t('oweUs') }}:
-      </div>
-      <div class="q-ml-sm" v-for="(owe, i) in oweByCurrency" :key="i"> {{ formatFloatToInteger(owe.quantity) }} {{ owe.currency }} <q-separator /> </div>
-    </q-card-section>
-  </q-card>
-
-  <q-table
-    flat
-    bordered
-    color="primary"
-    :no-data-label="$t('tables.sale.header.empty')"
-    :columns="columns"
-    :visible-columns="visibleColumns"
-    :rows="items"
-    row-key="id"
-    v-model:pagination.sync="pagination"
-    :rows-per-page-options="[10, 25, 50, 100, '~']"
-    :loading="loading"
-    @request="onRequest"
-  >
-    <template v-slot:top>
-      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
-        <div class="q-table__title">{{ $t('tables.sale.header.title') }}</div>
-
-        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
-          <selectable-list
-            v-if="!route.params.id"
-            v-model="filters.customer"
-            dense
-            clearable
-            :label="$t('tables.users.header.searchTitle')"
-            :store="customer"
-            fetch-method="fetchCustomers"
-            item-value="fullName"
-            item-label="fullName"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
-            @update:model-value="getItems"
-          />
-          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
-          <q-btn
-            color="primary"
-            icon-right="add"
-            :label="$t('tables.sale.buttons.add')"
-            no-caps
-            class="q-mb-md q-mb-sm-none"
-            @click="showCreateModal = true"
-          />
-          <q-toggle
-            v-model="filters.isPayed"
-            checked-icon="check"
-            unchecked-icon="clear"
-            :false-value="true"
-            :true-value="false"
-            :label="$t('debts')"
-            @update:model-value="getItems"
-          />
-          <q-select
-            dense
-            multiple
-            outlined
-            options-dense
-            emit-value
-            map-options
-            v-model="visibleColumns"
-            :display-value="$q.lang.table.columns"
-            :options="columns"
-            option-value="name"
-            :label="$t('columns')"
-            class="w-full"
-          />
-        </div>
-      </div>
-    </template>
-    <template v-slot:body="props">
-      <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-2 text-black'">
-          <div v-if="col.name === 'createdAt'">
-            {{ formatDate(props.row.createdAt) }}
-          </div>
-          <div v-else-if="col.name === 'purchasedBy'">
-            {{ props.row.purchasedBy.fullName }}
-          </div>
-          <div v-else-if="col.name === 'purchasedTo'">
-            {{ props.row.customer.fullName }}
-          </div>
-          <div v-else-if="col.name === 'saleProduct'">
-            <div
-              v-for="productModel in props.row.saleProduct"
-              :key="productModel.id"
-            >
-              {{ productModel.productModel.name }}:
-              <div
-                v-for="size in productModel.quantities"
-                :key="size"
-                class="q-pl-xs text-primary"
-              >
-                {{ size.size }} : {{ size.quantity }},
+  <!-- Summary Cards -->
+  <q-card flat bordered>
+    <q-card-section class="q-pa-md">
+      <div class="row items-center q-col-gutter-md">
+        <q-icon name="mdi-cash-multiple" size="32px" color="red" />
+        <div>
+          <div class="text-caption text-grey-7 text-uppercase">{{ $t('oweUs') }}</div>
+          <div class="q-mt-xs">
+            <div v-for="(owe, i) in oweByCurrency" :key="i" class="q-mr-md">
+              <div class="text-h6 text-weight-bold text-red">
+                {{ formatFloatToInteger(owe.quantity) }}
+                <span class="text-body2 text-grey-7 q-ml-xs">{{ owe.currency }}</span>
               </div>
             </div>
           </div>
-          <div v-else-if="col.name === 'totalPrice'">
-            {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
-          </div>
-          <div
-            v-else-if="col.name === 'paidPrice'"
-            :class="Number(props.row.totalPrice) > Number(props.row.paidPrice) ? 'text-red' : 'text-green'"
-          >
-            {{ formatFloatToInteger(props.row.paidPrice) }} {{ props.row.budget.name }}
-          </div>
-          <div v-else-if="col.name === 'debt'" class="text-orange text-bold">
-            <div v-if="Number(props.row.totalPrice) - Number(props.row.paidPrice)">
-              {{ formatFloatToInteger((props.row.totalPrice - props.row.paidPrice).toFixed(2)) }} {{ props.row.budget.name }}
-            </div>
-            <div v-else>-</div>
-          </div>
-          <div v-else-if="col.name === 'transaction'">
-            <q-toggle
-              v-model="props.expand"
-              dense
-              color="primary"
-              :icon="props.expand ? 'add' : 'remove'"
-              :label="$t('tables.ripeMaterialPurchase.columns.transaction')"
-            />
-          </div>
-          <div v-else-if="col.name === 'action' && !props.row.isPayed" class="flex justify-end">
+        </div>
+      </div>
+    </q-card-section>
+  </q-card>
+
+  <!-- Main Content Card -->
+  <q-card flat bordered>
+    <q-card-section class="q-pa-none">
+      <!-- Toolbar -->
+      <div class="q-pa-md">
+        <div class="row items-center q-col-gutter-md">
+          <div class="col-12 flex justify-between">
+            <div class="text-h6 text-weight-bold">{{ $t('tables.sale.header.title') }}</div>
             <q-btn
-              class="q-px-sm"
-              outline
-              no-wrap
-              dense
+              unelevated
+              color="primary"
+              :label="$t('tables.sale.buttons.add')"
               no-caps
-              :label="$t('pay')"
-              text-color="green"
-              icon="mdi-cash"
-              @click="showPayModal = true; selectedData = {...props.row}"
+              @click="showCreateModal = true"
             />
           </div>
-          <div v-else>
-            {{ props.row[col.field] }}
+          <div class="col-12">
+            <div class="flex q-gutter-md">
+              <selectable-list
+                v-if="!route.params.id"
+                v-model="filters.customer"
+                dense
+                outlined
+                clearable
+                :label="$t('tables.users.header.searchTitle')"
+                :store="customer"
+                fetch-method="fetchCustomers"
+                item-value="fullName"
+                item-label="fullName"
+                @update:model-value="getItems"
+              />
+              <q-btn
+                :outline="!showAllItems"
+                :unelevated="showAllItems"
+                :color="showAllItems ? 'secondary' : 'grey-7'"
+                icon="mdi-view-list"
+                no-caps
+                @click="toggleShowAll"
+              >
+                <template v-if="showAllItems">
+                  {{ $t('all') }} ({{ items.length }})
+                </template>
+                <template v-else>
+                  {{ $t('all') }}
+                </template>
+                <q-tooltip>
+                  <template v-if="showAllItems">
+                    {{ $t('tables.sale.tooltip.clickToEnablePagination') }}
+                  </template>
+                  <template v-else>
+                    {{ $t('tables.sale.tooltip.clickToShowAll') }}
+                  </template>
+                </q-tooltip>
+              </q-btn>
+              <q-btn-group outline>
+                <q-btn
+                  :outline="filters.isPayed !== null"
+                  :unelevated="filters.isPayed === null"
+                  color="primary"
+                  :label="$t('all')"
+                  no-caps
+                  @click="setPaymentFilter(null)"
+                />
+                <q-btn
+                  :outline="filters.isPayed !== true"
+                  :unelevated="filters.isPayed === true"
+                  color="green"
+                  icon="check_circle"
+                  :label="$t('paid')"
+                  no-caps
+                  @click="setPaymentFilter(true)"
+                />
+                <q-btn
+                  :outline="filters.isPayed !== false"
+                  :unelevated="filters.isPayed === false"
+                  color="orange"
+                  icon="pending"
+                  :label="$t('debts')"
+                  no-caps
+                  @click="setPaymentFilter(false)"
+                />
+              </q-btn-group>
+              <refresh-button :action="refresh" />
+            </div>
           </div>
-        </q-td>
-      </q-tr>
-      <q-tr :props="props">
-        <q-td colspan="100%">
-          <sale-list :lists="props.row.transaction" :saleProduct="props.row.saleProduct" :customer="props.row.customer" :owe-us="Number(props.row.totalPrice) - Number(props.row.paidPrice)" />
-        </q-td>
-      </q-tr>
-    </template>
-  </q-table>
+        </div>
+      </div>
+
+      <q-separator />
+
+      <!-- Sales List -->
+      <q-list separator>
+        <!-- Loading Skeletons -->
+        <template v-if="loading">
+          <q-item v-for="i in 5" :key="i" class="q-pa-md">
+            <q-item-section>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-8">
+                  <q-skeleton type="text" width="30%" />
+                  <q-skeleton type="text" width="50%" class="q-mt-sm" />
+                  <q-skeleton type="rect" height="80px" class="q-mt-md" />
+                </div>
+                <div class="col-12 col-md-4">
+                  <q-skeleton type="rect" height="180px" />
+                </div>
+              </div>
+            </q-item-section>
+          </q-item>
+        </template>
+
+        <!-- Empty State -->
+        <template v-else-if="!items.length">
+          <q-item>
+            <q-item-section class="text-center text-grey-6 q-py-xl">
+              <div>
+                <q-icon name="mdi-package-variant" size="64px" />
+              </div>
+              <div class="text-h6 q-mt-md">{{ $t('tables.sale.header.empty') }}</div>
+            </q-item-section>
+          </q-item>
+        </template>
+
+        <!-- Sale Items -->
+        <q-item
+          v-else
+          v-for="sale in items"
+          :key="sale.id"
+          class="q-pa-md"
+          :class="isToday(sale.createdAt) ? 'bg-light-green-1' : ''"
+        >
+          <q-item-section>
+            <div class="row q-col-gutter-md">
+              <!-- Left Column: Sale Info -->
+              <div class="col-12 col-md-8">
+                <div class="row items-center q-mb-sm">
+                  <div class="col-auto">
+                    <q-chip
+                      size="sm"
+                      color="grey-3"
+                      text-color="grey-8"
+                      :label="'#' + sale.id"
+                    />
+                  </div>
+                  <div class="col-auto">
+                    <q-chip
+                      size="sm"
+                      :color="sale.isPayed ? 'green-2' : 'orange-2'"
+                      :text-color="sale.isPayed ? 'green-9' : 'orange-9'"
+                      :icon="sale.isPayed ? 'check_circle' : 'pending'"
+                      :label="sale.isPayed ? $t('paid') : $t('debts')"
+                    />
+                  </div>
+                  <div class="col-auto text-caption text-grey-7">
+                    {{ formatDate(sale.createdAt) }}
+                  </div>
+                </div>
+
+                <!-- Customer & Seller Info -->
+                <div class="row items-center q-mb-sm q-gutter-sm">
+                  <div class="col-auto">
+                    <q-icon name="mdi-account" size="20px" color="primary" />
+                  </div>
+                  <div class="col-auto text-body2 text-weight-medium">
+                    {{ sale.customer.fullName }}
+                  </div>
+                  <div class="col-auto text-caption text-grey-6">
+                    {{ $t('tables.sale.columns.purchasedBy') }}: {{ sale.purchasedBy.fullName }}
+                  </div>
+                </div>
+
+                <!-- Products -->
+                <div class="q-mt-sm">
+                  <div class="text-caption text-grey-7 q-mb-xs">{{ $t('tables.sale.columns.saleProduct') }}:</div>
+                  <q-card
+                      v-for="productModel in sale.saleProduct"
+                      :key="productModel.id"
+                      flat
+                      bordered
+                      class="q-mb-sm"
+                    >
+                      <q-card-section class="q-pa-sm">
+                        <div class="text-weight-medium text-body2 q-mb-sm">{{ productModel.productModel.name }}</div>
+                        <div
+                          v-for="size in productModel.quantities"
+                          :key="size.size"
+                          class="flex q-gutter-sm"
+                        >
+                          <q-badge outline color="primary" :label="size.size" />
+                          <div>
+                            {{ size.quantity }} × {{ formatFloatToInteger(size.price) }}
+                          </div>
+                          <div class="text-weight-bold text-primary q-ml-auto">
+                            {{ formatFloatToInteger((size.quantity * size.price).toFixed(2)) }} {{ sale.budget.name }}
+                          </div>
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                </div>
+              </div>
+
+              <!-- Right Column: Price Info & Actions -->
+              <div class="col-12 col-md-4">
+                <q-card flat bordered class="full-height">
+                  <q-card-section class="q-pa-md">
+                    <!-- Total Price -->
+                    <div class="q-mb-md">
+                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.totalPrice') }}</div>
+                      <div class="text-h6 text-weight-bold text-primary">
+                        {{ formatFloatToInteger(sale.totalPrice) }}
+                        <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Paid Price -->
+                    <div class="q-mb-md">
+                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.paidPrice') }}</div>
+                      <div
+                        class="text-h6 text-weight-bold"
+                        :class="Number(sale.totalPrice) > Number(sale.paidPrice) ? 'text-orange-8' : 'text-green-8'"
+                      >
+                        {{ formatFloatToInteger(sale.paidPrice) }}
+                        <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Debt -->
+                    <div v-if="Number(sale.totalPrice) - Number(sale.paidPrice)" class="q-mb-md">
+                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.debt') }}</div>
+                      <div class="text-h6 text-weight-bold text-red">
+                        {{ formatFloatToInteger((sale.totalPrice - sale.paidPrice).toFixed(2)) }}
+                        <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
+                      </div>
+                    </div>
+
+                    <q-separator class="q-my-md" v-if="!sale.isPayed" />
+
+                    <!-- Pay Button -->
+                    <q-btn
+                      v-if="!sale.isPayed"
+                      unelevated
+                      color="green"
+                      icon="mdi-cash"
+                      :label="$t('pay')"
+                      no-caps
+                      class="full-width"
+                      @click="showPayModal = true; selectedData = {...sale}"
+                    />
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+
+            <!-- Expandable Transaction Details -->
+            <q-expansion-item
+              v-if="sale.transaction && sale.transaction.length"
+              class="q-mt-md"
+              icon="mdi-receipt-text"
+              :label="$t('tables.ripeMaterialPurchase.columns.transaction') + ' (' + sale.transaction.length + ')'"
+              header-class="bg-grey-2 text-grey-8"
+            >
+              <q-card flat bordered class="q-mt-sm">
+                <q-card-section>
+                  <sale-list
+                    :lists="sale.transaction"
+                    :saleProduct="sale.saleProduct"
+                    :customer="sale.customer"
+                    :owe-us="Number(sale.totalPrice) - Number(sale.paidPrice)"
+                  />
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </q-item-section>
+        </q-item>
+      </q-list>
+
+      <!-- Pagination -->
+      <template v-if="!showAllItems && items.length > 0 && pagination.rowsPerPage !== '~'">
+        <q-separator />
+        <div class="q-pa-md">
+          <div class="row items-center justify-between">
+            <div class="col-auto text-caption text-grey-7">
+              {{ $t('tables.sale.pagination.showing') }} {{ ((pagination.page - 1) * pagination.rowsPerPage) + 1 }} -
+              {{ Math.min(pagination.page * pagination.rowsPerPage, pagination.rowsNumber) }}
+              {{ $t('tables.sale.pagination.of') }} {{ pagination.rowsNumber }}
+            </div>
+            <div class="col-auto">
+              <q-pagination
+                v-model="pagination.page"
+                :max="Math.ceil(pagination.rowsNumber / pagination.rowsPerPage)"
+                :max-pages="7"
+                boundary-numbers
+                direction-links
+                @update:model-value="onRequest({pagination: pagination})"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-else-if="showAllItems && items.length > 0">
+        <q-separator />
+        <div class="q-pa-md text-center text-caption text-grey-7">
+          {{ $t('tables.sale.pagination.showingAllItems') }}: {{ items.length }}
+        </div>
+      </template>
+    </q-card-section>
+  </q-card>
+
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
     <q-card style="width: 900px; max-width: 80vw;">
@@ -595,6 +776,3 @@ const oweByCurrency = computed(() => {
     </q-card>
   </q-dialog>
 </template>
-
-<style scoped>
-</style>

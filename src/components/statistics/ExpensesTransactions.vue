@@ -20,6 +20,7 @@ const { t } = useI18n();
 const emit = defineEmits(['retrieveData']);
 
 const splitterModel = ref(50);
+const onlyShowSalary = ref(false);
 const models = ref([]);
 const loading = ref(false);
 
@@ -65,7 +66,15 @@ function getStats(transactions) {
     const paid = parseFloat(transaction.paidPrice) || 0;
     const currency = transaction.budget?.name || '';
 
-    if (title.toLowerCase().includes('ayriboshlash')) return;
+    if (onlyShowSalary.value) {
+      if(!title.toLowerCase().startsWith('payedcustomersalary')) {
+        return;
+      }
+    } else {
+      if (title.toLowerCase().includes('ayriboshlash') || title.toLowerCase().startsWith('payedcustomersalary')) {
+        return;
+      }
+    }
 
     const isProduct = title.toLowerCase().includes('productcost');
     const category = isProduct ? 'productCost' : 'periodCost';
@@ -111,6 +120,11 @@ onMounted(() => {
 </script>
 
 <template>
+  <q-toggle
+    label="Maoshlar hisoboti"
+    v-model="onlyShowSalary"
+  />
+
   <q-card flat bordered class="q-pa-sm text-green q-mb-md">
     <q-card-section class="flex justify-between">
       <div class="text-h6 text-primary">{{ $t('menus.sideBar.expenses') }}</div>

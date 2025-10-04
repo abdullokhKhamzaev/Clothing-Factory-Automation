@@ -35,6 +35,7 @@ export default {
   departure: 'Jo\'nab ketish',
   oweUs: 'Bizdan qarz',
   total: 'Jami',
+  all: 'Barcha',
   paid: 'To\'landi',
   logout: 'Chiqish',
   salary: 'Maosh',
@@ -150,6 +151,112 @@ export default {
     packagerWarehouse: 'Qadoqlash ombor',
     packagerReadyWarehouse: 'Qadoqlash (tayyor) ombor',
     productsWarehouse: 'Maxsulotlar ombor',
+  },
+  // Budget komponentlari tarjimalari
+  budgetStats: {
+    title: 'Byudjet Statistikasi',
+    somAccount: 'SO\'M Hisob',
+    usdAccount: 'USD Hisob',
+    summary: 'Xulosa',
+    overview: 'Umumiy ko\'rinish',
+    netBalance: 'Sof balans',
+    totalAccounts: 'Jami hisoblar',
+    healthStatus: 'Salomatlik holati',
+    realTime: 'Real vaqt',
+    updated: 'Yangilangan',
+    financialHealth: 'Moliyaviy salomatlik',
+    health: {
+      excellent: 'A\'lo',
+      good: 'Yaxshi',
+      warning: 'Ogohlantirish',
+      critical: 'Kritik',
+      unknown: 'Noma\'lum',
+      excellentDescription: 'Barcha hisoblar mukammal holatda',
+      goodDescription: 'Hisoblar yaxshi holatda',
+      warningDescription: 'Ba\'zi hisoblar e\'tibor talab qiladi',
+      criticalDescription: 'Zudlik bilan choralar ko\'rish kerak',
+      unknownDescription: 'Holat noma\'lum'
+    }
+  },
+  budgetActions: {
+    title: 'Tezkor harakatlar',
+    subtitle: 'Byudjet bilan bog\'liq asosiy amallarni bajarish',
+    convert: {
+      description: 'Valyutalar o\'rtasida ayriboshlash'
+    },
+    refresh: {
+      description: 'Byudjet ma\'lumotlarini yangilash'
+    }
+  },
+  budgetModals: {
+    convert: {
+      subtitle: 'Valyutalar o\'rtasida ayriboshlash',
+      swap: 'Valyutalarni almashtirish'
+    },
+    add: {
+      hint: 'Balansga qo\'shiladigan miqdorni kiriting'
+    },
+    send: {
+      subtitle: 'Hisoblar o\'rtasida pul o\'tkazish'
+    },
+    minus: {
+      insufficientFunds: 'Bu operatsiya uchun mablag\' yetarli emas',
+      remainingBalance: 'Qolgan balans'
+    }
+  },
+  financial: {
+    clear: 'Toza',
+    hasDebts: 'Qarzlari bor',
+    owesUs: 'Bizga qarzdor',
+    mixed: 'Aralash'
+  },
+  // Bildirishnoma xabarlari
+  notifications: {
+    convertSuccess: 'Valyuta ayriboshlash muvaffaqiyatli yakunlandi!',
+    convertError: 'Valyuta ayriboshlashda xatolik yuz berdi',
+    addSuccess: 'Miqdor balansga muvaffaqiyatli qo\'shildi!',
+    addError: 'Miqdor qo\'shishda xatolik yuz berdi',
+    sendSuccess: 'O\'tkazma muvaffaqiyatli yakunlandi!',
+    sendError: 'O\'tkazma vaqtida xatolik yuz berdi',
+    minusSuccess: 'Miqdor muvaffaqiyatli yechildi!',
+    minusError: 'Miqdor yechishda xatolik yuz berdi'
+  },
+  // Wallet-ga oid tarjimalar
+  wallets: {
+    som: {
+      title: 'SO\'M Savdo Hamyoni',
+      description: 'Milliy valyuta savdo hisobi',
+      statsDescription: 'SO\'M savdo va tijorat operatsiyalari'
+    },
+    usd: {
+      title: 'USD Savdo Hamyoni',
+      description: 'USD savdo va tijorat hisobi',
+      statsDescription: 'USD savdo va tijorat operatsiyalari',
+      sendTooltip: 'Asosiy USD ga o\'tkazish (Korxona rahbari)',
+      sendModalDescription: 'Korxona rahbarining asosiy USD hisobiga pul o\'tkazish'
+    },
+    mainUsd: {
+      title: 'Asosiy USD Hamyoni',
+      description: 'Korxona rahbarining asosiy hisobi',
+      statsDescription: 'Korxona rahbarining asosiy USD hisobi'
+    },
+    general: {
+      payTooltip: 'Hamyondan miqdor yechish'
+    }
+  },
+  // Qo\'shimcha byudjet atamalar
+  currentBalance: 'Joriy balans',
+  addAmount: 'Miqdor qo\'shish',
+  deductAmount: 'Miqdor yechish',
+  newBalance: 'Yangi balans',
+  addingAmount: 'Qo\'shiladigan miqdor',
+  preview: 'Ko\'rish',
+  reason: 'Sabab',
+  warning: 'Ogohlantirish',
+  refresh: 'Yangilash',
+  cancel: 'Bekor qilish',
+  validation: {
+    required: 'Bu maydon to\'ldirilishi shart'
   },
   menus: {
     sideBar: {
@@ -1829,6 +1936,15 @@ export default {
       },
       buttons: {
         add: 'Yaratish'
+      },
+      tooltip: {
+        clickToEnablePagination: 'Sahifalashni yoqish uchun bosing',
+        clickToShowAll: 'Barchasini ko\'rsatish uchun bosing'
+      },
+      pagination: {
+        showing: 'Ko\'rsatilmoqda',
+        of: 'dan',
+        showingAllItems: 'Barcha elementlar ko\'rsatilmoqda'
       }
     },
     order: {
@@ -2076,6 +2192,7 @@ export default {
       columns: {
         id: 'Harakat ID',
         createdAt: 'Sana',
+        receivedAt: 'Qabul vaqti',
         sentBy: 'Jo\'natdi',
         productModel: 'Model',
         productSize: 'Model razmer',
