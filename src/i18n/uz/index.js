@@ -990,6 +990,40 @@ export default {
             required: 'To\'lov miqdor talab qilinadi.',
           }
         },
+        subtotal: {
+          label: 'Jami (chegirmasiz)'
+        },
+        discount: {
+          label: 'Chegirma',
+          hint: 'Chegirma miqdorini kiriting (agar bor bo\'lsa)',
+          validation: {
+            required: 'Chegirma 0 dan katta va umumiy narxdan kam bo\'lishi kerak.'
+          }
+        },
+        finalPrice: {
+          label: 'To\'lov summasi'
+        },
+        additionalDiscount: {
+          label: 'Qo\'shimcha chegirma',
+          hint: 'Qarz to\'lashda qo\'shimcha chegirma berish (ixtiyoriy)',
+          validation: {
+            required: 'Chegirma 0 dan katta va qolgan qarzdan kam bo\'lishi kerak.'
+          }
+        },
+        finalPaymentAmount: {
+          label: 'To\'lanadigan summa'
+        },
+        paymentAmountHint: 'To\'lash uchun miqdorni kiriting'
+      },
+      sections: {
+        basicInfo: 'Asosiy ma\'lumot',
+        products: 'Maxsulotlar',
+        paymentDetails: 'To\'lov ma\'lumotlari',
+        addProduct: 'Maxsulot qo\'shish',
+        product: 'Maxsulot',
+        deleteProduct: 'O\'chirish',
+        remainingDebt: 'Qolgan qarz',
+        pleaseSelectCustomerBudget: 'Iltimos, avval mijoz va byudjetni tanlang'
       },
       buttons: {
         create: 'Sotish',
@@ -1930,6 +1964,9 @@ export default {
         purchasedTo: 'Kimga',
         saleProduct: 'Maxsulotlar',
         totalPrice: 'Jami narx',
+        originalPrice: 'Asosiy narx',
+        discount: 'Chegirma',
+        finalPrice: 'To\'lov summasi',
         debt: 'Qarz',
         paidPrice: 'To\'langan summa',
         transaction: 'Tasnif',

@@ -990,6 +990,40 @@ export default {
             required: 'Quantity is required',
           }
         },
+        subtotal: {
+          label: 'Subtotal (before discount)'
+        },
+        discount: {
+          label: 'Discount',
+          hint: 'Enter discount amount (if any)',
+          validation: {
+            required: 'Discount must be greater than 0 and less than total price.'
+          }
+        },
+        finalPrice: {
+          label: 'Final Price'
+        },
+        additionalDiscount: {
+          label: 'Additional Discount',
+          hint: 'Apply additional discount when receiving debt (optional)',
+          validation: {
+            required: 'Discount must be greater than 0 and less than remaining debt.'
+          }
+        },
+        finalPaymentAmount: {
+          label: 'Final Payment Amount'
+        },
+        paymentAmountHint: 'Enter the amount to pay'
+      },
+      sections: {
+        basicInfo: 'Basic Information',
+        products: 'Products',
+        paymentDetails: 'Payment Details',
+        addProduct: 'Add Product',
+        product: 'Product',
+        deleteProduct: 'Delete',
+        remainingDebt: 'Remaining Debt',
+        pleaseSelectCustomerBudget: 'Please select customer and budget first'
       },
       buttons: {
         create: 'Sell',
@@ -1930,6 +1964,9 @@ export default {
         purchasedTo: 'Purchased To',
         saleProduct: 'Products',
         totalPrice: 'Total Price',
+        originalPrice: 'Original Price',
+        discount: 'Discount',
+        finalPrice: 'Final Price',
         paidPrice: 'Paid price',
         debt: 'Debt',
         transaction: 'Description',

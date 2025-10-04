@@ -990,6 +990,40 @@ export default {
             required: 'Тўлов миқдори талаб қилинади.',
           }
         },
+        subtotal: {
+          label: 'Жами (чегирмасиз)'
+        },
+        discount: {
+          label: 'Чегирма',
+          hint: 'Чегирма миқдорини киритинг (агар бор бўлса)',
+          validation: {
+            required: 'Чегирма 0 дан катта ва умумий нархдан кам бўлиши керак.'
+          }
+        },
+        finalPrice: {
+          label: 'Тўлов суммаси'
+        },
+        additionalDiscount: {
+          label: 'Қўшимча чегирма',
+          hint: 'Қарз тўлашда қўшимча чегирма бериш (ихтиёрий)',
+          validation: {
+            required: 'Чегирма 0 дан катта ва қолган қарздан кам бўлиши керак.'
+          }
+        },
+        finalPaymentAmount: {
+          label: 'Тўланадиган сумма'
+        },
+        paymentAmountHint: 'Тўлаш учун миқдорни киритинг'
+      },
+      sections: {
+        basicInfo: 'Асосий маълумот',
+        products: 'Маҳсулотлар',
+        paymentDetails: 'Тўлов маълумотлари',
+        addProduct: 'Маҳсулот қўшиш',
+        product: 'Маҳсулот',
+        deleteProduct: 'Ўчириш',
+        remainingDebt: 'Қолган қарз',
+        pleaseSelectCustomerBudget: 'Илтимос, аввал мижоз ва бюджетни танланг'
       },
       buttons: {
         create: 'Савдо',
@@ -1930,6 +1964,9 @@ export default {
         purchasedTo: 'Кимга',
         saleProduct: 'Маҳсулотлар',
         totalPrice: 'Жами нарх',
+        originalPrice: 'Асосий нарх',
+        discount: 'Чегирма',
+        finalPrice: 'Тўлов суммаси',
         paidPrice: 'Тўланган сумма',
         debt: 'Карз',
         transaction: 'Тасниф',

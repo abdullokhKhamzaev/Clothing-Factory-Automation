@@ -145,8 +145,15 @@ export const ROLES = [
   { label: 'ROLE_SUPER_ADMIN', value: 'ROLE_SUPER_ADMIN' },
 ];
 
+// Rounds a number to specified decimal places to avoid floating point precision issues
+export const roundToDecimal = (number, decimals = 2) => {
+  const multiplier = Math.pow(10, decimals);
+  return Math.round(Number(number) * multiplier) / multiplier;
+};
+
 export const formatFloatToInteger = (number) => {
-  let num = Number(number)
+  // First round to 2 decimal places to avoid floating point precision issues
+  let num = roundToDecimal(Number(number), 2);
   // Split the number into integer and decimal parts
   const [integerPart, decimalPart] = num.toString().split('.');
 

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useTransaction } from "stores/transaction.js";
 import { useI18n } from "vue-i18n";
-import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
+import { formatFloatToInteger, roundToDecimal } from "../../libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const props = defineProps({
@@ -106,8 +106,8 @@ function getStats(transactions) {
 const modelsStats = computed(() => getStats(models.value));
 
 const statsLabels = computed(() => ({
-  productCost: `${t('productCost')}: ${formatFloatToInteger(Number(modelsStats.value.totalProductCostPriceUsd).toFixed(2))}$ & ${formatFloatToInteger(Number(modelsStats.value.totalProductCostPriceUzs).toFixed(2))} So'm`,
-  periodCost: `${t('periodCost')}: ${formatFloatToInteger(Number(modelsStats.value.totalPeriodCostPriceUsd).toFixed(2))}$ & ${formatFloatToInteger(Number(modelsStats.value.totalPeriodCostPriceUzs).toFixed(2))} So'm`
+  productCost: `${t('productCost')}: ${formatFloatToInteger(roundToDecimal(modelsStats.value.totalProductCostPriceUsd))}$ & ${formatFloatToInteger(roundToDecimal(modelsStats.value.totalProductCostPriceUzs))} So'm`,
+  periodCost: `${t('periodCost')}: ${formatFloatToInteger(roundToDecimal(modelsStats.value.totalPeriodCostPriceUsd))}$ & ${formatFloatToInteger(roundToDecimal(modelsStats.value.totalPeriodCostPriceUzs))} So'm`
 }));
 
 watch(props, () => {
@@ -157,8 +157,8 @@ onMounted(() => {
             <template v-slot:after>
               <q-card-section class="text-red">
                 -
-                {{ modelName.price.paidPriceUsd ? `${formatFloatToInteger(Number(modelName.price.paidPriceUsd).toFixed(2))} $` : '' }}
-                {{ modelName.price.paidPriceUzs ? `${formatFloatToInteger(Number(modelName.price.paidPriceUzs).toFixed(2))} so'm` : '' }}
+                {{ modelName.price.paidPriceUsd ? `${formatFloatToInteger(roundToDecimal(modelName.price.paidPriceUsd))} $` : '' }}
+                {{ modelName.price.paidPriceUzs ? `${formatFloatToInteger(roundToDecimal(modelName.price.paidPriceUzs))} so'm` : '' }}
               </q-card-section>
             </template>
           </q-splitter>
@@ -168,8 +168,8 @@ onMounted(() => {
     </q-expansion-item>
 
     <q-card-section class="text-h6 text-primary">
-      <div class="text-bold">USD: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUsd + modelsStats.totalPeriodCostPriceUsd).toFixed(2)) }} $</div>
-      <div class="text-bold">UZS: - {{ formatFloatToInteger(Number(modelsStats.totalProductCostPriceUzs + modelsStats.totalPeriodCostPriceUzs).toFixed(2)) }} So'm</div>
+      <div class="text-bold">USD: - {{ formatFloatToInteger(roundToDecimal(modelsStats.totalProductCostPriceUsd + modelsStats.totalPeriodCostPriceUsd)) }} $</div>
+      <div class="text-bold">UZS: - {{ formatFloatToInteger(roundToDecimal(modelsStats.totalProductCostPriceUzs + modelsStats.totalPeriodCostPriceUzs)) }} So'm</div>
     </q-card-section>
   </q-card>
 </template>

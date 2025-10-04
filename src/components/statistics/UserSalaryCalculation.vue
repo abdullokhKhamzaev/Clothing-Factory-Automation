@@ -2,7 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue"
 import {useAbout} from "stores/user/about.js";
 import {useWorkEntries} from "stores/workEntries.js";
-import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
+import {formatFloatToInteger, roundToDecimal} from "../../libraries/constants/defaults.js";
 import {useRoute} from "vue-router";
 import SalaryInfo from "components/statistics/SalaryInfo.vue";
 import WorkActivityTable from "components/statistics/WorkActivityTable.vue";
@@ -60,7 +60,7 @@ const totalItems = computed(() => {
 
 const averagePrice = computed(() => {
   if (totalItems.value === 0) return 0
-  return formatFloatToInteger(Number(totalQuantity.value / totalItems.value).toFixed(2))
+  return formatFloatToInteger(roundToDecimal(totalQuantity.value / totalItems.value))
 })
 
 // Currency information from salary data

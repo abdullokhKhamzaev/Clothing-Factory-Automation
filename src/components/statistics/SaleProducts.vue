@@ -4,7 +4,7 @@ import RefreshButton from "components/RefreshButton.vue";
 import { useSale } from "stores/sale.js";
 import SelectableList from "components/selectableList.vue";
 import {useCustomer} from "stores/customer.js";
-import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
+import {formatFloatToInteger, roundToDecimal} from "../../libraries/constants/defaults.js";
 
 const customer = useCustomer();
 
@@ -188,7 +188,7 @@ onMounted(() => {
 
             <template v-slot:after>
               <q-card-section>
-                {{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${(formatFloatToInteger((count.totalPriceUsd / count.quantity).toFixed(2)))}$ | Jami: ${count.totalPriceUsd}$` : '' }} {{ count.totalPriceUzs ? `| ${(formatFloatToInteger((count.totalPriceUzs / count.quantity).toFixed(2)))}so'm | Jami: ${count.totalPriceUzs}so'm` : '' }}
+                {{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${formatFloatToInteger(roundToDecimal(count.totalPriceUsd / count.quantity))}$ | Jami: ${count.totalPriceUsd}$` : '' }} {{ count.totalPriceUzs ? `| ${formatFloatToInteger(roundToDecimal(count.totalPriceUzs / count.quantity))}so'm | Jami: ${count.totalPriceUzs}so'm` : '' }}
               </q-card-section>
             </template>
           </q-splitter>
@@ -201,7 +201,7 @@ onMounted(() => {
       <div class="text-bold text-primary">Jami: {{ formatFloatToInteger(modelsStats.totalQuantity) }} {{ $t('piece') }}</div>
       <div class="text-bold text-primary">Jami Narxi: {{ modelsStats.totalPriceUsd && `${formatFloatToInteger(modelsStats.totalPriceUsd)}$` }} {{ modelsStats.totalPriceUzs && `+ ${formatFloatToInteger(modelsStats.totalPriceUzs)}so'm` }}</div>
       <div class="text-bold text-green">To'langan: {{ modelsStats.totalPaidPriceUsd && `${formatFloatToInteger(modelsStats.totalPaidPriceUsd)}$` }} {{ modelsStats.totalPaidPriceUzs && `+ ${formatFloatToInteger(modelsStats.totalPaidPriceUzs)}so'm` }}</div>
-      <div class="text-bold text-red">Qarzga: {{modelsStats.totalPriceUsd ? `${formatFloatToInteger((modelsStats.totalPriceUsd - modelsStats.totalPaidPriceUsd).toFixed(2))}$` : '' }} {{modelsStats.totalPriceUzs ? `| ${formatFloatToInteger((modelsStats.totalPriceUzs - modelsStats.totalPaidPriceUzs).toFixed(2))}so'm` : '' }}</div>
+      <div class="text-bold text-red">Qarzga: {{modelsStats.totalPriceUsd ? `${formatFloatToInteger(roundToDecimal(modelsStats.totalPriceUsd - modelsStats.totalPaidPriceUsd))}$` : '' }} {{modelsStats.totalPriceUzs ? `| ${formatFloatToInteger(roundToDecimal(modelsStats.totalPriceUzs - modelsStats.totalPaidPriceUzs))}so'm` : '' }}</div>
     </q-card-section>
   </q-card>
 </template>

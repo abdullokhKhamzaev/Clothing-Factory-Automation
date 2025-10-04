@@ -8,7 +8,7 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, roundToDecimal, isToday } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import SaleList from "components/SaleList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -122,21 +122,23 @@ function createAction () {
     saleProduct: saleProduct,
     purchasedBy: user.about['@id'],
     totalPrice: String(total.value),
+    discount: String(selectedData.value.discount || 0),
     budget: selectedData.value.budget['@id'],
-    paidPrice: selectedData.value.paidPrice,
+    paidPrice: String(selectedData.value.paidPrice || 0),
     customer: selectedData.value.customer['@id'],
     transaction: [{
-      paidPrice: selectedData.value.paidPrice,
+      paidPrice: String(selectedData.value.paidPrice || 0),
       createdBy: user.about['@id'],
       isIncome: true,
       description: 'productSold ' + `-> ${selectedData.value.customer.fullName}`,
       budget: selectedData.value.budget['@id'],
       isOldInAndOut: false,
-      price: String(total.value)
+      price: String(finalPrice.value)
     }]
   }
 
-  input.isPayed = Number(selectedData.value.paidPrice) === Number(total.value);
+  // isPayed logic: paid >= (total - discount)
+  input.isPayed = Number(selectedData.value.paidPrice) >= Number(finalPrice.value);
 
   repository.create(input)
     .then(() => {
@@ -178,7 +180,13 @@ const total = computed(() => {
       totalPrice += priceInCents * quantity.quantity;
     })
   })
-  return totalPrice / 100
+  return roundToDecimal(totalPrice / 100, 2);
+})
+
+const finalPrice = computed(() => {
+  const discount = parseFloat(selectedData.value.discount || 0);
+  const result = total.value - discount;
+  return roundToDecimal(Math.max(0, result), 2);
 })
 function prefill(model, index) {
   let models = [];
@@ -209,6 +217,7 @@ function payAction () {
   const input = {
     budget: selectedData.value.budget['@id'],
     quantity: selectedData.value.debtQuantity,
+    additionalDiscount: selectedData.value.additionalDiscount || 0,
     description: 'receivedSaleDebt #' + selectedData.value.id + ' from ' + selectedData.value.customer.fullName,
     isIncome: true,
     sale: selectedData.value['@id']
@@ -243,8 +252,10 @@ const oweByCurrency = computed(() => {
 
   items.value.forEach((sale) => {
     const total = parseFloat(sale.totalPrice || 0);
+    const discount = parseFloat(sale.discount || 0);
+    const finalPrice = total - discount;
     const paid = parseFloat(sale.paidPrice || 0);
-    const debt = total - paid;
+    const debt = finalPrice - paid;
     const currency = sale.budget?.name || 'Unknown';
 
     if (!map[currency]) {
@@ -256,7 +267,7 @@ const oweByCurrency = computed(() => {
 
   return Object.entries(map).map(([currency, amount]) => ({
     currency,
-    quantity: amount.toFixed(2),
+    quantity: roundToDecimal(amount),
   }));
 });
 </script>
@@ -474,7 +485,7 @@ const oweByCurrency = computed(() => {
                             {{ size.quantity }} × {{ formatFloatToInteger(size.price) }}
                           </div>
                           <div class="text-weight-bold text-primary q-ml-auto">
-                            {{ formatFloatToInteger((size.quantity * size.price).toFixed(2)) }} {{ sale.budget.name }}
+                            {{ formatFloatToInteger(roundToDecimal(size.quantity * size.price)) }} {{ sale.budget.name }}
                           </div>
                         </div>
                       </q-card-section>
@@ -486,21 +497,43 @@ const oweByCurrency = computed(() => {
               <div class="col-12 col-md-4">
                 <q-card flat bordered class="full-height">
                   <q-card-section class="q-pa-md">
-                    <!-- Total Price -->
-                    <div class="q-mb-md">
-                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.totalPrice') }}</div>
-                      <div class="text-h6 text-weight-bold text-primary">
+                    <!-- Original Price (if discount exists) -->
+                    <div v-if="sale.discount && Number(sale.discount) > 0" class="q-mb-md">
+                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.originalPrice') }}</div>
+                      <div class="text-body1 text-grey-6">
                         {{ formatFloatToInteger(sale.totalPrice) }}
+                        <span class="text-caption text-grey-6">{{ sale.budget.name }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Discount -->
+                    <div v-if="sale.discount && Number(sale.discount) > 0" class="q-mb-md">
+                      <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.discount') }}</div>
+                      <div class="text-body1 text-weight-medium text-orange-8">
+                        - {{ formatFloatToInteger(sale.discount) }}
+                        <span class="text-caption text-grey-6">{{ sale.budget.name }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Final Price -->
+                    <div class="q-mb-md">
+                      <div class="text-caption text-grey-7">
+                        {{ sale.discount && Number(sale.discount) > 0 ? $t('tables.sale.columns.finalPrice') : $t('tables.sale.columns.totalPrice') }}
+                      </div>
+                      <div class="text-h6 text-weight-bold text-primary">
+                        {{ formatFloatToInteger(Number(sale.totalPrice) - (Number(sale.discount) || 0)) }}
                         <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
                       </div>
                     </div>
+
+                    <q-separator v-if="sale.discount && Number(sale.discount) > 0" class="q-my-md" />
 
                     <!-- Paid Price -->
                     <div class="q-mb-md">
                       <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.paidPrice') }}</div>
                       <div
                         class="text-h6 text-weight-bold"
-                        :class="Number(sale.totalPrice) > Number(sale.paidPrice) ? 'text-orange-8' : 'text-green-8'"
+                        :class="(Number(sale.totalPrice) - (Number(sale.discount) || 0)) > Number(sale.paidPrice) ? 'text-orange-8' : 'text-green-8'"
                       >
                         {{ formatFloatToInteger(sale.paidPrice) }}
                         <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
@@ -508,10 +541,10 @@ const oweByCurrency = computed(() => {
                     </div>
 
                     <!-- Debt -->
-                    <div v-if="Number(sale.totalPrice) - Number(sale.paidPrice)" class="q-mb-md">
+                    <div v-if="(Number(sale.totalPrice) - (Number(sale.discount) || 0)) - Number(sale.paidPrice) > 0" class="q-mb-md">
                       <div class="text-caption text-grey-7">{{ $t('tables.sale.columns.debt') }}</div>
                       <div class="text-h6 text-weight-bold text-red">
-                        {{ formatFloatToInteger((sale.totalPrice - sale.paidPrice).toFixed(2)) }}
+                        {{ formatFloatToInteger(roundToDecimal((Number(sale.totalPrice) - (Number(sale.discount) || 0)) - Number(sale.paidPrice))) }}
                         <span class="text-body2 text-grey-7">{{ sale.budget.name }}</span>
                       </div>
                     </div>
@@ -548,7 +581,7 @@ const oweByCurrency = computed(() => {
                     :lists="sale.transaction"
                     :saleProduct="sale.saleProduct"
                     :customer="sale.customer"
-                    :owe-us="Number(sale.totalPrice) - Number(sale.paidPrice)"
+                    :owe-us="(Number(sale.totalPrice) - (Number(sale.discount) || 0)) - Number(sale.paidPrice)"
                   />
                 </q-card-section>
               </q-card>
@@ -591,7 +624,7 @@ const oweByCurrency = computed(() => {
 
   <!-- Dialogs -->
   <q-dialog v-model="showCreateModal" persistent @hide="clearAction">
-    <q-card style="width: 900px; max-width: 80vw;">
+    <q-card style="width: 900px; max-width: 90vw;">
       <q-form @submit.prevent="createAction">
         <div
           class="q-px-md q-py-sm flex justify-between"
@@ -613,102 +646,205 @@ const oweByCurrency = computed(() => {
           </div>
           <q-separator />
         </div>
-        <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
-          <selectable-list
-            v-model="selectedData.customer"
-            :label="$t('forms.sale.fields.customer.label')"
-            :store="customer"
-            fetch-method="fetchCustomers"
-            item-label="fullName"
-            :rule-message="$t('forms.sale.fields.customer.validation.required')"
-            class="col-12"
-          />
-          <selectable-list
-            v-model="selectedData.budget"
-            :label="$t('forms.sale.fields.budget.label')"
-            :store="budget"
-            fetch-method="fetchBudgets"
-            item-label="name"
-            :rule-message="$t('forms.sale.fields.budget.validation.required')"
-            class="col-12"
-          />
-          <div
-            v-for="(row, index) in rows" :key="index"
-            :class="selectedData.customer ? 'col-12' : 'hidden'"
-          >
+        <q-card-section class="q-pa-md">
+          <!-- Section 1: Basic Information -->
+          <div class="q-mb-lg">
+            <div class="text-subtitle1 text-weight-medium q-mb-md">
+              <q-icon name="mdi-account" class="q-mr-sm" />
+              {{ $t('forms.sale.sections.basicInfo') }}
+            </div>
             <div class="row q-col-gutter-md">
-              <div v-if="index" class="col-12 flex items-center">
-                <q-btn icon="mdi-minus" @click="removeRow(index)" rounded color="red" dense/>
-              </div>
               <selectable-list
-                v-model="row.productModel"
-                :label="$t('forms.sale.fields.productModel.label')"
-                :store="warehouse"
-                fetch-method="fetchWarehouses"
-                which-object="productInWarehouses"
-                :filters="{name: 'productsWarehouse'}"
-                :item-label="{label: 'productModel', path: 'name'}"
-                :rule-message="$t('forms.sale.fields.productModel.validation.required')"
-                class="col-12"
-                @update:model-value="prefill(row.productModel, index)"
+                v-model="selectedData.customer"
+                :label="$t('forms.sale.fields.customer.label')"
+                :store="customer"
+                fetch-method="fetchCustomers"
+                item-label="fullName"
+                :rule-message="$t('forms.sale.fields.customer.validation.required')"
+                class="col-12 col-md-6"
               />
-              <div
-                v-for="(row, index) in row.quantities" :key="index"
-                class="col-12"
-              >
-                <div class="row q-col-gutter-md">
-                  <q-input
-                    filled
-                    disable
-                    v-model="row.size"
-                    :label="$t('forms.sale.fields.size.label')"
-                    :rules="[ val => val && val > -1 || $t('forms.sale.fields.size.validation.required')]"
-                    class="col-12 col-md-6"
-                    hide-bottom-space
-                  />
-                  <q-input
-                    filled
-                    type="number"
-                    v-model.number="row.quantity"
-                    :label="$t('forms.sale.fields.quantity.label')"
-                    :rules="[ val => val && val >= 1 || $t('forms.sale.fields.quantity.validation.required')]"
-                    class="col-12 col-md-6"
-                    hide-bottom-space
-                  />
-                  <q-input
-                    filled
-                    type="number"
-                    :suffix="selectedData?.budget?.name || null"
-                    v-model="row.price"
-                    :label="$t('forms.sale.fields.price.label')"
-                    :rules="[ val => val && val > 0 || $t('forms.sale.fields.price.validation.required')]"
-                    class="col-12 col-md-6"
-                    hide-bottom-space
-                  />
-                </div>
-              </div>
-              <div class="col-12">
-                <q-separator />
-              </div>
-              <div class="col-12 text-right">
-                <q-btn icon="mdi-plus" rounded color="green" @click="addRow"/>
-              </div>
+              <selectable-list
+                v-model="selectedData.budget"
+                :label="$t('forms.sale.fields.budget.label')"
+                :store="budget"
+                fetch-method="fetchBudgets"
+                item-label="name"
+                :rule-message="$t('forms.sale.fields.budget.validation.required')"
+                class="col-12 col-md-6"
+              />
             </div>
           </div>
-          <q-input
-            v-model="selectedData.paidPrice"
-            type="number"
-            filled
-            :disable="!selectedData.customer || !selectedData.budget"
-            :suffix="selectedData?.budget?.name || null"
-            :prefix="selectedData?.budget?.name + ' ' + total + ':'"
-            :label="$t('forms.sale.fields.paidPrice.label')"
-            lazy-rules
-            :rules="[ val => val && val >= 0 && val <= total || $t('forms.sale.fields.paidPrice.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
-        </div>
+
+          <q-separator class="q-mb-lg" />
+
+          <!-- Section 2: Products -->
+          <div class="q-mb-lg" v-if="selectedData.customer && selectedData.budget">
+            <div class="text-subtitle1 text-weight-medium q-mb-md">
+              <q-icon name="mdi-shopping" class="q-mr-sm" />
+              {{ $t('forms.sale.sections.products') }}
+            </div>
+            <div
+              v-for="(row, index) in rows" :key="index"
+              class="q-mb-md"
+            >
+              <q-card flat bordered class="q-pa-md">
+                <div class="row items-center justify-between q-mb-md" v-if="index > 0">
+                  <div class="text-body2 text-weight-medium">{{ $t('forms.sale.sections.product') }} #{{ index + 1 }}</div>
+                  <q-btn
+                    icon="mdi-delete"
+                    @click="removeRow(index)"
+                    flat
+                    round
+                    dense
+                    color="red"
+                    size="sm"
+                  >
+                    <q-tooltip>{{ $t('forms.sale.sections.deleteProduct') }}</q-tooltip>
+                  </q-btn>
+                </div>
+                <div class="row q-col-gutter-md">
+                  <selectable-list
+                    v-model="row.productModel"
+                    :label="$t('forms.sale.fields.productModel.label')"
+                    :store="warehouse"
+                    fetch-method="fetchWarehouses"
+                    which-object="productInWarehouses"
+                    :filters="{name: 'productsWarehouse'}"
+                    :item-label="{label: 'productModel', path: 'name'}"
+                    :rule-message="$t('forms.sale.fields.productModel.validation.required')"
+                    class="col-12"
+                    @update:model-value="prefill(row.productModel, index)"
+                  />
+                  <div
+                    v-for="(sizeRow, sizeIndex) in row.quantities" :key="sizeIndex"
+                    class="col-12"
+                  >
+                    <q-card flat bordered class="bg-grey-1">
+                      <q-card-section class="q-pa-sm">
+                        <div class="row q-col-gutter-sm">
+                          <q-input
+                            filled
+                            dense
+                            disable
+                            v-model="sizeRow.size"
+                            :label="$t('forms.sale.fields.size.label')"
+                            :rules="[ val => val && val > -1 || $t('forms.sale.fields.size.validation.required')]"
+                            class="col-3 col-md-4"
+                            hide-bottom-space
+                          />
+                          <q-input
+                            filled
+                            dense
+                            type="number"
+                            v-model.number="sizeRow.quantity"
+                            :label="$t('forms.sale.fields.quantity.label')"
+                            :rules="[ val => val && val >= 1 || $t('forms.sale.fields.quantity.validation.required')]"
+                            class="col"
+                            hide-bottom-space
+                          />
+                          <q-input
+                            filled
+                            dense
+                            type="number"
+                            :suffix="selectedData.budget.currency.symbol || null"
+                            v-model="sizeRow.price"
+                            :label="$t('forms.sale.fields.price.label')"
+                            :rules="[ val => val && val > 0 || $t('forms.sale.fields.price.validation.required')]"
+                            class="col"
+                            hide-bottom-space
+                          />
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+              </q-card>
+            </div>
+            <div class="text-center">
+              <q-btn
+                icon="mdi-plus"
+                :label="$t('forms.sale.sections.addProduct')"
+                unelevated
+                color="green"
+                @click="addRow"
+                no-caps
+              />
+            </div>
+          </div>
+
+          <q-separator class="q-mb-lg" v-if="selectedData.customer && selectedData.budget" />
+
+          <!-- Section 3: Payment Details -->
+          <div v-if="selectedData.customer && selectedData.budget">
+            <div class="text-subtitle1 text-weight-medium q-mb-md">
+              <q-icon name="mdi-currency-usd" class="q-mr-sm" />
+              {{ $t('forms.sale.sections.paymentDetails') }}
+            </div>
+
+            <div class="row q-col-gutter-md q-mb-md">
+              <q-input
+                v-model.number="selectedData.discount"
+                type="number"
+                filled
+                :suffix="selectedData?.budget?.name || null"
+                :label="$t('forms.sale.fields.discount.label')"
+                :hint="$t('forms.sale.fields.discount.hint')"
+                lazy-rules
+                :rules="[ val => val === undefined || val === null || (val >= 0 && val <= total) || $t('forms.sale.fields.discount.validation.required')]"
+                class="col-12 col-md-6"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="percent" />
+                </template>
+              </q-input>
+              <q-input
+                v-model.number="selectedData.paidPrice"
+                type="number"
+                filled
+                :suffix="selectedData?.budget?.name || null"
+                :label="$t('forms.sale.fields.paidPrice.label')"
+                lazy-rules
+                :rules="[ val => val !== undefined && val >= 0 && val <= finalPrice || $t('forms.sale.fields.paidPrice.validation.required')]"
+                class="col-12 col-md-6"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="mdi-cash" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Price Summary Card -->
+            <q-card flat bordered class="bg-primary-1">
+              <q-card-section class="q-pa-md">
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-grey-7">{{ $t('forms.sale.fields.subtotal.label') }}</span>
+                  <span class="text-body1 text-weight-medium">{{ formatFloatToInteger(total) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mb-sm" v-if="selectedData.discount && selectedData.discount > 0">
+                  <span class="text-body2 text-red-7">{{ $t('forms.sale.fields.discount.label') }}</span>
+                  <span class="text-body1 text-weight-medium text-red">- {{ formatFloatToInteger(selectedData.discount) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <q-separator class="q-my-md" />
+                <div class="row justify-between items-center">
+                  <span class="text-h6 text-weight-bold">{{ $t('forms.sale.fields.finalPrice.label') }}</span>
+                  <span class="text-h5 text-weight-bold text-primary">{{ formatFloatToInteger(finalPrice) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mt-md" v-if="finalPrice - (selectedData.paidPrice || 0) > 0">
+                  <span class="text-body2 text-orange-7">{{ $t('forms.sale.sections.remainingDebt') }}</span>
+                  <span class="text-body1 text-weight-bold text-orange">{{ formatFloatToInteger(finalPrice - (selectedData.paidPrice || 0)) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+
+          <!-- Placeholder message when no customer/budget selected -->
+          <div v-else class="text-center q-py-xl">
+            <q-icon name="mdi-information-outline" size="64px" color="grey-5" />
+            <div class="text-h6 text-grey-6 q-mt-md">
+              {{ $t('forms.sale.sections.pleaseSelectCustomerBudget') }}
+            </div>
+          </div>
+        </q-card-section>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
           <q-btn
@@ -748,16 +884,90 @@ const oweByCurrency = computed(() => {
           <q-separator />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <!-- Remaining Debt Info -->
+          <div class="col-12">
+            <q-card flat bordered class="bg-grey-2">
+              <q-card-section class="q-pa-md">
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-grey-7">{{ $t('tables.sale.columns.originalPrice') }}</span>
+                  <span class="text-body1 text-weight-medium">{{ formatFloatToInteger(selectedData.totalPrice) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mb-sm" v-if="selectedData.discount && Number(selectedData.discount) > 0">
+                  <span class="text-body2 text-red-7">{{ $t('tables.sale.columns.discount') }}</span>
+                  <span class="text-body1 text-weight-medium text-red">- {{ formatFloatToInteger(selectedData.discount) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <q-separator class="q-my-sm" />
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-grey-7">{{ $t('tables.sale.columns.finalPrice') }}</span>
+                  <span class="text-body1 text-weight-bold">{{ formatFloatToInteger(Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-grey-7">{{ $t('tables.sale.columns.paidPrice') }}</span>
+                  <span class="text-body1 text-weight-medium text-green">{{ formatFloatToInteger(selectedData.paidPrice) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <q-separator class="q-my-sm" />
+                <div class="row justify-between">
+                  <span class="text-body1 text-weight-bold text-orange-7">{{ $t('tables.sale.columns.debt') }}</span>
+                  <span class="text-h6 text-weight-bold text-orange">{{ formatFloatToInteger((Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) - Number(selectedData.paidPrice)) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+
+          <!-- Additional Discount (Optional) -->
+          <q-input
+            v-model.number="selectedData.additionalDiscount"
+            type="number"
+            filled
+            clearable
+            :suffix="selectedData?.budget?.name || null"
+            :label="$t('forms.sale.fields.additionalDiscount.label')"
+            :hint="$t('forms.sale.fields.additionalDiscount.hint')"
+            lazy-rules
+            :rules="[ val => val === undefined || val === null || val === '' || (val >= 0 && val <= ((Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) - Number(selectedData.paidPrice))) || $t('forms.sale.fields.additionalDiscount.validation.required')]"
+            class="col-12"
+          >
+            <template v-slot:prepend>
+              <q-icon name="percent" />
+            </template>
+          </q-input>
+
+          <!-- Final Payment Amount Card -->
+          <div class="col-12" v-if="selectedData.additionalDiscount && Number(selectedData.additionalDiscount) > 0">
+            <q-card flat bordered class="bg-primary-1">
+              <q-card-section class="q-pa-md">
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-grey-7">{{ $t('tables.sale.columns.debt') }}</span>
+                  <span class="text-body1">{{ formatFloatToInteger((Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) - Number(selectedData.paidPrice)) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mb-sm">
+                  <span class="text-body2 text-orange-7">{{ $t('forms.sale.fields.additionalDiscount.label') }}</span>
+                  <span class="text-body1 text-weight-medium text-orange">- {{ formatFloatToInteger(selectedData.additionalDiscount) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <q-separator class="q-my-sm" />
+                <div class="row justify-between">
+                  <span class="text-body1 text-weight-bold">{{ $t('forms.sale.fields.finalPaymentAmount.label') }}</span>
+                  <span class="text-h6 text-weight-bold text-primary">{{ formatFloatToInteger(Math.max(0, ((Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) - Number(selectedData.paidPrice)) - Number(selectedData.additionalDiscount || 0))) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+
+          <!-- Payment Amount Input -->
           <q-input
             v-model.number="selectedData.debtQuantity"
-            :prefix="$t('debts') + ': ' + `${(selectedData.totalPrice - selectedData.paidPrice).toFixed(2)}`"
             filled
             type="number"
+            :suffix="selectedData?.budget?.name || null"
             :label="$t('forms.sale.fields.debtQuantity.label')"
-            :rules="[ val => val && val <= (selectedData.totalPrice - selectedData.paidPrice).toFixed(2) || $t('forms.saleLoading.fields.debtQuantity.validation.required')]"
+            lazy-rules
+            :rules="[ val => val && val > 0 && val <= (Math.max(0, ((Number(selectedData.totalPrice) - Number(selectedData.discount || 0)) - Number(selectedData.paidPrice)) - Number(selectedData.additionalDiscount || 0))) || $t('forms.saleLoading.fields.debtQuantity.validation.required')]"
             class="col-12"
-            hide-bottom-space
-          />
+          >
+            <template v-slot:prepend>
+              <q-icon name="mdi-cash" />
+            </template>
+          </q-input>
         </div>
 
         <q-separator />
