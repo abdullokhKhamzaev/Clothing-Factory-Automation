@@ -8,6 +8,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import RouteTabs from "components/RouteTabs.vue";
 import SelectableList from "components/selectableList.vue";
+import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -144,7 +145,7 @@ function sendAction() {
 
   loading.value = true;
 
-  const input = {
+  let input = {
     fromBudget: {
       budget: '/api/budgets/2',
       quantity: selectedData.value.sendQuantity,
@@ -157,6 +158,13 @@ function sendAction() {
       description: `Asosiy USD hisobdan USD hisobiga ${selectedData.value.sendQuantity} qabul qilinmoqda`,
       isIncome: true
     }
+  }
+
+  if (selectedData.value.name === 'Main USD') {
+    input.fromBudget.budget = '/api/budgets/3';
+    input.fromBudget.description = `Asosiy USD hisobdan USD hisobiga ${selectedData.value.sendQuantity} qabul qilinmoqda`;
+    input.toBudget.budget = '/api/budgets/2';
+    input.toBudget.description = `USD hisobdan Asosiy USD hisobiga ${selectedData.value.sendQuantity} yuborilmoqda`;
   }
 
   budget.send(input)
@@ -299,6 +307,9 @@ onMounted(() => {
       @click="showConvertModal = true"
     />
   </div>
+  <div class="flex justify-end q-mb-md">
+    <refresh-button :action="refresh" />
+  </div>
   <div class="row q-col-gutter-md q-mb-lg">
     <div
       v-for="budget in budgets"
@@ -313,7 +324,7 @@ onMounted(() => {
           <div class="flex q-gutter-x-md">
             <q-btn icon="mdi-cash-minus" round text-color="red" @click="showMinusModal = true; selectedData = budget" />
             <q-btn icon="mdi-cash-plus" round text-color="green" @click="showAddModal = true; selectedData = budget" />
-            <q-btn v-if="budget.name === 'USD'" icon="mdi-send-clock-outline" round text-color="white" @click="showSendModal = true; selectedData = budget" />
+            <q-btn v-if="budget.name === 'USD' || budget.name === 'Main USD'" icon="mdi-send-clock-outline" round text-color="white" @click="showSendModal = true; selectedData = budget" />
           </div>
         </div>
         <q-separator />
@@ -446,13 +457,16 @@ onMounted(() => {
     <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="sendAction">
         <div class="bg-primary q-px-md q-py-sm text-white flex justify-between q-mb-lg">
-          <div class="text-h6"> {{ $t('send') }} </div>
+          <div class="text-h6">
+            {{ $t('send') }}: {{ selectedData.name }} → {{ selectedData.name === 'USD' ? 'Main USD' : 'USD' }}
+          </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
 
         <div class="row q-px-md q-col-gutter-x-lg q-mb-lg">
           <q-input
             type="number"
+            prefix="$"
             v-model.number="selectedData.sendQuantity"
             :label="$t('quantity')"
             lazy-rules
