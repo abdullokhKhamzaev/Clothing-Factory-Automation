@@ -421,7 +421,6 @@ const oweByCurrency = computed(() => {
           v-for="sale in items"
           :key="sale.id"
           class="q-pa-md"
-          :class="isToday(sale.createdAt) ? 'bg-light-green-1' : ''"
         >
           <q-item-section>
             <div class="row q-col-gutter-md">
@@ -445,8 +444,17 @@ const oweByCurrency = computed(() => {
                       :label="sale.isPayed ? $t('paid') : $t('debts')"
                     />
                   </div>
-                  <div class="col-auto text-caption text-grey-7">
-                    {{ formatDate(sale.createdAt) }}
+                  <div class="col-auto">
+                    <q-badge
+                      v-if="isToday(sale.createdAt)"
+                      color="green"
+                      text-color="white"
+                      :label="$t('today')"
+                      class="q-mr-sm"
+                    />
+                    <span class="text-caption text-grey-7">
+                      {{ formatDate(sale.createdAt) }}
+                    </span>
                   </div>
                 </div>
 
