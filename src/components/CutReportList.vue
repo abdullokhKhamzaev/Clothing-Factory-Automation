@@ -31,34 +31,34 @@ const props = defineProps({
       :key="consume"
     >
       <div>
-        - {{ consume.cutterRipeMaterialWarehouse.ripeMaterial.name }} {{ Number(consume.quantity) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{ consume.cutterRipeMaterialWarehouse?.ripeMaterial?.name }} {{ Number(consume?.quantity) }} {{consume?.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         <div>
-          - {{$t('forms.modelOrder.fields.wasteSort1.label')}}: {{ Number(consume.wasteSort1) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+          - {{$t('forms.modelOrder.fields.wasteSort1.label')}}: {{ Number(consume.wasteSort1) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         </div>
       </div>
       <div v-if="Number(consume.quantitySort2)">
-        - {{$t('forms.modelOrder.fields.consumedQuantitySort2.label')}}: {{ Number(consume.quantitySort2) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{$t('forms.modelOrder.fields.consumedQuantitySort2.label')}}: {{ Number(consume.quantitySort2) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         <div>
-          - {{$t('forms.modelOrder.fields.wasteSort2.label')}}: {{ Number(consume.wasteSort2) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+          - {{$t('forms.modelOrder.fields.wasteSort2.label')}}: {{ Number(consume.wasteSort2) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         </div>
       </div>
       <div v-if="Number(consume.remainingSort1)">
-        - {{$t('forms.modelOrder.fields.remainingSort1.label')}}: {{ Number(consume.remainingSort1) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{$t('forms.modelOrder.fields.remainingSort1.label')}}: {{ Number(consume.remainingSort1) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         <div>
-          - {{$t('forms.modelOrder.fields.wasteRemainingSort1.label')}}: {{ Number(consume.wasteRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+          - {{$t('forms.modelOrder.fields.wasteRemainingSort1.label')}}: {{ Number(consume.wasteRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         </div>
       </div>
       <div v-if="Number(consume.remainingSort2)">
-        - {{$t('forms.modelOrder.fields.remainingSort2.label')}}: {{ Number(consume.remainingSort2) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{$t('forms.modelOrder.fields.remainingSort2.label')}}: {{ Number(consume.remainingSort2) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         <div>
-          - {{$t('forms.modelOrder.fields.wasteRemainingSort2.label')}}: {{ Number(consume.wasteRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+          - {{$t('forms.modelOrder.fields.wasteRemainingSort2.label')}}: {{ Number(consume.wasteRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
         </div>
       </div>
       <div v-if="Number(consume.newRemainingSort1)">
-        - {{$t('forms.modelOrder.fields.newRemainingSort1.label')}}: {{ Number(consume.newRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{$t('forms.modelOrder.fields.newRemainingSort1.label')}}: {{ Number(consume.newRemainingSort1) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
       </div>
       <div v-if="Number(consume.newRemainingSort2)">
-        - {{$t('forms.modelOrder.fields.newRemainingSort2.label')}}: {{ Number(consume.newRemainingSort2) }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}
+        - {{$t('forms.modelOrder.fields.newRemainingSort2.label')}}: {{ Number(consume.newRemainingSort2) }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}
       </div>
       <div>
         Total: {{
@@ -72,7 +72,7 @@ const props = defineProps({
           Number(consume.wasteRemainingSort2) +
           Number(consume.newRemainingSort1) +
           Number(consume.newRemainingSort2)
-        }} {{consume.cutterRipeMaterialWarehouse.ripeMaterial.measurement }}.
+        }} {{consume.cutterRipeMaterialWarehouse?.ripeMaterial?.measurement }}.
       </div>
     </div>
     <q-separator class="q-my-sm" />
