@@ -20,14 +20,14 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div id="q-app" class="flex full-height justify-center items-center" style="min-height: 100vh">
-      <div>
-        <h1 class="text-h5 text-primary"> Revizya jarayonida: </h1>
-        <q-linear-progress dark stripe rounded size="20px" :value="0.8" color="orange" />
-      </div>
-  </div>
-<!--  <div id="q-app">-->
-<!--    <router-view />-->
+<!--  <div id="q-app" class="flex full-height justify-center items-center" style="min-height: 100vh">-->
+<!--      <div>-->
+<!--        <h1 class="text-h5 text-primary"> Revizya jarayonida: </h1>-->
+<!--        <q-linear-progress dark stripe rounded size="20px" :value="0.8" color="orange" />-->
+<!--      </div>-->
 <!--  </div>-->
+  <div id="q-app">
+    <router-view />
+  </div>
 </template>
 
