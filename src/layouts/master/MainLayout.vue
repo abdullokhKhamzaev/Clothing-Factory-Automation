@@ -158,6 +158,12 @@ const linksList = [
     routePrefix: '/master/packaging'
   },
   {
+    title: 'cutting',
+    icon: 'content_cut',
+    to: { name: 'club.master.cutting' },
+    routePrefix: '/master/cutting'
+  },
+  {
     title: 'salary',
     icon: 'payments',
     to: { name: 'club.master.salary' },

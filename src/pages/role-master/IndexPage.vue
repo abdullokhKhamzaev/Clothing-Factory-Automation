@@ -20,6 +20,10 @@ const routes = computed(() => {
       label: t('menus.sideBar.package'),
       value: router.resolve( { name: 'club.master.packaging.ready' } )
     },
+    {
+      label: t('menus.sideBar.cutting'),
+      value: router.resolve( { name: 'club.master.cutting' } )
+    },
   ];
 })
 </script>

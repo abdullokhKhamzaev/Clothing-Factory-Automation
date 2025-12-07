@@ -594,6 +594,11 @@ const routes = [
             path: 'packaging/ready',
             name: 'club.master.packaging.ready',
             component: () => import('pages/role-master/PackagerReadyPage.vue'),
+          },
+          {
+            path: 'cutting',
+            name: 'club.master.cutting',
+            component: () => import('pages/role-master/CutterPage.vue'),
           }
         ]
       },
