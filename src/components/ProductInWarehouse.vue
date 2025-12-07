@@ -2,12 +2,15 @@
 import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
+import { isSuperAdmin } from "src/router/routes.js";
 import { useWarehouse } from "stores/warehouse.js";
 import { useAbout } from "stores/user/about.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
-import { WAREHOUSES } from "src/libraries/constants/defaults.js";
+import { useUser } from "stores/user/user.js";
+import {WAREHOUSES} from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 import {useProductInWarehouse} from "stores/productInWarehouse.js";
+import SelectableList from "components/selectableList.vue";
 
 const props = defineProps({
   name: {
@@ -61,6 +64,7 @@ const props = defineProps({
   }
 })
 const user = useAbout();
+const userStore = useUser();
 const { t } = useI18n();
 const $q = useQuasar();
 const selectedData = ref({});
@@ -71,6 +75,7 @@ const showUpdateModal = ref(false);
 const updateActionErr = ref(null);
 
 const warehouse = ref([]);
+const selectedSewer = ref();
 const loading = ref(false);
 const searchTitle = ref();
 const rows = ref([{ size: '', quantity: '', max: '' }]);
@@ -97,6 +102,7 @@ function clearAction() {
   selectedData.value = {};
   toWarehouse.value = null;
   sendActionErr.value = null;
+  selectedSewer.value = null;
   rows.value = [{ size: '', quantity: '', max: '' }];
 }
 function hasEmbroidery(data) {
@@ -130,7 +136,7 @@ function sendAction() {
     productSize: productSize,
     fromWarehouse: props.fromWarehouse,
     toWarehouse: toWarehouse.value,
-    sentBy: user.about['@id'],
+    sentBy: selectedSewer?.value || user.about['@id'],
   };
 
   if (input.toWarehouse) {
@@ -379,6 +385,19 @@ onMounted(() => {
             {{ sendActionErr }}
           </div>
           <q-separator />
+        </div>
+        <div v-if="isSuperAdmin" class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
+          <selectable-list
+            v-model="selectedSewer"
+            :label="$t('forms.user.fields.fullName.label')"
+            :store="userStore"
+            :filters="{roles: ['ROLE_SEWER']}"
+            fetch-method="fetchUsers"
+            item-value="@id"
+            item-label="fullName"
+            :rule-message="$t('forms.user.fields.fullName.validation.required')"
+            class="col-12"
+          />
         </div>
         <div class="row q-px-md q-col-gutter-x-lg q-col-gutter-y-md q-mb-lg">
           <q-input

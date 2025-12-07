@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
@@ -60,6 +60,7 @@ const columns = [
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
+const isMobile = computed(() => $q.screen.lt.md);
 
 function acceptAction () {
   if (loading.value) return; // Prevent multiple rapid calls
@@ -168,7 +169,91 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Mobile Card View -->
+  <div v-if="isMobile">
+    <div class="flex justify-between items-center q-mb-md">
+      <div class="text-h6">{{ props.title }}</div>
+      <refresh-button :action="refresh" />
+    </div>
+
+    <q-list v-if="warehouseActions.length" bordered separator class="rounded-borders">
+      <q-item
+        v-for="item in warehouseActions"
+        :key="item.id"
+        :class="isToday(item.createdAt) ? 'bg-green-1' : ''"
+      >
+        <q-item-section>
+          <q-item-label class="text-weight-bold text-subtitle1">
+            {{ item.productModel.name }}
+          </q-item-label>
+          <q-item-label caption class="q-mt-xs">
+            <span class="text-primary text-weight-medium">
+              <span
+                v-for="(size, idx) in item.productSize"
+                :key="size.size"
+              >{{ size.size }}: {{ size.quantity }}{{ idx < item.productSize.length - 1 ? ', ' : '' }}</span>
+            </span>
+          </q-item-label>
+          <q-item-label caption class="q-mt-xs text-bold">
+            {{ item.sentBy.fullName }}
+          </q-item-label>
+          <q-item-label caption class="text-bold">
+            {{ $t('warehouses.' + item.fromWarehouse.name) }} → {{ $t('warehouses.' + item.toWarehouse.name) }}
+          </q-item-label>
+          <q-item-label caption>
+            {{ formatDate(item.createdAt) }}
+          </q-item-label>
+          <q-item-label caption>
+            <q-badge
+              :color="item.status === 'accepted' ? 'green' : item.status === 'pending' ? 'orange' : 'red'"
+              :label="$t('statuses.' + item.status)"
+            />
+          </q-item-label>
+        </q-item-section>
+
+        <q-item-section side v-if="item.status === 'pending' && (canAccept || canReject)">
+          <div class="column q-gutter-y-sm">
+            <q-btn
+              v-if="canAccept"
+              round
+              color="green"
+              icon="mdi-check"
+              size="md"
+              @click="selectedData = {...item}; showAcceptModal = true;"
+            />
+            <q-btn
+              v-if="canReject"
+              round
+              color="red"
+              icon="mdi-cancel"
+              size="md"
+              @click="selectedData = {...item}; showRejectModal = true;"
+            />
+          </div>
+        </q-item-section>
+      </q-item>
+    </q-list>
+
+    <div v-else class="text-center q-pa-md text-grey">
+      {{ $t('tables.transaction.header.empty') }}
+    </div>
+
+    <!-- Mobile Pagination -->
+    <div class="flex justify-center q-mt-md" v-if="warehouseActions.length">
+      <q-pagination
+        v-model="warehouseActionPagination.page"
+        :max="Math.ceil(warehouseActionPagination.rowsNumber / warehouseActionPagination.rowsPerPage)"
+        :max-pages="5"
+        direction-links
+        boundary-links
+        @update:model-value="onWarehouseActionRequest({ pagination: warehouseActionPagination })"
+      />
+    </div>
+  </div>
+
+  <!-- Desktop Table View -->
   <q-table
+    v-else
     flat
     bordered
     color="primary"

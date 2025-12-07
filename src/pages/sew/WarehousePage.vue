@@ -16,6 +16,9 @@ const filters = {
   <ProductInWarehouse
     name="sewerWarehouse"
     show-action
+    can-send-to-package
+    :from-warehouse="WAREHOUSES.sewerWarehouse"
+    :to-warehouse="WAREHOUSES.packagerWarehouse"
     :can-update="isSuperAdmin"
   />
 

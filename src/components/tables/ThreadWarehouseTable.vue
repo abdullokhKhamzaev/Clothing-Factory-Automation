@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useThread } from "stores/thread.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
@@ -11,7 +11,8 @@ const { t } = useI18n();
 const columns = [
   { name: 'name', label: t('tables.thread.columns.name'), align: 'left', field: 'name' },
   { name: 'quantity', label: t('tables.thread.columns.quantity'), align: 'left', field: 'quantity' },
-  { name: 'price', label: t('tables.thread.columns.price'), align: 'left', field: 'price' }
+  { name: 'price', label: t('tables.thread.columns.price'), align: 'left', field: 'price' },
+  { name: 'total', label: '', align: 'left', field: 'total' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
 
@@ -28,6 +29,12 @@ const pagination = ref({
 
 const filters = ref({
   name: null,
+});
+
+const totalSum = computed(() => {
+  return items.value.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
 });
 
 function getItems () {
@@ -76,6 +83,9 @@ onMounted(() => {
     <template v-slot:top>
       <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.thread.header.title') }}</div>
+        <div class="text-h6 q-ml-md">
+          {{ totalSum.toFixed(2) }} $
+        </div>
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
@@ -124,7 +134,11 @@ onMounted(() => {
           </div>
 
           <div v-if="col.name === 'price'">
-            <span> {{ props.row.price * props.row.quantity }} {{ props.row.budget.name }} </span>
+            <span> {{ props.row.price }} {{ props.row.budget.name }} </span>
+          </div>
+
+          <div v-if="col.name === 'total'">
+            <span> {{ (props.row.price * props.row.quantity).toFixed(2) }} {{ props.row.budget.name }} </span>
           </div>
         </q-td>
       </q-tr>

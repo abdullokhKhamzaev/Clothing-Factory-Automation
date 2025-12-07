@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
@@ -16,6 +16,7 @@ const columns = [
   { name: 'quantity', label: t('tables.accessory.columns.quantity'), align: 'left', field: 'quantity' },
   { name: 'price', label: t('tables.accessory.columns.price'), align: 'left', field: 'price' },
   { name: 'type', label: t('tables.accessory.columns.type'), align: 'left', field: 'type' },
+  { name: 'total', label: '', align: 'left', field: 'total' },
   { name: 'action', label: '', align: 'right', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
@@ -34,6 +35,24 @@ const pagination = ref({
 const filters = ref({
   types: ['cutter', 'embroidery', 'sewer', 'packager', 'warehouse'],
   name: null
+});
+
+const totalSumSom = computed(() => {
+  return items.value.reduce((sum, item) => {
+    if (item.budget === '/api/budgets/2') {
+      return sum + (item.price * item.quantity);
+    }
+    return sum;
+  }, 0);
+});
+
+const totalSumUsd = computed(() => {
+  return items.value.reduce((sum, item) => {
+    if (item.budget === '/api/budgets/1') {
+      return sum + (item.price * item.quantity);
+    }
+    return sum;
+  }, 0);
 });
 
 function getItems () {
@@ -81,6 +100,10 @@ onMounted(() => {
     <template v-slot:top>
       <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.accessory.header.title') }}</div>
+        <div class="text-h6 q-ml-md q-gutter-x-md">
+          <span>UZS: {{ formatFloatToInteger(totalSumSom) }}</span>
+          <span>USD: {{ formatFloatToInteger(totalSumUsd) }}</span>
+        </div>
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
@@ -127,7 +150,10 @@ onMounted(() => {
             <span class="text-weight-bolder"> ({{ $t(props.row.measurement) }}) </span>
           </div>
           <div v-else-if="col.name === 'price'">
-            {{ formatFloatToInteger(props.row.price) }}
+            {{ formatFloatToInteger(props.row.price) }} {{ props.row.budget === '/api/budgets/2' ? "so'm" : 'USD' }}
+          </div>
+          <div v-else-if="col.name === 'total'">
+            {{ formatFloatToInteger(props.row.price * props.row.quantity) }} {{ props.row.budget === '/api/budgets/2' ? "so'm" : 'USD' }}
           </div>
           <div v-else-if="col.name === 'image'">
             <q-img

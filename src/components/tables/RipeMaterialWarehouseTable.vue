@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useRipeMaterialAction } from "stores/ripeMaterialAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import RefreshButton from "components/RefreshButton.vue";
+import {formatFloatToInteger} from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -22,6 +23,7 @@ const columns = [
   { name: 'quantitySort2', label: t('tables.ripeMaterial.columns.quantitySort2'), align: 'left', field: 'quantitySort2' },
   { name: 'rollSort2', label: t('tables.ripeMaterial.columns.rollSort2'), align: 'left', field: 'rollSort2' },
   { name: 'price', label: t('tables.ripeMaterial.columns.price'), align: 'left', field: 'price' },
+  { name: 'total', label: '', align: 'left', field: 'total' },
   { name: 'action', label: '', align: 'left', field: 'action' }
 ];
 const visibleColumns = ref(columns.map(column => column.name));
@@ -39,6 +41,12 @@ const pagination = ref({
 
 const filters = ref({
   name: null
+});
+
+const totalPrice = computed(() => {
+  return items.value.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
 });
 
 function getItems () {
@@ -139,6 +147,9 @@ function sendAction() {
     <template v-slot:top>
       <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
         <div class="q-table__title">{{ $t('tables.ripeMaterial.header.title') }}</div>
+        <div class="text-h6 q-ml-md">
+          {{ formatFloatToInteger(totalPrice) }}$
+        </div>
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
@@ -187,7 +198,10 @@ function sendAction() {
           </div>
 
           <div v-else-if="col.name === 'price'">
-            <span> {{ props.row.price * props.row.quantity }} </span>
+            <span> {{ props.row.price }} $ </span>
+          </div>
+          <div v-else-if="col.name === 'total'">
+            <span> {{ formatFloatToInteger(props.row.price * props.row.quantity) }}$ </span>
           </div>
           <div v-else-if="col.name === 'action'">
             <q-btn

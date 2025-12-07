@@ -13,6 +13,10 @@ export const useUser = defineStore('user', () => {
       params.set('fullName', filterProps.fullName);
     }
 
+    if (filterProps.roles) {
+      params.set('roles', filterProps.roles);
+    }
+
     try {
       return await client.get(`users?${params.toString()}`);
     } catch (e) {
