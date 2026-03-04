@@ -134,7 +134,7 @@ export default {
   statuses: {
     accepted: 'Qabul qilingan',
     notAccepted: 'Qabul qilinmagan',
-    rejected: 'Raq etilgan',
+    rejected: 'Rad etilgan',
     confirmed: 'Tasqiqlangan',
     pending: 'Kutilmoqda',
     completed: 'Yakunlangan',

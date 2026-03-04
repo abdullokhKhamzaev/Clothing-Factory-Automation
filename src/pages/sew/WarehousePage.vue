@@ -13,6 +13,7 @@ const filters = {
 </script>
 
 <template>
+<!--  sewerReadyWarehouse-->
   <ProductInWarehouse
     name="sewerWarehouse"
     show-action
