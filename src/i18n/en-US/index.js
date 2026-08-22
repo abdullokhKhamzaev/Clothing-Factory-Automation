@@ -67,6 +67,11 @@ export default {
       totalDelivered: 'Total delivered',
       totalUnmet: 'Total unmet',
     },
+    salarySummary: {
+      earned: 'Total calculated salary',
+      paid: 'Total paid (incl. advances)',
+      remaining: 'Unpaid remainder',
+    },
     timing: {
       confirm: 'Confirmation time',
       waiting: 'Waiting time',

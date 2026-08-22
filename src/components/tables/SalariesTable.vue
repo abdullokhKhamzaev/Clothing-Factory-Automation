@@ -1,9 +1,9 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
-import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, roundToDecimal } from "../../libraries/constants/defaults.js";
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -48,6 +48,9 @@ const filters = ref({
   month: new Date().toISOString().split('T')[0].slice(0, 7),
 });
 
+// Tanlangan oy bo'yicha BARCHA oyliklar (sahifalanmagan) — tepadagi jami uchun
+const allSalaries = ref([]);
+
 function getItems () {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
@@ -60,6 +63,48 @@ function getItems () {
     .finally(() => {
       loading.value = false;
     });
+
+  repository.fetchSalaries({...filters.value, rowsPerPage: '~'})
+    .then((res) => {
+      allSalaries.value = res?.data['hydra:member'] || [];
+    });
+}
+
+// Bir yozuvning hisoblangan oyligi: baseSalary yoki kunlik x ishlangan kun yoki ishbay
+function earnedOf(salary) {
+  const baseSalary = Number(salary.baseSalary) || 0;
+  const dailyWage = Number(salary.dailyWage) || 0;
+  const workedDays = Number(salary.workedDays) || 0;
+  const pieceworkEarning = Number(salary.pieceworkEarning) || 0;
+
+  if (baseSalary > 0) return baseSalary;
+  if (dailyWage > 0) return dailyWage * workedDays;
+  return pieceworkEarning;
+}
+
+const salaryTotals = computed(() => {
+  const earned = {};
+  const paid = {};
+
+  allSalaries.value.forEach(salary => {
+    const currency = salary.budget?.name || '';
+    earned[currency] = (earned[currency] || 0) + earnedOf(salary);
+    paid[currency] = (paid[currency] || 0) + (Number(salary.advancePayment) || 0) + (Number(salary.paidAmount) || 0);
+  });
+
+  const remaining = {};
+  Object.keys(earned).forEach(currency => {
+    remaining[currency] = earned[currency] - (paid[currency] || 0);
+  });
+
+  return { earned, paid, remaining };
+});
+
+function moneyLine(byCurrency) {
+  const parts = Object.entries(byCurrency)
+    .filter(([, value]) => roundToDecimal(value) !== 0)
+    .map(([currency, value]) => `${formatFloatToInteger(roundToDecimal(value))} ${currency}`);
+  return parts.length ? parts.join(' + ') : '0';
 }
 
 function onRequest(params) {
@@ -164,6 +209,38 @@ function payAdvanceAction () {
 </script>
 
 <template>
+  <q-card flat bordered class="q-pa-sm q-mb-md">
+    <div class="row q-col-gutter-sm">
+      <div class="col-12 col-sm-4">
+        <q-card flat bordered class="q-pa-sm full-height">
+          <div class="flex items-center no-wrap">
+            <q-icon name="mdi-cash-multiple" color="primary" size="24px" class="q-mr-sm" />
+            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.earned') }}</div>
+          </div>
+          <div class="text-h6 text-weight-bold text-primary q-mt-xs">{{ moneyLine(salaryTotals.earned) }}</div>
+        </q-card>
+      </div>
+      <div class="col-12 col-sm-4">
+        <q-card flat bordered class="q-pa-sm full-height">
+          <div class="flex items-center no-wrap">
+            <q-icon name="mdi-cash-check" color="green" size="24px" class="q-mr-sm" />
+            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.paid') }}</div>
+          </div>
+          <div class="text-h6 text-weight-bold text-green q-mt-xs">{{ moneyLine(salaryTotals.paid) }}</div>
+        </q-card>
+      </div>
+      <div class="col-12 col-sm-4">
+        <q-card flat bordered class="q-pa-sm full-height">
+          <div class="flex items-center no-wrap">
+            <q-icon name="mdi-cash-clock" color="orange" size="24px" class="q-mr-sm" />
+            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.remaining') }}</div>
+          </div>
+          <div class="text-h6 text-weight-bold text-orange q-mt-xs">{{ moneyLine(salaryTotals.remaining) }}</div>
+        </q-card>
+      </div>
+    </div>
+  </q-card>
+
   <q-table
     flat
     bordered

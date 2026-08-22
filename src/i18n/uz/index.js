@@ -67,6 +67,11 @@ export default {
       totalDelivered: 'Jami yetkazildi',
       totalUnmet: 'Jami yetkazilmadi',
     },
+    salarySummary: {
+      earned: 'Jami hisoblangan oylik',
+      paid: 'Jami to\'landi (avans bilan)',
+      remaining: 'To\'lanmagan qoldiq',
+    },
     timing: {
       confirm: 'Tasdiqlash vaqti',
       waiting: 'Kutish vaqti',

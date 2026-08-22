@@ -67,6 +67,11 @@ export default {
       totalDelivered: 'Жами етказилди',
       totalUnmet: 'Жами етказилмади',
     },
+    salarySummary: {
+      earned: 'Жами ҳисобланган ойлик',
+      paid: 'Жами тўланди (аванс билан)',
+      remaining: 'Тўланмаган қолдиқ',
+    },
     timing: {
       confirm: 'Тасдиқлаш вақти',
       waiting: 'Кутиш вақти',
