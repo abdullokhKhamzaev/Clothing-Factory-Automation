@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useOrder } from "stores/order.js";
-import { useWarehouse } from "stores/warehouse.js";
+import { useProductModels } from "stores/productModel.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
@@ -16,7 +16,7 @@ const { t } = useI18n();
 const user = useAbout();
 const budget = useBudget();
 const customer = useCustomer();
-const warehouse = useWarehouse();
+const productModels = useProductModels();
 
 const orderLoading = ref(false);
 const selectedData = ref({});
@@ -29,6 +29,7 @@ const columns = [
   { name: 'createdBy', label: t('tables.order.columns.createdBy'), align: 'left', field: 'createdBy' },
   { name: 'customer', label: t('tables.order.columns.customer'), align: 'left', field: 'customer' },
   { name: 'products', label: t('tables.order.columns.products'), align: 'left', field: 'products' },
+  { name: 'progress', label: t('orderActions.progress'), align: 'left', field: 'progress' },
   { name: 'status', label: t('tables.order.columns.status'), align: 'left', field: 'status' },
   { name: 'totalPrice', label: t('tables.order.columns.totalPrice'), align: 'left', field: 'totalPrice' },
   { name: 'dealDate', label: t('tables.order.columns.dealDate'), align: 'left', field: 'dealDate' },
@@ -51,7 +52,7 @@ const filters = ref({
   status: ''
 });
 const rows = ref([
-  { productModel: '', productInWarehouse: '', quantities: [] }
+  { productModel: '', quantities: [] }
 ])
 
 function getItems () {
@@ -75,7 +76,7 @@ function refresh () {
   getItems();
 }
 function addRow() {
-  rows.value.push({ productModel: '', productInWarehouse: '', quantities: [] });
+  rows.value.push({ productModel: '', quantities: [] });
 }
 function removeRow(index) {
   if (rows.value.length > 1) {
@@ -94,7 +95,7 @@ function createAction () {
   let orderedProducts = [];
 
   rows.value.forEach((row) => {
-    orderedProducts.push({productModel: row.productModel.productModel['@id'], productInWarehouse: row.productInWarehouse, quantities: row.quantities})
+    orderedProducts.push({productModel: row.productModel['@id'], quantities: row.quantities})
   })
 
   const input = {
@@ -135,23 +136,19 @@ function createAction () {
 function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
-  rows.value = [{ productModel: '', productInWarehouse: '', quantities: [] }];
+  rows.value = [{ productModel: '', quantities: [] }];
 }
 function prefill(model, index) {
-  let models = [];
   let sizes = [];
 
-  model.productModel.sizes.forEach((size) => {
+  (model.sizes || []).forEach((size) => {
     sizes.push({ size: size.size, quantity: '', price: size.price});
   });
 
-  models.push({
+  rows.value[index] = {
     productModel: model,
-    productInWarehouse: model['@id'],
     quantities: sizes
-  });
-
-  rows.value[index] = models[0]
+  };
 }
 
 const total = computed(() => {
@@ -163,6 +160,46 @@ const total = computed(() => {
   })
   return totalPrice
 })
+
+// Buyurtmadagi jami so'ralgan dona
+function demandOf(row) {
+  let totalQuantity = 0;
+  (row.products || []).forEach((product) => {
+    (product.quantities || []).forEach((quantity) => {
+      totalQuantity += quantity.quantity || 0;
+    });
+  });
+  return totalQuantity;
+}
+
+function deliveryPct(row) {
+  const demand = demandOf(row);
+  if (!demand) return 0;
+  return Math.round((row.deliveredQuantity || 0) / demand * 100);
+}
+
+function deliveryRatio(row) {
+  return Math.min(deliveryPct(row) / 100, 1);
+}
+
+function setStatus(row, status) {
+  if (orderLoading.value) return;
+  orderLoading.value = true;
+
+  repository.update(row.id, { status })
+    .then(() => {
+      $q.notify({
+        type: 'positive',
+        position: 'top',
+        timeout: 1000,
+        message: t('statuses.' + status)
+      })
+    })
+    .finally(() => {
+      orderLoading.value = false;
+      refresh();
+    });
+}
 
 onMounted(() => {
   refresh();
@@ -258,10 +295,59 @@ onMounted(() => {
           <div v-else-if="col.name === 'totalPrice'">
             {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
           </div>
+          <div v-else-if="col.name === 'progress'">
+            <div class="text-bold no-wrap">
+              {{ formatFloatToInteger(props.row.deliveredQuantity || 0) }} / {{ formatFloatToInteger(demandOf(props.row)) }}
+              <q-badge v-if="deliveryPct(props.row) >= 100" color="green" class="q-ml-xs">{{ $t('orderActions.fullyDelivered') }}</q-badge>
+              <q-badge v-else color="primary" class="q-ml-xs">{{ deliveryPct(props.row) }}%</q-badge>
+            </div>
+            <q-linear-progress
+              :value="deliveryRatio(props.row)"
+              size="6px"
+              rounded
+              :color="deliveryPct(props.row) >= 100 ? 'green' : 'primary'"
+              track-color="grey-4"
+              class="q-mt-xs"
+              style="min-width: 90px"
+            />
+          </div>
           <div v-else-if="col.name === 'status'">
-            <span class="text-bold" :class="props.row.status === 'pending' ? 'text-warning' : 'text-green'">
+            <span
+              class="text-bold"
+              :class="props.row.status === 'pending' ? 'text-warning' : props.row.status === 'cancelled' ? 'text-red' : 'text-green'"
+            >
               {{ $t('statuses.' + props.row.status) }}
             </span>
+          </div>
+          <div v-else-if="col.name === 'action'">
+            <div v-if="['pending', 'delivering'].includes(props.row.status)" class="flex justify-end no-wrap q-gutter-x-sm">
+              <q-btn dense no-caps color="green" icon-right="mdi-check-all" :disable="orderLoading">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('orderActions.close') }}
+                </q-tooltip>
+                <q-popup-proxy>
+                  <q-banner class="q-pa-md">
+                    {{ $t('orderActions.closeConfirm') }}
+                    <template v-slot:action>
+                      <q-btn flat dense color="green" :label="$t('orderActions.close')" v-close-popup @click="setStatus(props.row, 'delivered')" />
+                    </template>
+                  </q-banner>
+                </q-popup-proxy>
+              </q-btn>
+              <q-btn dense no-caps color="red" icon-right="mdi-cancel" :disable="orderLoading">
+                <q-tooltip transition-show="flip-right" transition-hide="flip-left" anchor="bottom middle" self="top middle" :offset="[5, 5]">
+                  {{ $t('orderActions.cancel') }}
+                </q-tooltip>
+                <q-popup-proxy>
+                  <q-banner class="q-pa-md">
+                    {{ $t('orderActions.cancelConfirm') }}
+                    <template v-slot:action>
+                      <q-btn flat dense color="red" :label="$t('orderActions.cancel')" v-close-popup @click="setStatus(props.row, 'cancelled')" />
+                    </template>
+                  </q-banner>
+                </q-popup-proxy>
+              </q-btn>
+            </div>
           </div>
           <div v-else>
             {{ props.row[col.field] }}
@@ -325,11 +411,9 @@ onMounted(() => {
               <selectable-list
                 v-model="row.productModel"
                 :label="$t('forms.sale.fields.productModel.label')"
-                :store="warehouse"
-                fetch-method="fetchWarehouses"
-                which-object="productInWarehouses"
-                :filters="{name: 'productsWarehouse'}"
-                :item-label="{label: 'productModel', path: 'name'}"
+                :store="productModels"
+                fetch-method="fetchProductModels"
+                item-label="name"
                 :rule-message="$t('forms.sale.fields.productModel.validation.required')"
                 class="col-12"
                 @update:model-value="prefill(row.productModel, index)"

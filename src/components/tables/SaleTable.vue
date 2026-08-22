@@ -4,6 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useSale } from "stores/sale.js";
+import { useOrder } from "stores/order.js";
 import { useWarehouse } from "stores/warehouse.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
@@ -25,6 +26,27 @@ const saleLoading = ref(false);
 const selectedData = ref({});
 const showCreateModal = ref(false);
 const createActionErr = ref(null);
+
+// Xaridorning ochiq buyurtmalari (savdoni buyurtmaga ixtiyoriy bog'lash uchun)
+const openOrders = ref([]);
+
+async function fetchOpenOrders(selectedCustomer) {
+  selectedData.value.preOrder = null;
+  openOrders.value = [];
+
+  if (!selectedCustomer?.fullName) return;
+
+  const res = await useOrder().fetchOrders({
+    customer: selectedCustomer.fullName,
+    statuses: ['pending', 'delivering'],
+    rowsPerPage: '~',
+  });
+
+  openOrders.value = (res?.data['hydra:member'] || []).map(order => ({
+    label: `#${order.id} | ${order.createdAt?.split('T')[0]} | ${order.totalPrice} ${order.budget?.name || ''}`,
+    value: order['@id'],
+  }));
+}
 const showPayModal = ref(false);
 const payActionErr = ref(null);
 
@@ -140,6 +162,11 @@ function createAction () {
   // isPayed logic: paid >= (total - discount)
   input.isPayed = Number(selectedData.value.paidPrice) >= Number(finalPrice.value);
 
+  // Savdo buyurtmaga bog'langan bo'lsa
+  if (selectedData.value.preOrder) {
+    input.preOrder = selectedData.value.preOrder;
+  }
+
   repository.create(input)
     .then(() => {
       showCreateModal.value = false;
@@ -169,6 +196,7 @@ function createAction () {
 function clearAction() {
   selectedData.value = {};
   createActionErr.value = null;
+  openOrders.value = [];
   rows.value = [{ productModel: '', productInWarehouse: '', quantities: [] }];
 }
 const total = computed(() => {
@@ -670,6 +698,7 @@ const oweByCurrency = computed(() => {
                 item-label="fullName"
                 :rule-message="$t('forms.sale.fields.customer.validation.required')"
                 class="col-12 col-md-6"
+                @update:model-value="fetchOpenOrders"
               />
               <selectable-list
                 v-model="selectedData.budget"
@@ -679,6 +708,17 @@ const oweByCurrency = computed(() => {
                 item-label="name"
                 :rule-message="$t('forms.sale.fields.budget.validation.required')"
                 class="col-12 col-md-6"
+              />
+              <q-select
+                v-if="openOrders.length"
+                v-model="selectedData.preOrder"
+                :options="openOrders"
+                emit-value
+                map-options
+                clearable
+                filled
+                :label="$t('orderActions.linkOrder')"
+                class="col-12"
               />
             </div>
           </div>

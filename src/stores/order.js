@@ -17,6 +17,12 @@ export const useOrder = defineStore('orders', () => {
       params.set('status', filterProps.status);
     }
 
+    if (filterProps.statuses) {
+      filterProps.statuses.forEach(status => {
+        params.append('status[]', status);
+      });
+    }
+
     try {
       return await client.get(`orders?${params.toString()}`);
     } catch (e) {
@@ -34,7 +40,7 @@ export const useOrder = defineStore('orders', () => {
 
   async function update(id, data) {
     try {
-      return client.put('sales/' + id, data)
+      return client.put('orders/' + id, data)
     } catch (e) {
       console.log(e)
     }

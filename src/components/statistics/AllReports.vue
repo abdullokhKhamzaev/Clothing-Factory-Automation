@@ -31,6 +31,7 @@ import PackageModelsProductWarehouseAccepted from "components/statistics/Package
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
 import SaleProducts from "components/statistics/SaleProducts.vue";
 import SaleAnalytics from "components/statistics/SaleAnalytics.vue";
+import DemandAnalytics from "components/statistics/DemandAnalytics.vue";
 import ExpensesTransactions from "components/statistics/ExpensesTransactions.vue";
 import ExchangeTable from "components/tables/ExchangeTable.vue";
 
@@ -449,6 +450,7 @@ const packageTab = ref('done');
         >
           <q-tab name="sales" :label="t('statistics.sale.salesTab')" />
           <q-tab name="analytics" :label="t('statistics.sale.analyticsTab')" />
+          <q-tab name="demand" :label="t('statistics.demand.tab')" />
         </q-tabs>
         <q-separator />
         <q-tab-panels v-model="saleTab" animated>
@@ -457,6 +459,9 @@ const packageTab = ref('done');
           </q-tab-panel>
           <q-tab-panel name="analytics">
             <SaleAnalytics :date-to="props.dateTo" :date-from="props.dateFrom" />
+          </q-tab-panel>
+          <q-tab-panel name="demand">
+            <DemandAnalytics :date-to="props.dateTo" :date-from="props.dateFrom" />
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
