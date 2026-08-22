@@ -126,7 +126,7 @@ function optionLabel(opt) {
       return typeof props.itemLabel === 'string'
         ? opt[props.itemLabel]
         : opt[props.itemLabel.label][props.itemLabel.path];
-    } catch (e) {
+    } catch {
       return '';
     }
   }
