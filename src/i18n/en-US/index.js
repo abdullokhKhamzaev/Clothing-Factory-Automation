@@ -232,6 +232,9 @@ export default {
     cancelled: 'Cancelled'
   },
   orderActions: {
+    createTitle: 'Create order',
+    create: 'Create order',
+    total: 'Total',
     progress: 'Delivery',
     close: 'Close as delivered',
     cancel: 'Cancel order',

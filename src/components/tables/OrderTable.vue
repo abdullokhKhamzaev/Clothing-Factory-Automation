@@ -365,7 +365,7 @@ onMounted(() => {
           class="q-px-md q-py-sm flex justify-between"
           :class="createActionErr ? 'bg-red' : 'q-my-sm'"
         >
-          <div class="text-h6"> {{ $t('dialogs.sale.barCreate') }}</div>
+          <div class="text-h6"> {{ $t('orderActions.createTitle') }}</div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
         <div v-if="createActionErr">
@@ -461,19 +461,9 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <q-input
-            v-model="selectedData.paidPrice"
-            type="number"
-            filled
-            :disable="!selectedData.customer || !selectedData.budget"
-            :suffix="selectedData?.budget?.name || null"
-            :prefix="selectedData?.budget?.name + ' ' + total + ':'"
-            :label="$t('forms.sale.fields.paidPrice.label')"
-            lazy-rules
-            :rules="[ val => val && val >= 0 && val <= total || $t('forms.sale.fields.paidPrice.validation.required')]"
-            hide-bottom-space
-            class="col-12"
-          />
+          <div v-if="selectedData.customer && selectedData.budget" class="col-12 text-h6 text-bold text-primary">
+            {{ $t('orderActions.total') }}: {{ formatFloatToInteger(total) }} {{ selectedData?.budget?.name || '' }}
+          </div>
           <q-input
             filled
             v-model="selectedData.dealDate"
@@ -504,7 +494,7 @@ onMounted(() => {
             :disable="loading"
             :loading="loading"
             no-caps
-            :label="$t('forms.sale.buttons.create')"
+            :label="$t('orderActions.create')"
             type="submit"
             color="primary"
           />

@@ -232,6 +232,9 @@ export default {
     cancelled: 'Bekor qilindi'
   },
   orderActions: {
+    createTitle: 'Buyurtma (zakaz) yaratish',
+    create: 'Buyurtma yaratish',
+    total: 'Jami',
     progress: 'Yetkazilish',
     close: 'Yetkazildi deb yopish',
     cancel: 'Bekor qilish',

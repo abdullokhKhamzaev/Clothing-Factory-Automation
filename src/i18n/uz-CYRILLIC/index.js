@@ -232,6 +232,9 @@ export default {
     cancelled: 'Бекор қилинди'
   },
   orderActions: {
+    createTitle: 'Буюртма (заказ) яратиш',
+    create: 'Буюртма яратиш',
+    total: 'Жами',
     progress: 'Етказилиш',
     close: 'Етказилди деб ёпиш',
     cancel: 'Бекор қилиш',
