@@ -242,6 +242,8 @@ export default {
     cancelConfirm: 'Cancel this order?',
     linkOrder: 'Link to order (optional)',
     fullyDelivered: 'Fully delivered',
+    closedPartial: 'Closed (partial)',
+    deliveredSoFar: 'Delivered',
   },
   warehouses: {
     cutterWarehouse: 'Cutter Warehouse',

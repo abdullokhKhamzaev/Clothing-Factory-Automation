@@ -313,6 +313,13 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'status'">
             <span
+              v-if="props.row.status === 'delivered' && deliveryPct(props.row) < 100"
+              class="text-bold text-orange"
+            >
+              {{ $t('orderActions.closedPartial') }}
+            </span>
+            <span
+              v-else
               class="text-bold"
               :class="props.row.status === 'pending' ? 'text-warning' : props.row.status === 'cancelled' ? 'text-red' : 'text-green'"
             >
@@ -328,6 +335,9 @@ onMounted(() => {
                 <q-popup-proxy>
                   <q-banner class="q-pa-md">
                     {{ $t('orderActions.closeConfirm') }}
+                    <div class="text-bold q-mt-xs" :class="deliveryPct(props.row) < 100 ? 'text-orange' : 'text-green'">
+                      {{ $t('orderActions.deliveredSoFar') }}: {{ formatFloatToInteger(props.row.deliveredQuantity || 0) }} / {{ formatFloatToInteger(demandOf(props.row)) }} ({{ deliveryPct(props.row) }}%)
+                    </div>
                     <template v-slot:action>
                       <q-btn flat dense color="green" :label="$t('orderActions.close')" v-close-popup @click="setStatus(props.row, 'delivered')" />
                     </template>
@@ -341,6 +351,9 @@ onMounted(() => {
                 <q-popup-proxy>
                   <q-banner class="q-pa-md">
                     {{ $t('orderActions.cancelConfirm') }}
+                    <div class="text-bold q-mt-xs text-orange">
+                      {{ $t('orderActions.deliveredSoFar') }}: {{ formatFloatToInteger(props.row.deliveredQuantity || 0) }} / {{ formatFloatToInteger(demandOf(props.row)) }} ({{ deliveryPct(props.row) }}%)
+                    </div>
                     <template v-slot:action>
                       <q-btn flat dense color="red" :label="$t('orderActions.cancel')" v-close-popup @click="setStatus(props.row, 'cancelled')" />
                     </template>

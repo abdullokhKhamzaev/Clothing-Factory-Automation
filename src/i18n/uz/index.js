@@ -242,6 +242,8 @@ export default {
     cancelConfirm: 'Buyurtma bekor qilinsinmi?',
     linkOrder: 'Buyurtmaga bog\'lash (ixtiyoriy)',
     fullyDelivered: 'To\'liq yetkazildi',
+    closedPartial: 'Yopildi (qisman)',
+    deliveredSoFar: 'Yetkazilgan',
   },
   warehouses: {
     cutterWarehouse: 'Bichuv ombor',

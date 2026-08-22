@@ -242,6 +242,8 @@ export default {
     cancelConfirm: 'Буюртма бекор қилинсинми?',
     linkOrder: 'Буюртмага боғлаш (ихтиёрий)',
     fullyDelivered: 'Тўлиқ етказилди',
+    closedPartial: 'Ёпилди (қисман)',
+    deliveredSoFar: 'Етказилган',
   },
   warehouses: {
     cutterWarehouse: 'Бичув омбор',
