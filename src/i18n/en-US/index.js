@@ -67,6 +67,17 @@ export default {
       totalDelivered: 'Total delivered',
       totalUnmet: 'Total unmet',
     },
+    timing: {
+      confirm: 'Confirmation time',
+      waiting: 'Waiting time',
+      avg: 'average',
+      max: 'longest',
+      oldest: 'oldest',
+      day: 'd',
+      hour: 'h',
+      minute: 'min',
+      lessThanMinute: 'under a minute',
+    },
     pipeline: {
       title: 'Production pipeline',
       caption: 'Stage-by-stage status — unconfirmed work is highlighted',

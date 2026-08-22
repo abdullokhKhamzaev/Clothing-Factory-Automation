@@ -67,6 +67,17 @@ export default {
       totalDelivered: 'Жами етказилди',
       totalUnmet: 'Жами етказилмади',
     },
+    timing: {
+      confirm: 'Тасдиқлаш вақти',
+      waiting: 'Кутиш вақти',
+      avg: 'ўртача',
+      max: 'энг узоқ',
+      oldest: 'энг эскиси',
+      day: 'кун',
+      hour: 'соат',
+      minute: 'дақиқа',
+      lessThanMinute: '1 дақиқадан кам',
+    },
     pipeline: {
       title: 'Ишлаб чиқариш жараёни',
       caption: 'Босқичма-босқич ҳолат — тасдиқланмаган ишлар тўқ сариқ рангда',

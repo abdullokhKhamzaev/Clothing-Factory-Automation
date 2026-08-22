@@ -7,7 +7,7 @@ import {useRipeMaterialOrder} from "stores/ripeMaterialOrder.js";
 import {useProductModelOrderCompleted} from "stores/productModelOrderCompleted.js";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {useSale} from "stores/sale.js";
-import {formatFloatToInteger, getStats, WAREHOUSES} from "src/libraries/constants/defaults.js";
+import {formatFloatToInteger, formatDuration, getStats, WAREHOUSES} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -81,6 +81,21 @@ function sumPieces(items) {
   return getStats(items).total;
 }
 
+// Kutayotgan yozuvlar ichida eng eskisi qancha vaqtdan beri turganini qaytaradi
+function oldestPendingAge(pendingItems) {
+  const timestamps = pendingItems
+    .map(item => item.createdAt ? new Date(item.createdAt).getTime() : null)
+    .filter(Boolean);
+  if (!timestamps.length) return null;
+
+  return formatDuration(Date.now() - Math.min(...timestamps), {
+    day: t('statistics.timing.day'),
+    hour: t('statistics.timing.hour'),
+    minute: t('statistics.timing.minute'),
+    lessThanMinute: t('statistics.timing.lessThanMinute'),
+  });
+}
+
 const soldTotal = computed(() => {
   let total = 0;
   sales.value.forEach(sale => {
@@ -109,6 +124,7 @@ const stages = computed(() => {
       icon: 'texture',
       done: `${formatFloatToInteger(sumKg(weaveDone))} kg`,
       pending: weavePending.length ? `${formatFloatToInteger(sumKg(weavePending))} kg` : null,
+      pendingAge: oldestPendingAge(weavePending),
       step: 1,
     },
     {
@@ -117,6 +133,7 @@ const stages = computed(() => {
       icon: 'mdi-palette',
       done: `${formatFloatToInteger(sumSentKg(paintDone))} kg`,
       pending: paintPending.length ? `${formatFloatToInteger(sumSentKg(paintPending))} kg` : null,
+      pendingAge: oldestPendingAge(paintPending),
       step: null,
     },
     {
@@ -125,6 +142,7 @@ const stages = computed(() => {
       icon: 'mdi-scissors-cutting',
       done: formatFloatToInteger(sumPieces(cutOrders.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(cutOrders.value),
+      pendingAge: oldestPendingAge(cutOrders.value.filter(o => o.status === 'pending')),
       step: 2,
     },
     {
@@ -133,6 +151,7 @@ const stages = computed(() => {
       icon: 'mdi-draw',
       done: formatFloatToInteger(sumPieces(embroideryActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(embroideryActions.value),
+      pendingAge: oldestPendingAge(embroideryActions.value.filter(o => o.status === 'pending')),
       step: 3,
     },
     {
@@ -141,6 +160,7 @@ const stages = computed(() => {
       icon: 'mdi-nail',
       done: formatFloatToInteger(sumPieces(sewActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(sewActions.value),
+      pendingAge: oldestPendingAge(sewActions.value.filter(o => o.status === 'pending')),
       step: 4,
     },
     {
@@ -149,6 +169,7 @@ const stages = computed(() => {
       icon: 'mdi-package-down',
       done: formatFloatToInteger(sumPieces(packageActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(packageActions.value),
+      pendingAge: oldestPendingAge(packageActions.value.filter(o => o.status === 'pending')),
       step: 5,
     },
     {
@@ -157,6 +178,7 @@ const stages = computed(() => {
       icon: 'mdi-warehouse',
       done: formatFloatToInteger(sumPieces(toProductWarehouseActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(toProductWarehouseActions.value),
+      pendingAge: oldestPendingAge(toProductWarehouseActions.value.filter(o => o.status === 'pending')),
       step: 5,
     },
     {
@@ -230,6 +252,9 @@ onMounted(() => {
                 {{ stage.pending }}
                 <q-tooltip>{{ t('statistics.pipeline.pending') }}</q-tooltip>
               </q-badge>
+              <div v-if="stage.pendingAge" class="text-caption text-deep-orange q-mt-xs">
+                {{ t('statistics.timing.oldest') }}: {{ stage.pendingAge }}
+              </div>
             </div>
             <div v-else class="q-mt-xs">
               <q-icon name="mdi-check-circle-outline" color="green" size="18px">

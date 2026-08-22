@@ -3,6 +3,7 @@ import {computed, onMounted, ref, watch} from "vue"
 import {useProductModelOrderCompleted} from "stores/productModelOrderCompleted.js";
 import RefreshButton from "components/RefreshButton.vue";
 import ModelStatsBreakdown from "components/statistics/ModelStatsBreakdown.vue";
+import TimingSummary from "components/statistics/TimingSummary.vue";
 import {getStats} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
@@ -68,6 +69,8 @@ onMounted(() => {
     <q-separator v-else />
 
     <ModelStatsBreakdown :models-stats="modelsStats" />
+
+    <TimingSummary :items="models" mode="accepted" />
 
     <q-card-section>
       <div class="text-bold">Jami: {{ modelsStats.total }}</div>

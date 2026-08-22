@@ -4,6 +4,7 @@ import {useI18n} from "vue-i18n";
 import {useCompletedUnripeMaterialOrders} from "stores/completedUnripeMaterialOrders.js";
 import {useUnripeMaterialOrder} from "stores/unripeMaterialOrder.js";
 import RefreshButton from "components/RefreshButton.vue";
+import TimingSummary from "components/statistics/TimingSummary.vue";
 import {formatFloatToInteger} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
@@ -269,6 +270,8 @@ onMounted(() => {
         </div>
       </q-card>
     </q-expansion-item>
+
+    <TimingSummary :items="orders" :mode="props.status === 'accepted' ? 'accepted' : 'pending'" />
 
     <q-card-section>
       <div class="text-bold">{{ t('statistics.total') }}: {{ formatFloatToInteger(modelsStats.total) }}{{ modelsStats.totalMeasurement ? ' ' + modelsStats.totalMeasurement : '' }} {{ t('statistics.and') }} {{ modelsStats.totalRoll }} {{ t('statistics.roll') }}</div>

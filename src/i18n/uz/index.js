@@ -67,6 +67,17 @@ export default {
       totalDelivered: 'Jami yetkazildi',
       totalUnmet: 'Jami yetkazilmadi',
     },
+    timing: {
+      confirm: 'Tasdiqlash vaqti',
+      waiting: 'Kutish vaqti',
+      avg: 'o\'rtacha',
+      max: 'eng uzoq',
+      oldest: 'eng eskisi',
+      day: 'kun',
+      hour: 'soat',
+      minute: 'daqiqa',
+      lessThanMinute: '1 daqiqadan kam',
+    },
     pipeline: {
       title: 'Ishlab chiqarish jarayoni',
       caption: 'Bosqichma-bosqich holat — tasdiqlanmagan ishlar to\'q sariq rangda',

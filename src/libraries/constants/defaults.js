@@ -151,6 +151,23 @@ export const roundToDecimal = (number, decimals = 2) => {
   return Math.round(Number(number) * multiplier) / multiplier;
 };
 
+// Millisekundlarni "2 kun 5 soat" ko'rinishiga keltiradi; labels — tarjima qilingan birliklar
+export const formatDuration = (ms, labels) => {
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 1) return labels.lessThanMinute;
+
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  const mins = minutes % 60;
+
+  const parts = [];
+  if (days) parts.push(`${days} ${labels.day}`);
+  if (hours) parts.push(`${hours} ${labels.hour}`);
+  if (!days && mins) parts.push(`${mins} ${labels.minute}`);
+
+  return parts.join(' ') || labels.lessThanMinute;
+};
+
 export const formatFloatToInteger = (number) => {
   // First round to 2 decimal places to avoid floating point precision issues
   let num = roundToDecimal(Number(number), 2);

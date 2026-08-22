@@ -2,6 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue"
 import RefreshButton from "components/RefreshButton.vue";
 import ModelStatsBreakdown from "components/statistics/ModelStatsBreakdown.vue";
+import TimingSummary from "components/statistics/TimingSummary.vue";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {getStats} from "src/libraries/constants/defaults.js";
 
@@ -71,6 +72,8 @@ onMounted(() => {
     <q-separator v-else />
 
     <ModelStatsBreakdown :models-stats="modelsStats" />
+
+    <TimingSummary :items="models" mode="pending" />
 
     <q-card-section>
       <div class="text-bold">Jami: {{ modelsStats.total }}</div>
