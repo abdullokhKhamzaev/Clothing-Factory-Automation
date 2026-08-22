@@ -266,6 +266,7 @@ export default {
     advanceRemainderShort: 'қолдиқ',
     advanceLeft: 'Аванс қолдиғи',
     useAdvance: 'Авансдан ишлатиш',
+    advanceDepositFailed: 'Аванс кассага ёзилмади! Бюджет бўлимидан қўлда киритинг',
   },
   warehouses: {
     cutterWarehouse: 'Бичув омбор',

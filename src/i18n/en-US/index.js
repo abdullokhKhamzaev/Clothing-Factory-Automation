@@ -266,6 +266,7 @@ export default {
     advanceRemainderShort: 'left',
     advanceLeft: 'Advance remaining',
     useAdvance: 'Use from advance',
+    advanceDepositFailed: 'Advance was not deposited to the budget! Add it manually in the Budget section',
   },
   warehouses: {
     cutterWarehouse: 'Cutter Warehouse',

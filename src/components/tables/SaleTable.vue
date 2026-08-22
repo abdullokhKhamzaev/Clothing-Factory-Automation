@@ -263,6 +263,10 @@ function createAction () {
     if (advanceUsed > 0) {
       input.paidPrice = String(roundToDecimal(cash + advanceUsed));
       input.isPayed = roundToDecimal(cash + advanceUsed) >= Number(finalPrice.value);
+
+      // Tranzaksiya price'idan avans qoplagan qismni chiqaramiz, aks holda
+      // backend (price - paidPrice) farqini "bizga qarzdorlar"ga yozib yuboradi
+      input.transaction[0].price = String(roundToDecimal(Math.max(0, Number(finalPrice.value) - advanceUsed)));
     }
   }
 

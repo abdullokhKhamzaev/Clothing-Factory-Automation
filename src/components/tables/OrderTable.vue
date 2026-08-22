@@ -122,6 +122,13 @@ function createAction () {
           quantity: advance,
           description: 'orderAdvance #' + (res?.data?.id || ''),
           isIncome: true,
+        }).catch(() => {
+          $q.notify({
+            type: 'negative',
+            position: 'top',
+            timeout: 5000,
+            message: t('orderActions.advanceDepositFailed')
+          })
         });
       }
 

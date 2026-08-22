@@ -266,6 +266,7 @@ export default {
     advanceRemainderShort: 'qoldiq',
     advanceLeft: 'Avans qoldig\'i',
     useAdvance: 'Avansdan ishlatish',
+    advanceDepositFailed: 'Avans kassaga yozilmadi! Byudjet bo\'limidan qo\'lda kiriting',
   },
   warehouses: {
     cutterWarehouse: 'Bichuv ombor',
