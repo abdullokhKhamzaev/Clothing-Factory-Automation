@@ -2,6 +2,10 @@ import { defineStore } from "pinia";
 import { client } from "boot/axios.js";
 
 export const useSale = defineStore('sales', () => {
+  // Statistika sahifasida bir xil so'rov bir necha komponentdan ketmasligi uchun qisqa muddatli kesh
+  const salesCache = new Map();
+  const SALES_CACHE_TTL = 30000;
+
   async function fetchSales(filterProps) {
     const params = new URLSearchParams();
 
@@ -29,9 +33,18 @@ export const useSale = defineStore('sales', () => {
       params.set('createdAt[before]', filterProps.createdAtTo);
     }
 
+    const cacheKey = params.toString();
+    const cached = salesCache.get(cacheKey);
+    if (!filterProps.force && cached && Date.now() - cached.time < SALES_CACHE_TTL) {
+      return cached.promise;
+    }
+
     try {
-      return await client.get(`sales?${params.toString()}`);
+      const promise = client.get(`sales?${cacheKey}`);
+      salesCache.set(cacheKey, { time: Date.now(), promise });
+      return await promise;
     } catch (e) {
+      salesCache.delete(cacheKey);
       console.log(e)
     }
   }

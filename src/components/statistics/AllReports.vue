@@ -30,6 +30,7 @@ import PackageModelsCutDefectPending from "components/statistics/PackageModelsCu
 import PackageModelsProductWarehouseAccepted from "components/statistics/PackageModelsProductWarehouseAccepted.vue";
 import PackageModelsProductWarehousePending from "components/statistics/PackageModelsProductWarehousePending.vue";
 import SaleProducts from "components/statistics/SaleProducts.vue";
+import SaleAnalytics from "components/statistics/SaleAnalytics.vue";
 import ExpensesTransactions from "components/statistics/ExpensesTransactions.vue";
 import ExchangeTable from "components/tables/ExchangeTable.vue";
 
@@ -166,6 +167,14 @@ function getSaleProducts(data) {
 }
 const weaveTab = ref('done');
 const cutTab = ref('done');
+const saleTab = ref('sales');
+
+// Jarayon (pipeline) kartochkasidan bosqichga o'tish uchun
+function goToStep(stepNumber) {
+  step.value = stepNumber;
+}
+
+defineExpose({ goToStep });
 const embroideryTab = ref('done');
 const sewTab = ref('done');
 const packageTab = ref('done');
@@ -205,16 +214,16 @@ const packageTab = ref('done');
           no-caps
           narrow-indicator
         >
-          <q-tab name="done" label="To'qildi" />
-          <q-tab name="donePending" label="To'qildi (kutilmoqda)" />
+          <q-tab name="done" :label="t('statistics.weave.done')" />
+          <q-tab name="donePending" :label="t('statistics.weave.donePending')" />
         </q-tabs>
         <q-separator />
         <q-tab-panels v-model="weaveTab" animated>
           <q-tab-panel name="done">
-            <WeaveModels :date-to="props.dateTo" :date-from="props.dateFrom" status="accepted" title="To'qilgan mahsulotlar:" @retrieve-data="getWeaveModelsAcceptedData" />
+            <WeaveModels :date-to="props.dateTo" :date-from="props.dateFrom" status="accepted" :title="t('statistics.weave.title')" @retrieve-data="getWeaveModelsAcceptedData" />
           </q-tab-panel>
           <q-tab-panel name="donePending">
-            <WeaveModels :date-to="props.dateTo" :date-from="props.dateFrom" status="notAccepted" title="To'qilgan mahsulotlar (kutilmoqda):" @retrieve-data="getWeaveModelsPendingData" />
+            <WeaveModels :date-to="props.dateTo" :date-from="props.dateFrom" status="notAccepted" :title="t('statistics.weave.titlePending')" @retrieve-data="getWeaveModelsPendingData" />
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -426,7 +435,31 @@ const packageTab = ref('done');
       icon="mdi-cart-percent"
       :done="step > 6"
     >
-      <SaleProducts :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSaleProducts" />
+      <q-card>
+        <q-tabs
+          v-model="saleTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          outside-arrows
+          no-caps
+          narrow-indicator
+        >
+          <q-tab name="sales" :label="t('statistics.sale.salesTab')" />
+          <q-tab name="analytics" :label="t('statistics.sale.analyticsTab')" />
+        </q-tabs>
+        <q-separator />
+        <q-tab-panels v-model="saleTab" animated>
+          <q-tab-panel name="sales">
+            <SaleProducts :date-to="props.dateTo" :date-from="props.dateFrom" @retrieve-data="getSaleProducts" />
+          </q-tab-panel>
+          <q-tab-panel name="analytics">
+            <SaleAnalytics :date-to="props.dateTo" :date-from="props.dateFrom" />
+          </q-tab-panel>
+        </q-tab-panels>
+      </q-card>
     </q-step>
     <q-step
       :name="7"

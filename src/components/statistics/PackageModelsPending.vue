@@ -1,6 +1,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue"
 import RefreshButton from "components/RefreshButton.vue";
+import ModelStatsBreakdown from "components/statistics/ModelStatsBreakdown.vue";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {getStats} from "src/libraries/constants/defaults.js";
 
@@ -16,8 +17,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['retrieveData']);
-
-const splitterModel = ref(50);
 
 // Accepted Orders
 const models = ref([]);
@@ -70,26 +69,7 @@ onMounted(() => {
     <q-linear-progress v-if="loading" indeterminate color="primary" />
     <q-separator v-else />
 
-    <q-expansion-item
-      expand-separator
-      label="Qo'shimcha ma'lumotlar"
-      header-class="text-primary"
-    >
-      <q-card>
-        <div v-for="(count, modelName) in modelsStats.stats" :key="modelName">
-          <q-splitter v-model="splitterModel">
-            <template v-slot:before>
-              <q-card-section>{{ modelName }}</q-card-section>
-            </template>
-
-            <template v-slot:after>
-              <q-card-section>{{ count }}</q-card-section>
-            </template>
-          </q-splitter>
-          <q-separator inset />
-        </div>
-      </q-card>
-    </q-expansion-item>
+    <ModelStatsBreakdown :models-stats="modelsStats" />
 
     <q-card-section>
       <div class="text-bold">Jami: {{ modelsStats.total }}</div>

@@ -1,6 +1,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue"
 import RefreshButton from "components/RefreshButton.vue";
+import ModelStatsBreakdown from "components/statistics/ModelStatsBreakdown.vue";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {getStats} from "src/libraries/constants/defaults.js";
 
@@ -16,9 +17,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['retrieveData']);
-
-const splitterModel = ref(50);
-const viewByUser = ref(false); // Toggle between model view and user view
 
 // Accepted Orders
 const models = ref([]);
@@ -73,109 +71,7 @@ onMounted(() => {
     <q-linear-progress v-if="loading" indeterminate color="primary" />
     <q-separator v-else />
 
-    <!-- View Toggle Buttons - Always Visible -->
-    <q-card-section class="q-pa-sm">
-      <div class="row q-px-sm q-gutter-x-sm">
-        <q-btn
-          :color="!viewByUser ? 'primary' : 'grey-5'"
-          :text-color="!viewByUser ? 'white' : 'grey-7'"
-          :unelevated="!viewByUser"
-          :outline="viewByUser"
-          icon="mdi-tshirt-crew-outline"
-          label="Mahsulot bo'yicha"
-          dense
-          no-caps
-          class="q-px-md"
-          @click="viewByUser = false"
-        />
-        <q-btn
-          :color="viewByUser ? 'primary' : 'grey-5'"
-          :text-color="viewByUser ? 'white' : 'grey-7'"
-          :unelevated="viewByUser"
-          :outline="!viewByUser"
-          icon="people"
-          label="Xodim bo'yicha"
-          class="q-px-md"
-          dense
-          no-caps
-          @click="viewByUser = true"
-        />
-      </div>
-    </q-card-section>
-
-    <q-separator />
-
-    <q-expansion-item
-      expand-separator
-      label="Qo'shimcha ma'lumotlar"
-      header-class="text-primary"
-    >
-      <q-card>
-        <!-- Product View (Default) -->
-        <div v-if="!viewByUser">
-          <div v-for="(count, modelName) in modelsStats.stats" :key="modelName">
-            <q-expansion-item
-              :label="`${modelName} (Jami: ${count})`"
-              icon="inventory"
-              header-class="text-secondary text-weight-medium"
-            >
-              <q-card class="q-ml-md">
-                <div v-for="(userCount, packagerName) in modelsStats.statsByUser[modelName]" :key="packagerName">
-                  <q-splitter v-model="splitterModel">
-                    <template v-slot:before>
-                      <q-card-section class="q-pl-md">
-                        <q-icon name="person" class="q-mr-sm" color="primary" />
-                        {{ packagerName }}
-                      </q-card-section>
-                    </template>
-
-                    <template v-slot:after>
-                      <q-card-section class="text-bold text-green">
-                        {{ userCount }}
-                      </q-card-section>
-                    </template>
-                  </q-splitter>
-                  <q-separator inset="item" />
-                </div>
-              </q-card>
-            </q-expansion-item>
-            <q-separator />
-          </div>
-        </div>
-
-        <!-- User View -->
-        <div v-else>
-          <div v-for="(count, packagerName) in modelsStats.userStats" :key="packagerName">
-            <q-expansion-item
-              :label="`${packagerName} (Jami: ${count})`"
-              icon="person"
-              header-class="text-secondary text-weight-medium"
-            >
-              <q-card class="q-ml-md">
-                <div v-for="(modelCount, modelName) in modelsStats.statsByModel[packagerName]" :key="modelName">
-                  <q-splitter v-model="splitterModel">
-                    <template v-slot:before>
-                      <q-card-section class="q-pl-md">
-                        <q-icon name="inventory" class="q-mr-sm" color="secondary" />
-                        {{ modelName }}
-                      </q-card-section>
-                    </template>
-
-                    <template v-slot:after>
-                      <q-card-section class="text-bold text-orange">
-                        {{ modelCount }}
-                      </q-card-section>
-                    </template>
-                  </q-splitter>
-                  <q-separator inset="item" />
-                </div>
-              </q-card>
-            </q-expansion-item>
-            <q-separator />
-          </div>
-        </div>
-      </q-card>
-    </q-expansion-item>
+    <ModelStatsBreakdown :models-stats="modelsStats" />
 
     <q-card-section>
       <div class="text-bold">Jami: {{ modelsStats.total }}</div>

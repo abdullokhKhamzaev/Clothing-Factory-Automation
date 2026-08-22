@@ -1,10 +1,18 @@
 <script setup>
 import { ref } from "vue";
 import { DATE_FORMAT } from "src/libraries/constants/defaults.js";
+import StatisticsDashboard from "components/statistics/StatisticsDashboard.vue";
+import ProductionPipeline from "components/statistics/ProductionPipeline.vue";
 import AllReports from "components/statistics/AllReports.vue";
 
 const dateFrom = ref(new Date().toISOString().split('T')[0]);
 const dateTo = ref(new Date().toISOString().split('T')[0]);
+
+const allReports = ref(null);
+
+function goToStep(stepNumber) {
+  allReports.value?.goToStep(stepNumber);
+}
 </script>
 
 
@@ -30,6 +38,10 @@ const dateTo = ref(new Date().toISOString().split('T')[0]);
     </q-btn>
   </q-card>
 
-  <AllReports :date-from="dateFrom" :date-to="dateTo" />
+  <StatisticsDashboard :date-from="dateFrom" :date-to="dateTo" />
+
+  <ProductionPipeline :date-from="dateFrom" :date-to="dateTo" @select-step="goToStep" />
+
+  <AllReports ref="allReports" :date-from="dateFrom" :date-to="dateTo" />
 </template>
 

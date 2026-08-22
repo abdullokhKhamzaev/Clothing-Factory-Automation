@@ -1,5 +1,6 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue"
+import {useI18n} from "vue-i18n";
 import {useCompletedUnripeMaterialOrders} from "stores/completedUnripeMaterialOrders.js";
 import {useUnripeMaterialOrder} from "stores/unripeMaterialOrder.js";
 import RefreshButton from "components/RefreshButton.vue";
@@ -26,7 +27,7 @@ const props = defineProps({
 
 const emit = defineEmits(['retrieveData']);
 
-const splitterModel = ref(50);
+const { t } = useI18n();
 const viewByUser = ref(false); // Toggle between material view and user view
 
 const orders = ref([]);
@@ -68,6 +69,10 @@ function materialNameOf(order) {
   return material?.name || `Buyurtma #${order.unripeMaterialOrder?.id || '?'}`;
 }
 
+function measurementOf(order) {
+  return materialsByOrderId.value[order.unripeMaterialOrder?.id]?.measurement || 'kg';
+}
+
 const emptyEntry = () => ({quantity: 0, roll: 0, quantitySort2: 0, rollSort2: 0});
 
 function addToEntry(entry, order) {
@@ -75,6 +80,14 @@ function addToEntry(entry, order) {
   entry.roll += order.roll || 0;
   entry.quantitySort2 += parseFloat(order.quantitySort2) || 0;
   entry.rollSort2 += order.rollSort2 || 0;
+
+  // O'lchov birligi: aralash bo'lsa ko'rsatilmaydi
+  const measurement = measurementOf(order);
+  if (entry.measurement === undefined) {
+    entry.measurement = measurement;
+  } else if (entry.measurement !== measurement) {
+    entry.measurement = '';
+  }
 }
 
 const modelsStats = computed(() => {
@@ -126,13 +139,15 @@ const modelsStats = computed(() => {
     totalRoll: totals.roll,
     totalSort2: totals.quantitySort2,
     totalRollSort2: totals.rollSort2,
+    totalMeasurement: totals.measurement || '',
   };
 });
 
 function formatEntry(entry) {
-  let text = `${formatFloatToInteger(entry.quantity)} (${entry.roll} ro'lon)`;
+  const unit = entry.measurement ? ` ${entry.measurement}` : '';
+  let text = `${formatFloatToInteger(entry.quantity)}${unit} ${t('statistics.and')} ${entry.roll} ${t('statistics.roll')}`;
   if (entry.quantitySort2 > 0 || entry.rollSort2 > 0) {
-    text += ` | 2-sort: ${formatFloatToInteger(entry.quantitySort2)} (${entry.rollSort2} ro'lon)`;
+    text += ` | ${t('statistics.sort2')}: ${formatFloatToInteger(entry.quantitySort2)}${unit} ${t('statistics.and')} ${entry.rollSort2} ${t('statistics.roll')}`;
   }
   return text;
 }
@@ -170,7 +185,7 @@ onMounted(() => {
           :unelevated="!viewByUser"
           :outline="viewByUser"
           icon="texture"
-          label="Material bo'yicha"
+          :label="t('statistics.materialView')"
           class="q-px-md"
           dense
           no-caps
@@ -184,7 +199,7 @@ onMounted(() => {
           icon="people"
           dense
           no-caps
-          label="Xodim bo'yicha"
+          :label="t('statistics.userView')"
           class="q-px-md"
         />
       </div>
@@ -194,7 +209,7 @@ onMounted(() => {
 
     <q-expansion-item
       expand-separator
-      label="Qo'shimcha ma'lumotlar"
+      :label="t('statistics.additionalInfo')"
       header-class="text-primary"
     >
       <q-card>
@@ -203,26 +218,21 @@ onMounted(() => {
         <div v-if="!viewByUser">
           <div v-for="(entry, materialName) in modelsStats.stats" :key="materialName">
             <q-expansion-item
-              :label="`${materialName} (Jami: ${formatEntry(entry)})`"
+              :label="`${materialName} (${t('statistics.total')}: ${formatEntry(entry)})`"
               icon="texture"
               header-class="text-secondary text-weight-medium"
             >
               <q-card class="q-ml-md">
                 <div v-for="(userEntry, weaverName) in modelsStats.statsByUser[materialName]" :key="weaverName">
-                  <q-splitter v-model="splitterModel">
-                    <template v-slot:before>
-                      <q-card-section class="q-pl-md">
-                        <q-icon name="person" class="q-mr-sm" color="primary" />
-                        {{ weaverName }}
-                      </q-card-section>
-                    </template>
-
-                    <template v-slot:after>
-                      <q-card-section class="text-bold text-green">
-                        {{ formatEntry(userEntry) }}
-                      </q-card-section>
-                    </template>
-                  </q-splitter>
+                  <div class="row justify-between items-center wrap q-px-md q-py-sm">
+                    <div>
+                      <q-icon name="person" class="q-mr-sm" color="primary" />
+                      {{ weaverName }}
+                    </div>
+                    <div class="text-bold text-green">
+                      {{ formatEntry(userEntry) }}
+                    </div>
+                  </div>
                   <q-separator inset="item" />
                 </div>
               </q-card>
@@ -235,26 +245,21 @@ onMounted(() => {
         <div v-else>
           <div v-for="(entry, weaverName) in modelsStats.userStats" :key="weaverName">
             <q-expansion-item
-              :label="`${weaverName} (Jami: ${formatEntry(entry)})`"
+              :label="`${weaverName} (${t('statistics.total')}: ${formatEntry(entry)})`"
               icon="person"
               header-class="text-secondary text-weight-medium"
             >
               <q-card class="q-ml-md">
                 <div v-for="(materialEntry, materialName) in modelsStats.statsByModel[weaverName]" :key="materialName">
-                  <q-splitter v-model="splitterModel">
-                    <template v-slot:before>
-                      <q-card-section class="q-pl-md">
-                        <q-icon name="texture" class="q-mr-sm" color="secondary" />
-                        {{ materialName }}
-                      </q-card-section>
-                    </template>
-
-                    <template v-slot:after>
-                      <q-card-section class="text-bold text-orange">
-                        {{ formatEntry(materialEntry) }}
-                      </q-card-section>
-                    </template>
-                  </q-splitter>
+                  <div class="row justify-between items-center wrap q-px-md q-py-sm">
+                    <div>
+                      <q-icon name="texture" class="q-mr-sm" color="secondary" />
+                      {{ materialName }}
+                    </div>
+                    <div class="text-bold text-orange">
+                      {{ formatEntry(materialEntry) }}
+                    </div>
+                  </div>
                   <q-separator inset="item" />
                 </div>
               </q-card>
@@ -266,9 +271,9 @@ onMounted(() => {
     </q-expansion-item>
 
     <q-card-section>
-      <div class="text-bold">Jami: {{ formatFloatToInteger(modelsStats.total) }} ({{ modelsStats.totalRoll }} ro'lon)</div>
+      <div class="text-bold">{{ t('statistics.total') }}: {{ formatFloatToInteger(modelsStats.total) }}{{ modelsStats.totalMeasurement ? ' ' + modelsStats.totalMeasurement : '' }} {{ t('statistics.and') }} {{ modelsStats.totalRoll }} {{ t('statistics.roll') }}</div>
       <div v-if="modelsStats.totalSort2 > 0 || modelsStats.totalRollSort2 > 0" class="text-bold text-orange">
-        2-sort: {{ formatFloatToInteger(modelsStats.totalSort2) }} ({{ modelsStats.totalRollSort2 }} ro'lon)
+        {{ t('statistics.sort2') }}: {{ formatFloatToInteger(modelsStats.totalSort2) }}{{ modelsStats.totalMeasurement ? ' ' + modelsStats.totalMeasurement : '' }} {{ t('statistics.and') }} {{ modelsStats.totalRollSort2 }} {{ t('statistics.roll') }}
       </div>
     </q-card-section>
   </q-card>

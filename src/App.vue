@@ -9,7 +9,8 @@ if (accessToken.value) {
   let timestamp = JSON.parse(atob(accessToken.value.split('.')[1])).exp * 1000 - 3600000
 
   if (timestamp < new Date().getTime()) {
-    useRefreshToken().refreshToken({refreshToken: accessToken.value})
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    useRefreshToken().refreshToken({refreshToken: storedRefreshToken || accessToken.value})
   }
 }
 

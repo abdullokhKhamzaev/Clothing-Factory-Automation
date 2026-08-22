@@ -1,5 +1,6 @@
 <script setup>
 import {computed, onMounted, reactive, ref, watch} from "vue"
+import {useI18n} from "vue-i18n";
 import RefreshButton from "components/RefreshButton.vue";
 import { useSale } from "stores/sale.js";
 import SelectableList from "components/selectableList.vue";
@@ -7,6 +8,7 @@ import {useCustomer} from "stores/customer.js";
 import {formatFloatToInteger, roundToDecimal} from "../../libraries/constants/defaults.js";
 
 const customer = useCustomer();
+const { t } = useI18n();
 
 const props = defineProps({
   dateFrom: {
@@ -25,17 +27,18 @@ const filters = reactive({
   customer: ''
 });
 
-const splitterModel = ref(50);
+const viewByCustomer = ref(false); // Toggle between model view and customer view
 
 const models = ref([]);
 const loading = ref(false);
-function getModels () {
+function getModels (force = false) {
   if (loading.value) return; // Prevent multiple rapid calls
   loading.value = true;
 
   let filterProps = {};
 
   filterProps.customer = filters.customer;
+  filterProps.force = force === true;
   filterProps.createdAtFrom = props.dateFrom + 'T00:00:00';
   filterProps.createdAtTo = props.dateTo + 'T23:59:59';
   filterProps.rowsPerPage = '~';
@@ -52,6 +55,9 @@ function getModels () {
 
 function getStats(sales) {
   const stats = {};
+  const statsByCustomer = {}; // model -> customer -> {quantity, totalPrice...}
+  const customerStats = {}; // customer -> {quantity, totalPrice..., totalPaidPrice...}
+  const statsByModel = {}; // customer -> model -> {quantity, totalPrice...}
   const totalPrices = {};
   const totalPaidPrices = {};
   let totalQuantity = 0;
@@ -60,6 +66,7 @@ function getStats(sales) {
   if (Array.isArray(sales)) {
     sales.forEach(sale => {
       const saleProducts = sale.saleProduct || [];
+      const customerName = sale.customer?.fullName || 'Unknown';
       let rawCurrency = sale.budget?.name || 'Unknown';
       if (rawCurrency.toLowerCase().includes("so'm")) {
         rawCurrency = 'Uzs';
@@ -76,6 +83,12 @@ function getStats(sales) {
       // Track global paid/price totals
       totalPrices[totalKey] = (totalPrices[totalKey] || 0) + totalSalePrice;
       totalPaidPrices[paidKey] = (totalPaidPrices[paidKey] || 0) + paidPrice;
+
+      // Paid price is exact per customer (one sale -> one customer)
+      if (!customerStats[customerName]) {
+        customerStats[customerName] = { quantity: 0 };
+      }
+      customerStats[customerName][paidKey] = (customerStats[customerName][paidKey] || 0) + paidPrice;
 
       // Distribute payment proportionally to each product
       const productCount = saleProducts.length;
@@ -104,6 +117,30 @@ function getStats(sales) {
         const proportionalPaid = productCount > 0 ? paidPrice / productCount : 0;
         stats[modelName][paidKey] = (stats[modelName][paidKey] || 0) + proportionalPaid;
 
+        // Model -> Customer breakdown
+        if (!statsByCustomer[modelName]) {
+          statsByCustomer[modelName] = {};
+        }
+        if (!statsByCustomer[modelName][customerName]) {
+          statsByCustomer[modelName][customerName] = { quantity: 0 };
+        }
+        statsByCustomer[modelName][customerName].quantity += modelQuantity;
+        statsByCustomer[modelName][customerName][totalKey] = (statsByCustomer[modelName][customerName][totalKey] || 0) + modelPrice;
+
+        // Customer totals
+        customerStats[customerName].quantity += modelQuantity;
+        customerStats[customerName][totalKey] = (customerStats[customerName][totalKey] || 0) + modelPrice;
+
+        // Customer -> Model breakdown
+        if (!statsByModel[customerName]) {
+          statsByModel[customerName] = {};
+        }
+        if (!statsByModel[customerName][modelName]) {
+          statsByModel[customerName][modelName] = { quantity: 0 };
+        }
+        statsByModel[customerName][modelName].quantity += modelQuantity;
+        statsByModel[customerName][modelName][totalKey] = (statsByModel[customerName][modelName][totalKey] || 0) + modelPrice;
+
         totalQuantity += modelQuantity;
       });
     });
@@ -130,12 +167,41 @@ function getStats(sales) {
 
   return {
     stats,
+    statsByCustomer,
+    customerStats,
+    statsByModel,
     totalQuantity,
     ...globalTotals
   };
 }
 
 const modelsStats = computed(() => getStats(models.value));
+
+// "4727 Dona | ~ 2.59$ | Jami: 12254.7$" ko'rinishidagi qator
+function priceLine(entry) {
+  let text = `${formatFloatToInteger(entry.quantity)} ${t('piece')}`;
+  if (entry.totalPriceUsd) {
+    text += ` | ~ ${formatFloatToInteger(roundToDecimal(entry.totalPriceUsd / entry.quantity))}$ | ${t('statistics.total')}: ${formatFloatToInteger(roundToDecimal(entry.totalPriceUsd))}$`;
+  }
+  if (entry.totalPriceUzs) {
+    text += ` | ~ ${formatFloatToInteger(roundToDecimal(entry.totalPriceUzs / entry.quantity))}so'm | ${t('statistics.total')}: ${formatFloatToInteger(roundToDecimal(entry.totalPriceUzs))}so'm`;
+  }
+  return text;
+}
+
+// Xaridor sarlavhasi uchun to'langan/qarz bilan qator
+function customerLine(entry) {
+  let text = priceLine(entry);
+  const debtUsd = roundToDecimal((entry.totalPriceUsd || 0) - (entry.totalPaidPriceUsd || 0));
+  const debtUzs = roundToDecimal((entry.totalPriceUzs || 0) - (entry.totalPaidPriceUzs || 0));
+  if (debtUsd > 0) {
+    text += ` | ${t('statistics.dashboard.debt')}: ${formatFloatToInteger(debtUsd)}$`;
+  }
+  if (debtUzs > 0) {
+    text += ` | ${t('statistics.dashboard.debt')}: ${formatFloatToInteger(debtUzs)}so'm`;
+  }
+  return text;
+}
 
 function sendData() {
   emit('retrieveData', modelsStats)
@@ -167,32 +233,104 @@ onMounted(() => {
 
   <q-card flat bordered class="q-pa-sm text-green">
     <q-card-section class="flex justify-between">
-      <div class="text-h6 text-primary">Mahsulotlar savdosi:</div>
-      <refresh-button dense :action="getModels" />
+      <div class="text-h6 text-primary">{{ t('statistics.sale.title') }}</div>
+      <refresh-button dense :action="() => getModels(true)" />
     </q-card-section>
 
     <q-linear-progress v-if="loading" indeterminate color="primary" />
     <q-separator v-else />
 
+    <!-- View Toggle Buttons -->
+    <q-card-section class="q-pa-sm">
+      <div class="row q-px-sm q-gutter-x-sm">
+        <q-btn
+          @click="viewByCustomer = false"
+          :color="!viewByCustomer ? 'primary' : 'grey-5'"
+          :text-color="!viewByCustomer ? 'white' : 'grey-7'"
+          :unelevated="!viewByCustomer"
+          :outline="viewByCustomer"
+          icon="inventory"
+          :label="t('statistics.modelView')"
+          class="q-px-md"
+          dense
+          no-caps
+        />
+        <q-btn
+          @click="viewByCustomer = true"
+          :color="viewByCustomer ? 'primary' : 'grey-5'"
+          :text-color="viewByCustomer ? 'white' : 'grey-7'"
+          :unelevated="viewByCustomer"
+          :outline="!viewByCustomer"
+          icon="people"
+          dense
+          no-caps
+          :label="t('statistics.customerView')"
+          class="q-px-md"
+        />
+      </div>
+    </q-card-section>
+
+    <q-separator />
+
     <q-expansion-item
       expand-separator
-      label="Qo'shimcha ma'lumotlar"
+      :label="t('statistics.additionalInfo')"
       header-class="text-primary"
     >
       <q-card>
-        <div v-for="(count, modelName) in modelsStats.stats" :key="modelName">
-          <q-splitter v-model="splitterModel">
-            <template v-slot:before>
-              <q-card-section>{{ modelName }}</q-card-section>
-            </template>
 
-            <template v-slot:after>
-              <q-card-section>
-                {{ count.quantity }} {{ $t('piece') }} | ~ {{ count.totalPriceUsd ? `${formatFloatToInteger(roundToDecimal(count.totalPriceUsd / count.quantity))}$ | Jami: ${count.totalPriceUsd}$` : '' }} {{ count.totalPriceUzs ? `| ${formatFloatToInteger(roundToDecimal(count.totalPriceUzs / count.quantity))}so'm | Jami: ${count.totalPriceUzs}so'm` : '' }}
-              </q-card-section>
-            </template>
-          </q-splitter>
-          <q-separator inset />
+        <!-- Model View (Default): model -> customers -->
+        <div v-if="!viewByCustomer">
+          <div v-for="(entry, modelName) in modelsStats.stats" :key="modelName">
+            <q-expansion-item
+              :label="`${modelName} — ${priceLine(entry)}`"
+              icon="inventory"
+              header-class="text-secondary text-weight-medium"
+            >
+              <q-card class="q-ml-md">
+                <div v-for="(customerEntry, customerName) in modelsStats.statsByCustomer[modelName]" :key="customerName">
+                  <div class="row justify-between items-center wrap q-px-md q-py-sm">
+                    <div>
+                      <q-icon name="person" class="q-mr-sm" color="primary" />
+                      {{ customerName }}
+                    </div>
+                    <div class="text-bold text-green">
+                      {{ priceLine(customerEntry) }}
+                    </div>
+                  </div>
+                  <q-separator inset="item" />
+                </div>
+              </q-card>
+            </q-expansion-item>
+            <q-separator />
+          </div>
+        </div>
+
+        <!-- Customer View: customer -> models -->
+        <div v-else>
+          <div v-for="(entry, customerName) in modelsStats.customerStats" :key="customerName">
+            <q-expansion-item
+              :label="`${customerName} — ${customerLine(entry)}`"
+              icon="person"
+              header-class="text-secondary text-weight-medium"
+            >
+              <q-card class="q-ml-md">
+                <div v-for="(modelEntry, modelName) in modelsStats.statsByModel[customerName]" :key="modelName">
+                  <div class="row justify-between items-center wrap q-px-md q-py-sm">
+                    <div>
+                      <q-icon name="inventory" class="q-mr-sm" color="secondary" />
+                      {{ modelName }}
+                    </div>
+                    <div class="text-bold text-orange">
+                      {{ priceLine(modelEntry) }}
+                    </div>
+                  </div>
+                  <q-separator inset="item" />
+                </div>
+              </q-card>
+            </q-expansion-item>
+            <q-separator />
+          </div>
         </div>
       </q-card>
     </q-expansion-item>
