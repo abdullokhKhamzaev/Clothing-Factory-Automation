@@ -42,10 +42,18 @@ async function fetchOpenOrders(selectedCustomer) {
     rowsPerPage: '~',
   });
 
-  openOrders.value = (res?.data['hydra:member'] || []).map(order => ({
-    label: `#${order.id} | ${order.createdAt?.split('T')[0]} | ${order.totalPrice} ${order.budget?.name || ''}`,
-    value: order['@id'],
-  }));
+  openOrders.value = (res?.data['hydra:member'] || []).map(order => {
+    const sumQty = product => (product.quantities || []).reduce((sum, q) => sum + (q.quantity || 0), 0);
+    const totalQty = (order.products || []).reduce((sum, product) => sum + sumQty(product), 0);
+    const modelsText = (order.products || [])
+      .map(product => `${product.productModel?.name || '?'}: ${sumQty(product)}`)
+      .join(', ');
+
+    return {
+      label: `#${order.id} | ${modelsText} | ${t('orderActions.deliveredSoFar')}: ${order.deliveredQuantity || 0}/${totalQty} | ${formatFloatToInteger(order.totalPrice)} ${order.budget?.name || ''} | ${order.createdAt?.split('T')[0]}`,
+      value: order['@id'],
+    };
+  });
 }
 const showPayModal = ref(false);
 const payActionErr = ref(null);
