@@ -197,6 +197,12 @@ const linksList = [
     routePrefix: '/admin/customers'
   },
   {
+    title: 'orders',
+    icon: 'receipt_long',
+    to: { name: 'club.orders' },
+    routePrefix: '/admin/orders'
+  },
+  {
     title: 'sales',
     icon: 'shopping_cart',
     to: { name: 'club.sales' },
