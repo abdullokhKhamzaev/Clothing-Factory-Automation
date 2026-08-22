@@ -7,7 +7,7 @@ import { useProductModels } from "stores/productModel.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import { DATE_FORMAT, formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
+import { DATE_FORMAT, formatDate, formatFloatToInteger, roundToDecimal, isToday } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -107,8 +107,24 @@ function createAction () {
     dealDate: selectedData.value.dealDate,
   }
 
+  // Oldindan to'lov (avans): buyurtmada saqlanadi va kassaga kirim yoziladi
+  const advance = roundToDecimal(Number(selectedData.value.advancePrice || 0));
+  if (advance > 0) {
+    input.advancePrice = String(advance);
+    input.advanceRemainder = String(advance);
+  }
+
   repository.create(input)
-    .then(() => {
+    .then((res) => {
+      if (advance > 0) {
+        budget.add({
+          budget: selectedData.value.budget['@id'],
+          quantity: advance,
+          description: 'orderAdvance #' + (res?.data?.id || ''),
+          isIncome: true,
+        });
+      }
+
       showCreateModal.value = false;
       $q.notify({
         type: 'positive',
@@ -296,6 +312,10 @@ onMounted(() => {
           </div>
           <div v-else-if="col.name === 'totalPrice'">
             {{ formatFloatToInteger(props.row.totalPrice) }} {{ props.row.budget.name }}
+            <div v-if="parseFloat(props.row.advancePrice) > 0" class="text-caption text-green">
+              {{ $t('orderActions.advanceShort') }}: {{ formatFloatToInteger(props.row.advancePrice) }}
+              ({{ $t('orderActions.advanceRemainderShort') }}: {{ formatFloatToInteger(props.row.advanceRemainder) }})
+            </div>
           </div>
           <div v-else-if="col.name === 'progress'">
             <div class="text-bold no-wrap">
@@ -479,6 +499,17 @@ onMounted(() => {
           <div v-if="selectedData.customer && selectedData.budget" class="col-12 text-h6 text-bold text-primary">
             {{ $t('orderActions.total') }}: {{ formatFloatToInteger(total) }} {{ selectedData?.budget?.name || '' }}
           </div>
+          <q-input
+            v-if="selectedData.customer && selectedData.budget"
+            v-model.number="selectedData.advancePrice"
+            type="number"
+            filled
+            :suffix="selectedData?.budget?.name || null"
+            :label="$t('orderActions.advance')"
+            :rules="[val => val === undefined || val === null || val === '' || (val >= 0 && val <= total) || $t('orderActions.advance')]"
+            hide-bottom-space
+            class="col-12"
+          />
           <q-input
             filled
             v-model="selectedData.dealDate"

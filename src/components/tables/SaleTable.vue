@@ -62,13 +62,27 @@ async function fetchOpenOrders(selectedCustomer) {
   });
 }
 
+// Tanlangan zakazning ishlatilmagan avans qoldig'i
+const selectedOrderRemainder = computed(() => {
+  if (!selectedData.value.preOrder) return 0;
+  const order = openOrdersById.value[selectedData.value.preOrder];
+  return roundToDecimal(parseFloat(order?.advanceRemainder || 0));
+});
+
 // Zakaz tanlanganda mahsulot qatorlarini avtomatik to'ldiradi:
 // model va narx (zakazda kelishilgan) tayyor bo'ladi, faqat son kiritiladi
 async function prefillFromOrder(orderIri) {
-  if (!orderIri) return;
+  if (!orderIri) {
+    selectedData.value.advanceUse = null;
+    return;
+  }
 
   const order = openOrdersById.value[orderIri];
   if (!order) return;
+
+  // Avans qoldig'i bo'lsa, uni ishlatishni taklif qilamiz (o'zgartirsa bo'ladi)
+  const remainder = roundToDecimal(parseFloat(order.advanceRemainder || 0));
+  selectedData.value.advanceUse = remainder > 0 ? remainder : null;
 
   const res = await useWarehouse().fetchWarehouses({name: 'productsWarehouse'});
   const warehouseItems = res?.data['hydra:member']?.[0]?.productInWarehouses || [];
@@ -233,12 +247,34 @@ function createAction () {
   input.isPayed = Number(selectedData.value.paidPrice) >= Number(finalPrice.value);
 
   // Savdo buyurtmaga bog'langan bo'lsa
+  let advanceUsed = 0;
+  let linkedOrder = null;
   if (selectedData.value.preOrder) {
     input.preOrder = selectedData.value.preOrder;
+
+    // Avansdan foydalanish: bu pul kassaga avans paytida allaqachon kirgan,
+    // shu sabab to'lovga qo'shiladi, lekin YANGI kirim tranzaksiyasi yozilmaydi
+    linkedOrder = openOrdersById.value[selectedData.value.preOrder];
+    const remainder = roundToDecimal(parseFloat(linkedOrder?.advanceRemainder || 0));
+    const cash = Number(selectedData.value.paidPrice || 0);
+    const desired = Number(selectedData.value.advanceUse || 0);
+    advanceUsed = roundToDecimal(Math.min(desired, remainder, Math.max(0, Number(finalPrice.value) - cash)));
+
+    if (advanceUsed > 0) {
+      input.paidPrice = String(roundToDecimal(cash + advanceUsed));
+      input.isPayed = roundToDecimal(cash + advanceUsed) >= Number(finalPrice.value);
+    }
   }
 
   repository.create(input)
     .then(() => {
+      // Ishlatilgan avansni zakaz qoldig'idan ayiramiz
+      if (advanceUsed > 0 && linkedOrder) {
+        useOrder().update(linkedOrder.id, {
+          advanceRemainder: String(roundToDecimal(parseFloat(linkedOrder.advanceRemainder || 0) - advanceUsed))
+        });
+      }
+
       showCreateModal.value = false;
       $q.notify({
         type: 'positive',
@@ -790,6 +826,17 @@ const oweByCurrency = computed(() => {
                 :label="$t('orderActions.linkOrder')"
                 class="col-12"
                 @update:model-value="prefillFromOrder"
+              />
+              <q-input
+                v-if="selectedData.preOrder && selectedOrderRemainder > 0"
+                v-model.number="selectedData.advanceUse"
+                type="number"
+                filled
+                :suffix="selectedData?.budget?.name || null"
+                :label="$t('orderActions.useAdvance')"
+                :hint="`${$t('orderActions.advanceLeft')}: ${formatFloatToInteger(selectedOrderRemainder)} ${selectedData?.budget?.name || ''}`"
+                :rules="[val => val === undefined || val === null || val === '' || (val >= 0 && val <= selectedOrderRemainder) || `${$t('orderActions.advanceLeft')}: ${formatFloatToInteger(selectedOrderRemainder)}`]"
+                class="col-12"
               />
             </div>
           </div>
