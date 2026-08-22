@@ -267,6 +267,7 @@ export default {
     advanceLeft: 'Avans qoldig\'i',
     useAdvance: 'Avansdan ishlatish',
     advanceDepositFailed: 'Avans kassaga yozilmadi! Byudjet bo\'limidan qo\'lda kiriting',
+    budgetMismatch: 'Savdo valyutasi zakaz valyutasidan farq qiladi — narxlarni tekshiring, avans ishlatilmaydi',
   },
   warehouses: {
     cutterWarehouse: 'Bichuv ombor',

@@ -267,6 +267,7 @@ export default {
     advanceLeft: 'Аванс қолдиғи',
     useAdvance: 'Авансдан ишлатиш',
     advanceDepositFailed: 'Аванс кассага ёзилмади! Бюджет бўлимидан қўлда киритинг',
+    budgetMismatch: 'Савдо валютаси заказ валютасидан фарқ қилади — нархларни текширинг, аванс ишлатилмайди',
   },
   warehouses: {
     cutterWarehouse: 'Бичув омбор',

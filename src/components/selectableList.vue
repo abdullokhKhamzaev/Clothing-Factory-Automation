@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import { searchMatch } from "src/libraries/transliterate.js";
 
 const stringOptions = ref([]);
 
@@ -142,8 +143,8 @@ function filterFn(val, update) {
   }
 
   update(() => {
-    const needle = val.toLowerCase();
-    filteredOptions.value = stringOptions.value.filter(v => v.label.toLowerCase().indexOf(needle) > -1);  // Filter the options
+    // Lotin/kirill farqisiz qidiradi ("ruxshona" -> "Рухшона")
+    filteredOptions.value = stringOptions.value.filter(v => searchMatch(v.label, val));
   });
 }
 

@@ -1,4 +1,5 @@
 <script setup>
+import { searchMatch } from "src/libraries/transliterate.js";
 import { computed, onMounted, ref } from "vue";
 import { useWarehouse } from "stores/warehouse.js";
 import { useAbout } from "stores/user/about.js";
@@ -161,7 +162,7 @@ const filteredProducts = computed(() => {
   }
 
   return (warehouse.value.productInWarehouses || []).filter(item =>
-    item.productModel.name.toLowerCase().includes(searchTitle.value.toLowerCase())
+    searchMatch(item.productModel.name, searchTitle.value)
   );
 });
 

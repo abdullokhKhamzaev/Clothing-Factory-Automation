@@ -267,6 +267,7 @@ export default {
     advanceLeft: 'Advance remaining',
     useAdvance: 'Use from advance',
     advanceDepositFailed: 'Advance was not deposited to the budget! Add it manually in the Budget section',
+    budgetMismatch: 'Sale currency differs from the order currency — check prices, advance will not be used',
   },
   warehouses: {
     cutterWarehouse: 'Cutter Warehouse',

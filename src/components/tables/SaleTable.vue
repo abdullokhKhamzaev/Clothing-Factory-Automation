@@ -69,6 +69,24 @@ const selectedOrderRemainder = computed(() => {
   return roundToDecimal(parseFloat(order?.advanceRemainder || 0));
 });
 
+// Saqlashda haqiqatda ishlatiladigan avans miqdori (ko'rsatish uchun ham shu ishlatiladi,
+// shunda ekranda ko'ringan raqam saqlanadigan raqam bilan doim bir xil bo'ladi)
+const effectiveAdvance = computed(() => {
+  if (!selectedData.value.preOrder || !orderBudgetMatches.value) return 0;
+  const cash = Number(selectedData.value.paidPrice || 0);
+  const desired = Number(selectedData.value.advanceUse || 0);
+  return roundToDecimal(Math.min(desired, selectedOrderRemainder.value, Math.max(0, Number(finalPrice.value) - cash)));
+});
+
+// Savdo valyutasi zakaz valyutasiga mosligini tekshiradi —
+// aralash valyutada avans/narxlar noto'g'ri qo'shilib ketmasligi uchun
+const orderBudgetMatches = computed(() => {
+  if (!selectedData.value.preOrder) return true;
+  const order = openOrdersById.value[selectedData.value.preOrder];
+  if (!order?.budget?.name || !selectedData.value.budget?.name) return true;
+  return order.budget.name === selectedData.value.budget.name;
+});
+
 // Zakaz tanlanganda mahsulot qatorlarini avtomatik to'ldiradi:
 // model va narx (zakazda kelishilgan) tayyor bo'ladi, faqat son kiritiladi
 async function prefillFromOrder(orderIri) {
@@ -79,6 +97,11 @@ async function prefillFromOrder(orderIri) {
 
   const order = openOrdersById.value[orderIri];
   if (!order) return;
+
+  // Savdo valyutasini zakaz valyutasiga avtomatik moslaymiz
+  if (order.budget) {
+    selectedData.value.budget = order.budget;
+  }
 
   // Avans qoldig'i bo'lsa, uni ishlatishni taklif qilamiz (o'zgartirsa bo'ladi)
   const remainder = roundToDecimal(parseFloat(order.advanceRemainder || 0));
@@ -253,9 +276,12 @@ function createAction () {
     input.preOrder = selectedData.value.preOrder;
 
     // Avansdan foydalanish: bu pul kassaga avans paytida allaqachon kirgan,
-    // shu sabab to'lovga qo'shiladi, lekin YANGI kirim tranzaksiyasi yozilmaydi
+    // shu sabab to'lovga qo'shiladi, lekin YANGI kirim tranzaksiyasi yozilmaydi.
+    // Valyuta mos kelmasa avans umuman ishlatilmaydi
     linkedOrder = openOrdersById.value[selectedData.value.preOrder];
-    const remainder = roundToDecimal(parseFloat(linkedOrder?.advanceRemainder || 0));
+    const remainder = orderBudgetMatches.value
+      ? roundToDecimal(parseFloat(linkedOrder?.advanceRemainder || 0))
+      : 0;
     const cash = Number(selectedData.value.paidPrice || 0);
     const desired = Number(selectedData.value.advanceUse || 0);
     advanceUsed = roundToDecimal(Math.min(desired, remainder, Math.max(0, Number(finalPrice.value) - cash)));
@@ -831,8 +857,12 @@ const oweByCurrency = computed(() => {
                 class="col-12"
                 @update:model-value="prefillFromOrder"
               />
+              <q-banner v-if="!orderBudgetMatches" dense class="col-12 bg-orange-2 text-black rounded-borders">
+                <q-icon name="mdi-alert" class="q-mr-sm" color="deep-orange" />
+                {{ $t('orderActions.budgetMismatch') }}
+              </q-banner>
               <q-input
-                v-if="selectedData.preOrder && selectedOrderRemainder > 0"
+                v-if="selectedData.preOrder && selectedOrderRemainder > 0 && orderBudgetMatches"
                 v-model.number="selectedData.advanceUse"
                 type="number"
                 filled
@@ -999,9 +1029,13 @@ const oweByCurrency = computed(() => {
                   <span class="text-h6 text-weight-bold">{{ $t('forms.sale.fields.finalPrice.label') }}</span>
                   <span class="text-h5 text-weight-bold text-primary">{{ formatFloatToInteger(finalPrice) }} {{ selectedData?.budget?.name }}</span>
                 </div>
-                <div class="row justify-between q-mt-md" v-if="finalPrice - (selectedData.paidPrice || 0) > 0">
+                <div class="row justify-between q-mt-md" v-if="effectiveAdvance > 0">
+                  <span class="text-body2 text-green-7">{{ $t('orderActions.useAdvance') }}</span>
+                  <span class="text-body1 text-weight-bold text-green">- {{ formatFloatToInteger(effectiveAdvance) }} {{ selectedData?.budget?.name }}</span>
+                </div>
+                <div class="row justify-between q-mt-md" v-if="finalPrice - (selectedData.paidPrice || 0) - effectiveAdvance > 0">
                   <span class="text-body2 text-orange-7">{{ $t('forms.sale.sections.remainingDebt') }}</span>
-                  <span class="text-body1 text-weight-bold text-orange">{{ formatFloatToInteger(finalPrice - (selectedData.paidPrice || 0)) }} {{ selectedData?.budget?.name }}</span>
+                  <span class="text-body1 text-weight-bold text-orange">{{ formatFloatToInteger(finalPrice - (selectedData.paidPrice || 0) - effectiveAdvance) }} {{ selectedData?.budget?.name }}</span>
                 </div>
               </q-card-section>
             </q-card>
