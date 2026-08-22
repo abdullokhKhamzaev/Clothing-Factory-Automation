@@ -282,13 +282,15 @@ onMounted(() => {
             <div
               v-for="model in props.row.products"
               :key="model.id"
+              class="q-mb-xs"
             >
+              <div class="text-weight-medium">{{ model.productModel?.name || '—' }}</div>
               <div
                 v-for="size in model.quantities"
-                :key="size"
-                class="q-pl-xs text-primary"
+                :key="size.size"
+                class="q-pl-sm text-primary"
               >
-                {{ size.size }} : {{ size.quantity }},
+                {{ size.size }} : {{ size.quantity }}
               </div>
             </div>
           </div>
