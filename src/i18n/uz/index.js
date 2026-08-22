@@ -77,6 +77,10 @@ export default {
       hour: 'soat',
       minute: 'daqiqa',
       lessThanMinute: '1 daqiqadan kam',
+      details: 'Batafsil (vaqtlar)',
+      submitted: 'Topshirildi',
+      confirmed: 'Tasdiqlandi',
+      waitingFor: 'Kutmoqda',
     },
     pipeline: {
       title: 'Ishlab chiqarish jarayoni',

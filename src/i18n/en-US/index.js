@@ -77,6 +77,10 @@ export default {
       hour: 'h',
       minute: 'min',
       lessThanMinute: 'under a minute',
+      details: 'Details (times)',
+      submitted: 'Submitted',
+      confirmed: 'Confirmed',
+      waitingFor: 'Waiting',
     },
     pipeline: {
       title: 'Production pipeline',

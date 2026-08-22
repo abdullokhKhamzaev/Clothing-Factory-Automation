@@ -77,6 +77,10 @@ export default {
       hour: 'соат',
       minute: 'дақиқа',
       lessThanMinute: '1 дақиқадан кам',
+      details: 'Батафсил (вақтлар)',
+      submitted: 'Топширилди',
+      confirmed: 'Тасдиқланди',
+      waitingFor: 'Кутмоқда',
     },
     pipeline: {
       title: 'Ишлаб чиқариш жараёни',
