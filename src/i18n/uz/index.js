@@ -259,6 +259,7 @@ export default {
     fullyDelivered: 'To\'liq yetkazildi',
     closedPartial: 'Yopildi (qisman)',
     deliveredSoFar: 'Yetkazilgan',
+    modelsNotInStock: 'Zakazdagi ba\'zi modellar omborda yo\'q — ular avtomatik qo\'shilmadi',
   },
   warehouses: {
     cutterWarehouse: 'Bichuv ombor',

@@ -259,6 +259,7 @@ export default {
     fullyDelivered: 'Тўлиқ етказилди',
     closedPartial: 'Ёпилди (қисман)',
     deliveredSoFar: 'Етказилган',
+    modelsNotInStock: 'Заказдаги баъзи моделлар омборда йўқ — улар автоматик қўшилмади',
   },
   warehouses: {
     cutterWarehouse: 'Бичув омбор',

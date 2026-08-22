@@ -259,6 +259,7 @@ export default {
     fullyDelivered: 'Fully delivered',
     closedPartial: 'Closed (partial)',
     deliveredSoFar: 'Delivered',
+    modelsNotInStock: 'Some models from the order are not in the warehouse — they were not added automatically',
   },
   warehouses: {
     cutterWarehouse: 'Cutter Warehouse',

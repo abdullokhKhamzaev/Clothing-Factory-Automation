@@ -29,10 +29,12 @@ const createActionErr = ref(null);
 
 // Xaridorning ochiq buyurtmalari (savdoni buyurtmaga ixtiyoriy bog'lash uchun)
 const openOrders = ref([]);
+const openOrdersById = ref({});
 
 async function fetchOpenOrders(selectedCustomer) {
   selectedData.value.preOrder = null;
   openOrders.value = [];
+  openOrdersById.value = {};
 
   if (!selectedCustomer?.fullName) return;
 
@@ -40,6 +42,10 @@ async function fetchOpenOrders(selectedCustomer) {
     customer: selectedCustomer.fullName,
     statuses: ['pending', 'delivering'],
     rowsPerPage: '~',
+  });
+
+  (res?.data['hydra:member'] || []).forEach(order => {
+    openOrdersById.value[order['@id']] = order;
   });
 
   openOrders.value = (res?.data['hydra:member'] || []).map(order => {
@@ -54,6 +60,62 @@ async function fetchOpenOrders(selectedCustomer) {
       value: order['@id'],
     };
   });
+}
+
+// Zakaz tanlanganda mahsulot qatorlarini avtomatik to'ldiradi:
+// model va narx (zakazda kelishilgan) tayyor bo'ladi, faqat son kiritiladi
+async function prefillFromOrder(orderIri) {
+  if (!orderIri) return;
+
+  const order = openOrdersById.value[orderIri];
+  if (!order) return;
+
+  const res = await useWarehouse().fetchWarehouses({name: 'productsWarehouse'});
+  const warehouseItems = res?.data['hydra:member']?.[0]?.productInWarehouses || [];
+
+  const newRows = [];
+  let missingModels = 0;
+
+  (order.products || []).forEach(orderProduct => {
+    const modelIri = orderProduct.productModel?.['@id'];
+    const warehouseItem = warehouseItems.find(item => item.productModel?.['@id'] === modelIri);
+
+    if (!warehouseItem) {
+      missingModels++;
+      return;
+    }
+
+    // Narx zakazda kelishilgan narxdan, bo'lmasa modelning standart narxidan
+    const priceBySize = {};
+    (orderProduct.quantities || []).forEach(q => {
+      priceBySize[q.size] = q.price;
+    });
+
+    const sizes = (warehouseItem.productModel?.sizes || []).map(size => ({
+      size: size.size,
+      quantity: '',
+      price: priceBySize[size.size] ?? size.price,
+    }));
+
+    newRows.push({
+      productModel: warehouseItem,
+      productInWarehouse: warehouseItem['@id'],
+      quantities: sizes,
+    });
+  });
+
+  if (newRows.length) {
+    rows.value = newRows;
+  }
+
+  if (missingModels) {
+    $q.notify({
+      type: 'warning',
+      position: 'top',
+      timeout: 3000,
+      message: t('orderActions.modelsNotInStock')
+    });
+  }
 }
 const showPayModal = ref(false);
 const payActionErr = ref(null);
@@ -727,6 +789,7 @@ const oweByCurrency = computed(() => {
                 filled
                 :label="$t('orderActions.linkOrder')"
                 class="col-12"
+                @update:model-value="prefillFromOrder"
               />
             </div>
           </div>
