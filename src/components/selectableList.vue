@@ -115,6 +115,24 @@ async function getItems() {
   }
 }
 
+// Dropdown variantlari ({label, value}) uchun ham, tashqaridan dasturiy
+// o'rnatilgan xom obyekt uchun ham to'g'ri yorliq qaytaradi
+function optionLabel(opt) {
+  if (opt && typeof opt === 'object') {
+    if (typeof opt.label === 'string') {
+      return opt.label;
+    }
+    try {
+      return typeof props.itemLabel === 'string'
+        ? opt[props.itemLabel]
+        : opt[props.itemLabel.label][props.itemLabel.path];
+    } catch (e) {
+      return '';
+    }
+  }
+  return opt;
+}
+
 function filterFn(val, update) {
   if (val === '') {
     update(() => {
@@ -149,7 +167,7 @@ onMounted(() => {
     :options="filteredOptions"
     :label="label"
     option-value="value"
-    option-label="label"
+    :option-label="optionLabel"
     :rules="[val => !!val || ruleMessage]"
     hide-bottom-space
     @filter="filterFn"
