@@ -70,6 +70,8 @@ function getWarehouse (filterProps) {
     })
 }
 function reportOrderAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   if (!selectedData.value.productModel['@id']) {
     console.warn('data is empty');
     return;

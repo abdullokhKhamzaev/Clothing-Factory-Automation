@@ -91,6 +91,8 @@ function defectAction() {
     })
 }
 function reportAction() {
+  if (loading.value) return; // Prevent multiple rapid calls
+
   if (!user.about['@id'] || !selectedData.value['@id'] || !warehouse.value['@id']) {
     console.warn('data not found');
     return
