@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
-import { formatDate, formatFloatToInteger, roundToDecimal } from "../../libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, roundToDecimal, apiErrorMessage } from "../../libraries/constants/defaults.js";
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -158,7 +158,7 @@ function paySalaryAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.salary.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.salary.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -198,7 +198,7 @@ function payAdvanceAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.salary.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.salary.confirmation.failure'))
       })
     })
     .finally(() => {

@@ -1,5 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
@@ -87,7 +88,7 @@ function createFabricAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.fabric.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.fabric.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -119,7 +120,7 @@ function updateFabricAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.fabric.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.fabric.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -148,12 +149,12 @@ function deleteFabricAction() {
         });
         clearAction();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.fabric.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.fabric.confirmation.failure'))
         })
       })
       .finally(() => {

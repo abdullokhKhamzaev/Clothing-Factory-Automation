@@ -3,7 +3,7 @@ import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useBudget } from 'src/stores/budget.js'
 import { useUser } from "stores/user/user.js";
-import { formatFloatToInteger, TRANSACTION_REASONS } from "src/libraries/constants/defaults.js";
+import { formatFloatToInteger, TRANSACTION_REASONS, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import RouteTabs from "components/RouteTabs.vue";
@@ -92,12 +92,12 @@ function convertAction() {
       });
       getBudgets();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: "Error while converting"
+        message: apiErrorMessage(err, "Error while converting")
       })
     })
     .finally(() => {
@@ -128,12 +128,12 @@ function addAction() {
       clearAction();
       getBudgets();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: "Error while adding"
+        message: apiErrorMessage(err, "Error while adding")
       })
     })
     .finally(() => {
@@ -178,12 +178,12 @@ function sendAction() {
       });
       getBudgets();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: "Error while sending"
+        message: apiErrorMessage(err, "Error while sending")
       })
     })
     .finally(() => {
@@ -223,12 +223,12 @@ function minusAction() {
       clearAction();
       getBudgets();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: "Error while adding"
+        message: apiErrorMessage(err, "Error while adding")
       })
     })
     .finally(() => {

@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useMaterial } from "stores/material.js";
-import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import { MEASUREMENTS, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useBudget } from "stores/budget.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -99,7 +99,7 @@ function createMaterialAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.unripeMaterial.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.unripeMaterial.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -132,7 +132,7 @@ function updateMaterialAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.unripeMaterial.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.unripeMaterial.confirmation.failure'))
         })
       })
       .finally(() => materialLoading.value = false);
@@ -159,12 +159,12 @@ function deleteMaterialAction() {
         clearAction();
         refresh();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.unripeMaterial.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.unripeMaterial.confirmation.failure'))
         })
       })
       .finally(() => materialLoading.value = false)

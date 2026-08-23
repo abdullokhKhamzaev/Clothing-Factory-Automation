@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useAuth } from "stores/user/authorization.js";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
@@ -102,7 +103,7 @@ function auth() {
       // Show notification
       $q.notify({
         type: 'negative',
-        message: message,
+        message: apiErrorMessage(err, message),
         position: 'top',
         timeout: 5000,
         actions: [

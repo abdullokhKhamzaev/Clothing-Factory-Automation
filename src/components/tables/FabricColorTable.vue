@@ -1,5 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useColor } from "stores/color.js";
@@ -86,7 +87,7 @@ function createColorAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.color.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.color.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -118,7 +119,7 @@ function updateColorAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.color.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.color.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -147,12 +148,12 @@ function deleteColorAction() {
         });
         clearAction();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.color.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.color.confirmation.failure'))
         })
       })
       .finally(() => {

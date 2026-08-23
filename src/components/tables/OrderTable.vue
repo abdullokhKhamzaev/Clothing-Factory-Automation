@@ -7,7 +7,7 @@ import { useProductModels } from "stores/productModel.js";
 import { useCustomer } from "stores/customer.js";
 import { useAbout } from "stores/user/about.js";
 import { useBudget } from "stores/budget.js";
-import { DATE_FORMAT, formatDate, formatFloatToInteger, roundToDecimal, isToday } from "src/libraries/constants/defaults.js";
+import { DATE_FORMAT, formatDate, formatFloatToInteger, roundToDecimal, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -122,12 +122,12 @@ function createAction () {
           quantity: advance,
           description: 'orderAdvance #' + (res?.data?.id || ''),
           isIncome: true,
-        }).catch(() => {
+        }).catch((err) => {
           $q.notify({
             type: 'negative',
             position: 'top',
             timeout: 5000,
-            message: t('orderActions.advanceDepositFailed')
+            message: apiErrorMessage(err, t('orderActions.advanceDepositFailed'))
           })
         });
       }
@@ -148,7 +148,7 @@ function createAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.sale.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.sale.confirmation.failure'))
       })
     })
     .finally(() => {

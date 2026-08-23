@@ -8,7 +8,7 @@ import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialOrder } from "stores/ripeMaterialOrder.js";
 import { useBudget } from "stores/budget.js";
-import { DATE_FORMAT, formatDate, isToday } from "src/libraries/constants/defaults.js"
+import { DATE_FORMAT, formatDate, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js"
 import { useRipeMaterialOrderAccept } from "stores/ripeMaterialOrderAccept.js";
 import SelectableList from "components/selectableList.vue";
 import PaintReportList from "components/PaintReportList.vue";
@@ -142,7 +142,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.paint.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.paint.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -210,7 +210,7 @@ function receiveAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.paint.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.paint.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -245,12 +245,12 @@ function finishOrderAction() {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.paint.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.paint.confirmation.failure'))
       })
     })
     .finally(() => {

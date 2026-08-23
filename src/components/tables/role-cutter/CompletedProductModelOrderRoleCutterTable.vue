@@ -1,4 +1,5 @@
 <script setup>
+import RefreshButton from "components/RefreshButton.vue";
 import { onMounted, ref } from "vue";
 import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useI18n } from "vue-i18n";
@@ -76,8 +77,9 @@ onMounted(() => {
     @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 flex justify-between items-center">
         <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
+        <refresh-button :action="refresh" />
       </div>
     </template>
     <template v-slot:body="props">

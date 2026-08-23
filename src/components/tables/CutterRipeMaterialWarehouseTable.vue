@@ -1,5 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import {useRipeMaterialAction} from "stores/ripeMaterialAction.js";
 import {useAbout} from "stores/user/about.js";
 import {useCutterRipeMaterialWarehouse} from "stores/cutterRipeMaterialWarehouse.js";
@@ -114,7 +115,7 @@ function sendAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+        message: apiErrorMessage(res, t('forms.ripeMaterialPurchase.confirmation.failureSent'))
       })
     })
     .finally(() => {

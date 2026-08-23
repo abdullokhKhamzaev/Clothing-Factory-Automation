@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -85,12 +85,12 @@ function acceptAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -113,12 +113,12 @@ function rejectAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {

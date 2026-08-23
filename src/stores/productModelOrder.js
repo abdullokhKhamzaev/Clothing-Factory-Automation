@@ -36,7 +36,8 @@ export const useProductModelOrder = defineStore('product_model_order', () => {
 
   function confirm(id, data) {
     try {
-      return client.put('product_model_orders/' + id, data)
+      // Faqat status o'zgartiradigan xavfsiz endpoint (bichuvchi buyurtmani qayta yoza olmaydi)
+      return client.put('product_model_orders/' + id + '/status', data)
     } catch (e) {
       console.log(e)
     }

@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useAccessory } from "stores/accessory.js";
 import { useBudget } from "stores/budget.js";
-import { formatFloatToInteger, MEASUREMENTS, SECTION_TYPES } from "src/libraries/constants/defaults.js";
+import { formatFloatToInteger, MEASUREMENTS, SECTION_TYPES, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useAddFile } from "stores/mediaObject/addFile.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -104,7 +104,7 @@ function createAction () {
               type: 'negative',
               position: 'top',
               timeout: 1000,
-              message: t('forms.accessory.confirmation.failure')
+              message: apiErrorMessage(res, t('forms.accessory.confirmation.failure'))
             })
           })
           .finally(() => {
@@ -131,7 +131,7 @@ function createAction () {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.accessory.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.accessory.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -163,7 +163,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.accessory.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.accessory.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -191,12 +191,12 @@ function deleteAction() {
         });
         clearAction();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.accessory.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.accessory.confirmation.failure'))
         })
       })
       .finally(() => {

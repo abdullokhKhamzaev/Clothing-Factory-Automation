@@ -3,7 +3,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import { useExchange } from "stores/exchange.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const props = defineProps({
@@ -102,12 +102,12 @@ function acceptAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: 'Error occurred',
+        message: apiErrorMessage(err, 'Error occurred'),
       })
     })
     .finally(() => {
@@ -130,12 +130,12 @@ function rejectAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: 'Error occurred',
+        message: apiErrorMessage(err, 'Error occurred'),
       })
     })
     .finally(() => {

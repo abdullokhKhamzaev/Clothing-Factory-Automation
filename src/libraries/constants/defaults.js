@@ -141,7 +141,7 @@ export const ROLES = [
   { label: 'ROLE_SEWER', value: 'ROLE_SEWER' },
   { label: 'ROLE_PACKAGER', value: 'ROLE_PACKAGER' },
   { label: 'ROLE_MASTER', value: 'ROLE_MASTER' },
-  { label: 'ROLE_MERCHANT', value: 'ROLE_MERCHANT' },
+  // ROLE_MERCHANT ishlatilmaydi — savdoni adminlar bajaradi
   { label: 'ROLE_SUPER_ADMIN', value: 'ROLE_SUPER_ADMIN' },
 ];
 
@@ -149,6 +149,13 @@ export const ROLES = [
 export const roundToDecimal = (number, decimals = 2) => {
   const multiplier = Math.pow(10, decimals);
   return Math.round(Number(number) * multiplier) / multiplier;
+};
+
+// API xatosidan foydalanuvchiga tushunarli xabarni ajratib oladi:
+// backend hydra:description'da aniq sabab yuboradi (masalan "omborda S razmeri yetarli emas"),
+// u bo'lmasa berilgan umumiy xabar ko'rsatiladi
+export const apiErrorMessage = (err, fallback) => {
+  return err?.response?.data?.['hydra:description'] || fallback;
 };
 
 // Millisekundlarni "2 kun 5 soat" ko'rinishiga keltiradi; labels — tarjima qilingan birliklar

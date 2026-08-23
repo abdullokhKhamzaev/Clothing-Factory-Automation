@@ -4,7 +4,7 @@ import { useIndebtedness } from "stores/indebtednesses.js";
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import {DATE_FORMAT, formatDate, formatFloatToInteger} from "src/libraries/constants/defaults.js";
+import {DATE_FORMAT, formatDate, formatFloatToInteger, apiErrorMessage} from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 import SelectableList from "components/selectableList.vue";
@@ -142,7 +142,7 @@ function createAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.indebtedness.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.indebtedness.confirmation.failure'))
       })
     })
     .finally(() => {

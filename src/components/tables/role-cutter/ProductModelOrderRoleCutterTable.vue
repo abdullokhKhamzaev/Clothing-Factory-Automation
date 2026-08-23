@@ -1,4 +1,5 @@
 <script setup>
+import RefreshButton from "components/RefreshButton.vue";
 import {onMounted, ref} from "vue";
 import { useProductModelOrder } from "stores/productModelOrder.js";
 import { useAbout } from "stores/user/about.js";
@@ -8,7 +9,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import SelectableList from "components/selectableList.vue";
 import CutReportList from "components/CutReportList.vue";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -160,12 +161,12 @@ function confirmOrder() {
       showAcceptModal.value = false;
       refresh();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.modelOrder.confirmation.failureReceived')
+        message: apiErrorMessage(err, t('forms.modelOrder.confirmation.failureReceived'))
       })
     })
     .finally(() => orderLoading.value = false);
@@ -229,7 +230,7 @@ function reportOrderAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => orderLoading.value = false);
@@ -256,8 +257,9 @@ onMounted(() => {
     @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12">
+      <div class="col-12 flex justify-between items-center">
         <div class="q-table__title">{{ $t('tables.modelOrder.header.title') }}</div>
+        <refresh-button :action="refresh" />
       </div>
     </template>
     <template v-slot:body="props">

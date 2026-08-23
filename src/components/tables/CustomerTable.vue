@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useCustomer } from "stores/customer.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatFloatToInteger} from "../../libraries/constants/defaults.js";
+import {formatFloatToInteger, apiErrorMessage} from "../../libraries/constants/defaults.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -96,7 +96,7 @@ function createAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.customer.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.customer.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -129,7 +129,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.customer.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.customer.confirmation.failure'))
         })
       })
       .finally(() => customerLoading.value = false);
@@ -156,12 +156,12 @@ function deleteAction() {
         clearAction();
         refresh();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.customer.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.customer.confirmation.failure'))
         })
       })
       .finally(() => customerLoading.value = false)

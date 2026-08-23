@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import { useWarehouse } from "stores/warehouse.js";
 import { useAbout } from "stores/user/about.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
-import {WAREHOUSES} from "src/libraries/constants/defaults.js";
+import {WAREHOUSES, apiErrorMessage} from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 import {useProductInWarehouse} from "stores/productInWarehouse.js";
 
@@ -155,7 +155,7 @@ function sendAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+          message: apiErrorMessage(res, t('forms.ripeMaterialPurchase.confirmation.failureSent'))
         })
       })
       .finally(() => {
@@ -202,7 +202,7 @@ function updateAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.warehouse.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.warehouse.confirmation.failure'))
       })
     })
     .finally(() => {

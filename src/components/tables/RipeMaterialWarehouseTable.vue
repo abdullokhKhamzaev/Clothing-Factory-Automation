@@ -6,7 +6,7 @@ import { useRipeMaterialAction } from "stores/ripeMaterialAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatFloatToInteger} from "src/libraries/constants/defaults.js";
+import {formatFloatToInteger, apiErrorMessage} from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -119,7 +119,7 @@ function sendAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+        message: apiErrorMessage(res, t('forms.ripeMaterialPurchase.confirmation.failureSent'))
       })
     })
     .finally(() => {

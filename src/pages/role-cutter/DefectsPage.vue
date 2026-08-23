@@ -5,7 +5,7 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useAbout } from "stores/user/about.js";
 import { useProductModelOrderCompleted } from "stores/productModelOrderCompleted.js";
 import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehouse.js";
-import { WAREHOUSES } from "src/libraries/constants/defaults.js";
+import { WAREHOUSES, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import SelectableList from "components/selectableList.vue";
@@ -129,7 +129,7 @@ function reportOrderAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {

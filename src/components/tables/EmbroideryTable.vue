@@ -1,5 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useEmbroidery } from "stores/embroidery.js";
@@ -104,7 +105,7 @@ function createAction () {
               type: 'negative',
               position: 'top',
               timeout: 1000,
-              message: t('forms.embroidery.confirmation.failure')
+              message: apiErrorMessage(res, t('forms.embroidery.confirmation.failure'))
             })
           })
           .finally(() => embroideryLoading.value = false);
@@ -129,7 +130,7 @@ function createAction () {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.embroidery.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.embroidery.confirmation.failure'))
         })
       })
       .finally(() => embroideryLoading.value = false);
@@ -160,7 +161,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.embroidery.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.embroidery.confirmation.failure'))
         })
       })
       .finally(() => embroideryLoading.value = false);
@@ -187,12 +188,12 @@ function deleteAction() {
         clearAction();
         refresh();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.embroidery.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.embroidery.confirmation.failure'))
         })
       })
       .finally(() => embroideryLoading.value = false)

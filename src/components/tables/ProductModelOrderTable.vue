@@ -6,7 +6,7 @@ import { useCutterRipeMaterialWarehouse } from "stores/cutterRipeMaterialWarehou
 import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
 import CutReportList from "components/CutReportList.vue";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -184,7 +184,7 @@ function createOrderAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.modelOrder.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.modelOrder.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -244,7 +244,7 @@ function updateOrderAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.modelOrder.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.modelOrder.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -273,12 +273,12 @@ function finishOrderAction() {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.modelOrder.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.modelOrder.confirmation.failure'))
       })
     })
     .finally(() => {

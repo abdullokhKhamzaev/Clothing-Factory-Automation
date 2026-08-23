@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
-import { formatDate, formatFloatToInteger } from "../../libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, apiErrorMessage } from "../../libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
@@ -103,12 +103,12 @@ function acceptAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -153,7 +153,7 @@ function departureAction () {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {

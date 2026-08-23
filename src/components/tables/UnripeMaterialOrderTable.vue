@@ -5,7 +5,7 @@ import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
-import { formatDate, isToday } from "../../libraries/constants/defaults.js";
+import { formatDate, isToday, apiErrorMessage } from "../../libraries/constants/defaults.js";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -128,7 +128,7 @@ function createOrderAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.unripeMaterialOrder.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.unripeMaterialOrder.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -157,12 +157,12 @@ function finishOrderAction() {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.unripeMaterialOrder.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.unripeMaterialOrder.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -189,12 +189,12 @@ function deleteOrderAction() {
       });
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.unripeMaterialOrder.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.unripeMaterialOrder.confirmation.failure'))
       })
     })
     .finally(() => {

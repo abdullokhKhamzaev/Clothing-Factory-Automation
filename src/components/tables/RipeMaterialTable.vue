@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { useBudget } from "stores/budget.js";
 import { useColor } from "stores/color.js";
-import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import { MEASUREMENTS, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -100,7 +100,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterial.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.ripeMaterial.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -136,7 +136,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.ripeMaterial.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.ripeMaterial.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -165,12 +165,12 @@ function deleteAction() {
         });
         clearAction();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.ripeMaterial.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.ripeMaterial.confirmation.failure'))
         })
       })
       .finally(() => {

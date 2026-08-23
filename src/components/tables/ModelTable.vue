@@ -1,5 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
+import { apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
@@ -157,7 +158,7 @@ function createAction() {
               type: 'negative',
               position: 'top',
               timeout: 1000,
-              message: t('forms.model.confirmation.failure')
+              message: apiErrorMessage(res, t('forms.model.confirmation.failure'))
             })
           })
           .finally(() => {
@@ -184,7 +185,7 @@ function createAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.model.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.model.confirmation.failure'))
         })
       })
       .finally(() => {
@@ -231,7 +232,7 @@ function updateAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.model.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.model.confirmation.failure'))
         })
       })
       .finally(() => {

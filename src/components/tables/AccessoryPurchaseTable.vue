@@ -4,7 +4,7 @@ import { useAccessoryPurchase } from "stores/accessoryPurchase.js";
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatFloatToInteger } from "src/libraries/constants/defaults.js";
+import { formatFloatToInteger, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 import {useAbout} from "stores/user/about.js";
@@ -72,7 +72,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.accessoryPurchase.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.accessoryPurchase.confirmation.failure'))
       })
     })
     .finally(() => {

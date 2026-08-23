@@ -5,7 +5,7 @@ import { useWarehouse } from "stores/warehouse.js";
 import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useEmbroidery } from "stores/embroidery.js";
-import { WAREHOUSES } from "src/libraries/constants/defaults.js";
+import { WAREHOUSES, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import ProductInWarehouseAction from "components/tables/ProductInWarehouseAction.vue";
@@ -85,7 +85,7 @@ function defectAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+        message: apiErrorMessage(res, t('forms.ripeMaterialPurchase.confirmation.failureSent'))
       })
     })
     .finally(() => {
@@ -138,7 +138,7 @@ function reportAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.ripeMaterialPurchase.confirmation.failureSent')
+        message: apiErrorMessage(res, t('forms.ripeMaterialPurchase.confirmation.failureSent'))
       })
     })
     .finally(() => {

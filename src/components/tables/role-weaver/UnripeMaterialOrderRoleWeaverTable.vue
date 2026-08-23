@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import {formatDate, isToday} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
 import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useThread } from "stores/thread.js";
@@ -107,12 +107,12 @@ function confirmOrder() {
       showAcceptModal.value = false;
       refresh();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.unripeMaterialOrder.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.unripeMaterialOrder.confirmation.failure'))
       })
     })
     .finally(() => orderLoading.value = false);
@@ -167,7 +167,7 @@ function reportOrderAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {

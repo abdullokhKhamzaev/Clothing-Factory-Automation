@@ -6,7 +6,7 @@ import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
-import { DATE_FORMAT, formatDate, isToday } from "src/libraries/constants/defaults.js";
+import { DATE_FORMAT, formatDate, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -134,7 +134,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.repaint.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.repaint.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -180,7 +180,7 @@ function receiveAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.repaint.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.repaint.confirmation.failure'))
       })
     })
     .finally(() => {

@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
 import { useBudget } from "stores/budget.js";
-import { MEASUREMENTS } from "src/libraries/constants/defaults.js";
+import { MEASUREMENTS, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -101,7 +101,7 @@ function createThreadAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.thread.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.thread.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -133,7 +133,7 @@ function updateThreadAction() {
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.thread.confirmation.failure')
+          message: apiErrorMessage(res, t('forms.thread.confirmation.failure'))
         })
       })
       .finally(() => threadLoading.value = false);
@@ -160,12 +160,12 @@ function deleteThreadAction() {
         clearAction();
         refresh();
       })
-      .catch(() => {
+      .catch((err) => {
         $q.notify({
           type: 'negative',
           position: 'top',
           timeout: 1000,
-          message: t('forms.thread.confirmation.failure')
+          message: apiErrorMessage(err, t('forms.thread.confirmation.failure'))
         })
       })
       .finally(() => threadLoading.value = false)

@@ -25,6 +25,23 @@ export function toCyrillic(text) {
   return result;
 }
 
+// Amalda almashinib yoziladigan harflarni bitta ko'rinishga keltiradi:
+// Ҳамид/Хамид (h/x), Элдор/Елдор (э/е) va h.k. — qidiruv ikkalasida ham topsin
+const FOLD_PAIRS = [
+  ['ҳ', 'х'],
+  ['э', 'е'],
+  ['щ', 'ш'],
+  ['ы', 'и'],
+];
+
+function fold(text) {
+  let result = text;
+  for (const [from, to] of FOLD_PAIRS) {
+    result = result.split(from).join(to);
+  }
+  return result;
+}
+
 // Alifbodan qat'i nazar qidiruv mosligini tekshiradi
 export function searchMatch(label, needle) {
   const rawNeedle = String(needle ?? '').toLowerCase().trim();
@@ -33,5 +50,5 @@ export function searchMatch(label, needle) {
   const rawLabel = String(label ?? '').toLowerCase();
   if (rawLabel.includes(rawNeedle)) return true;
 
-  return toCyrillic(rawLabel).includes(toCyrillic(rawNeedle));
+  return fold(toCyrillic(rawLabel)).includes(fold(toCyrillic(rawNeedle)));
 }

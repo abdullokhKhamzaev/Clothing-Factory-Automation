@@ -4,6 +4,7 @@ import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useI18n } from "vue-i18n";
 import ReportList from "components/ReportList.vue";
 import RefreshButton from "components/RefreshButton.vue";
+import { isToday } from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 
@@ -104,7 +105,7 @@ onMounted(() => {
     </template>
     <template v-slot:body="props">
       <q-tr :props="props">
-        <q-td v-for="col in columns" :key="col.name" :props="props">
+        <q-td v-for="col in columns" :key="col.name" :props="props" :class="isToday(props.row.createdAt) && 'bg-green-2 text-black'">
           <div v-if="col.name === 'material'">
             {{ props.row?.material?.name || '-' }} ({{ props.row?.material?.measurement || '-' }})
           </div>

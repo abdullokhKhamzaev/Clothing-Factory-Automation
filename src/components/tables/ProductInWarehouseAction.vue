@@ -4,7 +4,7 @@ import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { formatDate, isToday } from "src/libraries/constants/defaults.js";
+import { formatDate, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const props = defineProps({
@@ -99,12 +99,12 @@ function acceptAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -127,12 +127,12 @@ function rejectAction () {
       })
       clearAction();
     })
-    .catch(() => {
+    .catch((err) => {
       $q.notify({
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.completedMaterialOrderReport.confirmation.failure')
+        message: apiErrorMessage(err, t('forms.completedMaterialOrderReport.confirmation.failure'))
       })
     })
     .finally(() => {

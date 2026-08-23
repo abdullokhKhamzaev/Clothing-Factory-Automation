@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useBudget } from "stores/budget.js";
-import { ROLES } from 'src/libraries/constants/defaults';
+import { ROLES, apiErrorMessage } from 'src/libraries/constants/defaults';
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -125,7 +125,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.user.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.user.confirmation.failure'))
       })
     })
     .finally(() => {
@@ -157,7 +157,7 @@ function updateAction() {
             type: 'negative',
             position: 'top',
             timeout: 1000,
-            message: t('forms.user.confirmation.failure')
+            message: apiErrorMessage(res, t('forms.user.confirmation.failure'))
           })
         })
         .finally(() => {
@@ -191,7 +191,7 @@ function updateAction() {
             type: 'negative',
             position: 'top',
             timeout: 1000,
-            message: t('forms.user.confirmation.failure')
+            message: apiErrorMessage(res, t('forms.user.confirmation.failure'))
           })
         })
         .finally(() => {

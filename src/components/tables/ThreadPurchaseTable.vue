@@ -6,7 +6,7 @@ import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 import SelectableList from "components/selectableList.vue";
@@ -129,7 +129,7 @@ function createAction() {
         type: 'negative',
         position: 'top',
         timeout: 1000,
-        message: t('forms.threadPurchase.confirmation.failure')
+        message: apiErrorMessage(res, t('forms.threadPurchase.confirmation.failure'))
       })
     })
     .finally(() => {
