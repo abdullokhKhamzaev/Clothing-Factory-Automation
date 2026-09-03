@@ -98,9 +98,18 @@ async function prefillFromOrder(orderIri) {
   const order = openOrdersById.value[orderIri];
   if (!order) return;
 
-  // Savdo valyutasini zakaz valyutasiga avtomatik moslaymiz
+  // Savdo valyutasini zakaz valyutasiga avtomatik moslaymiz.
+  // Zakaz javobidagi budget qisqartirilgan (currency'siz) bo'lgani uchun
+  // to'liq obyektni byudjetlar ro'yxatidan topib almashtiramiz
   if (order.budget) {
     selectedData.value.budget = order.budget;
+
+    useBudget().fetchBudgets({rowsPerPage: '~'}).then((res) => {
+      const full = (res?.data['hydra:member'] || []).find(b => b['@id'] === order.budget['@id']);
+      if (full && selectedData.value.preOrder === orderIri) {
+        selectedData.value.budget = full;
+      }
+    });
   }
 
   // Avans qoldig'i bo'lsa, uni ishlatishni taklif qilamiz (o'zgartirsa bo'ladi)
@@ -946,7 +955,7 @@ const oweByCurrency = computed(() => {
                             filled
                             dense
                             type="number"
-                            :suffix="selectedData.budget.currency.symbol || null"
+                            :suffix="selectedData.budget?.currency?.symbol || null"
                             v-model="sizeRow.price"
                             :label="$t('forms.sale.fields.price.label')"
                             :rules="[ val => val && val > 0 || $t('forms.sale.fields.price.validation.required')]"

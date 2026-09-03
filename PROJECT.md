@@ -204,6 +204,32 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 Texnik: sotuvlar so'rovi 30s keshlanadi (bir sahifada takror so'rov ketmaydi).
 
+### Statistika ma'lumot manbalari (nima, qayerdan, qanday)
+
+| Ko'rsatkich | API manbasi | Hisoblash |
+|---|---|---|
+| Dashboard: Sotildi / Tushum / To'langan / Qarz | `GET /sales` (sana oralig'i, server filtri) | dona = saleProduct.quantities yig'indisi; tushum = totalPrice, qarz = totalPrice − paidPrice; valyuta `budget.name`dan (so'm/USD) |
+| Dashboard: Ishlab chiqarildi | `GET /product_in_warehouse_actions?from=7&to=8&status=accepted` | qadoqlangan-qabul qilingan donalar (getStats) |
+| Dashboard: Ombordagi qoldiq | `GET /warehouses?name=productsWarehouse` | productInWarehouses ichidagi size.quantity yig'indisi (JORIY holat, sanaga bog'liq emas) |
+| Dashboard: Xarajat | `GET /transactions?isIncome=false` (sana oralig'i) | paidPrice yig'indisi; 'ayriboshlash' va 'payedcustomersalary' chiqariladi |
+| Jarayon paneli: To'quv | `GET /completed_unripe_material_orders` (HAMMASI, sana filtri CLIENTDA — endpointda DateFilter yo'q) | accepted=kg yig'indisi; kutilmoqda=notAccepted |
+| Jarayon paneli: Bo'yoq | `GET /ripe_material_orders` (sana filtri clientda) | accepted / expected, sentQuantitySort1+2 kg |
+| Jarayon paneli: Bichuv | `GET /product_model_order_completeds` (server sana filtri) | accepted / pending donalar |
+| Jarayon paneli: Vishivka/Tikuv/Qadoqlash/Ombor | `GET /product_in_warehouse_actions` tegishli from/to bilan | accepted / pending; "eng eskisi" = pending ichidagi eng kichik createdAt dan hozirgacha |
+| Stepper tablari (Bichildi, Vishivka urildi...) | tegishli resurs + status + sana | getStats: model→dona, model→xodim (sentBy/confirmedBy) |
+| ⏱ Vaqt ko'rsatkichlari | yozuvlarning o'zidan | tasdiqlash = createdAt → receivedAt (ombor amallari) yoki updatedAt (to'quv/bichuv); kutish = createdAt → hozir |
+| Savdo tabi | `GET /sales` | model→xaridor kesimi, USD/so'm alohida, to'langan proporsional taqsim |
+| Tahlil: sotuv/ishlab-chiqarish % | sales + PIWA 7→8 accepted (bir xil davr) | sotilgan/ishlab-chiqarilgan ×100 (100%+ = eski zaxiradan sotilgan) |
+| Tahlil: Qarzdorlar | `GET /customers?hasDebt=true` + `GET /sales?isPayed=false` (sanasiz!) | usdDebts/uzsDebts (backend hisoblaydi) + eng eski to'lanmagan sotuv sanasi |
+| Tahlil: Ombor qoldig'i | warehouses?name=productsWarehouse | model→o'lcham; "bu davrda sotilmagan" = davr sotuvlarida yo'q model |
+| Talab tabi | `GET /orders` (sana filtri CLIENTDA) + sales | talab = order.products.quantities; yetkazildi = o'sha xaridor+model bo'yicha davr sotuvlari; yetkazilmadi = max(0, farq) |
+| Oyliklar sahifasi jamilari | `GET /salaries?month=...&pagination=false` | hisoblangan = baseSalary yoki kunlik×kun yoki ishbay; to'langan = advancePayment+paidAmount |
+
+**Muhim ogohlantirishlar**:
+- To'quv, Bo'yoq va Talab (orders) manbalarida server sana-filtri yo'q — hamma yozuv olinib clientda filtrlanadi; ma'lumot juda ko'payganda backend'ga DateFilter qo'shish tavsiya etilgan
+- Solishtirmalar (sotuv vs ishlab-chiqarish, talab vs yetkazish) BIR XIL davr ichida — davrlararo zaxira harakati foizni 100%+ qilishi tabiiy
+- Ombor qoldig'i va Qarzdorlar — doim joriy holat, sana filtri ta'sir qilmaydi
+
 ---
 
 ## 7. Zakaz (Order) va Avans tizimi
@@ -237,6 +263,13 @@ Texnik: sotuvlar so'rovi 30s keshlanadi (bir sahifada takror so'rov ketmaydi).
 `ruxshona` ↔ `Рухшона`, `xalat` ↔ `Халат` — ikkala yo'nalishda:
 - **Frontend**: `src/libraries/transliterate.js` + `selectableList` (barcha dropdownlar) + 5 ombor sahifasi
 - **Backend**: `TransliteratedSearchFilter` (SearchFilter kompozitsiyasi — u final klass!) 11 entity'da: Customer, ProductModel, Material, Thread, Accessory, Embroidery, RipeMaterial, User, Transaction, Sale, Order
+- **Almashinuvchi harflar birlashtirilgan**: `h↔x` (Hamid/Xamid/Ҳамид/Хамид — to'rttasi ham bir-birini topadi), `е↔э` (Eldor/Элдор); frontendda qo'shimcha `щ→ш`, `ы→и`
+
+## 9a. Xatolik xabarlari — aniq va tushunarli
+
+- **Frontend**: barcha xatolik-toastlar (82 joy, 37 komponent) backend yuborgan `hydra:description` matnini ko'rsatadi (`apiErrorMessage` helper, defaults.js); backend xabar bermasa — eski umumiy matn
+- **Backend**: "yetarli emas" xabarlari model/material nomi va raqamlar bilan:
+  `«Model» modelidan S razmer Vishivka omborida yetarli emas (bor: 2, kerak: 50)` — savdo, ombor o'tishlari, brak qayta-bichish, bo'yoq buyurtmalari/repaint, ip yetishmasligi. Ombor nomlari o'zbekcha (`WAREHOUSE_LABELS` xaritasi, ProductInWarehouseAccept)
 
 ---
 
@@ -287,7 +320,8 @@ Lokal test userlar (parol hammasida `test1234`): +99890000000**1** admin/super, 
 | Ombor IRI konstantalari, getStats, formatDuration | `src/libraries/constants/defaults.js` |
 | Statistika komponentlari | `src/components/statistics/` |
 | Yagona breakdown/timing komponentlari | `ModelStatsBreakdown.vue`, `TimingSummary.vue` |
-| Transliteratsiya | `src/libraries/transliterate.js`, backend `Component/Core/Transliterator.php` |
+| Transliteratsiya + harf birlashuvi | `src/libraries/transliterate.js`, backend `Component/Core/Transliterator.php` |
+| API xatosini toast'da ko'rsatish | `apiErrorMessage` — `src/libraries/constants/defaults.js` |
 | Ombor o'tishi qabul mantiqi (rol xaritasi, 8→9 qoida, ishbay maosh) | backend `Controller/ProductInWarehouseAction/ProductInWarehouseAccept.php` |
 | To'quvchi maoshi | backend `Controller/CompletedUnripeMaterialOrder/AcceptanceAction.php` |
 | Maosh yozish subscriber | backend `EventSubscriber/WorkEntriesSubscriber.php` + `Component/Salary/CreatorSalary.php` |
