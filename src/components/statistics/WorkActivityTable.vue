@@ -155,7 +155,7 @@ onMounted(() => {
               <!-- Product Column -->
               <div v-else-if="col.name === 'productAccessory'" class="product-cell">
                 <q-icon name="inventory_2" class="q-mr-xs text-orange" size="sm" />
-                <span>{{ props.row.productAccessory?.productSize?.productModel?.name || '-' }}</span>
+                <span>{{ props.row.productModel?.name || props.row.productAccessory?.productSize?.productModel?.name || '-' }}</span>
               </div>
 
               <!-- Embroidery Column -->
