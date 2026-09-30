@@ -176,6 +176,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Vishivkachi o'z omboriga kelgan kirimlarni O'ZI qabul/rad qiladi -->
   <ProductInWarehouseAction
     :filters="filters"
     :title="t('tables.warehouseAction.header.title')"

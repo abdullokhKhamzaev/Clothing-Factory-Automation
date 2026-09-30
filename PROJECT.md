@@ -58,7 +58,7 @@ Hozircha super-admin bilan teng huquqli (kelajakda cheklovlar kiritilishi mumkin
 - Foydalanuvchi yaratish/boshqarish
 
 ### MASTER
-**Vishivkachi, Tikuvchi, Qadoqlovchi** bo'limlariga tegishli BARCHA ombor o'tishlarini tasdiqlaydi/rad etadi — ham ishchilarning hisobotlarini (chiqim), ham ularning omborlariga kirimlarni (masalan bichuvdan vishivkaga, vishivkadan tikuvga kelganini master qabul qiladi). Bichuvchi va To'quvchi hisobotlari bilan ishlamaydi (ular admin nazoratida). Pul, savdo, sozlamalarga kira olmaydi. 8→9 (mahsulot omboriga) o'tishga aralasha olmaydi.
+**Vishivkachi, Tikuvchi, Qadoqlovchi** bo'limlariga tegishli ombor o'tishlarini tasdiqlaydi/rad etadi — ham ishchilarning hisobotlarini (chiqim), ham ularning omborlariga kirimlarni (masalan vishivkadan tikuvga kelganini master qabul qiladi). Istisno: vishivka omboriga(3) kirimni vishivkachining O'ZI ham qabul qila oladi. Bichuvchi va To'quvchi hisobotlari bilan ishlamaydi (ular admin nazoratida). Pul, savdo, sozlamalarga kira olmaydi. 8→9 (mahsulot omboriga) o'tishga aralasha olmaydi.
 
 ### TO'QUVCHI (WEAVER)
 - Admin bergan to'quv buyurtmasini ko'radi va **qabul qiladi** (faqat `pending→confirmed`)
@@ -74,7 +74,7 @@ Hozircha super-admin bilan teng huquqli (kelajakda cheklovlar kiritilishi mumkin
 
 ### VISHIVKACHI (EMBROIDERER)
 - Hisobot topshiradi: modelga **qaysi vishivkalar** urilganini o'zi tanlaydi (`selectedEmbroideryIds`) + dona. Modeldagi sozlama vishivkalari faqat default/ma'lumot — maosh hisobotdagi tanlovdan!
-- Brakka jo'natadi. Kirim ham, hisobot ham **master tomonidan** tasdiqlanadi. O'z oyligini ko'radi.
+- Brakka jo'natadi. O'z omboriga(3) kelgan **kirimni O'ZI qabul/rad qiladi** (master/admin ham qila oladi); hisoboti (3→4) esa **master tomonidan** tasdiqlanadi. O'z oyligini ko'radi.
 
 ### TIKUVCHI (SEWER)
 - Hisobot topshiradi → tasdiqlangach mahsulot **qadoqlash omborida (7)** paydo bo'ladi (tikuvchi va qadoqlovchi bir xonada — 6-ombor ishlatilmaydi)
@@ -100,7 +100,7 @@ Ishlatilmaydi (savdoni adminlar qiladi). Rol tanlovidan olib tashlangan.
 |---|---|
 | To'quv hisobotini qabul/rad (`completed-unripe.../acceptance`) | ADMIN |
 | Bichuv hisobotini qabul/rad (`product_model_order_completeds/{id}/accept`) | ADMIN |
-| Ombor o'tishini qabul/rad (`product_in_warehouse_actions/{id}/accept`) | ADMIN, MASTER; CUTTER faqat brak omboriga(2) kelganini. Vishivkachi/tikuvchi/qadoqlovchi qabul qilMAYdi — ularning kirim-chiqimini master tasdiqlaydi |
+| Ombor o'tishini qabul/rad (`product_in_warehouse_actions/{id}/accept`) | ADMIN, MASTER; CUTTER faqat brak omboriga(2), EMBROIDERER faqat vishivka omboriga(3) kelganini. Tikuvchi/qadoqlovchi qabul qilMAYdi — ularning kirim-chiqimini master tasdiqlaydi |
 | 8→9 (mahsulot omboriga) qabul VA jo'natish | faqat ADMIN |
 | Ish yozuvini qabul (`work_entries/{id}/accept`) | ADMIN |
 
