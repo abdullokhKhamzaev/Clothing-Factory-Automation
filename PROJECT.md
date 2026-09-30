@@ -119,7 +119,9 @@ ombor kamayadi va ish haqi yoziladi. Ilgari razmerlar ketma-ket ishlanib, o'rtad
 qoldiq yetmasa amal yarim bajarilib qolar edi: status "qabul qilindi" bo'lib, keyingi
 razmerlar to'lanmay va ko'chmay qolardi (11887/11825-amallar shu tufayli jabrlangan,
 Version20260930120000 migratsiyasi bilan tiklandi). 0 dona jo'natilgan razmer uchun endi
-«0 dona × narx» yozuvi ham yaratilmaydi.
+«0 dona × narx» yozuvi ham yaratilmaydi. To'quv qabulida ham 0 kg hisobot endi xavfsiz
+(ilgari nolga bo'lish xatosi bilan yozuv yarim holatda qolishi mumkin edi); bichuv qabuli
+va pul endpointlari tabiatan atomik (bitta flush).
 
 ### Boshqa himoyalar
 - **Pul endpointlari** (savdo, buyurtma, mijoz, byudjet, tranzaksiya, qarz, oylik to'lovlari) — faqat ADMIN (o'qish ham)
