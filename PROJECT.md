@@ -113,6 +113,14 @@ Ishchi (to'quvchi/bichuvchi) buyurtma statusini faqat **`pending → confirmed`*
 - Bichuv: asl status `pending` bo'lishi shart
 - Savdo mahsuloti: buyurtma qatorlari omborga tegmaydi (`productInWarehouse = null` guard)
 
+### Atomik qabul (2026-09-30 tuzatildi)
+Ombor o'tishini qabul qilishda AVVAL barcha razmerlar uchun qoldiq tekshiriladi, keyingina
+ombor kamayadi va ish haqi yoziladi. Ilgari razmerlar ketma-ket ishlanib, o'rtadagi razmerda
+qoldiq yetmasa amal yarim bajarilib qolar edi: status "qabul qilindi" bo'lib, keyingi
+razmerlar to'lanmay va ko'chmay qolardi (11887/11825-amallar shu tufayli jabrlangan,
+Version20260930120000 migratsiyasi bilan tiklandi). 0 dona jo'natilgan razmer uchun endi
+«0 dona × narx» yozuvi ham yaratilmaydi.
+
 ### Boshqa himoyalar
 - **Pul endpointlari** (savdo, buyurtma, mijoz, byudjet, tranzaksiya, qarz, oylik to'lovlari) — faqat ADMIN (o'qish ham)
 - **Oylik va ish yozuvlari**: ishchi faqat O'ZINIKINI ko'radi (`OwnWorkerDataExtension`)
