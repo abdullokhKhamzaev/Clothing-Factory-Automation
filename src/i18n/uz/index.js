@@ -9,6 +9,16 @@ export default {
     roll: 'ro\'lon',
     and: 'va',
     sort2: '2-sort',
+    dateRange: {
+      today: 'Bugun',
+      yesterday: 'Kecha',
+      thisWeek: 'Bu hafta',
+      lastWeek: 'O\'tgan hafta',
+      thisMonth: 'Bu oy',
+      lastMonth: 'O\'tgan oy',
+      prev: 'Oldingi davr',
+      next: 'Keyingi davr',
+    },
     weave: {
       done: 'To\'qildi',
       donePending: 'To\'qildi (kutilmoqda)',

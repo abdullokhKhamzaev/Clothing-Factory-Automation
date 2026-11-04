@@ -9,6 +9,16 @@ export default {
     roll: 'рўлон',
     and: 'ва',
     sort2: '2-сорт',
+    dateRange: {
+      today: 'Бугун',
+      yesterday: 'Кеча',
+      thisWeek: 'Бу ҳафта',
+      lastWeek: 'Ўтган ҳафта',
+      thisMonth: 'Бу ой',
+      lastMonth: 'Ўтган ой',
+      prev: 'Олдинги давр',
+      next: 'Кейинги давр',
+    },
     weave: {
       done: 'Тўқилди',
       donePending: 'Тўқилди (кутилмоқда)',

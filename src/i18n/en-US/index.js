@@ -9,6 +9,16 @@ export default {
     roll: 'roll',
     and: 'and',
     sort2: '2nd sort',
+    dateRange: {
+      today: 'Today',
+      yesterday: 'Yesterday',
+      thisWeek: 'This week',
+      lastWeek: 'Last week',
+      thisMonth: 'This month',
+      lastMonth: 'Last month',
+      prev: 'Previous period',
+      next: 'Next period',
+    },
     weave: {
       done: 'Woven',
       donePending: 'Woven (pending)',
