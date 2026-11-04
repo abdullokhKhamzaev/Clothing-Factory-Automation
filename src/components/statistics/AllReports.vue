@@ -3,6 +3,7 @@ import {ref} from "vue"
 import {useI18n} from "vue-i18n";
 import {formatFloatToInteger} from "src/libraries/constants/defaults.js";
 import WeaveModels from "components/statistics/WeaveModels.vue";
+import PaintModels from "components/statistics/PaintModels.vue";
 import CutModelsAccepted from "components/statistics/CutModelsAccepted.vue";
 import CutModelsPending from "components/statistics/CutModelsPending.vue";
 import CutModelsDefectAccepted from "components/statistics/CutModelsDefectAccepted.vue";
@@ -51,6 +52,8 @@ const { t } = useI18n();
 
 const weaveModelsAcceptedData = ref([])
 const weaveModelsPendingData = ref([])
+const paintModelsAcceptedData = ref([])
+const paintModelsPendingData = ref([])
 const cutModelsAcceptedData = ref([])
 const cutModelsPendingData = ref([])
 const cutModelsDefectAcceptedData = ref([])
@@ -84,6 +87,12 @@ function getWeaveModelsAcceptedData(data) {
 }
 function getWeaveModelsPendingData(data) {
   weaveModelsPendingData.value = data;
+}
+function getPaintModelsAcceptedData(data) {
+  paintModelsAcceptedData.value = data;
+}
+function getPaintModelsPendingData(data) {
+  paintModelsPendingData.value = data;
 }
 function getCutModelsAcceptedData(data) {
   cutModelsAcceptedData.value = data;
@@ -167,6 +176,7 @@ function getSaleProducts(data) {
   saleProductsData.value = data;
 }
 const weaveTab = ref('done');
+const paintTab = ref('done');
 const cutTab = ref('done');
 const saleTab = ref('sales');
 
@@ -184,7 +194,7 @@ const packageTab = ref('done');
 <template>
   <div class="flex justify-end q-gutter-x-md q-mb-sm">
     <q-btn color="primary" icon="mdi-chevron-double-left" @click="$refs.stepper.previous()" :disable="step === 1" />
-    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 8" />
+    <q-btn color="primary" icon="mdi-chevron-double-right" @click="$refs.stepper.next()" :disable="step === 9" />
   </div>
   <q-stepper
     flat
@@ -231,10 +241,43 @@ const packageTab = ref('done');
     </q-step>
     <q-step
       :name="2"
+      :title="t('menus.sideBar.paint')"
+      :caption="formatFloatToInteger(paintModelsAcceptedData.value?.total || 0)"
+      icon="mdi-palette"
+      :done="step > 2"
+    >
+      <q-card>
+        <q-tabs
+          v-model="paintTab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          outside-arrows
+          no-caps
+          narrow-indicator
+        >
+          <q-tab name="done" :label="t('statistics.paint.done')" />
+          <q-tab name="donePending" :label="t('statistics.paint.donePending')" />
+        </q-tabs>
+        <q-separator />
+        <q-tab-panels v-model="paintTab" animated>
+          <q-tab-panel name="done">
+            <PaintModels :date-to="props.dateTo" :date-from="props.dateFrom" status="accepted" :title="t('statistics.paint.title')" @retrieve-data="getPaintModelsAcceptedData" />
+          </q-tab-panel>
+          <q-tab-panel name="donePending">
+            <PaintModels :date-to="props.dateTo" :date-from="props.dateFrom" status="expected" :title="t('statistics.paint.titlePending')" @retrieve-data="getPaintModelsPendingData" />
+          </q-tab-panel>
+        </q-tab-panels>
+      </q-card>
+    </q-step>
+    <q-step
+      :name="3"
       :title="t('menus.sideBar.cutting')"
       :caption="cutModelsAcceptedData.value?.total || '0'"
       icon="mdi-scissors-cutting"
-      :done="step > 2"
+      :done="step > 3"
     >
       <q-card>
         <q-tabs
@@ -287,11 +330,11 @@ const packageTab = ref('done');
       </q-card>
     </q-step>
     <q-step
-      :name="3"
+      :name="4"
       :title="t('menus.sideBar.embroidery')"
       :caption="embroideryModelsAcceptedData.value?.total || '0'"
       icon="mdi-draw"
-      :done="step > 3"
+      :done="step > 4"
     >
       <q-card>
         <q-tabs
@@ -336,11 +379,11 @@ const packageTab = ref('done');
       </q-card>
     </q-step>
     <q-step
-      :name="4"
+      :name="5"
       :title="t('menus.sideBar.sewing')"
       :caption="sewReadyModelsAcceptedData.value?.total || '0'"
       icon="mdi-nail"
-      :done="step > 4"
+      :done="step > 5"
     >
       <q-tabs
         v-model="sewTab"
@@ -383,11 +426,11 @@ const packageTab = ref('done');
       </q-tab-panels>
     </q-step>
     <q-step
-      :name="5"
+      :name="6"
       :title="t('menus.sideBar.package')"
       :caption="packageReadyModelsAcceptedData.value?.total || '0'"
       icon="mdi-package-down"
-      :done="step > 5"
+      :done="step > 6"
     >
       <q-tabs
         v-model="packageTab"
@@ -430,11 +473,11 @@ const packageTab = ref('done');
       </q-tab-panels>
     </q-step>
     <q-step
-      :name="6"
+      :name="7"
       :title="t('menus.sideBar.sales')"
       :caption="saleProductsData.value?.totalQuantity || '0'"
       icon="mdi-cart-percent"
-      :done="step > 6"
+      :done="step > 7"
     >
       <q-card>
         <q-tabs
@@ -467,15 +510,15 @@ const packageTab = ref('done');
       </q-card>
     </q-step>
     <q-step
-      :name="7"
+      :name="8"
       :title="t('menus.sideBar.expenses')"
       icon="mdi-wallet"
-      :done="step > 7"
+      :done="step > 8"
     >
       <ExpensesTransactions :date-to="props.dateTo" :date-from="props.dateFrom" />
     </q-step>
     <q-step
-      :name="8"
+      :name="9"
       :title="t('exchanges')"
       icon="mdi-send-clock-outline"
     >

@@ -15,6 +15,15 @@ export default {
       title: 'Woven products:',
       titlePending: 'Woven products (pending):',
     },
+    paint: {
+      done: 'Painted',
+      donePending: 'In painting (pending)',
+      title: 'Painted products:',
+      titlePending: 'Products in painting (pending):',
+      sent: 'Sent',
+      received: 'Received',
+      fabricView: 'By factory',
+    },
     sale: {
       salesTab: 'Sales',
       analyticsTab: 'Analytics',

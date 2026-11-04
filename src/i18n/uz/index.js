@@ -15,6 +15,15 @@ export default {
       title: 'To\'qilgan mahsulotlar:',
       titlePending: 'To\'qilgan mahsulotlar (kutilmoqda):',
     },
+    paint: {
+      done: 'Bo\'yaldi',
+      donePending: 'Bo\'yoqda (kutilmoqda)',
+      title: 'Bo\'yalgan mahsulotlar:',
+      titlePending: 'Bo\'yoqdagi mahsulotlar (kutilmoqda):',
+      sent: 'Yuborildi',
+      received: 'Qabul qilindi',
+      fabricView: 'Fabrika bo\'yicha',
+    },
     sale: {
       salesTab: 'Savdo',
       analyticsTab: 'Tahlil',

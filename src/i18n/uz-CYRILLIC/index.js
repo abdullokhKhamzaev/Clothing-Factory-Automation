@@ -15,6 +15,15 @@ export default {
       title: 'Тўқилган маҳсулотлар:',
       titlePending: 'Тўқилган маҳсулотлар (кутилмоқда):',
     },
+    paint: {
+      done: 'Бўялди',
+      donePending: 'Бўёқда (кутилмоқда)',
+      title: 'Бўялган маҳсулотлар:',
+      titlePending: 'Бўёқдаги маҳсулотлар (кутилмоқда):',
+      sent: 'Юборилди',
+      received: 'Қабул қилинди',
+      fabricView: 'Фабрика бўйича',
+    },
     sale: {
       salesTab: 'Савдо',
       analyticsTab: 'Таҳлил',

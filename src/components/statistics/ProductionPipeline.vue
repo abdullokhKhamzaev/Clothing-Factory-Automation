@@ -134,7 +134,7 @@ const stages = computed(() => {
       done: `${formatFloatToInteger(sumSentKg(paintDone))} kg`,
       pending: paintPending.length ? `${formatFloatToInteger(sumSentKg(paintPending))} kg` : null,
       pendingAge: oldestPendingAge(paintPending),
-      step: null,
+      step: 2,
     },
     {
       key: 'cut',
@@ -143,7 +143,7 @@ const stages = computed(() => {
       done: formatFloatToInteger(sumPieces(cutOrders.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(cutOrders.value),
       pendingAge: oldestPendingAge(cutOrders.value.filter(o => o.status === 'pending')),
-      step: 2,
+      step: 3,
     },
     {
       key: 'embroidery',
@@ -152,7 +152,7 @@ const stages = computed(() => {
       done: formatFloatToInteger(sumPieces(embroideryActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(embroideryActions.value),
       pendingAge: oldestPendingAge(embroideryActions.value.filter(o => o.status === 'pending')),
-      step: 3,
+      step: 4,
     },
     {
       key: 'sew',
@@ -161,7 +161,7 @@ const stages = computed(() => {
       done: formatFloatToInteger(sumPieces(sewActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(sewActions.value),
       pendingAge: oldestPendingAge(sewActions.value.filter(o => o.status === 'pending')),
-      step: 4,
+      step: 5,
     },
     {
       key: 'package',
@@ -170,7 +170,7 @@ const stages = computed(() => {
       done: formatFloatToInteger(sumPieces(packageActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(packageActions.value),
       pendingAge: oldestPendingAge(packageActions.value.filter(o => o.status === 'pending')),
-      step: 5,
+      step: 6,
     },
     {
       key: 'warehouse',
@@ -179,7 +179,7 @@ const stages = computed(() => {
       done: formatFloatToInteger(sumPieces(toProductWarehouseActions.value.filter(o => o.status === 'accepted'))),
       pending: pendingPieces(toProductWarehouseActions.value),
       pendingAge: oldestPendingAge(toProductWarehouseActions.value.filter(o => o.status === 'pending')),
-      step: 5,
+      step: 6,
     },
     {
       key: 'sale',
@@ -187,7 +187,7 @@ const stages = computed(() => {
       icon: 'mdi-cart-percent',
       done: formatFloatToInteger(soldTotal.value),
       pending: null,
-      step: 6,
+      step: 7,
     },
   ];
 });
