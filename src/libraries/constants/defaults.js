@@ -267,3 +267,21 @@ export function getStats(actions) {
 
   return { stats, statsByUser, userStats, statsByModel, total };
 }
+
+// Statistikada hisobga olinmaydigan "model"lar — bular mahsulot emas, xizmat turi.
+// Faqat statistika uchun; ish sahifalarida (tikuv, qadoqlash) avvalgidek ko'rinadi.
+// Nom ichida shu kalit so'z uchrasa (katta-kichik harf farqsiz) — chiqarib tashlanadi.
+export const NON_PRODUCT_MODEL_KEYWORDS = [
+  'qayta qadoqlash', 'қайта қадоқлаш',  // qadoqlash: qayta qadoqlash
+  'petli', 'петли', 'петля',           // tikuv: petli
+];
+
+export function isNonProductModel(action) {
+  const name = (action?.productModel?.name || '').trim().toLowerCase();
+  if (!name) return false;
+  return NON_PRODUCT_MODEL_KEYWORDS.some(keyword => name.includes(keyword));
+}
+
+export function excludeNonProductModels(actions) {
+  return (actions || []).filter(action => !isNonProductModel(action));
+}

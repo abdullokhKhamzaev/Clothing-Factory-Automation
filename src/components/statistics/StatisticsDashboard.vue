@@ -6,7 +6,7 @@ import {useSale} from "stores/sale.js";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {useWarehouse} from "stores/warehouse.js";
 import {useTransaction} from "stores/transaction.js";
-import {formatFloatToInteger, roundToDecimal, getStats, WAREHOUSES} from "src/libraries/constants/defaults.js";
+import {formatFloatToInteger, roundToDecimal, getStats, excludeNonProductModels, WAREHOUSES} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -51,7 +51,7 @@ async function getData (force = false) {
     ]);
 
     sales.value = salesRes?.data['hydra:member'] || [];
-    producedActions.value = producedRes?.data['hydra:member'] || [];
+    producedActions.value = excludeNonProductModels(producedRes?.data['hydra:member']); // "Qayta qadoqlash" mahsulot emas
     productsWarehouse.value = warehouseRes?.data['hydra:member']?.[0] || null;
     transactions.value = transactionsRes?.data['hydra:member'] || [];
   } finally {

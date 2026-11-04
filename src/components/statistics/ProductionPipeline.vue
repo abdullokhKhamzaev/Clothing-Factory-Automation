@@ -7,7 +7,7 @@ import {useRipeMaterialOrder} from "stores/ripeMaterialOrder.js";
 import {useProductModelOrderCompleted} from "stores/productModelOrderCompleted.js";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
 import {useSale} from "stores/sale.js";
-import {formatFloatToInteger, formatDuration, getStats, WAREHOUSES} from "src/libraries/constants/defaults.js";
+import {formatFloatToInteger, formatDuration, getStats, excludeNonProductModels, WAREHOUSES} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -68,8 +68,8 @@ async function getData (force = false) {
     paintOrders.value = (paintRes?.data['hydra:member'] || []).filter(o => inRange(o.createdAt));
     cutOrders.value = cutRes?.data['hydra:member'] || [];
     embroideryActions.value = embroideryRes?.data['hydra:member'] || [];
-    sewActions.value = sewRes?.data['hydra:member'] || [];
-    packageActions.value = packageRes?.data['hydra:member'] || [];
+    sewActions.value = excludeNonProductModels(sewRes?.data['hydra:member']); // "Petli" mahsulot emas
+    packageActions.value = excludeNonProductModels(packageRes?.data['hydra:member']); // "Qayta qadoqlash" mahsulot emas
     toProductWarehouseActions.value = warehouseRes?.data['hydra:member'] || [];
     sales.value = salesRes?.data['hydra:member'] || [];
   } finally {

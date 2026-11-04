@@ -4,7 +4,7 @@ import RefreshButton from "components/RefreshButton.vue";
 import ModelStatsBreakdown from "components/statistics/ModelStatsBreakdown.vue";
 import TimingSummary from "components/statistics/TimingSummary.vue";
 import {useProductWarehouse} from "stores/productInWarehouseAction.js";
-import {getStats} from "src/libraries/constants/defaults.js";
+import {getStats, excludeNonProductModels} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -39,7 +39,8 @@ async function getModels () {
 
   await useProductWarehouse().list(filterProps || '')
     .then((res) => {
-      models.value = res.data['hydra:member'];
+      // "Petli" mahsulot emas — statistikaga kirmaydi
+      models.value = excludeNonProductModels(res.data['hydra:member']);
       sendData();
     })
     .finally(() => {
