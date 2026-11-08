@@ -190,6 +190,21 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 **Qoida**: modelga narx/xizmat ulanmagan bo'lsa — to'lanmaydi (ataylab shunday).
 
+### Kunlik ish haqi va jarimalar shaffofligi (2026-11-08)
+`salary.dailyWage` — kunlik STAVKA emas, oyning jamisi. U endi har davomat o'zgarishida
+davomatdan QAYTA HISOBLANADI (AttendanceSubscriber): ishlagan kunlar = kelishi belgilangan
+kunlar; jami = Σ kun stavkasi − Σ jarimalar. Kelish belgilanganda kunlik stavka qatorga
+muhrlanadi (`attendance.dayRate`) — keyin stavka o'zgarsa ham o'tgan kunlar buzilmaydi.
+Shu tufayli: bitta kunni qayta saqlash jarimani IKKI marta ayirmaydi, retroaktiv
+(ertasiga/haftasiga tahrir bilan) kiritilgan jarima ham aniq qo'llanadi, kunni bekor qilish
+oyni to'liq tiklaydi. Version20261108150000: ustun + eski kelgan kunlarga joriy stavka muhri +
+2026-09 dan beri kunlik oyliklarni qayta hisoblash.
+UI: oyliklar jadvalida stavka × kunlar, jarima (−) va jami alohida; ishchi sahifasida shu
+taqsimot + davr ulushi + «Jarimalar (N)» ro'yxati (qaysi kuni qancha) va agar davomatdagi
+jarima oylikka qo'llanmagan bo'lsa — ogohlantirish banneri.
+Davomat endi himoyalangan: o'qish — ishchi faqat o'zinikini (OwnWorkerDataExtension), yozish
+(belgilash, jarima) — faqat adminlar; `worker` bo'yicha server filtri qo'shildi.
+
 ### Qo'shimcha to'lov — yo'l kira, lazer va h.k. (2026-11-08)
 Ishchi profilida (`user.extraPayment` + `extraPaymentReason`) davriy qo'shimcha to'lov kiritiladi —
 summa **har 15 kunlik davr uchun** (masalan yo'l kira 75 000 → oyiga 150 000). U ishchining davr

@@ -2450,6 +2450,8 @@ export default {
   salaryInfo: {
     title: 'Salary Information',
     paymentsHistory: 'Payment history',
+    penaltiesHistory: 'Penalties',
+    penaltiesUnapplied: 'of penalties are recorded in attendance but not applied to the salary — check attendance',
     types: {
       fixed: 'Fixed Salary',
       piecework: 'Performance-based',
@@ -2481,6 +2483,9 @@ export default {
     details: {
       monthlyRate: 'Monthly Rate',
       extraIncluded: 'Extra payment included',
+      appliedPenalty: 'Penalty (applied)',
+      monthTotal: 'month total',
+      periodShare: 'This period share',
       dailyRate: '/day',
       bonusAwarded: 'Excellent work! Bonus awarded',
       debtStatus: 'Debt status - needs to be paid',

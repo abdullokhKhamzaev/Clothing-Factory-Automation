@@ -12,6 +12,15 @@ export const useAttendance = defineStore('attendance', () => {
     if (filterProps.date) {
       params.set('date[after]', filterProps.date);
     }
+    if (filterProps.worker) {
+      params.set('worker', filterProps.worker);
+    }
+    if (filterProps.dateFrom) {
+      params.set('date[after]', filterProps.dateFrom);
+    }
+    if (filterProps.dateTo) {
+      params.set('date[before]', filterProps.dateTo);
+    }
 
     try {
       return await client.get(`attendances?${params.toString()}`);

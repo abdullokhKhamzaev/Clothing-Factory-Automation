@@ -2450,6 +2450,8 @@ export default {
   salaryInfo: {
     title: 'Моаш ҳақида маълумот',
     paymentsHistory: 'Тўловлар тарихи',
+    penaltiesHistory: 'Жарималар',
+    penaltiesUnapplied: 'жарима давоматда ёзилган, лекин ойлик ҳисобига қўлланмаган — давоматни текширинг',
     types: {
       fixed: 'Белгиланган ойлик',
       piecework: 'Иш натижасига қараб',
@@ -2481,6 +2483,9 @@ export default {
     details: {
       monthlyRate: 'Ойлик тариф',
       extraIncluded: 'Қўшимча тўлов ҳисобга киритилди',
+      appliedPenalty: 'Жарима (ҳисобга олинган)',
+      monthTotal: 'ой жами',
+      periodShare: 'Шу давр улуши',
       dailyRate: '/кун',
       bonusAwarded: 'Ажойиб натижа! Мукофот берилди',
       debtStatus: 'Қарз ҳолати - тўланиши керак',

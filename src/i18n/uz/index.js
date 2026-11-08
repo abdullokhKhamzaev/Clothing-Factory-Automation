@@ -2450,6 +2450,8 @@ export default {
   salaryInfo: {
     title: 'Maosh haqida ma\'lumot',
     paymentsHistory: 'To\'lovlar tarixi',
+    penaltiesHistory: 'Jarimalar',
+    penaltiesUnapplied: 'jarima davomatda yozilgan, lekin oylik hisobiga qo\'llanmagan — davomatni tekshiring',
     types: {
       fixed: 'Belgilangan oylik',
       piecework: 'Ish natijasiga qarab',
@@ -2481,6 +2483,9 @@ export default {
     details: {
       monthlyRate: 'Oylik tarif',
       extraIncluded: 'Qo\'shimcha to\'lov hisobga kiritildi',
+      appliedPenalty: 'Jarima (hisobga olingan)',
+      monthTotal: 'oy jami',
+      periodShare: 'Shu davr ulushi',
       dailyRate: '/kun',
       bonusAwarded: 'Ajoyib natija! Mukofot berildi',
       debtStatus: 'Qarz holati - to\'lanishi kerak',

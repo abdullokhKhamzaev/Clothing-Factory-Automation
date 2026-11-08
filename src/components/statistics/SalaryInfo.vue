@@ -1,6 +1,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue"
 import {useSalary} from "stores/salary.js"
+import {useAttendance} from "stores/attendance.js"
 import {formatDate, formatFloatToInteger} from "../../libraries/constants/defaults.js"
 import {periodFromDateFrom, splitEarnedByPeriod, allocatePayments} from "src/libraries/salaryPeriod.js"
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue"
@@ -27,7 +28,10 @@ const emit = defineEmits(['salary-data-loaded'])
 
 // Salary data
 const salaryRepository = useSalary()
+const attendanceRepository = useAttendance()
 const salaryData = ref([])
+// Oyning jarima yozilgan davomat kunlari (shaffoflik uchun birma-bir ko'rsatiladi)
+const monthCuts = ref([])
 const loading = ref(false)
 // Oy almashgandagina qayta so'raymiz (davr 1↔2 almashishi so'rov talab qilmaydi)
 let fetchedKey = ''
@@ -44,6 +48,9 @@ function getSalaryData() {
 
   loading.value = true
 
+  const [year, monthNum] = month.split('-').map(Number)
+  const lastDay = new Date(year, monthNum, 0).getDate()
+
   const salaryFilters = {
     month: month,
     worker: props.worker,
@@ -51,9 +58,22 @@ function getSalaryData() {
     rowsPerPage: 10
   }
 
-  salaryRepository.fetchSalaries(salaryFilters)
-    .then((res) => {
-      salaryData.value = res.data['hydra:member'] || []
+  const attendanceFilters = {
+    worker: props.worker,
+    dateFrom: `${month}-01`,
+    dateTo: `${month}-${String(lastDay).padStart(2, '0')}`,
+    rowsPerPage: '~'
+  }
+
+  Promise.all([
+    salaryRepository.fetchSalaries(salaryFilters),
+    attendanceRepository.fetchAttendances(attendanceFilters)
+  ])
+    .then(([salaryRes, attendanceRes]) => {
+      salaryData.value = salaryRes.data['hydra:member'] || []
+      monthCuts.value = (attendanceRes?.data?.['hydra:member'] || [])
+        .filter(a => Number(a.cutMoney) > 0)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
       fetchedKey = key
       // Parent ga ma'lumot uzatish
       emit('salary-data-loaded', salaryData.value)
@@ -61,12 +81,24 @@ function getSalaryData() {
     .catch((error) => {
       console.error('Salary data fetch error:', error)
       salaryData.value = []
+      monthCuts.value = []
       emit('salary-data-loaded', [])
     })
     .finally(() => {
       loading.value = false
     })
 }
+
+const cutsTotal = computed(() => monthCuts.value.reduce((sum, a) => sum + Number(a.cutMoney || 0), 0))
+
+// Davomatda yozilgan, lekin oylik hisobiga QO'LLANMAGAN jarimalar farqi.
+// (Jarima faqat ketish belgilash oqimida oylikdan ayiriladi; keyin/boshqa yo'l
+// bilan kiritilgani yozuv bo'lib qoladi — farqni yashirmasdan ko'rsatamiz)
+const unappliedCuts = computed(() => {
+  if (!dailyBreakdown.value) return 0
+  const diff = cutsTotal.value - dailyBreakdown.value.penalty
+  return diff > 0.01 ? diff : 0
+})
 
 // Computed properties
 const currentSalaryData = computed(() => {
@@ -287,7 +319,11 @@ onMounted(() => {
                     </div>
                     <div v-if="dailyBreakdown.penalty > 0" class="flex items-center q-gutter-xs text-negative">
                       <q-icon name="remove_circle_outline" size="xs" color="negative" />
-                      <span>{{ $t('tables.users.columns.penalty') }}: −{{ formatFloatToInteger(dailyBreakdown.penalty) }} = {{ formatFloatToInteger(dailyBreakdown.total) }} {{ currencyInfo.name }}</span>
+                      <span>{{ $t('salaryInfo.details.appliedPenalty') }}: −{{ formatFloatToInteger(dailyBreakdown.penalty) }} → {{ $t('salaryInfo.details.monthTotal') }} {{ formatFloatToInteger(dailyBreakdown.total) }} {{ currencyInfo.name }}</span>
+                    </div>
+                    <div class="flex items-center q-gutter-xs">
+                      <q-icon name="date_range" size="xs" color="grey-6" />
+                      <span>{{ $t('salaryInfo.details.periodShare') }} ({{ selectedPeriod === 1 ? '1–15' : '16–' }}): {{ formatFloatToInteger(dailyBreakdown.total / 2) }} {{ currencyInfo.name }}</span>
                     </div>
                   </div>
                   <div v-else-if="Number(currentSalaryData.dailyWage || 0) > 0" class="flex items-center q-gutter-xs">
@@ -465,6 +501,31 @@ onMounted(() => {
         <div class="q-pa-sm">
           <salary-payments-list :lists="monthPayments" />
         </div>
+      </q-expansion-item>
+
+      <!-- Jarimalar birma-bir: qaysi kuni, qancha — ishchi ham ko'radi, savol qolmaydi -->
+      <q-expansion-item
+        v-if="monthCuts.length"
+        icon="gavel"
+        :label="`${$t('salaryInfo.penaltiesHistory')} (${monthCuts.length}) — −${formatFloatToInteger(cutsTotal)} ${currencyInfo.name}`"
+        header-class="text-negative text-weight-medium"
+        class="q-mt-sm"
+      >
+        <q-list bordered separator class="q-ma-sm" style="max-width: 360px">
+          <q-item v-for="cut in monthCuts" :key="cut.id">
+            <q-item-section>
+              <div class="flex justify-between">
+                <span>{{ formatDate(cut.date).slice(0, 10) }}</span>
+                <span class="text-negative text-weight-bold">−{{ formatFloatToInteger(cut.cutMoney) }} {{ currencyInfo.name }}</span>
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
+        <!-- Davomat yozuvi va oylik hisobi mos kelmasa — yashirmaymiz, ochiq aytamiz -->
+        <q-banner v-if="unappliedCuts > 0" dense class="bg-orange-1 text-orange-10 q-ma-sm" rounded>
+          <template v-slot:avatar><q-icon name="warning" color="orange" /></template>
+          −{{ formatFloatToInteger(unappliedCuts) }} {{ currencyInfo.name }} {{ $t('salaryInfo.penaltiesUnapplied') }}
+        </q-banner>
       </q-expansion-item>
     </q-card-section>
   </q-card>
