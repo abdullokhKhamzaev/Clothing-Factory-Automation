@@ -2447,6 +2447,29 @@ export default {
     }
   },
   // Salary page translations
+  salaryReport: {
+    button: 'PDF hisobot',
+    dialogTitle: 'Ish haqi hisoboti',
+    generate: 'Hisobot olish',
+    title: 'Ish haqi hisoboti',
+    period1Label: '1–15 davr (ishbay ishchilar)',
+    monthEndLabel: 'Oy yakuni (ishbay + oylik + kunlik, butun oy)',
+    type: 'Maosh turi',
+    status: 'Holat',
+    empty: "Ko'rsatadigan ma'lumot yo'q",
+    generated: 'Chiqarilgan vaqt',
+    popupBlocked: "Brauzer oynani bloklab qo'ydi — popupga ruxsat bering",
+    types: {
+      piecework: 'Ishbay',
+      monthly: 'Oylik',
+      daily: 'Kunlik',
+    },
+    reasons: {
+      noAttendance: 'Hisoblanmagan: kunlik ishchi, bu oyda davomat yuritilmagan',
+      noSalarySet: 'Hisoblanmagan: oylik turi tanlangan, lekin summasi belgilanmagan',
+      noEntries: "Hisoblanmagan: bu davrda tasdiqlangan ish yozuvi yo'q",
+    },
+  },
   salaryInfo: {
     title: 'Maosh haqida ma\'lumot',
     paymentsHistory: 'To\'lovlar tarixi',

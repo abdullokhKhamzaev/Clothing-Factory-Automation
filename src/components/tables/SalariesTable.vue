@@ -3,6 +3,8 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
+import { useWorkEntries } from "stores/workEntries.js";
+import { buildReportData, buildReportHtml } from "src/libraries/salaryReport.js";
 import { formatDate, formatFloatToInteger, roundToDecimal, apiErrorMessage } from "../../libraries/constants/defaults.js";
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -127,6 +129,103 @@ function debtOf(salary) {
 
 function bonusOf(salary) {
   return Math.max(0, paidOf(salary) - earnedOf(salary));
+}
+
+// «Nega hisoblanmagan» sababi (to'lov bor-u, hisob 0 bo'lgan qatorlar uchun)
+function unearnedReasonOf(salary) {
+  const type = salary.worker?.salaryType;
+  if (type === 'daily') return 'noAttendance';
+  if (type === 'monthly') return 'noSalarySet';
+  return 'noEntries';
+}
+
+// ---- PDF hisobot (direktor uchun: ishchilardan qancha qarzmiz) ----
+const showReportDialog = ref(false);
+const reportLoading = ref(false);
+const reportPeriod = ref(2); // 1 = 1–15 (ishbay), 2 = oy yakuni (hammasi)
+
+async function generateReport() {
+  if (reportLoading.value) return;
+  reportLoading.value = true;
+
+  try {
+    const month = filters.value.month;
+    const [year, monthNum] = month.split('-').map(Number);
+    const lastDay = new Date(year, monthNum, 0).getDate();
+
+    // Oyning barcha tasdiqlangan ish yozuvlari (ishbay hisobi uchun)
+    const entriesRes = await useWorkEntries().list({
+      page: 1,
+      rowsPerPage: '~',
+      status: 'accepted',
+      dateFrom: `${month}-01T00:00:00`,
+      dateTo: `${month}-${String(lastDay).padStart(2, '0')}T23:59:59`
+    });
+    const entries = entriesRes?.data?.['hydra:member'] || [];
+
+    const data = buildReportData(allSalaries.value, entries, reportPeriod.value);
+    const periodLabel = reportPeriod.value === 1
+      ? t('salaryReport.period1Label')
+      : t('salaryReport.monthEndLabel');
+
+    const html = buildReportHtml(data, {
+      title: `${t('salaryReport.title')} — ${month}`,
+      subtitle: periodLabel,
+      generatedLine: `${t('salaryReport.generated')}: ${new Date().toLocaleString()}`,
+      formatMoney: (v) => formatFloatToInteger(roundToDecimal(v)),
+      labels: {
+        worker: t('tables.users.columns.worker'),
+        type: t('salaryReport.type'),
+        owed: t('statistics.salarySummary.earned'),
+        paid: t('statistics.salarySummary.paid'),
+        debt: t('tables.users.columns.remaining'),
+        totalDebt: t('statistics.salarySummary.debt'),
+        status: t('salaryReport.status'),
+        fullyPaid: t('salaryInfo.statuses.fullyPaid'),
+        bonus: t('salaryInfo.cards.bonus'),
+        extraSuffix: t('tables.users.columns.extraPayment'),
+        days: t('tables.users.columns.days'),
+        empty: t('salaryReport.empty'),
+        types: {
+          piecework: t('salaryReport.types.piecework'),
+          monthly: t('salaryReport.types.monthly'),
+          daily: t('salaryReport.types.daily'),
+        },
+        reasons: {
+          noAttendance: t('salaryReport.reasons.noAttendance'),
+          noSalarySet: t('salaryReport.reasons.noSalarySet'),
+          noEntries: t('salaryReport.reasons.noEntries'),
+        },
+      },
+    });
+
+    // Yashirin iframe orqali chop etamiz — popup emas, brauzer BLOKLAMAYDI.
+    // Chop oynasida foydalanuvchi «PDF sifatida saqlash»ni tanlaydi
+    const frame = document.createElement('iframe');
+    frame.style.position = 'fixed';
+    frame.style.right = '0';
+    frame.style.bottom = '0';
+    frame.style.width = '0';
+    frame.style.height = '0';
+    frame.style.border = '0';
+    document.body.appendChild(frame);
+
+    const frameDoc = frame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(html);
+    frameDoc.close();
+
+    setTimeout(() => {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      // Chop oynasi yopilgach iframe'ni tozalaymiz
+      setTimeout(() => frame.remove(), 60000);
+    }, 300);
+
+    showReportDialog.value = false;
+  } finally {
+    reportLoading.value = false;
+  }
 }
 
 const salaryTotals = computed(() => {
@@ -318,6 +417,15 @@ function payAdvanceAction () {
         <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
 
         <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+          <q-btn
+            no-caps
+            color="deep-purple"
+            icon="picture_as_pdf"
+            :label="$t('salaryReport.button')"
+            :loading="reportLoading"
+            @click="showReportDialog = true"
+            class="q-mb-md q-mb-sm-none"
+          />
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-input
             filled
@@ -429,9 +537,15 @@ function payAdvanceAction () {
             <q-badge v-if="debtOf(props.row) > 0" color="negative" class="q-pa-xs">
               {{ formatFloatToInteger(debtOf(props.row)) }} {{ props.row.budget.name }}
             </q-badge>
-            <q-badge v-else-if="bonusOf(props.row) > 0" color="amber-8" class="q-pa-xs">
-              +{{ formatFloatToInteger(bonusOf(props.row)) }} {{ $t('salaryInfo.cards.bonus') }}
-            </q-badge>
+            <template v-else-if="bonusOf(props.row) > 0">
+              <q-badge color="amber-8" class="q-pa-xs">
+                +{{ formatFloatToInteger(bonusOf(props.row)) }} {{ $t('salaryInfo.cards.bonus') }}
+              </q-badge>
+              <!-- Nega hisoblanmagan — ochiq yozamiz (davomat yo'q / maosh belgilanmagan / ish yo'q) -->
+              <div v-if="earnedOf(props.row) === 0" class="text-caption text-grey q-mt-xs">
+                {{ $t('salaryReport.reasons.' + unearnedReasonOf(props.row)) }}
+              </div>
+            </template>
             <q-badge v-else-if="earnedOf(props.row) > 0" color="positive" class="q-pa-xs">
               <q-icon name="check" size="xs" class="q-mr-xs" /> {{ $t('salaryInfo.statuses.fullyPaid') }}
             </q-badge>
@@ -487,6 +601,34 @@ function payAdvanceAction () {
     </template>
   </q-table>
   <!-- Dialogs -->
+  <!-- PDF hisobot: davr tanlash -->
+  <q-dialog v-model="showReportDialog">
+    <q-card style="min-width: 340px">
+      <q-card-section class="text-h6">{{ $t('salaryReport.dialogTitle') }}</q-card-section>
+      <q-card-section class="q-pt-none">
+        <q-option-group
+          v-model="reportPeriod"
+          :options="[
+            { label: $t('salaryReport.period1Label'), value: 1 },
+            { label: $t('salaryReport.monthEndLabel'), value: 2 },
+          ]"
+          type="radio"
+        />
+      </q-card-section>
+      <q-card-actions align="right" class="q-px-md q-pb-md">
+        <q-btn no-caps flat color="grey" :label="$t('dialogs.accept.buttons.cancel')" v-close-popup />
+        <q-btn
+          no-caps
+          color="deep-purple"
+          icon="picture_as_pdf"
+          :label="$t('salaryReport.generate')"
+          :loading="reportLoading"
+          @click="generateReport"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
   <q-dialog v-model="showSalaryModal" persistent @hide="clearAction">
     <q-card style="width: 900px; max-width: 80vw;">
       <q-form @submit.prevent="paySalaryAction">

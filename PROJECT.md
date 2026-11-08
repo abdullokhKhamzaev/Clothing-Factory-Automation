@@ -190,6 +190,15 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 **Qoida**: modelga narx/xizmat ulanmagan bo'lsa — to'lanmaydi (ataylab shunday).
 
+### PDF ish haqi hisoboti (2026-11-08)
+Oyliklar sahifasida «PDF hisobot» tugmasi: davr tanlanadi — **1–15** (faqat ishbay ishchilar,
+FIFO bo'yicha shu davr hisob-to'lovi) yoki **Oy yakuni** (ishbay to'liq oy + belgilangan
+oylik + kunlik xodimlar — direktor uchun «jami qancha qarzmiz» javobi). Chop oynasi ochiladi →
+«PDF sifatida saqlash». Hisob mantiqlari sahifadagi bilan bir xil (`salaryReport.js` →
+`salaryPeriod.js`). Har qator izohli: qarz/to'liq/bonus, hisoblanmagan bo'lsa ANIQ sababi:
+«kunlik ishchi, davomat yuritilmagan» / «oylik summasi belgilanmagan» / «ish yozuvi yo'q» —
+xuddi shu izohlar jadvaldagi bonus belgisi ostida ham ko'rinadi.
+
 ### Kunlik ish haqi va jarimalar shaffofligi (2026-11-08)
 `salary.dailyWage` — kunlik STAVKA emas, oyning jamisi. U endi har davomat o'zgarishida
 davomatdan QAYTA HISOBLANADI (AttendanceSubscriber): ishlagan kunlar = kelishi belgilangan

@@ -2447,6 +2447,29 @@ export default {
     }
   },
   // Salary page translations
+  salaryReport: {
+    button: 'PDF report',
+    dialogTitle: 'Salary report',
+    generate: 'Generate report',
+    title: 'Salary report',
+    period1Label: 'Period 1–15 (piecework workers)',
+    monthEndLabel: 'Month end (piecework + monthly + daily, whole month)',
+    type: 'Salary type',
+    status: 'Status',
+    empty: 'Nothing to show',
+    generated: 'Generated at',
+    popupBlocked: 'The browser blocked the window — allow popups',
+    types: {
+      piecework: 'Piecework',
+      monthly: 'Monthly',
+      daily: 'Daily',
+    },
+    reasons: {
+      noAttendance: 'Not calculated: daily worker, no attendance tracked this month',
+      noSalarySet: 'Not calculated: monthly type selected but amount not set',
+      noEntries: 'Not calculated: no accepted work entries in this period',
+    },
+  },
   salaryInfo: {
     title: 'Salary Information',
     paymentsHistory: 'Payment history',

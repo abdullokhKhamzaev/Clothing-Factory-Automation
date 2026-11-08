@@ -2447,6 +2447,29 @@ export default {
     }
   },
   // Salary page translations
+  salaryReport: {
+    button: 'PDF ҳисобот',
+    dialogTitle: 'Иш ҳақи ҳисоботи',
+    generate: 'Ҳисобот олиш',
+    title: 'Иш ҳақи ҳисоботи',
+    period1Label: '1–15 давр (ишбай ишчилар)',
+    monthEndLabel: 'Ой якуни (ишбай + ойлик + кунлик, бутун ой)',
+    type: 'Маош тури',
+    status: 'Ҳолат',
+    empty: 'Кўрсатадиган маълумот йўқ',
+    generated: 'Чиқарилган вақт',
+    popupBlocked: 'Браузер ойнани блоклаб қўйди — popupga рухсат беринг',
+    types: {
+      piecework: 'Ишбай',
+      monthly: 'Ойлик',
+      daily: 'Кунлик',
+    },
+    reasons: {
+      noAttendance: 'Ҳисобланмаган: кунлик ишчи, бу ойда давомат юритилмаган',
+      noSalarySet: 'Ҳисобланмаган: ойлик тури танланган, лекин суммаси белгиланмаган',
+      noEntries: 'Ҳисобланмаган: бу даврда тасдиқланган иш ёзуви йўқ',
+    },
+  },
   salaryInfo: {
     title: 'Моаш ҳақида маълумот',
     paymentsHistory: 'Тўловлар тарихи',
