@@ -1929,6 +1929,7 @@ export default {
         workedDays: 'Ишланган кунлар',
         pieceworkEarning: 'Ишбайлик ҳаққи',
         extraPayment: 'Қўшимча тўлов',
+        per15Days: '/ 15 кун',
         advancePayment: 'Аванс тўлов',
         paidAmount: 'Тўланган сумма',
         transaction: 'Тасниф',

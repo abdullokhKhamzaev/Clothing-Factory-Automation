@@ -32,6 +32,7 @@ const columns = [
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'salaryType', label: t('tables.users.columns.salaryType'), align: 'left', field: 'salaryType' },
   { name: 'salary', label: t('tables.users.columns.salary'), align: 'left', field: 'salary' },
+  { name: 'extraPayment', label: t('tables.users.columns.extraPayment'), align: 'left', field: 'extraPayment' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
@@ -379,6 +380,16 @@ function exportTable(users) {
 
           <div v-else-if="col.name === 'salary' && props.row.salary">
             {{ formatFloatToInteger(props.row.salary) === '0' ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
+          </div>
+
+          <div v-else-if="col.name === 'extraPayment'">
+            <template v-if="Number(props.row.extraPayment) > 0">
+              <div>{{ formatFloatToInteger(props.row.extraPayment) }} {{ props.row.budget?.name }} {{ $t('tables.users.columns.per15Days') }}</div>
+              <div v-if="props.row.extraPaymentReason" class="text-caption text-grey">
+                {{ props.row.extraPaymentReason }}
+              </div>
+            </template>
+            <template v-else>-</template>
           </div>
 
           <div v-else-if="col.name === 'budget'">

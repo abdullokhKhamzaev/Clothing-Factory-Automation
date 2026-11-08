@@ -1929,6 +1929,7 @@ export default {
         workedDays: 'Ishlangan kunlar',
         pieceworkEarning: 'Ishbaylik haqqi',
         extraPayment: 'Qo\'shimcha to\'lov',
+        per15Days: '/ 15 kun',
         advancePayment: 'Avans to\'lov',
         paidAmount: 'To\'langan summa',
         transaction: 'Tasnif',

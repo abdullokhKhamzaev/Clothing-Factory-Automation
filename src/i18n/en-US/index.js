@@ -1929,6 +1929,7 @@ export default {
         workedDays: 'Worked Days',
         pieceworkEarning: 'Piecework Earning',
         extraPayment: 'Extra payment',
+        per15Days: '/ 15 days',
         advancePayment: 'Advance Payment',
         paidAmount: 'Paid Amount',
         transaction: 'Description',
