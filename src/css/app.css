@@ -35,3 +35,40 @@
     background: linear-gradient(135deg, rgba(var(--q-primary-rgb), 0.2) 0%, rgba(var(--q-primary-rgb), 0.1) 100%);
   }
 }
+
+/* Jadval tepasidagi boshqaruvlar paneli — barcha jadvallar uchun yagona responsiv uslub.
+   Desktop: sarlavha chapda, boshqaruvlar o'ngda bir qatorda;
+   Mobil (<600px): har element o'z qatorida, to'liq enda, bir xil oraliq bilan */
+.table-toolbar {
+  width: 100%;
+}
+
+.table-toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 600px) {
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+  }
+
+  .table-toolbar-controls {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 599px) {
+  .table-toolbar-controls {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .table-toolbar-controls > * {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}

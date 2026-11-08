@@ -277,10 +277,10 @@ function finishOrderAction() {
     @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
+      <div class="col-12 table-toolbar">
         <div class="q-table__title">{{ $t('tables.paint.header.title') }}</div>
 
-        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
+        <div class="table-toolbar-controls">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
           <q-btn no-caps :label="$t('tables.paint.buttons.add')" color="primary" @click="showCreateModal = true" />
           <q-select
