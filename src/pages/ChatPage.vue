@@ -214,6 +214,28 @@ function scrollDown() {
 .bubble-ai .md-gap {
   height: 8px;
 }
+
+/* Dark rejim: pufakcha/jadval ranglari qattiq kodlangani uchun
+   Quasar'ning body--dark belgisi ostida alohida moslaymiz */
+body.body--dark .chat-messages {
+  background: #1d1d1d;
+  border-color: #3a3a3a;
+}
+body.body--dark .bubble-ai {
+  background: #2a2a2a;
+  border-color: #3d3d3d;
+  color: #e4e4e4;
+}
+body.body--dark .bubble-ai .md-table th {
+  background: #333842;
+}
+body.body--dark .bubble-ai .md-table th,
+body.body--dark .bubble-ai .md-table td {
+  border-color: #474747;
+}
+body.body--dark .bubble-ai .md-table tr:nth-child(even) td {
+  background: #242424;
+}
 </style>
 
 <style scoped>
