@@ -297,6 +297,11 @@ const routes = [
         component: () => import('pages/StatisticPage.vue')
       },
       {
+        path: 'ai-chat',
+        name: 'club.aiChat',
+        component: () => import('pages/ChatPage.vue')
+      },
+      {
         path: 'budget',
         component: () => import('pages/BudgetPage.vue'),
         children: [

@@ -194,6 +194,18 @@ Qarz = har ishchi bo'yicha max(0, hisoblangan − to'langan) yig'indisi (birovni
 
 **Qoida**: modelga narx/xizmat ulanmagan bo'lsa — to'lanmaydi (ataylab shunday).
 
+### AI Yordamchi (2026-11-08)
+`/admin/ai-chat` — fabrika haqida erkin savol-javob ("To'quvda bugun nima gap?", "Bo'yoqda qancha
+material bor?"). Backend: `POST /api/chat` (faqat ADMIN/SUPER) → OpenAI (`OPENAI_MODEL`, standart
+gpt-4.1, kalit — serverda `.env.local`dagi `OPENAI_API_KEY`) function-calling bilan; modelning
+yagona quroli `ReadOnlySql` — **faqat SELECT**: kod darajasida qat'iy filtr (bitta so'rov,
+taqiqlangan kalit so'zlar, avto-LIMIT 200) + **baza darajasida READ ONLY tranzaksiya** (validatsiya
+chetlab o'tilsa ham MariaDB yozishni rad etadi — SQLSTATE 25006). Yaratish/o'zgartirish/o'chirish
+texnik jihatdan mumkin emas. Modelga butun sxema + fabrika lug'ati beriladi (`SchemaGlossary`).
+Javob ostida «Bajarilgan so'rovlar» bo'limi — shaffoflik uchun. Fayllar: backend
+`src/Component/Chat/*`, `src/Controller/Chat/ChatAction.php`; frontend `pages/ChatPage.vue`,
+`stores/chat.js`.
+
 ### PDF ish haqi hisoboti (2026-11-08)
 Oyliklar sahifasida «PDF hisobot» tugmasi: davr tanlanadi — **1–15** (faqat ishbay ishchilar,
 FIFO bo'yicha shu davr hisob-to'lovi) yoki **Oy yakuni** (ishbay to'liq oy + belgilangan

@@ -424,6 +424,7 @@ export default {
       settings: 'Settings',
       sewing: 'Sewing',
       statistics: 'Statistics',
+      aiChat: 'AI Assistant',
       sales: 'Sales',
       orders: 'Orders',
       users: 'Users',
@@ -2447,6 +2448,17 @@ export default {
     }
   },
   // Salary page translations
+  aiChat: {
+    title: 'AI Assistant',
+    hint: 'Ask anything about the factory — answers come from real database data',
+    placeholder: 'Type your question...',
+    thinking: 'Thinking...',
+    clear: 'Clear',
+    sources: 'Executed queries',
+    readOnlyNote: 'The assistant can only READ data — it cannot change, create or delete anything.',
+    failed: 'Failed to get a response',
+    emptyReply: 'No reply received',
+  },
   salaryReport: {
     button: 'PDF report',
     dialogTitle: 'Salary report',

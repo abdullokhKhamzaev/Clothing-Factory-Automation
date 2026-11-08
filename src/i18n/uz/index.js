@@ -424,6 +424,7 @@ export default {
       settings: 'Sozlamalar',
       sewing: 'Tikuv',
       statistics: 'Statistika',
+      aiChat: 'AI Yordamchi',
       sales: 'Savdo',
       orders: 'Buyurtmalar',
       users: 'Foydalanuvchilar',
@@ -2447,6 +2448,17 @@ export default {
     }
   },
   // Salary page translations
+  aiChat: {
+    title: 'AI Yordamchi',
+    hint: "Fabrika haqida istalgan savol bering — bazadagi haqiqiy ma'lumotlardan javob beradi",
+    placeholder: 'Savolingizni yozing...',
+    thinking: "O'ylayapti...",
+    clear: 'Tozalash',
+    sources: "Bajarilgan so'rovlar",
+    readOnlyNote: "Yordamchi ma'lumotlarni FAQAT O'QIYDI — hech narsani o'zgartira, yarata yoki o'chira olmaydi.",
+    failed: 'Javob olishda xatolik yuz berdi',
+    emptyReply: 'Javob kelmadi',
+  },
   salaryReport: {
     button: 'PDF hisobot',
     dialogTitle: 'Ish haqi hisoboti',

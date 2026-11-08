@@ -221,6 +221,12 @@ const linksList = [
     routePrefix: '/admin/statistic'
   },
   {
+    title: 'aiChat',
+    icon: 'smart_toy',
+    to: { name: 'club.aiChat' },
+    routePrefix: '/admin/ai-chat'
+  },
+  {
     title: 'budget',
     icon: 'account_balance',
     to: { name: 'club.budget.transactions' },

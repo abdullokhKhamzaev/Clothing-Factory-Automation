@@ -424,6 +424,7 @@ export default {
       settings: 'Настройка',
       sewing: 'Тикув',
       statistics: 'Статистика',
+      aiChat: 'AI Ёрдамчи',
       sales: 'Савдо',
       orders: 'Буюртмалар',
       users: 'Фойдаланувчилар',
@@ -2447,6 +2448,17 @@ export default {
     }
   },
   // Salary page translations
+  aiChat: {
+    title: 'AI Ёрдамчи',
+    hint: 'Фабрика ҳақида исталган савол беринг — базадаги ҳақиқий маълумотлардан жавоб беради',
+    placeholder: 'Саволингизни ёзинг...',
+    thinking: 'Ўйлаяпти...',
+    clear: 'Тозалаш',
+    sources: 'Бажарилган сўровлар',
+    readOnlyNote: 'Ёрдамчи маълумотларни ФАҚАТ ЎҚИЙДИ — ҳеч нарсани ўзгартира, ярата ёки ўчира олмайди.',
+    failed: 'Жавоб олишда хатолик юз берди',
+    emptyReply: 'Жавоб келмади',
+  },
   salaryReport: {
     button: 'PDF ҳисобот',
     dialogTitle: 'Иш ҳақи ҳисоботи',
