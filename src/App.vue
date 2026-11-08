@@ -22,7 +22,11 @@ onMounted(() => {
 </script>
 <template>
   <div id="q-app">
-    <router-view />
+    <div class="container">
+      <h1> The project is under review </h1>
+      <q-linear-progress dark stripe rounded size="20px" :value="100" color="red" class="q-mt-sm" />
+    </div>
+    <!--    <router-view />-->
   </div>
 </template>
 
