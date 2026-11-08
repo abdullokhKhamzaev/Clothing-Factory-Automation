@@ -1,7 +1,7 @@
 # KidsClub — Tikuv Fabrikasi Avtomatlashtiruv Tizimi
 
 > Loyihaning to'liq qo'llanmasi: arxitektura, rollar, sahifalar, biznes-oqimlar, maosh va pul tizimi, xavfsizlik.
-> Oxirgi yangilanish: 2026-11-04
+> Oxirgi yangilanish: 2026-11-08
 
 ---
 
@@ -103,6 +103,7 @@ Ishlatilmaydi (savdoni adminlar qiladi). Rol tanlovidan olib tashlangan.
 | Ombor o'tishini qabul/rad (`product_in_warehouse_actions/{id}/accept`) | ADMIN, MASTER; CUTTER faqat brak omboriga(2), EMBROIDERER faqat vishivka omboriga(3) kelganini. Tikuvchi/qadoqlovchi qabul qilMAYdi — ularning kirim-chiqimini master tasdiqlaydi |
 | 8→9 (mahsulot omboriga) qabul VA jo'natish | faqat ADMIN |
 | Ish yozuvini qabul (`work_entries/{id}/accept`) | ADMIN |
+| Davomat yozish (belgilash, jarima — `attendances` POST/PUT/DELETE) | faqat ADMIN; o'qish — ishchi faqat O'ZINIKINI ko'radi (jarimalari bilan) |
 
 ### Status-o'tish qoidasi
 Ishchi (to'quvchi/bichuvchi) buyurtma statusini faqat **`pending → confirmed`** o'tkaza oladi. Orqaga qaytarish, yakunlash — faqat admin. Bichuvchi alohida `/product_model_orders/{id}/status` endpointidan foydalanadi (faqat status+confirmedBy maydonlari — buyurtmani qayta yozib bo'lmaydi).
@@ -171,11 +172,14 @@ Login'dan keyin yo'naltirish roli bo'yicha (`LoginPage.redirectUserByRole`).
 ## 5. Maosh tizimi
 
 ### Maosh turlari (user.salaryType)
-- **monthly** — oylik stavka (`baseSalary`)
-- **kunlik** — `dailyWage × workedDays` (davomatdan)
+- **monthly** — oylik stavka (`baseSalary`; profil o'zgarishi joriy oyga tushMAYdi — qator oy boshida cron'da yaratiladi)
+- **daily (kunlik)** — `dailyWage` = oyning YIG'ILGAN jamisi (davomatdan qayta hisoblanadi: Σ kun stavkasi − Σ jarima); `workedDays` = kelishi belgilangan kunlar. DIQQAT: dailyWage hech qachon kunlar soniga KO'PAYTIRILMAYDI
 - **ishbay (piecework)** — `pieceworkEarning` (ish yozuvlaridan yig'iladi)
 
-Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `advancePayment + paidAmount`.
+Hisoblangan oylik = (`baseSalary` yoki `dailyWage` yoki `ishbay`) + qo'shimcha to'lov (2 davr × `user.extraPayment`).
+To'langan = oy qatoriga bog'langan TRANZAKSIYALAR yig'indisi (avans ham shu yerda).
+`advancePayment`/`paidAmount` maydonlari faqat OXIRGI to'lov summasini saqlaydi — jamlashda ishlatilmaydi.
+Qarz = har ishchi bo'yicha max(0, hisoblangan − to'langan) yig'indisi (birovning bonusi boshqaning qarzini yashirmaydi).
 
 ### Ishbay maosh qanday yoziladi (WorkEntries)
 
@@ -281,7 +285,7 @@ Bazada **"Петли"** (id 68) va **"Qayta qadoqlash"** (id 74) mahsulot modeli
 | Tahlil: Qarzdorlar | `GET /customers?hasDebt=true` + `GET /sales?isPayed=false` (sanasiz!) | usdDebts/uzsDebts (backend hisoblaydi) + eng eski to'lanmagan sotuv sanasi |
 | Tahlil: Ombor qoldig'i | warehouses?name=productsWarehouse | model→o'lcham; "bu davrda sotilmagan" = davr sotuvlarida yo'q model |
 | Talab tabi | `GET /orders` (sana filtri CLIENTDA) + sales | talab = order.products.quantities; yetkazildi = o'sha xaridor+model bo'yicha davr sotuvlari; yetkazilmadi = max(0, farq) |
-| Oyliklar sahifasi jamilari | `GET /salaries?month=...&pagination=false` | hisoblangan = baseSalary yoki kunlik×kun yoki ishbay; to'langan = advancePayment+paidAmount |
+| Oyliklar sahifasi jamilari | `GET /salaries?month=...&pagination=false` | hisoblangan = (baseSalary yoki dailyWage yoki ishbay) + qo'shimcha; to'langan = tranzaksiyalar yig'indisi; qarz = Σ max(0, hisoblangan−to'langan) |
 
 **Muhim ogohlantirishlar**:
 - To'quv, Bo'yoq va Talab (orders) manbalarida server sana-filtri yo'q — hamma yozuv olinib clientda filtrlanadi; ma'lumot juda ko'payganda backend'ga DateFilter qo'shish tavsiya etilgan
