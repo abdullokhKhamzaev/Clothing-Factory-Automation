@@ -101,6 +101,18 @@ const selectedPeriod = computed(() => periodFromDateFrom(props.date?.dateFrom) |
 const extraPerPeriod = computed(() => Number(currentSalaryData.value?.worker?.extraPayment) || 0)
 const extraReason = computed(() => currentSalaryData.value?.worker?.extraPaymentReason || '')
 
+// Kunlik ishchi uchun shaffof taqsimot: stavka x kunlar - jarima = jami.
+// Ishchi o'zi ham ko'radi — tushunmovchilik/janjal bo'lmasligi uchun
+const dailyBreakdown = computed(() => {
+  const s = currentSalaryData.value
+  if (!s) return null
+  const rate = Number(s.worker?.salary) || 0
+  const days = Number(s.workedDays) || 0
+  const total = Number(s.dailyWage) || 0
+  if (rate <= 0 || days <= 0 || total <= 0) return null
+  return { rate, days, penalty: Math.max(0, rate * days - total), total }
+})
+
 // Har bir davrning hisoblangan summasi.
 // Ishbay: oy yozuvlaridan sanasi bo'yicha bo'linadi; belgilangan/kunlik: oylik ikkiga teng bo'linadi.
 // Qo'shimcha to'lov ISHLAGAN davrga qo'shiladi (ishbayda — o'sha davrda ishi bo'lsa,
@@ -110,9 +122,10 @@ const earnedByPeriod = computed(() => {
 
   if (salaryType.value === 'fixed' && currentSalaryData.value) {
     const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
+    // DIQQAT: dailyWage — kunlik stavka emas, davomatdan YIG'ILGAN oy jami
+    // (har kelgan kunda stavka qo'shiladi, jarimalar ayirilgan) — ko'paytirilmaydi
     const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
-    const workedDays = Number(currentSalaryData.value.workedDays) || 0
-    const monthlyAmount = baseSalary > 0 ? baseSalary : (dailyWage * workedDays)
+    const monthlyAmount = baseSalary > 0 ? baseSalary : dailyWage
     return {
       period1: monthlyAmount / 2 + extra,
       period2: monthlyAmount / 2 + extra
@@ -267,9 +280,19 @@ onMounted(() => {
                     <q-icon name="account_balance" size="xs" color="grey-6" />
                     <span>{{ $t('salaryInfo.details.monthlyRate') }}: {{ formatFloatToInteger(currentSalaryData.baseSalary) }} {{ currencyInfo.name }}</span>
                   </div>
+                  <div v-else-if="dailyBreakdown" class="q-gutter-xs">
+                    <div class="flex items-center q-gutter-xs">
+                      <q-icon name="today" size="xs" color="grey-6" />
+                      <span>{{ formatFloatToInteger(dailyBreakdown.rate) }} {{ currencyInfo.name }} × {{ dailyBreakdown.days }} kun = {{ formatFloatToInteger(dailyBreakdown.rate * dailyBreakdown.days) }}</span>
+                    </div>
+                    <div v-if="dailyBreakdown.penalty > 0" class="flex items-center q-gutter-xs text-negative">
+                      <q-icon name="remove_circle_outline" size="xs" color="negative" />
+                      <span>{{ $t('tables.users.columns.penalty') }}: −{{ formatFloatToInteger(dailyBreakdown.penalty) }} = {{ formatFloatToInteger(dailyBreakdown.total) }} {{ currencyInfo.name }}</span>
+                    </div>
+                  </div>
                   <div v-else-if="Number(currentSalaryData.dailyWage || 0) > 0" class="flex items-center q-gutter-xs">
                     <q-icon name="today" size="xs" color="grey-6" />
-                    <span>{{ formatFloatToInteger(currentSalaryData.dailyWage) }} {{ currencyInfo.name }}{{ $t('salaryInfo.details.dailyRate') }} × {{ currentSalaryData.workedDays }} kun</span>
+                    <span>{{ formatFloatToInteger(currentSalaryData.dailyWage) }} {{ currencyInfo.name }} — {{ currentSalaryData.workedDays }} kun davomat</span>
                   </div>
                 </div>
                 <!-- Qo'shimcha to'lov (yo'l kira, lazer...) hisobga kiritilgan bo'lsa -->

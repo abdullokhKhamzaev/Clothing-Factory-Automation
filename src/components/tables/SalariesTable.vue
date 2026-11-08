@@ -29,6 +29,7 @@ const columns = [
   { name: 'extraPayment', label: t('tables.users.columns.extraPayment'), align: 'left', field: 'extraPayment' },
   { name: 'advancePayment', label: t('tables.users.columns.advancePayment'), align: 'left', field: 'advancePayment' },
   { name: 'paidAmount', label: t('tables.users.columns.paidAmount'), align: 'left', field: 'paidAmount' },
+  { name: 'remaining', label: t('tables.users.columns.remaining'), align: 'left', field: 'remaining' },
   { name: 'transaction', label: t('tables.users.columns.transaction'), align: 'left', field: 'transaction' },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
@@ -78,42 +79,71 @@ function monthExtraOf(salary) {
   if (extra <= 0) return 0;
 
   const hasEarning = (Number(salary.baseSalary) || 0) > 0
-    || (Number(salary.dailyWage) || 0) * (Number(salary.workedDays) || 0) > 0
+    || (Number(salary.dailyWage) || 0) > 0
     || (Number(salary.pieceworkEarning) || 0) > 0;
 
   return hasEarning ? extra * 2 : 0;
 }
 
-// Bir yozuvning hisoblangan oyligi: (baseSalary yoki kunlik x ishlangan kun yoki ishbay) + qo'shimcha
+// Bir yozuvning hisoblangan oyligi: (baseSalary yoki dailyWage yoki ishbay) + qo'shimcha.
+// DIQQAT: salary.dailyWage — kunlik stavka EMAS, oyning YIG'ILGAN jami!
+// Davomat belgilanganda unga ishchining kunlik stavkasi qo'shib boriladi
+// (jarimalar ayirilgan) — shuning uchun workedDays ga KO'PAYTIRILMAYDI
 function earnedOf(salary) {
   const baseSalary = Number(salary.baseSalary) || 0;
   const dailyWage = Number(salary.dailyWage) || 0;
-  const workedDays = Number(salary.workedDays) || 0;
   const pieceworkEarning = Number(salary.pieceworkEarning) || 0;
 
   let earned = pieceworkEarning;
   if (baseSalary > 0) earned = baseSalary;
-  else if (dailyWage > 0) earned = dailyWage * workedDays;
+  else if (dailyWage > 0) earned = dailyWage;
 
   return earned + monthExtraOf(salary);
+}
+
+// Kunlik ishchining oy jarimasi: stavka x kunlar - yig'ilgan jami.
+// (Davomatda kun qo'shilganda stavka qo'shiladi, jarima ayiriladi — farq = jarima.
+// To'liq kuni kesilgan jarima bu farqda ko'rinmaydi, u kunlar sonida aks etadi)
+function penaltyOf(salary) {
+  const rate = Number(salary.worker?.salary) || 0;
+  const days = Number(salary.workedDays) || 0;
+  const total = Number(salary.dailyWage) || 0;
+  if (rate <= 0 || days <= 0 || total <= 0) return 0;
+  return Math.max(0, rate * days - total);
+}
+
+// Bir yozuvning HAQIQIY to'langani — tranzaksiyalar yig'indisi (avans ham shu yerda).
+// salary.paidAmount/advancePayment maydonlari OXIRGI to'lovni yozadi xolos,
+// bir oyda bir necha to'lov bo'lsa kam ko'rsatib qo'yadi — ularga ishonmaymiz
+function paidOf(salary) {
+  return (salary.transaction || []).reduce((sum, t) => sum + (parseFloat(t.price) || 0), 0);
+}
+
+// Qarzimiz: faqat musbat qoldiq. Ortiqcha to'langan (bonus) ishchi
+// boshqa ishchining qarzini jamida "yopib" yubormasligi kerak
+function debtOf(salary) {
+  return Math.max(0, earnedOf(salary) - paidOf(salary));
+}
+
+function bonusOf(salary) {
+  return Math.max(0, paidOf(salary) - earnedOf(salary));
 }
 
 const salaryTotals = computed(() => {
   const earned = {};
   const paid = {};
+  const debt = {};
+  const bonus = {};
 
   allSalaries.value.forEach(salary => {
     const currency = salary.budget?.name || '';
     earned[currency] = (earned[currency] || 0) + earnedOf(salary);
-    paid[currency] = (paid[currency] || 0) + (Number(salary.advancePayment) || 0) + (Number(salary.paidAmount) || 0);
+    paid[currency] = (paid[currency] || 0) + paidOf(salary);
+    debt[currency] = (debt[currency] || 0) + debtOf(salary);
+    bonus[currency] = (bonus[currency] || 0) + bonusOf(salary);
   });
 
-  const remaining = {};
-  Object.keys(earned).forEach(currency => {
-    remaining[currency] = earned[currency] - (paid[currency] || 0);
-  });
-
-  return { earned, paid, remaining };
+  return { earned, paid, debt, bonus };
 });
 
 function moneyLine(byCurrency) {
@@ -227,7 +257,7 @@ function payAdvanceAction () {
 <template>
   <q-card flat bordered class="q-pa-sm q-mb-md">
     <div class="row q-col-gutter-sm">
-      <div class="col-12 col-sm-4">
+      <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="q-pa-sm full-height">
           <div class="flex items-center no-wrap">
             <q-icon name="mdi-cash-multiple" color="primary" size="24px" class="q-mr-sm" />
@@ -236,7 +266,7 @@ function payAdvanceAction () {
           <div class="text-h6 text-weight-bold text-primary q-mt-xs">{{ moneyLine(salaryTotals.earned) }}</div>
         </q-card>
       </div>
-      <div class="col-12 col-sm-4">
+      <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="q-pa-sm full-height">
           <div class="flex items-center no-wrap">
             <q-icon name="mdi-cash-check" color="green" size="24px" class="q-mr-sm" />
@@ -245,13 +275,25 @@ function payAdvanceAction () {
           <div class="text-h6 text-weight-bold text-green q-mt-xs">{{ moneyLine(salaryTotals.paid) }}</div>
         </q-card>
       </div>
-      <div class="col-12 col-sm-4">
+      <!-- ASOSIY raqam: ishchilarga yana qancha berishimiz kerak.
+           Har ishchi bo'yicha faqat musbat qoldiq yig'iladi — birovning
+           bonusi boshqaning qarzini yashirmaydi -->
+      <div class="col-12 col-sm-6 col-md-3">
+        <q-card flat bordered class="q-pa-sm full-height debt-card">
+          <div class="flex items-center no-wrap">
+            <q-icon name="mdi-cash-clock" color="negative" size="24px" class="q-mr-sm" />
+            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.debt') }}</div>
+          </div>
+          <div class="text-h6 text-weight-bold text-negative q-mt-xs">{{ moneyLine(salaryTotals.debt) }}</div>
+        </q-card>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="q-pa-sm full-height">
           <div class="flex items-center no-wrap">
-            <q-icon name="mdi-cash-clock" color="orange" size="24px" class="q-mr-sm" />
-            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.remaining') }}</div>
+            <q-icon name="mdi-star-circle" color="amber-8" size="24px" class="q-mr-sm" />
+            <div class="text-caption text-grey-7">{{ $t('statistics.salarySummary.bonusPaid') }}</div>
           </div>
-          <div class="text-h6 text-weight-bold text-orange q-mt-xs">{{ moneyLine(salaryTotals.remaining) }}</div>
+          <div class="text-h6 text-weight-bold text-amber-9 q-mt-xs">{{ moneyLine(salaryTotals.bonus) }}</div>
         </q-card>
       </div>
     </div>
@@ -347,7 +389,23 @@ function payAdvanceAction () {
             {{ formatFloatToInteger(props.row.baseSalary) === '0' ? '-' : formatFloatToInteger(props.row.baseSalary) + ' ' + props.row.budget.name }}
           </div>
           <div v-else-if="col.name === 'dailyWage'">
-            {{ formatFloatToInteger(props.row.dailyWage) === '0' ? '-' : formatFloatToInteger(props.row.dailyWage) + ' ' + props.row.budget.name }}
+            <!-- Kunlik ishchi: stavka (kuniga) + oy jami alohida.
+                 Profilda stavka bo'lmasa — o'rtacha (jami / kunlar) ko'rsatiladi -->
+            <template v-if="Number(props.row.dailyWage) > 0">
+              <div v-if="Number(props.row.worker?.salary) > 0">
+                {{ formatFloatToInteger(props.row.worker.salary) }} {{ props.row.budget.name }} {{ $t('tables.users.columns.perDay') }} × {{ props.row.workedDays }} {{ $t('tables.users.columns.days') }}
+              </div>
+              <div v-else-if="Number(props.row.workedDays) > 0">
+                ~{{ formatFloatToInteger(roundToDecimal(props.row.dailyWage / props.row.workedDays)) }} {{ props.row.budget.name }} {{ $t('tables.users.columns.perDay') }}
+              </div>
+              <div v-if="penaltyOf(props.row) > 0" class="text-caption text-negative">
+                {{ $t('tables.users.columns.penalty') }}: −{{ formatFloatToInteger(penaltyOf(props.row)) }} {{ props.row.budget.name }}
+              </div>
+              <div class="text-caption text-grey">
+                {{ $t('total') }}: {{ formatFloatToInteger(props.row.dailyWage) }} {{ props.row.budget.name }} ({{ props.row.workedDays }} {{ $t('tables.users.columns.days') }})
+              </div>
+            </template>
+            <template v-else>-</template>
           </div>
           <div v-else-if="col.name === 'pieceworkEarning'">
             {{ formatFloatToInteger(props.row.pieceworkEarning) === '0' ? '-' : formatFloatToInteger(props.row.pieceworkEarning) + ' ' + props.row.budget.name}}
@@ -365,7 +423,19 @@ function payAdvanceAction () {
             {{ formatFloatToInteger(props.row.advancePayment) === '0' ? '-' : formatFloatToInteger(props.row.advancePayment) + ' ' + props.row.budget.name}}
           </div>
           <div v-else-if="col.name === 'paidAmount'">
-            {{ props.row.transaction.reduce((sum, t) => sum + parseFloat(t.price), 0) }} {{ props.row.budget.name }}
+            {{ formatFloatToInteger(paidOf(props.row)) }} {{ props.row.budget.name }}
+          </div>
+          <div v-else-if="col.name === 'remaining'">
+            <q-badge v-if="debtOf(props.row) > 0" color="negative" class="q-pa-xs">
+              {{ formatFloatToInteger(debtOf(props.row)) }} {{ props.row.budget.name }}
+            </q-badge>
+            <q-badge v-else-if="bonusOf(props.row) > 0" color="amber-8" class="q-pa-xs">
+              +{{ formatFloatToInteger(bonusOf(props.row)) }} {{ $t('salaryInfo.cards.bonus') }}
+            </q-badge>
+            <q-badge v-else-if="earnedOf(props.row) > 0" color="positive" class="q-pa-xs">
+              <q-icon name="check" size="xs" class="q-mr-xs" /> {{ $t('salaryInfo.statuses.fullyPaid') }}
+            </q-badge>
+            <span v-else>-</span>
           </div>
           <div v-else-if="col.name === 'transaction'">
             <q-toggle
@@ -516,4 +586,8 @@ function payAdvanceAction () {
   </q-dialog>
 </template>
 <style scoped>
+.debt-card {
+  border-left: 4px solid #c10015;
+  background: rgba(193, 0, 21, 0.04);
+}
 </style>
