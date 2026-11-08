@@ -5,7 +5,7 @@ import { useMaterial } from "stores/material.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useThread } from "stores/thread.js";
-import { formatDate, isToday, apiErrorMessage } from "../../libraries/constants/defaults.js";
+import { formatDate, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 import ReportList from "components/ReportList.vue";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -51,7 +51,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/UnripeMaterialOrderTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -76,6 +76,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/UnripeMaterialOrderTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

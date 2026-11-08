@@ -4,7 +4,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useCustomer } from "stores/customer.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatFloatToInteger, apiErrorMessage} from "../../libraries/constants/defaults.js";
+import {formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -33,7 +33,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/CustomerTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -59,6 +59,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/CustomerTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

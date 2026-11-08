@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, ref} from "vue";
-import { apiErrorMessage } from "src/libraries/constants/defaults.js";
+import { apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useProductModels } from "stores/productModel.js";
@@ -42,7 +42,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/ModelTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -67,6 +67,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/ModelTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

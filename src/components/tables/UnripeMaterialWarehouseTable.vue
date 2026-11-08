@@ -1,4 +1,5 @@
 <script setup>
+import { savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import { computed, onMounted, ref } from "vue";
 import { useMaterial } from "stores/material.js";
 import { useI18n } from "vue-i18n";
@@ -24,7 +25,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/UnripeMaterialWarehouseTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -55,6 +56,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/UnripeMaterialWarehouseTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

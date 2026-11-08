@@ -3,7 +3,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import { useExchange } from "stores/exchange.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger, apiErrorMessage } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const props = defineProps({
@@ -43,7 +43,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/ExchangeTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -73,6 +73,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/ExchangeTable', params.pagination.rowsPerPage);
   getItems();
 }
 

@@ -5,7 +5,7 @@ import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
 import { useWorkEntries } from "stores/workEntries.js";
 import { buildReportData, buildReportHtml } from "src/libraries/salaryReport.js";
-import { formatDate, formatFloatToInteger, roundToDecimal, apiErrorMessage } from "../../libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, roundToDecimal, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -43,13 +43,14 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/SalariesTable'),
   rowsNumber: 0,
   descending: true
 });
 
 const filters = ref({
   month: new Date().toISOString().split('T')[0].slice(0, 7),
+  workerName: '',
 });
 
 // Tanlangan oy bo'yicha BARCHA oyliklar (sahifalanmagan) — tepadagi jami uchun
@@ -254,6 +255,7 @@ function moneyLine(byCurrency) {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/SalariesTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {
@@ -413,30 +415,39 @@ function payAdvanceAction () {
     @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
-        <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
-
-        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
-          <q-btn
-            no-caps
-            color="deep-purple"
-            icon="picture_as_pdf"
-            :label="$t('salaryReport.button')"
-            :loading="reportLoading"
-            @click="showReportDialog = true"
-            class="q-mb-md q-mb-sm-none"
-          />
-          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+      <!-- Mobil: har element o'z qatorida (grid), desktop: bir qatorda o'ngga tekis -->
+      <div class="full-width row items-center q-col-gutter-sm">
+        <div class="col-12 col-sm-auto">
+          <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
+        </div>
+        <q-space v-if="$q.screen.gt.xs" />
+        <div class="col-12 col-sm-auto">
+          <q-input
+            style="min-width: 220px"
+            dense
+            outlined
+            clearable
+            v-model="filters.workerName"
+            :debounce="600"
+            :label="$t('tables.users.header.searchTitle')"
+            @update:model-value="getItems"
+            class="full-width"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="primary" />
+            </template>
+          </q-input>
+        </div>
+        <div class="col-12 col-sm-auto">
           <q-input
             filled
             v-model="filters.month"
             dense
             outlined
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             mask="####-##"
             :debounce="1000"
             @update:model-value="getItems"
-            class="q-mb-md q-mb-sm-none"
+            class="full-width"
           >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
@@ -454,6 +465,22 @@ function payAdvanceAction () {
               </q-icon>
             </template>
           </q-input>
+        </div>
+        <div class="col-8 col-sm-auto">
+          <q-btn
+            no-caps
+            color="deep-purple"
+            icon="picture_as_pdf"
+            :label="$t('salaryReport.button')"
+            :loading="reportLoading"
+            class="full-width"
+            @click="showReportDialog = true"
+          />
+        </div>
+        <div class="col-4 col-sm-auto">
+          <refresh-button :action="refresh" class="full-width" />
+        </div>
+        <div class="col-12 col-sm-auto">
           <q-select
             dense
             multiple
@@ -466,7 +493,7 @@ function payAdvanceAction () {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            class="w-full"
+            class="full-width"
           />
         </div>
       </div>

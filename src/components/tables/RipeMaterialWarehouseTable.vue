@@ -6,7 +6,7 @@ import { useRipeMaterialAction } from "stores/ripeMaterialAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import RefreshButton from "components/RefreshButton.vue";
-import {formatFloatToInteger, apiErrorMessage} from "src/libraries/constants/defaults.js";
+import {formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -34,7 +34,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/RipeMaterialWarehouseTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -65,6 +65,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/RipeMaterialWarehouseTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

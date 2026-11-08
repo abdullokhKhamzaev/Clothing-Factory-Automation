@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
+import { formatFloatToInteger, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 import { useAccessory } from "stores/accessory.js";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -27,7 +27,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/AccessoryWarehouseTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -71,6 +71,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/AccessoryWarehouseTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

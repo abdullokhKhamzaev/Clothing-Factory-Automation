@@ -4,7 +4,7 @@ import { useProductWarehouse } from "stores/productInWarehouseAction.js";
 import { useAbout } from "stores/user/about.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import { formatDate, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
+import { formatDate, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const props = defineProps({
@@ -40,7 +40,7 @@ const showRejectModal = ref(false);
 const warehouseActions = ref([]);
 const warehouseActionPagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/ProductInWarehouseAction'),
   rowsNumber: 0,
   descending: true
 });
@@ -155,6 +155,7 @@ function getWarehouseAction () {
 }
 function onWarehouseActionRequest(params) {
   warehouseActionPagination.value = {...warehouseActionPagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/ProductInWarehouseAction', params.pagination.rowsPerPage);
   getWarehouseAction();
 }
 function clearAction() {

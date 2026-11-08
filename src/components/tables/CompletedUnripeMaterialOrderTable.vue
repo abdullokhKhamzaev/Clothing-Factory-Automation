@@ -3,7 +3,7 @@ import {onMounted, ref} from "vue";
 import { useCompletedUnripeMaterialOrders } from "stores/completedUnripeMaterialOrders.js";
 import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
-import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 const $q = useQuasar();
@@ -31,7 +31,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/CompletedUnripeMaterialOrderTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -56,6 +56,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/CompletedUnripeMaterialOrderTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

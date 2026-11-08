@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
-import { formatDate, formatFloatToInteger, apiErrorMessage } from "../../libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const $q = useQuasar();
@@ -36,7 +36,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/AttendanceTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -61,6 +61,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/AttendanceTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

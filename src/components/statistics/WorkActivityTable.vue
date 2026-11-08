@@ -1,7 +1,7 @@
 <script setup>
-import {computed, ref} from "vue"
+import {computed, ref, watch} from "vue"
 import RefreshButton from "components/RefreshButton.vue"
-import {formatDate, formatFloatToInteger, isToday} from "../../libraries/constants/defaults.js"
+import {formatDate, formatFloatToInteger, isToday, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js"
 import {useI18n} from "vue-i18n"
 import {useQuasar} from "quasar"
 
@@ -38,12 +38,15 @@ const isMobile = computed(() => $q.screen.lt.md)
 // Client-side sahifalash: bir sahifada 10 ta qator chiziladi (DOM yengil qoladi)
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('statistics/WorkActivityTable'),
   sortBy: 'createdAt',
   descending: true
 })
 const mobilePage = ref(1)
 const mobileRowsPerPage = 10
+
+// Client-side jadval: tanlangan limit v-model orqali o'zgaradi — saqlab boramiz
+watch(() => pagination.value.rowsPerPage, (v) => rememberRowsPerPage('statistics/WorkActivityTable', v))
 
 const sortedEntries = computed(() => {
   return [...props.entries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

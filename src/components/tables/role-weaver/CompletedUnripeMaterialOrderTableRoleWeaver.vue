@@ -4,7 +4,7 @@ import { useUnripeMaterialOrder } from "stores/unripeMaterialOrder.js";
 import { useI18n } from "vue-i18n";
 import ReportList from "components/ReportList.vue";
 import RefreshButton from "components/RefreshButton.vue";
-import { isToday } from "src/libraries/constants/defaults.js";
+import { isToday, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 
 const { t } = useI18n();
 
@@ -28,7 +28,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/role-weaver/CompletedUnripeMaterialOrderTableRoleWeaver'),
   rowsNumber: 0,
   descending: true
 });
@@ -53,6 +53,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/role-weaver/CompletedUnripeMaterialOrderTableRoleWeaver', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

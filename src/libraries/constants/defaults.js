@@ -154,6 +154,31 @@ export const roundToDecimal = (number, decimals = 2) => {
 // API xatosidan foydalanuvchiga tushunarli xabarni ajratib oladi:
 // backend hydra:description'da aniq sabab yuboradi (masalan "omborda S razmeri yetarli emas"),
 // u bo'lmasa berilgan umumiy xabar ko'rsatiladi
+// Jadval sahifalash limiti brauzerda eslab qolinadi — refreshdan keyin ham
+// foydalanuvchi tanlagan qiymat turadi. localStorage yopiq rejimda otilishi
+// mumkin, shuning uchun har doim try/catch bilan
+export const savedRowsPerPage = (tableKey, fallback = 10) => {
+  try {
+    const raw = localStorage.getItem('rowsPerPage.' + tableKey);
+    if (raw === null) return fallback;
+    if (raw === '~') return '~';
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 0 ? n : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+export const rememberRowsPerPage = (tableKey, value) => {
+  try {
+    if (value !== undefined && value !== null) {
+      localStorage.setItem('rowsPerPage.' + tableKey, String(value));
+    }
+  } catch {
+    // yopiq rejim va h.k. — indamay o'tamiz
+  }
+};
+
 export const apiErrorMessage = (err, fallback) => {
   return err?.response?.data?.['hydra:description'] || fallback;
 };

@@ -9,7 +9,7 @@ import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import SelectableList from "components/selectableList.vue";
 import CutReportList from "components/CutReportList.vue";
-import {formatDate, isToday, apiErrorMessage} from "src/libraries/constants/defaults.js";
+import {formatDate, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 
 const $q = useQuasar();
 const { t } = useI18n();
@@ -77,7 +77,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/role-cutter/ProductModelOrderRoleCutterTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -101,6 +101,7 @@ function getItems () {
 }
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/role-cutter/ProductModelOrderRoleCutterTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

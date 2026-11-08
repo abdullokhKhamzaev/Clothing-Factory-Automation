@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useTransaction } from "stores/transaction.js";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger, isToday } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, isToday, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import RefreshButton from "components/RefreshButton.vue";
 
 const { t } = useI18n();
@@ -24,7 +24,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/TransactionTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -49,6 +49,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/TransactionTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

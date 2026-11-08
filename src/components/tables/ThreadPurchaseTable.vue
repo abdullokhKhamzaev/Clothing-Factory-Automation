@@ -6,7 +6,7 @@ import { useBudget } from "stores/budget.js";
 import { useAbout } from "stores/user/about.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import { formatDate, formatFloatToInteger, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
+import { formatDate, formatFloatToInteger, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 import SelectableList from "components/selectableList.vue";
@@ -144,7 +144,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/ThreadPurchaseTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -168,6 +168,7 @@ function getItems () {
 }
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/ThreadPurchaseTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

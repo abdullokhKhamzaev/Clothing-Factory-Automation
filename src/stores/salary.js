@@ -17,6 +17,11 @@ export const useSalary = defineStore('salaries', () => {
       params.set('worker', filterProps.worker);
     }
 
+    // Ishchi ismi bo'yicha qidiruv (lotin/kirill farqini backend o'zi tushunadi)
+    if (filterProps.workerName) {
+      params.set('worker.fullName', filterProps.workerName);
+    }
+
     try {
       return await client.get(`salaries?${params.toString()}`);
     } catch (e) {

@@ -6,7 +6,7 @@ import { useAbout } from "stores/user/about.js";
 import { useRipeMaterial } from "stores/ripeMaterial.js";
 import { usePaintFabric } from "stores/paintFabric.js";
 import { useRipeMaterialRepaint } from "stores/ripeMaterialRepaint.js";
-import { DATE_FORMAT, formatDate, isToday, apiErrorMessage } from "src/libraries/constants/defaults.js";
+import { DATE_FORMAT, formatDate, isToday, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 
@@ -44,7 +44,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/RepaintTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -69,6 +69,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/RepaintTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {

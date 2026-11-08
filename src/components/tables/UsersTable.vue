@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar, exportFile } from "quasar";
 import { useUser } from "stores/user/user.js";
 import { useBudget } from "stores/budget.js";
-import { ROLES, apiErrorMessage } from 'src/libraries/constants/defaults';
+import { ROLES, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from 'src/libraries/constants/defaults';
 import { formatFloatToInteger } from "../../libraries/constants/defaults.js";
 import SelectableList from "components/selectableList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -44,7 +44,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/UsersTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -69,6 +69,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/UsersTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {
@@ -310,18 +311,20 @@ function exportTable(users) {
     @request="onRequest"
   >
     <template v-slot:top>
-      <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
-        <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
-
-        <div class="q-ml-auto" :class="$q.screen.lt.sm ? '' : 'flex q-gutter-sm'">
-          <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+      <!-- Mobil: har element o'z qatorida (grid), desktop: bir qatorda o'ngga tekis -->
+      <div class="full-width row items-center q-col-gutter-sm">
+        <div class="col-12 col-sm-auto">
+          <div class="q-table__title">{{ $t('tables.users.header.title') }}</div>
+        </div>
+        <q-space v-if="$q.screen.gt.xs" />
+        <div class="col-12 col-sm-auto">
           <q-input
             style="min-width: 225px"
             dense
             outlined
             clearable
             v-model="filters.fullName"
-            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            class="full-width"
             :label="$t('tables.users.header.searchTitle')"
             :debounce="1000"
             @update:model-value="getItems"
@@ -330,21 +333,31 @@ function exportTable(users) {
               <q-icon name="search" color="primary" />
             </template>
           </q-input>
+        </div>
+        <div class="col-6 col-sm-auto">
+          <refresh-button :action="refresh" class="full-width" />
+        </div>
+        <div class="col-6 col-sm-auto">
           <q-btn
-            :class="$q.screen.lt.sm ? '' : 'q-mr-sm'"
             color="primary"
             icon-right="outbox"
             no-caps
             outline
+            class="full-width"
             @click="exportTable(items)"
           />
+        </div>
+        <div class="col-12 col-sm-auto">
           <q-btn
             color="primary"
             icon-right="add"
             :label="$t('tables.users.buttons.add')"
             no-caps
+            class="full-width"
             @click="showCreateModal = true"
           />
+        </div>
+        <div class="col-12 col-sm-auto">
           <q-select
             dense
             multiple
@@ -357,7 +370,7 @@ function exportTable(users) {
             :options="columns"
             option-value="name"
             :label="$t('columns')"
-            class="w-full"
+            class="full-width"
           />
         </div>
       </div>

@@ -4,7 +4,7 @@ import { useIndebtedness } from "stores/indebtednesses.js";
 import { useBudget } from "stores/budget.js";
 import { useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
-import {DATE_FORMAT, formatDate, formatFloatToInteger, apiErrorMessage} from "src/libraries/constants/defaults.js";
+import {DATE_FORMAT, formatDate, formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "src/libraries/constants/defaults.js";
 import TransactionList from "components/TransactionList.vue";
 import RefreshButton from "components/RefreshButton.vue";
 import SelectableList from "components/selectableList.vue";
@@ -80,7 +80,7 @@ const items = ref([]);
 const loading = ref(false);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: savedRowsPerPage('tables/IndebtednessTable'),
   rowsNumber: 0,
   descending: true
 });
@@ -105,6 +105,7 @@ function getItems () {
 
 function onRequest(params) {
   pagination.value = {...pagination.value, ...params.pagination};
+  rememberRowsPerPage('tables/IndebtednessTable', params.pagination.rowsPerPage);
   getItems();
 }
 function refresh () {
