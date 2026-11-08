@@ -28,21 +28,37 @@ This application automates the complete clothing production pipeline, from raw m
 - **Packager** - Packaging warehouse management
 - **Master** - Oversight of embroidery, sewing, packaging, and cutting sections
 
+Every worker also gets a transparent self-service salary view: earned vs. paid per period, payment history, and itemized attendance penalties.
+
+### AI Assistant (admin-only)
+
+A built-in chat assistant answers free-form questions about live factory data in Uzbek — production status, worker debts, customer debts, expenses, best-selling models, full day reports and more. It is **strictly read-only** (SELECT-only SQL behind a database-level read-only transaction), renders results as tables, keeps conversation context, and adds a neutral-tone disclaimer on people-sensitive conclusions.
+
+### Salary System
+
+- **Piecework** (per-operation rates), **daily-wage** (attendance-based) and **fixed monthly** salary types
+- Twice-monthly pay periods (1–15 / 16–end of month) with **FIFO payment allocation** — late payments settle the oldest period's debt first
+- Daily wages recomputed deterministically from attendance, so retroactive attendance/penalty edits always apply exactly once
+- Per-period **extra payments** (e.g. transport allowance) with reasons
+- Full transparency: rate × days − penalties breakdown, per-day penalty list, payment history, and explicit reasons when nothing was earned
+- **One-click printable PDF debt report** for management (popup-blocker-proof)
+
 ### Additional Modules
 
-- **Salary Calculation** - Automated salary computation based on work entries
 - **Budget Management** - Transactions, expenses, indebtedness, and money exchange
 - **Warehouse Management** - Track accessories, threads, raw/processed materials
 - **Customer Management** - Customer database with debt tracking
-- **Production Statistics** - Dual-view analytics across all production stages
-- **Attendance Tracking** - Employee attendance management
+- **Production Statistics** - KPI dashboard with previous-period comparison (↑/↓ %), a clickable production-pipeline view that highlights bottlenecks (pending amounts and how long the oldest item has waited), and 9 detailed report steps; summary figures come from a single lightweight server-side aggregate endpoint
+- **Attendance Tracking** - Employee attendance with day-rate snapshots and penalty management
 
 ### UI/UX
 
 - Dark/Light mode support
 - Multi-language support (English, Uzbek, Uzbek Cyrillic)
-- Responsive design
-- Real-time data updates
+- **Transliteration-aware search** - find «Максудахон» by typing "maksudaxon" and vice versa
+- Responsive design with mobile card views for data tables
+- Per-table rows-per-page remembered across sessions
+- AI chat history persists across page refreshes
 
 ## Tech Stack
 
@@ -52,7 +68,7 @@ This application automates the complete clothing production pipeline, from raw m
 - **HTTP Client**: Axios
 - **Internationalization**: Vue I18n
 - **Build Tool**: Vite
-- **Deployment**: Vercel
+- **Backend**: Symfony 6 + API Platform (separate private repository), MariaDB, Docker
 
 ## Getting Started
 
@@ -128,6 +144,10 @@ src/
 ├── router/         # Vue Router configuration
 └── stores/         # Pinia stores for state management
 ```
+
+## Documentation
+
+Deep domain documentation (business rules, warehouse pipeline, salary formulas, statistics data sources, security matrix) lives in [PROJECT.md](PROJECT.md) (in Uzbek).
 
 ## Environment Variables
 
