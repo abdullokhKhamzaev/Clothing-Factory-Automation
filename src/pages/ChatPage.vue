@@ -15,11 +15,14 @@ const loading = ref(false);
 const errorText = ref('');
 const scrollArea = ref(null);
 
+// Tayyor savollar — PROJECT.md'dagi asosiy biznes yo'nalishlari bo'yicha
 const suggestions = [
-  "To'quvda bugun nima gap?",
-  "Bo'yoqda qancha materialimiz bor?",
-  "Bugun nechta mahsulot tikildi?",
-  "Ishchilardan qancha qarzimiz bor?",
+  "Bugungi ishlab chiqarish holati bo'yicha qisqa hisobot bering",
+  "Joriy oyda ishchilarga jami qancha qarzimiz bor?",
+  "Xaridorlardan undirilmagan qarzlar ro'yxatini chiqaring",
+  "Shu oyda qaysi modellar eng ko'p sotildi?",
+  "Qaysi zakazlar hali to'liq yetkazib berilmagan?",
+  "Joriy oy xarajatlari qanday taqsimlangan?",
 ];
 
 async function send(text) {
