@@ -1,7 +1,7 @@
 # KidsClub — Tikuv Fabrikasi Avtomatlashtiruv Tizimi
 
 > Loyihaning to'liq qo'llanmasi: arxitektura, rollar, sahifalar, biznes-oqimlar, maosh va pul tizimi, xavfsizlik.
-> Oxirgi yangilanish: 2026-08-23
+> Oxirgi yangilanish: 2026-11-04
 
 ---
 
@@ -190,6 +190,25 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 **Qoida**: modelga narx/xizmat ulanmagan bo'lsa — to'lanmaydi (ataylab shunday).
 
+### Qo'shimcha to'lov — yo'l kira, lazer va h.k. (2026-11-08)
+Ishchi profilida (`user.extraPayment` + `extraPaymentReason`) davriy qo'shimcha to'lov kiritiladi —
+summa **har 15 kunlik davr uchun** (masalan yo'l kira 75 000 → oyiga 150 000). U ishchining davr
+hisobiga qo'shiladi: ishbayda — faqat o'sha davrda ishi bo'lsa (bo'sh davrga soxta qarz yozilmaydi),
+belgilangan oylikda — har doim. Admin oyliklar jadvalida alohida «Qo'shimcha to'lov» ustuni bor va
+«hisoblangan» jamiga kiradi; ishchi sahifasida davr kartasida «+75 000 (yo'l kira)» izohi ko'rinadi.
+Kiritish: foydalanuvchi yaratish/tahrirlash modalida.
+
+### 15 kunlik to'lov davrlari — FIFO (2026-11-08)
+Ishbay ishchilarga oylik oyiga 2 marta beriladi: **1-davr (1–15)** va **2-davr (16 – oy oxiri)**.
+Ishchi oylik sahifasida (`admin/users/salaries/:id`) davr tanlanganda:
+- **Ishlangan**: davr ichida tasdiqlangan ish yozuvlari yig'indisi (belgilangan oylikda — oylik/2)
+- **To'langan**: oy qatoriga yozilgan to'lovlar (avans ham) xronologik tartibda **FIFO** bo'yicha
+  taqsimlanadi — avval 1-davr qarzi yopiladi, ortgani 2-davrga, undan ortgani **bonus**.
+  To'lov sanasining ahamiyati yo'q — **kech yoki erta to'lansa ham o'z davriga to'g'ri tushadi**
+  (ilgari to'lov sanasidan taxmin qilinardi va kech to'lov «to'lanmagan» ko'rinardi).
+  Bitta to'lov kerak bo'lsa hisobda ikki davrga bo'linadi; bazadagi tranzaksiyaga tegilmaydi.
+Mantiq to'liq frontendda: `src/libraries/salaryPeriod.js` + `SalaryInfo.vue`. Backend o'zgarmagan.
+
 ### Muhim mexanizmlar
 - Oylik qatorlarini `salary:create` cron buyrug'i yaratadi (faqat o'chirilmagan userlar, idempotent — takror ishlatsa dublikat yo'q). Qator bo'lmasa ham daromad yo'qolmaydi: qabul paytida qator avtomatik yaratiladi.
 - Ish yozuvi qabul **joriy oy** oyligiga qo'shiladi (qabul sanasi bo'yicha).
@@ -200,13 +219,14 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 ## 6. Statistika sahifasi (`/admin/statistic`)
 
-1. **Sana filtri** — default bugungi kun (2 ta sana tanlagich).
+1. **Sana filtri** — tez tanlovlar (Bugun, Kecha, Shu hafta, O'tgan hafta, Shu oy, O'tgan oy), bitta oraliq kalendari va ◀ ▶ tugmalar (oraliqni o'z uzunligiga siljitadi). Tanlangan oraliq `localStorage` (`statistic.dateRange`) da saqlanadi. **"Bugun" UTC bo'yicha** olinadi (ataylab — server vaqti bilan mos kelishi uchun; brauzer vaqti emas).
 2. **KPI Dashboard** (7 karta): Sotildi, Ishlab chiqarildi, Ombordagi qoldiq, Tushum, To'langan, Qarz, Xarajat (oylik/ayriboshlashsiz). Valyutalar alohida. (Foyda kartasi ataylab yo'q — tan narx noma'lum.)
-3. **Ishlab chiqarish jarayoni** paneli — bitta qatorda 8 bosqich: tasdiqlangan miqdor + to'q sariq **"Tasdiq kutmoqda"** belgisi + **eng eskisi qancha kutayotgani**; kartani bossa tegishli bosqichga o'tadi.
-4. **Stepper** (8 qadam): To'quv, Bichuv, Vishivka, Tikuv, Qadoqlash, Savdo, Xarajatlar, Pul almashinuvi.
+3. **Ishlab chiqarish jarayoni** paneli — bitta qatorda 8 bosqich: tasdiqlangan miqdor + to'q sariq **"Tasdiq kutmoqda"** belgisi + **eng eskisi qancha kutayotgani**; kartani bossa tegishli bosqichga o'tadi (Bo'yoq kartasi ham).
+4. **Stepper** (9 qadam): To'quv, Bo'yoq, Bichuv, Vishivka, Tikuv, Qadoqlash, Savdo, Xarajatlar, Pul almashinuvi.
    - Har tab: **Mahsulot bo'yicha / Xodim bo'yicha** toggle (yagona `ModelStatsBreakdown` komponenti)
    - Har tab: **⏱ vaqt ko'rsatkichi** (tasdiqlash o'rtacha/eng uzoq; kutish o'rtacha/eng eskisi) + **"Batafsil (vaqtlar)"** — har yozuv: kim, qachon topshirgan → qachon tasdiqlangan (kim aybdorligini ko'rsatadi)
    - To'quv: kg + ro'lon + 2-sort birliklari bilan
+   - Bo'yoq (`PaintModels.vue`): **Material bo'yicha / Fabrika bo'yicha** toggle; har yozuvda jo'natilgan → qabul qilingan kg/ro'lon (1-sort va 2-sort); "Bo'yalgan" tab = `accepted`, "Bo'yoqda" tab = `expected`
 5. **Savdo qadami — 3 tab**:
    - *Savdo*: model bo'yicha, ichida xaridorlar; xaridor bo'yicha (qarzlari bilan)
    - *Tahlil*: sotuv/ishlab-chiqarish %, top modellar, xaridor konsentratsiyasi (70%+ qizil), ombor qoldig'i ("bu davrda sotilmagan" belgisi), **Qarzdorlar** (eng eski qarz sanasi bilan), top xaridorlar
@@ -214,22 +234,26 @@ Hisoblangan oylik = `baseSalary` yoki `kunlik×kun` yoki `ishbay`. To'langan = `
 
 Texnik: sotuvlar so'rovi 30s keshlanadi (bir sahifada takror so'rov ketmaydi).
 
+### Servis modellar statistikaga kirmaydi (2026-11-04)
+Bazada **"Петли"** (id 68) va **"Qayta qadoqlash"** (id 74) mahsulot modeli sifatida saqlanadi — ishchilar shu ish uchun hisobot topshirib, ishbay haq olishi uchun. Lekin ular mahsulot emas va statistikani shishirar edi. `excludeNonProductModels` yordamchisi (`defaults.js`, `NON_PRODUCT_MODEL_KEYWORDS` — nomga kichik-katta harfsiz kalit so'z moslashuvi: `qayta qadoqlash`, `petli`, `петли`, `петля` va kirill varianti) **faqat admin statistikasida** qo'llanadi: Tikuv va Qadoqlash tablari, jarayon panelining tikuv/qadoqlash kartalari, Dashboard "Ishlab chiqarildi" va Tahlil tabidagi ishlab-chiqarish soni. Ishchi portallari, master tasdiqlash sahifalari va ombor oqimlari **o'zgarmagan** — tikuvchi Петли hisobotini oldingidek topshiradi.
+
 ### Statistika ma'lumot manbalari (nima, qayerdan, qanday)
 
 | Ko'rsatkich | API manbasi | Hisoblash |
 |---|---|---|
 | Dashboard: Sotildi / Tushum / To'langan / Qarz | `GET /sales` (sana oralig'i, server filtri) | dona = saleProduct.quantities yig'indisi; tushum = totalPrice, qarz = totalPrice − paidPrice; valyuta `budget.name`dan (so'm/USD) |
-| Dashboard: Ishlab chiqarildi | `GET /product_in_warehouse_actions?from=7&to=8&status=accepted` | qadoqlangan-qabul qilingan donalar (getStats) |
+| Dashboard: Ishlab chiqarildi | `GET /product_in_warehouse_actions?from=7&to=8&status=accepted` | qadoqlangan-qabul qilingan donalar (getStats); servis modellar chiqarilgan |
 | Dashboard: Ombordagi qoldiq | `GET /warehouses?name=productsWarehouse` | productInWarehouses ichidagi size.quantity yig'indisi (JORIY holat, sanaga bog'liq emas) |
 | Dashboard: Xarajat | `GET /transactions?isIncome=false` (sana oralig'i) | paidPrice yig'indisi; 'ayriboshlash' va 'payedcustomersalary' chiqariladi |
 | Jarayon paneli: To'quv | `GET /completed_unripe_material_orders` (HAMMASI, sana filtri CLIENTDA — endpointda DateFilter yo'q) | accepted=kg yig'indisi; kutilmoqda=notAccepted |
-| Jarayon paneli: Bo'yoq | `GET /ripe_material_orders` (sana filtri clientda) | accepted / expected, sentQuantitySort1+2 kg |
+| Jarayon paneli: Bo'yoq | `GET /ripe_material_orders?status=accepted|expected` (sana filtri clientda) | accepted / expected, sentQuantitySort1+2 kg |
+| Stepper: Bo'yoq tabi | o'sha endpoint | material (`unripeMaterial.name`) yoki bo'yoq fabrikasi (`paintFabric.name`) kesimida: jo'natilgan kg/ro'lon (`sentQuantitySort1/2`, `sentRollSort1/2`) va qabul qilingan kg/ro'lon (`ripeMaterialOrderAccepteds[].receivedQuantitySort1/2`) |
 | Jarayon paneli: Bichuv | `GET /product_model_order_completeds` (server sana filtri) | accepted / pending donalar |
-| Jarayon paneli: Vishivka/Tikuv/Qadoqlash/Ombor | `GET /product_in_warehouse_actions` tegishli from/to bilan | accepted / pending; "eng eskisi" = pending ichidagi eng kichik createdAt dan hozirgacha |
+| Jarayon paneli: Vishivka/Tikuv/Qadoqlash/Ombor | `GET /product_in_warehouse_actions` tegishli from/to bilan | accepted / pending; "eng eskisi" = pending ichidagi eng kichik createdAt dan hozirgacha; tikuv/qadoqlashda servis modellar chiqarilgan |
 | Stepper tablari (Bichildi, Vishivka urildi...) | tegishli resurs + status + sana | getStats: model→dona, model→xodim (sentBy/confirmedBy) |
 | ⏱ Vaqt ko'rsatkichlari | yozuvlarning o'zidan | tasdiqlash = createdAt → receivedAt (ombor amallari) yoki updatedAt (to'quv/bichuv); kutish = createdAt → hozir |
 | Savdo tabi | `GET /sales` | model→xaridor kesimi, USD/so'm alohida, to'langan proporsional taqsim |
-| Tahlil: sotuv/ishlab-chiqarish % | sales + PIWA 7→8 accepted (bir xil davr) | sotilgan/ishlab-chiqarilgan ×100 (100%+ = eski zaxiradan sotilgan) |
+| Tahlil: sotuv/ishlab-chiqarish % | sales + PIWA 7→8 accepted (bir xil davr, servis modellarsiz) | sotilgan/ishlab-chiqarilgan ×100 (100%+ = eski zaxiradan sotilgan) |
 | Tahlil: Qarzdorlar | `GET /customers?hasDebt=true` + `GET /sales?isPayed=false` (sanasiz!) | usdDebts/uzsDebts (backend hisoblaydi) + eng eski to'lanmagan sotuv sanasi |
 | Tahlil: Ombor qoldig'i | warehouses?name=productsWarehouse | model→o'lcham; "bu davrda sotilmagan" = davr sotuvlarida yo'q model |
 | Talab tabi | `GET /orders` (sana filtri CLIENTDA) + sales | talab = order.products.quantities; yetkazildi = o'sha xaridor+model bo'yicha davr sotuvlari; yetkazilmadi = max(0, farq) |
@@ -332,6 +356,8 @@ Lokal test userlar (parol hammasida `test1234`): +99890000000**1** admin/super, 
 | Yagona breakdown/timing komponentlari | `ModelStatsBreakdown.vue`, `TimingSummary.vue` |
 | Transliteratsiya + harf birlashuvi | `src/libraries/transliterate.js`, backend `Component/Core/Transliterator.php` |
 | API xatosini toast'da ko'rsatish | `apiErrorMessage` — `src/libraries/constants/defaults.js` |
+| Statistikada servis modellarni chiqarish | `excludeNonProductModels`, `NON_PRODUCT_MODEL_KEYWORDS` — `src/libraries/constants/defaults.js` |
+| Statistika sana oralig'i (tez tanlovlar, UTC "bugun") | `src/pages/StatisticPage.vue` |
 | Ombor o'tishi qabul mantiqi (rol xaritasi, 8→9 qoida, ishbay maosh) | backend `Controller/ProductInWarehouseAction/ProductInWarehouseAccept.php` |
 | To'quvchi maoshi | backend `Controller/CompletedUnripeMaterialOrder/AcceptanceAction.php` |
 | Maosh yozish subscriber | backend `EventSubscriber/WorkEntriesSubscriber.php` + `Component/Salary/CreatorSalary.php` |

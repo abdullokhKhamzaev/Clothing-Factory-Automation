@@ -3,6 +3,7 @@ import {computed, onMounted, ref, watch} from "vue"
 import {useAbout} from "stores/user/about.js";
 import {useWorkEntries} from "stores/workEntries.js";
 import {formatFloatToInteger, roundToDecimal} from "../../libraries/constants/defaults.js";
+import {periodFromDateFrom} from "src/libraries/salaryPeriod.js";
 import {useRoute} from "vue-router";
 import SalaryInfo from "components/statistics/SalaryInfo.vue";
 import WorkActivityTable from "components/statistics/WorkActivityTable.vue";
@@ -18,32 +19,56 @@ const props = defineProps({
 
 // Table data for summary cards only
 const repository = useWorkEntries();
+// BUTUN oyning tasdiqlangan yozuvlari — kartalar tanlangan davr bo'yicha
+// client-side kesib olinadi, SalaryInfo esa FIFO uchun to'liq oyni ishlatadi.
+// Davr (1-15 ↔ 16-oxiri) almashganda qayta so'rov KETMAYDI — oy o'zgargandagina
 const items = ref([]);
 const loading = ref(false);
+let fetchedKey = ''; // 'workerIri|YYYY-MM'
 
 // Salary data for currency info (received from SalaryInfo component)
 const salaryData = ref([]);
 
 let filters = ref({
-  dateFrom: props.date.dateFrom,
-  dateTo: props.date.dateTo,
-  status: 'accepted',
-  unitPrice: 0,
-  rowsPerPage: '~',
   workerBy: ''
 });
 
-function getItems () {
-  if (loading.value || !filters.value.workerBy || filters.value.workerBy === '') return;
+function getItems (force = false) {
+  const workerBy = filters.value.workerBy;
+  const month = (props.date?.dateFrom || '').substring(0, 7);
+  if (loading.value || !workerBy || !month) return;
+
+  const key = `${workerBy}|${month}`;
+  if (!force && key === fetchedKey) return;
+
   loading.value = true;
-  repository.list({page: 1, rowsPerPage: '~', ...filters.value})
+
+  const [year, monthNum] = month.split('-').map(Number);
+  const lastDay = new Date(year, monthNum, 0).getDate();
+
+  repository.list({
+    page: 1,
+    rowsPerPage: '~',
+    status: 'accepted',
+    workerBy,
+    dateFrom: `${month}-01T00:00:00`,
+    dateTo: `${month}-${String(lastDay).padStart(2, '0')}T23:59:59`
+  })
     .then((res) => {
       items.value = res.data['hydra:member'];
+      fetchedKey = key;
     })
     .finally(() => {
       loading.value = false;
     });
 }
+
+// Tanlangan 15 kunlik davrga tegishli yozuvlar (kartalar uchun)
+const selectedPeriod = computed(() => periodFromDateFrom(props.date?.dateFrom) || 1);
+const periodItems = computed(() => items.value.filter((entry) => {
+  const day = parseInt(String(entry.createdAt || '').substring(8, 10), 10);
+  return selectedPeriod.value === 1 ? day <= 15 : day > 15;
+}));
 
 // Handle salary data from SalaryInfo component
 function handleSalaryDataLoaded(data) {
@@ -51,11 +76,11 @@ function handleSalaryDataLoaded(data) {
 }
 
 const totalQuantity = computed(() => {
-  return items.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
+  return periodItems.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
 })
 
 const totalItems = computed(() => {
-  return items.value.reduce((sum, item) => sum + Number(item.quantity), 0)
+  return periodItems.value.reduce((sum, item) => sum + Number(item.quantity), 0)
 })
 
 const averagePrice = computed(() => {
@@ -73,8 +98,6 @@ const currencyInfo = computed(() => {
 
 watch([user, props], () => {
   filters.value.workerBy = route.params.id ? route.params.id : user.about['@id'];
-  filters.value.dateFrom = props.date.dateFrom;
-  filters.value.dateTo = props.date.dateTo;
   getItems();
 }, {deep: true});
 
@@ -129,7 +152,7 @@ onMounted(async () => {
             <div class="text-h6">{{ $t('workCount') }}</div>
             <q-icon name="assignment" size="md" class="text-white" style="opacity: 0.8" />
           </div>
-          <div class="text-h4">{{ items.length }}</div>
+          <div class="text-h4">{{ periodItems.length }}</div>
           <div class="text-subtitle2">{{ $t('piece') }}</div>
         </q-card-section>
       </q-card>
@@ -140,14 +163,15 @@ onMounted(async () => {
   <salary-info
     :worker="filters.workerBy"
     :date="props.date"
-    :total-earned="totalQuantity"
+    :month-entries="items"
     @salary-data-loaded="handleSalaryDataLoaded"
     class="q-mb-lg"
   />
-  <!-- Work Activity Table Component -->
+  <!-- Work Activity Table Component: ma'lumot tepadagi yagona oy so'rovidan -->
   <work-activity-table
-    :date="props.date"
-    :worker-by="filters.workerBy"
+    :entries="periodItems"
+    :loading="loading"
+    @refresh="getItems(true)"
   />
 </template>
 

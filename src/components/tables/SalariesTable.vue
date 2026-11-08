@@ -26,6 +26,7 @@ const columns = [
   { name: 'dailyWage', label: t('tables.users.columns.dailyWage'), align: 'left', field: 'dailyWage' },
   { name: 'workedDays', label: t('tables.users.columns.workedDays'), align: 'left', field: 'workedDays' },
   { name: 'pieceworkEarning', label: t('tables.users.columns.pieceworkEarning'), align: 'left', field: 'pieceworkEarning' },
+  { name: 'extraPayment', label: t('tables.users.columns.extraPayment'), align: 'left', field: 'extraPayment' },
   { name: 'advancePayment', label: t('tables.users.columns.advancePayment'), align: 'left', field: 'advancePayment' },
   { name: 'paidAmount', label: t('tables.users.columns.paidAmount'), align: 'left', field: 'paidAmount' },
   { name: 'transaction', label: t('tables.users.columns.transaction'), align: 'left', field: 'transaction' },
@@ -70,16 +71,31 @@ function getItems () {
     });
 }
 
-// Bir yozuvning hisoblangan oyligi: baseSalary yoki kunlik x ishlangan kun yoki ishbay
+// Oyning qo'shimcha to'lovi (yo'l kira, lazer...): ishchi profilidagi summa HAR 15 KUNLIK
+// davr uchun, ya'ni oy = 2 × summa. Faqat oyda ishi/oyligi bor bo'lsa qo'shiladi
+function monthExtraOf(salary) {
+  const extra = Number(salary.worker?.extraPayment) || 0;
+  if (extra <= 0) return 0;
+
+  const hasEarning = (Number(salary.baseSalary) || 0) > 0
+    || (Number(salary.dailyWage) || 0) * (Number(salary.workedDays) || 0) > 0
+    || (Number(salary.pieceworkEarning) || 0) > 0;
+
+  return hasEarning ? extra * 2 : 0;
+}
+
+// Bir yozuvning hisoblangan oyligi: (baseSalary yoki kunlik x ishlangan kun yoki ishbay) + qo'shimcha
 function earnedOf(salary) {
   const baseSalary = Number(salary.baseSalary) || 0;
   const dailyWage = Number(salary.dailyWage) || 0;
   const workedDays = Number(salary.workedDays) || 0;
   const pieceworkEarning = Number(salary.pieceworkEarning) || 0;
 
-  if (baseSalary > 0) return baseSalary;
-  if (dailyWage > 0) return dailyWage * workedDays;
-  return pieceworkEarning;
+  let earned = pieceworkEarning;
+  if (baseSalary > 0) earned = baseSalary;
+  else if (dailyWage > 0) earned = dailyWage * workedDays;
+
+  return earned + monthExtraOf(salary);
 }
 
 const salaryTotals = computed(() => {
@@ -335,6 +351,15 @@ function payAdvanceAction () {
           </div>
           <div v-else-if="col.name === 'pieceworkEarning'">
             {{ formatFloatToInteger(props.row.pieceworkEarning) === '0' ? '-' : formatFloatToInteger(props.row.pieceworkEarning) + ' ' + props.row.budget.name}}
+          </div>
+          <div v-else-if="col.name === 'extraPayment'">
+            <template v-if="monthExtraOf(props.row) > 0">
+              <div>{{ formatFloatToInteger(monthExtraOf(props.row)) }} {{ props.row.budget.name }}</div>
+              <div v-if="props.row.worker?.extraPaymentReason" class="text-caption text-grey">
+                {{ props.row.worker.extraPaymentReason }}
+              </div>
+            </template>
+            <template v-else>-</template>
           </div>
           <div v-else-if="col.name === 'advancePayment'">
             {{ formatFloatToInteger(props.row.advancePayment) === '0' ? '-' : formatFloatToInteger(props.row.advancePayment) + ' ' + props.row.budget.name}}

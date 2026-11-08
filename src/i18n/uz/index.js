@@ -577,6 +577,13 @@ export default {
   forms: {
     user: {
       fields: {
+        extraPayment: {
+          label: 'Qo\'shimcha to\'lov (15 kunlik davr uchun)',
+          hint: 'Masalan yo\'l kira — har 15 kunlik davr hisobiga qo\'shiladi (oyiga 2 marta)'
+        },
+        extraPaymentReason: {
+          label: 'Qo\'shimcha to\'lov sababi (yo\'l kira, lazer...)'
+        },
         fullName: {
           label: 'Ism va Familiya',
           validation: {
@@ -1921,6 +1928,7 @@ export default {
         dailyWage: 'Kunlik ish haqqi',
         workedDays: 'Ishlangan kunlar',
         pieceworkEarning: 'Ishbaylik haqqi',
+        extraPayment: 'Qo\'shimcha to\'lov',
         advancePayment: 'Avans to\'lov',
         paidAmount: 'To\'langan summa',
         transaction: 'Tasnif',
@@ -2434,6 +2442,7 @@ export default {
   // Salary page translations
   salaryInfo: {
     title: 'Maosh haqida ma\'lumot',
+    paymentsHistory: 'To\'lovlar tarixi',
     types: {
       fixed: 'Belgilangan oylik',
       piecework: 'Ish natijasiga qarab',
@@ -2464,6 +2473,7 @@ export default {
     },
     details: {
       monthlyRate: 'Oylik tarif',
+      extraIncluded: 'Qo\'shimcha to\'lov hisobga kiritildi',
       dailyRate: '/kun',
       bonusAwarded: 'Ajoyib natija! Mukofot berildi',
       debtStatus: 'Qarz holati - to\'lanishi kerak',

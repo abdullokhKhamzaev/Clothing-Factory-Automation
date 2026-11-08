@@ -577,6 +577,13 @@ export default {
   forms: {
     user: {
       fields: {
+        extraPayment: {
+          label: 'Қўшимча тўлов (15 кунлик давр учун)',
+          hint: 'Масалан йўл кира — ҳар 15 кунлик давр ҳисобига қўшилади (ойига 2 марта)'
+        },
+        extraPaymentReason: {
+          label: 'Қўшимча тўлов сабаби (йўл кира, лазер...)'
+        },
         fullName: {
           label: 'Исм ва Фамилия',
           validation: {
@@ -1921,6 +1928,7 @@ export default {
         dailyWage: 'Кунлик иш ҳаққи',
         workedDays: 'Ишланган кунлар',
         pieceworkEarning: 'Ишбайлик ҳаққи',
+        extraPayment: 'Қўшимча тўлов',
         advancePayment: 'Аванс тўлов',
         paidAmount: 'Тўланган сумма',
         transaction: 'Тасниф',
@@ -2434,6 +2442,7 @@ export default {
   // Salary page translations
   salaryInfo: {
     title: 'Моаш ҳақида маълумот',
+    paymentsHistory: 'Тўловлар тарихи',
     types: {
       fixed: 'Белгиланган ойлик',
       piecework: 'Иш натижасига қараб',
@@ -2464,6 +2473,7 @@ export default {
     },
     details: {
       monthlyRate: 'Ойлик тариф',
+      extraIncluded: 'Қўшимча тўлов ҳисобга киритилди',
       dailyRate: '/кун',
       bonusAwarded: 'Ажойиб натижа! Мукофот берилди',
       debtStatus: 'Қарз ҳолати - тўланиши керак',

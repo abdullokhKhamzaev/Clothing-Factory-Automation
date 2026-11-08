@@ -106,6 +106,8 @@ function createAction() {
     salaryType: selectedData.value.salaryType,
     budget: selectedData.value.budget,
     roles: [selectedData.value.roles],
+    extraPayment: Number(selectedData.value.extraPayment) > 0 ? String(selectedData.value.extraPayment) : null,
+    extraPaymentReason: Number(selectedData.value.extraPayment) > 0 ? (selectedData.value.extraPaymentReason || null) : null,
   }
 
   repository.createUser(input)
@@ -171,7 +173,9 @@ function updateAction() {
         salary: selectedData.value.salary,
         salaryType: selectedData.value.salaryType,
         budget: selectedData.value.budget,
-        roles: [selectedData.value.roles]
+        roles: [selectedData.value.roles],
+        extraPayment: Number(selectedData.value.extraPayment) > 0 ? String(selectedData.value.extraPayment) : null,
+        extraPaymentReason: Number(selectedData.value.extraPayment) > 0 ? (selectedData.value.extraPaymentReason || null) : null
       }
 
       repository.editUser(selectedData.value.id, input)
@@ -512,6 +516,21 @@ function exportTable(users) {
             hide-bottom-space
             class="col-12"
           />
+          <q-input
+            filled
+            type="number"
+            v-model="selectedData.extraPayment"
+            :label="$t('forms.user.fields.extraPayment.label')"
+            :hint="$t('forms.user.fields.extraPayment.hint')"
+            class="col-12"
+          />
+          <q-input
+            v-if="Number(selectedData.extraPayment) > 0"
+            filled
+            v-model="selectedData.extraPaymentReason"
+            :label="$t('forms.user.fields.extraPaymentReason.label')"
+            class="col-12"
+          />
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
@@ -634,6 +653,21 @@ function exportTable(users) {
                 :label="$t('forms.user.fields.salary.label')"
                 :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
                 hide-bottom-space
+                class="col-12"
+              />
+              <q-input
+                filled
+                type="number"
+                v-model="selectedData.extraPayment"
+                :label="$t('forms.user.fields.extraPayment.label')"
+                :hint="$t('forms.user.fields.extraPayment.hint')"
+                class="col-12"
+              />
+              <q-input
+                v-if="Number(selectedData.extraPayment) > 0"
+                filled
+                v-model="selectedData.extraPaymentReason"
+                :label="$t('forms.user.fields.extraPaymentReason.label')"
                 class="col-12"
               />
             </div>

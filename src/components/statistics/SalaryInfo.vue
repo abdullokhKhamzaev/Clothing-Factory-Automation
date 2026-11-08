@@ -2,6 +2,8 @@
 import {computed, onMounted, ref, watch} from "vue"
 import {useSalary} from "stores/salary.js"
 import {formatDate, formatFloatToInteger} from "../../libraries/constants/defaults.js"
+import {periodFromDateFrom, splitEarnedByPeriod, allocatePayments} from "src/libraries/salaryPeriod.js"
+import SalaryPaymentsList from "components/SalaryPaymentsList.vue"
 
 const props = defineProps({
   worker: {
@@ -12,10 +14,11 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  totalEarned: {
-    type: Number,
-    default: 0,
-    required: false
+  // BUTUN oyning tasdiqlangan ish yozuvlari (parent bir marta oladi) —
+  // FIFO taqsimot ikkala davrning ishlanganini bilishi kerak
+  monthEntries: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -26,15 +29,20 @@ const emit = defineEmits(['salary-data-loaded'])
 const salaryRepository = useSalary()
 const salaryData = ref([])
 const loading = ref(false)
+// Oy almashgandagina qayta so'raymiz (davr 1↔2 almashishi so'rov talab qilmaydi)
+let fetchedKey = ''
 
 function getSalaryData() {
   if (loading.value || !props.worker) return
 
-  loading.value = true
-
   // Convert dateRange to month format for backend
   const dateFrom = props.date.dateFrom
   const month = dateFrom.substring(0, 7) // "2025-09-01" -> "2025-09"
+
+  const key = `${props.worker}|${month}`
+  if (key === fetchedKey) return
+
+  loading.value = true
 
   const salaryFilters = {
     month: month,
@@ -46,6 +54,7 @@ function getSalaryData() {
   salaryRepository.fetchSalaries(salaryFilters)
     .then((res) => {
       salaryData.value = res.data['hydra:member'] || []
+      fetchedKey = key
       // Parent ga ma'lumot uzatish
       emit('salary-data-loaded', salaryData.value)
     })
@@ -85,131 +94,87 @@ const currencyInfo = computed(() => {
   return currentSalaryData.value?.budget || { name: 'SO\'M' }
 })
 
-// Calculate total earned amount based on period
-const totalEarned = computed(() => {
-  if (!currentSalaryData.value) return props.totalEarned
+// Tanlangan davr: 1 (1–15) yoki 2 (16 – oy oxiri)
+const selectedPeriod = computed(() => periodFromDateFrom(props.date?.dateFrom) || 1)
 
-  // Parse data correctly
-  const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
-  const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
-  const workedDays = Number(currentSalaryData.value.workedDays) || 0
-  // const pieceworkEarning = Number(currentSalaryData.value.pieceworkEarning) || 0
+// Davriy qo'shimcha to'lov (yo'l kira, lazer...) — har 15 kunlik davr uchun
+const extraPerPeriod = computed(() => Number(currentSalaryData.value?.worker?.extraPayment) || 0)
+const extraReason = computed(() => currentSalaryData.value?.worker?.extraPaymentReason || '')
 
-  if (salaryType.value === 'fixed') {
-    // Fixed salary calculation - divided by 2 for period (half month)
+// Har bir davrning hisoblangan summasi.
+// Ishbay: oy yozuvlaridan sanasi bo'yicha bo'linadi; belgilangan/kunlik: oylik ikkiga teng bo'linadi.
+// Qo'shimcha to'lov ISHLAGAN davrga qo'shiladi (ishbayda — o'sha davrda ishi bo'lsa,
+// belgilangan oylikda — har doim), bo'sh davrga soxta qarz yozilmaydi
+const earnedByPeriod = computed(() => {
+  const extra = extraPerPeriod.value
+
+  if (salaryType.value === 'fixed' && currentSalaryData.value) {
+    const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
+    const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
+    const workedDays = Number(currentSalaryData.value.workedDays) || 0
     const monthlyAmount = baseSalary > 0 ? baseSalary : (dailyWage * workedDays)
-    return monthlyAmount / 2 // Half month for period
-  } else if (salaryType.value === 'piecework') {
-    // Performance-based calculation - use totalEarned from work entries for current period
-    return props.totalEarned || 0
+    return {
+      period1: monthlyAmount / 2 + extra,
+      period2: monthlyAmount / 2 + extra
+    }
   }
 
-  // Return 0 if no data available
-  return 0
+  const earned = splitEarnedByPeriod(props.monthEntries)
+  return {
+    period1: earned.period1 > 0 ? earned.period1 + extra : 0,
+    period2: earned.period2 > 0 ? earned.period2 + extra : 0
+  }
 })
+
+// FIFO: oy to'lovlari xronologik tartibda avval 1-davr qarzini yopadi, ortgani 2-davrga
+const allocation = computed(() =>
+  allocatePayments(earnedByPeriod.value, currentSalaryData.value?.transaction)
+)
 
 const pieceworkEarning = computed(() => {
-  return totalEarned.value
+  return selectedPeriod.value === 1 ? earnedByPeriod.value.period1 : earnedByPeriod.value.period2
 })
-
-// Calculate payment period based on work period
-const getPaymentPeriod = (workPeriod) => {
-  const workStart = new Date(workPeriod.dateFrom)
-  const workDay = parseInt(workPeriod.dateFrom.substring(8, 10))
-
-  let paymentStart, paymentEnd
-
-  if (workDay === 1) {
-    // Work period: 1-15, Payment period: 16-end of same month
-    const year = workStart.getFullYear()
-    const month = workStart.getMonth()
-    const lastDayOfMonth = new Date(year, month + 1, 0).getDate()
-
-    paymentStart = new Date(year, month, 16)
-    paymentEnd = new Date(year, month, lastDayOfMonth, 23, 59, 59, 999)
-  } else {
-    // Work period: 16-end, Payment period: 1-15 of next month
-    const year = workStart.getFullYear()
-    const month = workStart.getMonth()
-
-    paymentStart = new Date(year, month + 1, 1)
-    paymentEnd = new Date(year, month + 1, 15, 23, 59, 59, 999)
-  }
-
-  return { paymentStart, paymentEnd }
-}
 
 const paidAmount = computed(() => {
-  if (!currentSalaryData.value || !currentSalaryData.value.transaction) return 0
-
-  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
-
-  // Filter transactions by payment period date range
-  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
-    const transactionDate = new Date(transaction.createdAt)
-    return transactionDate >= paymentStart && transactionDate <= paymentEnd
-  })
-
-  return periodTransactions.reduce((sum, t) => sum + parseFloat(t.price || 0), 0)
+  const alloc = allocation.value
+  return selectedPeriod.value === 1 ? alloc.period1.paid : alloc.period2.paid
 })
 
-const lastPaymentAmount = computed(() => {
-  if (!currentSalaryData.value || !currentSalaryData.value.transaction || currentSalaryData.value.transaction.length === 0) {
-    return 0
-  }
-
-  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
-
-  // Filter transactions by payment period date range
-  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
-    const transactionDate = new Date(transaction.createdAt)
-    return transactionDate >= paymentStart && transactionDate <= paymentEnd
-  })
-
-  if (periodTransactions.length === 0) return 0
-
-  const sortedTransactions = [...periodTransactions].sort((a, b) =>
-    new Date(b.createdAt) - new Date(a.createdAt)
-  )
-  return parseFloat(sortedTransactions[0]?.price || 0)
+// Tanlangan davrga pul tekkan oxirgi to'lov
+const lastPeriodTx = computed(() => {
+  const alloc = allocation.value
+  return selectedPeriod.value === 1 ? alloc.period1.lastTx : alloc.period2.lastTx
 })
 
-const bonusAmount = computed(() => {
-  const earned = pieceworkEarning.value
-  return Math.max(0, paidAmount.value - earned)
-})
+const lastPaymentAmount = computed(() => parseFloat(lastPeriodTx.value?.price || 0))
 
 const remainingAmount = computed(() => {
-  const earned = pieceworkEarning.value
-  return Math.max(0, earned - paidAmount.value)
+  return Math.max(0, pieceworkEarning.value - paidAmount.value)
+})
+
+// Bonus (ortiqcha to'lov) faqat ikkala davr ham to'liq yopilgandan keyin paydo bo'ladi —
+// tanlangan davr to'liq to'langan bo'lsa ko'rsatamiz
+const bonusAmount = computed(() => {
+  return remainingAmount.value === 0 ? allocation.value.bonus : 0
 })
 
 const paymentPercentage = computed(() => {
   const earned = pieceworkEarning.value
   if (earned === 0) return 0
-  const percentage = (paidAmount.value / earned) * 100
+  const percentage = ((paidAmount.value + bonusAmount.value) / earned) * 100
   return Math.floor(percentage)
 })
 
 const lastPaymentDate = computed(() => {
-  if (!currentSalaryData.value || !currentSalaryData.value.transaction || currentSalaryData.value.transaction.length === 0) {
-    return 'No Data'
-  }
+  if (!lastPeriodTx.value) return 'No Data'
+  return formatDate(lastPeriodTx.value.createdAt || '').slice(0, 10)
+})
 
-  const { paymentStart, paymentEnd } = getPaymentPeriod(props.date)
-
-  // Filter transactions by payment period date range
-  const periodTransactions = currentSalaryData.value.transaction.filter(transaction => {
-    const transactionDate = new Date(transaction.createdAt)
-    return transactionDate >= paymentStart && transactionDate <= paymentEnd
-  })
-
-  if (periodTransactions.length === 0) return 'No Data'
-
-  const sortedTransactions = [...periodTransactions].sort((a, b) =>
-    new Date(b.createdAt) - new Date(a.createdAt)
+// Oyning barcha to'lovlari (eng yangisi tepada) — ishchi ham o'zinikini ko'radi
+const monthPayments = computed(() => {
+  return [...(currentSalaryData.value?.transaction || [])].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   )
-  return formatDate(sortedTransactions[0]?.createdAt || '').slice(0, 10)
 })
 
 // Watch for prop changes
@@ -306,6 +271,11 @@ onMounted(() => {
                     <q-icon name="today" size="xs" color="grey-6" />
                     <span>{{ formatFloatToInteger(currentSalaryData.dailyWage) }} {{ currencyInfo.name }}{{ $t('salaryInfo.details.dailyRate') }} × {{ currentSalaryData.workedDays }} kun</span>
                   </div>
+                </div>
+                <!-- Qo'shimcha to'lov (yo'l kira, lazer...) hisobga kiritilgan bo'lsa -->
+                <div v-if="extraPerPeriod > 0 && pieceworkEarning > 0" class="text-caption text-amber-9 q-mt-xs flex items-center q-gutter-xs">
+                  <q-icon name="add_circle" size="xs" color="amber-8" />
+                  <span>{{ $t('salaryInfo.details.extraIncluded') }}: +{{ formatFloatToInteger(extraPerPeriod) }} {{ currencyInfo.name }}<template v-if="extraReason"> ({{ extraReason }})</template></span>
                 </div>
               </div>
             </div>
@@ -460,6 +430,19 @@ onMounted(() => {
           </div>
           </div>
         </div>
+
+      <!-- Oy to'lovlari tarixi: qachon, qancha, kim to'lagan -->
+      <q-expansion-item
+        v-if="monthPayments.length"
+        icon="receipt_long"
+        :label="`${$t('salaryInfo.paymentsHistory')} (${monthPayments.length})`"
+        header-class="text-primary text-weight-medium"
+        class="q-mt-md"
+      >
+        <div class="q-pa-sm">
+          <salary-payments-list :lists="monthPayments" />
+        </div>
+      </q-expansion-item>
     </q-card-section>
   </q-card>
 </template>

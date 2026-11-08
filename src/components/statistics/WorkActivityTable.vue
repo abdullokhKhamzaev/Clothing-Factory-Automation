@@ -1,25 +1,28 @@
 <script setup>
-import {computed, onMounted, ref, watch} from "vue"
-import {useWorkEntries} from "stores/workEntries.js"
+import {computed, ref} from "vue"
 import RefreshButton from "components/RefreshButton.vue"
 import {formatDate, formatFloatToInteger, isToday} from "../../libraries/constants/defaults.js"
 import {useI18n} from "vue-i18n"
+import {useQuasar} from "quasar"
 
 const { t } = useI18n()
+const $q = useQuasar()
 
+// Ma'lumotni parent beradi (oy bo'yicha bitta so'rov) — bu komponent o'zi
+// hech narsa fetch qilmaydi, faqat tanlangan davr yozuvlarini chizadi
 const props = defineProps({
-  date: {
-    type: Object,
-    required: true,
+  entries: {
+    type: Array,
+    default: () => []
   },
-  workerBy: {
-    type: String,
-    required: false,
-    default: ''
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
-// Updated columns with combined quantity/price
+const emit = defineEmits(['refresh'])
+
 const columns = [
   { name: 'createdAt', label: t('tables.workEntry.columns.createdAt'), align: 'left', field: 'createdAt' },
   { name: 'workerBy', label: t('tables.workEntry.columns.workerBy'), align: 'left', field: 'workerBy' },
@@ -30,80 +33,112 @@ const columns = [
 ]
 
 const visibleColumns = ref(columns.map(column => column.name))
+const isMobile = computed(() => $q.screen.lt.md)
 
-// Table Data
-const repository = useWorkEntries()
-const items = ref([])
-const loading = ref(false)
+// Client-side sahifalash: bir sahifada 10 ta qator chiziladi (DOM yengil qoladi)
 const pagination = ref({
   page: 1,
   rowsPerPage: 10,
-  rowsNumber: 0,
+  sortBy: 'createdAt',
   descending: true
 })
+const mobilePage = ref(1)
+const mobileRowsPerPage = 10
 
-let filters = ref({
-  dateFrom: props.date.dateFrom,
-  dateTo: props.date.dateTo,
-  status: 'accepted',
-  unitPrice: 0,
-  rowsPerPage: '~',
-  workerBy: props.workerBy
+const sortedEntries = computed(() => {
+  return [...props.entries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 })
 
-function getItems() {
-  if (loading.value || !filters.value.workerBy || filters.value.workerBy === '') return
-  loading.value = true
-  repository.list({...pagination.value, ...filters.value})
-    .then((res) => {
-      items.value = res.data['hydra:member']
-      pagination.value.rowsNumber = res.data['hydra:totalItems']
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
+const mobileEntries = computed(() => {
+  const start = (mobilePage.value - 1) * mobileRowsPerPage
+  return sortedEntries.value.slice(start, start + mobileRowsPerPage)
+})
 
-function onRequest(params) {
-  pagination.value = {...pagination.value, ...params.pagination}
-  getItems()
+const mobilePagesCount = computed(() => Math.max(1, Math.ceil(sortedEntries.value.length / mobileRowsPerPage)))
+
+// Davr jami — sahifa emas, BUTUN tanlangan davr bo'yicha
+const totalQuantity = computed(() => {
+  return props.entries.reduce((sum, item) => sum + Number(item.totalPrice), 0)
+})
+
+function modelName(row) {
+  return row.productModel?.name || row.productAccessory?.productSize?.productModel?.name || '-'
 }
 
 function refresh() {
-  getItems()
+  emit('refresh')
 }
-
-const totalQuantity = computed(() => {
-  return items.value.reduce((sum, item) => sum + Number(item.totalPrice), 0)
-})
-
-watch([() => props.date, () => props.workerBy], () => {
-  filters.value.dateFrom = props.date.dateFrom
-  filters.value.dateTo = props.date.dateTo
-  filters.value.workerBy = props.workerBy
-  refresh()
-}, {deep: true})
-
-onMounted(() => {
-  getItems()
-})
 </script>
 
 <template>
   <q-card class="table-card">
     <q-card-section class="q-pa-none">
+      <!-- Mobil: karta ko'rinishi (ishchilar asosan telefondan kiradi) -->
+      <div v-if="isMobile" class="q-pa-md">
+        <div class="flex justify-between items-center q-mb-md">
+          <div class="text-subtitle1 text-primary text-weight-bold">
+            <q-icon name="work" class="q-mr-xs" />
+            {{ $t('tables.workEntry.header.title') }}
+          </div>
+          <refresh-button :action="refresh" color="primary" />
+        </div>
+
+        <div v-if="!sortedEntries.length && !props.loading" class="text-center text-grey q-pa-md">
+          {{ $t('tables.workEntry.header.empty') }}
+        </div>
+
+        <q-list v-else bordered separator class="rounded-borders">
+          <q-item
+            v-for="row in mobileEntries"
+            :key="row.id"
+            :class="isToday(row.createdAt) ? 'today-row' : ''"
+          >
+            <q-item-section>
+              <q-item-label class="text-weight-bold">
+                {{ modelName(row) }}
+              </q-item-label>
+              <q-item-label v-if="row.embroidery?.name" caption>
+                <q-icon name="design_services" size="xs" class="text-purple q-mr-xs" />{{ row.embroidery.name }}
+              </q-item-label>
+              <q-item-label class="q-mt-xs">
+                <q-badge color="positive" :label="formatFloatToInteger(row.quantity)" />
+                <span class="text-caption text-grey-7 q-ml-xs">{{ $t('piece').toLowerCase() }}</span>
+                <q-icon name="close" size="xs" class="text-grey-5 q-mx-xs" />
+                <span>{{ formatFloatToInteger(row.unitPrice) }}</span>
+                <q-icon name="arrow_forward" size="xs" class="text-grey-5 q-mx-xs" />
+                <span class="text-weight-bold text-primary">{{ formatFloatToInteger(row.totalPrice) }} {{ row.budget?.name }}</span>
+              </q-item-label>
+              <q-item-label caption class="q-mt-xs flex justify-between">
+                <span>{{ formatDate(row.createdAt) }}</span>
+                <span><q-icon name="check" size="xs" class="text-positive" /> {{ row.confirmedBy?.fullName }}</span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+
+        <div v-if="mobilePagesCount > 1" class="flex justify-center q-mt-md">
+          <q-pagination
+            v-model="mobilePage"
+            :max="mobilePagesCount"
+            :max-pages="5"
+            direction-links
+          />
+        </div>
+      </div>
+
+      <!-- Desktop: jadval (client-side sahifalash — qo'shimcha so'rov yo'q) -->
       <q-table
+        v-else
         flat
         class="salary-table"
         :no-data-label="$t('tables.workEntry.header.empty')"
         :columns="columns"
         :visible-columns="visibleColumns"
-        :rows="items"
+        :rows="sortedEntries"
         row-key="id"
-        v-model:pagination.sync="pagination"
-        :rows-per-page-options="[10, 25, 50, 100, '~']"
-        :loading="loading"
-        @request="onRequest"
+        v-model:pagination="pagination"
+        :rows-per-page-options="[10, 25, 50, 100, 0]"
+        :loading="props.loading"
       >
         <template v-slot:top>
           <div class="col-12 q-gutter-y-sm" :class="$q.screen.lt.sm ? '' : 'flex'">
@@ -155,7 +190,7 @@ onMounted(() => {
               <!-- Product Column -->
               <div v-else-if="col.name === 'productAccessory'" class="product-cell">
                 <q-icon name="inventory_2" class="q-mr-xs text-orange" size="sm" />
-                <span>{{ props.row.productModel?.name || props.row.productAccessory?.productSize?.productModel?.name || '-' }}</span>
+                <span>{{ modelName(props.row) }}</span>
               </div>
 
               <!-- Embroidery Column -->
@@ -204,25 +239,23 @@ onMounted(() => {
             </q-td>
           </q-tr>
         </template>
+      </q-table>
 
-        <template v-slot:bottom>
-          <div class="full-width q-pa-md">
-            <div class="row items-center">
-              <div class="col">
-                <div class="text-h5 text-primary text-weight-bold">
-                  {{ $t('total') }}: {{ formatFloatToInteger(totalQuantity) }} SO'M
-                </div>
-              </div>
-              <div class="col-auto">
-                <q-chip color="primary" text-color="white" size="md">
-                  <q-icon name="payments" class="q-mr-xs" />
-                  {{ $t('totalPayment') }}
-                </q-chip>
-              </div>
+      <div class="full-width q-pa-md">
+        <div class="row items-center">
+          <div class="col">
+            <div class="text-h5 text-primary text-weight-bold">
+              {{ $t('total') }}: {{ formatFloatToInteger(totalQuantity) }} SO'M
             </div>
           </div>
-        </template>
-      </q-table>
+          <div class="col-auto">
+            <q-chip color="primary" text-color="white" size="md">
+              <q-icon name="payments" class="q-mr-xs" />
+              {{ $t('totalPayment') }}
+            </q-chip>
+          </div>
+        </div>
+      </div>
     </q-card-section>
   </q-card>
 </template>

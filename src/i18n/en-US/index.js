@@ -577,6 +577,13 @@ export default {
   forms: {
     user: {
       fields: {
+        extraPayment: {
+          label: 'Extra payment (per 15-day period)',
+          hint: 'E.g. transport allowance — added to each 15-day period (twice a month)'
+        },
+        extraPaymentReason: {
+          label: 'Extra payment reason (transport, laser...)'
+        },
         fullName: {
           label: 'Name & Surname',
           validation: {
@@ -1921,6 +1928,7 @@ export default {
         dailyWage: 'Daily Wage',
         workedDays: 'Worked Days',
         pieceworkEarning: 'Piecework Earning',
+        extraPayment: 'Extra payment',
         advancePayment: 'Advance Payment',
         paidAmount: 'Paid Amount',
         transaction: 'Description',
@@ -2434,6 +2442,7 @@ export default {
   // Salary page translations
   salaryInfo: {
     title: 'Salary Information',
+    paymentsHistory: 'Payment history',
     types: {
       fixed: 'Fixed Salary',
       piecework: 'Performance-based',
@@ -2464,6 +2473,7 @@ export default {
     },
     details: {
       monthlyRate: 'Monthly Rate',
+      extraIncluded: 'Extra payment included',
       dailyRate: '/day',
       bonusAwarded: 'Excellent work! Bonus awarded',
       debtStatus: 'Debt status - needs to be paid',
