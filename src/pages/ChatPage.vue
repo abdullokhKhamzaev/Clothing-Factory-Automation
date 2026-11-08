@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, ref } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { useChat } from "stores/chat.js";
 import { renderMarkdown } from "src/libraries/miniMarkdown.js";
 import { apiErrorMessage } from "src/libraries/constants/defaults.js";
@@ -8,8 +8,30 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 const chat = useChat();
 
-// Suhbat tarixi faqat brauzerda (sahifa ichida) saqlanadi
-const messages = ref([]);
+// Suhbat brauzerda saqlanadi: refresh/qayta kirishda ham turadi,
+// faqat «Tozalash» bosilganda o'chadi
+const STORAGE_KEY = 'aiChat.messages';
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+const messages = ref(loadSaved());
+
+watch(messages, (value) => {
+  try {
+    // Saqlashda hajmni jilovlaymiz: oxirgi 60 xabar yetarli
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(value.slice(-60)));
+  } catch {
+    // localStorage yopiq bo'lsa — indamay o'tamiz
+  }
+}, { deep: true });
 const input = ref('');
 const loading = ref(false);
 const errorText = ref('');
@@ -55,7 +77,15 @@ async function send(text) {
 function clearChat() {
   messages.value = [];
   errorText.value = '';
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // e'tiborsiz
+  }
 }
+
+// Saqlangan suhbat bilan ochilganda pastga tushamiz
+onMounted(scrollDown);
 
 function scrollDown() {
   nextTick(() => {
