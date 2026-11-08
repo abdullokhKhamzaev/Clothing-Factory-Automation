@@ -125,6 +125,8 @@ export default {
       expenses: 'Expenses',
       profit: 'Profit (approx.)',
       expensesNote: 'excl. salaries and exchange',
+      comparedTo: 'Compared with',
+      vsPrevious: 'Change vs previous period',
     },
   },
   transaction: {

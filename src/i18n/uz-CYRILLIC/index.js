@@ -125,6 +125,8 @@ export default {
       expenses: 'Харажат',
       profit: 'Фойда (тахминий)',
       expensesNote: 'ойлик ва айирбошлашсиз',
+      comparedTo: 'Таққослаш даври',
+      vsPrevious: 'Олдинги даврга нисбатан ўзгариш',
     },
   },
   transaction: {

@@ -2,12 +2,8 @@
 import {computed, onMounted, ref, watch} from "vue"
 import {useI18n} from "vue-i18n";
 import RefreshButton from "components/RefreshButton.vue";
-import {useCompletedUnripeMaterialOrders} from "stores/completedUnripeMaterialOrders.js";
-import {useRipeMaterialOrder} from "stores/ripeMaterialOrder.js";
-import {useProductModelOrderCompleted} from "stores/productModelOrderCompleted.js";
-import {useProductWarehouse} from "stores/productInWarehouseAction.js";
-import {useSale} from "stores/sale.js";
-import {formatFloatToInteger, formatDuration, getStats, excludeNonProductModels, WAREHOUSES} from "src/libraries/constants/defaults.js";
+import {useStatistics} from "stores/statistics.js";
+import {formatFloatToInteger, formatDuration} from "src/libraries/constants/defaults.js";
 
 const props = defineProps({
   dateFrom: {
@@ -24,71 +20,35 @@ const emit = defineEmits(['selectStep']);
 
 const { t } = useI18n();
 
-const weaveOrders = ref([]);
-const paintOrders = ref([]);
-const cutOrders = ref([]);
-const embroideryActions = ref([]);
-const sewActions = ref([]);
-const packageActions = ref([]);
-const toProductWarehouseActions = ref([]);
-const sales = ref([]);
+// Server tayyor bosqich yig'indilarini qaytaradi (Dashboard bilan
+// BITTA so'rov bo'lishiladi — store promise'ni keshlaydi)
+const pipeline = ref(null);
 const loading = ref(false);
-
-function inRange(createdAt) {
-  if (!createdAt) return false;
-  const date = new Date(createdAt);
-  return date >= new Date(props.dateFrom + 'T00:00:00') && date <= new Date(props.dateTo + 'T23:59:59');
-}
 
 async function getData (force = false) {
   if (loading.value) return;
   loading.value = true;
 
-  const range = {
-    createdAtFrom: props.dateFrom + 'T00:00:00',
-    createdAtTo: props.dateTo + 'T23:59:59',
-    rowsPerPage: '~',
-  };
-  const all = { rowsPerPage: '~' };
-
   try {
-    const [weaveRes, paintRes, cutRes, embroideryRes, sewRes, packageRes, warehouseRes, salesRes] = await Promise.all([
-      useCompletedUnripeMaterialOrders().fetchOrders(all),
-      useRipeMaterialOrder().fetchRipeMaterialOrder(all),
-      useProductModelOrderCompleted().getOrders(range),
-      useProductWarehouse().list({...range, toWarehouse: WAREHOUSES.embroideryReadyWarehouse}),
-      useProductWarehouse().list({...range, fromWarehouse: WAREHOUSES.sewerWarehouse, toWarehouse: WAREHOUSES.packagerWarehouse}),
-      useProductWarehouse().list({...range, fromWarehouse: WAREHOUSES.packagerWarehouse, toWarehouse: WAREHOUSES.packagerReadyWarehouse}),
-      useProductWarehouse().list({...range, fromWarehouse: WAREHOUSES.packagerReadyWarehouse, toWarehouse: WAREHOUSES.productsWarehouse}),
-      useSale().fetchSales({...range, force: force === true}),
-    ]);
-
-    // To'quv va bo'yash endpointlarida sana filtri yo'q — clientda filtrlaymiz
-    weaveOrders.value = (weaveRes?.data['hydra:member'] || []).filter(o => inRange(o.createdAt));
-    paintOrders.value = (paintRes?.data['hydra:member'] || []).filter(o => inRange(o.createdAt));
-    cutOrders.value = cutRes?.data['hydra:member'] || [];
-    embroideryActions.value = embroideryRes?.data['hydra:member'] || [];
-    sewActions.value = excludeNonProductModels(sewRes?.data['hydra:member']); // "Petli" mahsulot emas
-    packageActions.value = excludeNonProductModels(packageRes?.data['hydra:member']); // "Qayta qadoqlash" mahsulot emas
-    toProductWarehouseActions.value = warehouseRes?.data['hydra:member'] || [];
-    sales.value = salesRes?.data['hydra:member'] || [];
+    const res = await useStatistics().fetchSummary({
+      dateFrom: props.dateFrom,
+      dateTo: props.dateTo,
+      force: force === true,
+    });
+    pipeline.value = res?.data?.current?.pipeline || null;
   } finally {
     loading.value = false;
   }
 }
 
-function sumPieces(items) {
-  return getStats(items).total;
-}
+// Eng eski kutilayotgan yozuv qancha vaqtdan beri turganini qaytaradi
+function pendingAgeOf(stage) {
+  if (!stage?.oldestPendingAt || !(stage.pending > 0)) return null;
 
-// Kutayotgan yozuvlar ichida eng eskisi qancha vaqtdan beri turganini qaytaradi
-function oldestPendingAge(pendingItems) {
-  const timestamps = pendingItems
-    .map(item => item.createdAt ? new Date(item.createdAt).getTime() : null)
-    .filter(Boolean);
-  if (!timestamps.length) return null;
+  const elapsed = Date.now() - new Date(stage.oldestPendingAt.replace(' ', 'T')).getTime();
+  if (!(elapsed > 0)) return null;
 
-  return formatDuration(Date.now() - Math.min(...timestamps), {
+  return formatDuration(elapsed, {
     day: t('statistics.timing.day'),
     hour: t('statistics.timing.hour'),
     minute: t('statistics.timing.minute'),
@@ -96,106 +56,89 @@ function oldestPendingAge(pendingItems) {
   });
 }
 
-const soldTotal = computed(() => {
-  let total = 0;
-  sales.value.forEach(sale => {
-    (sale.saleProduct || []).forEach(product => {
-      (product.quantities || []).forEach(item => {
-        total += item.quantity || 0;
-      });
-    });
-  });
-  return total;
-});
+function pendingLabel(stage, unit = '') {
+  if (!(stage?.pending > 0)) return null;
+  return `${formatFloatToInteger(stage.pending)}${unit}`;
+}
 
 const stages = computed(() => {
-  const weaveDone = weaveOrders.value.filter(o => o.status === 'accepted');
-  const weavePending = weaveOrders.value.filter(o => o.status === 'notAccepted');
-  const sumKg = list => list.reduce((sum, o) => sum + (parseFloat(o.quantity) || 0) + (parseFloat(o.quantitySort2) || 0), 0);
-
-  const paintDone = paintOrders.value.filter(o => o.status === 'accepted');
-  const paintPending = paintOrders.value.filter(o => o.status === 'expected');
-  const sumSentKg = list => list.reduce((sum, o) => sum + (parseFloat(o.sentQuantitySort1) || 0) + (parseFloat(o.sentQuantitySort2) || 0), 0);
+  const p = pipeline.value;
+  if (!p) return [];
 
   return [
     {
       key: 'weave',
       name: t('menus.sideBar.weaving'),
       icon: 'texture',
-      done: `${formatFloatToInteger(sumKg(weaveDone))} kg`,
-      pending: weavePending.length ? `${formatFloatToInteger(sumKg(weavePending))} kg` : null,
-      pendingAge: oldestPendingAge(weavePending),
+      done: `${formatFloatToInteger(p.weave.done)} kg`,
+      pending: pendingLabel(p.weave, ' kg'),
+      pendingAge: pendingAgeOf(p.weave),
       step: 1,
     },
     {
       key: 'paint',
       name: t('menus.sideBar.paint'),
       icon: 'mdi-palette',
-      done: `${formatFloatToInteger(sumSentKg(paintDone))} kg`,
-      pending: paintPending.length ? `${formatFloatToInteger(sumSentKg(paintPending))} kg` : null,
-      pendingAge: oldestPendingAge(paintPending),
+      done: `${formatFloatToInteger(p.paint.done)} kg`,
+      pending: pendingLabel(p.paint, ' kg'),
+      pendingAge: pendingAgeOf(p.paint),
       step: 2,
     },
     {
       key: 'cut',
       name: t('menus.sideBar.cutting'),
       icon: 'mdi-scissors-cutting',
-      done: formatFloatToInteger(sumPieces(cutOrders.value.filter(o => o.status === 'accepted'))),
-      pending: pendingPieces(cutOrders.value),
-      pendingAge: oldestPendingAge(cutOrders.value.filter(o => o.status === 'pending')),
+      done: formatFloatToInteger(p.cut.done),
+      pending: pendingLabel(p.cut),
+      pendingAge: pendingAgeOf(p.cut),
       step: 3,
     },
     {
       key: 'embroidery',
       name: t('menus.sideBar.embroidery'),
       icon: 'mdi-draw',
-      done: formatFloatToInteger(sumPieces(embroideryActions.value.filter(o => o.status === 'accepted'))),
-      pending: pendingPieces(embroideryActions.value),
-      pendingAge: oldestPendingAge(embroideryActions.value.filter(o => o.status === 'pending')),
+      done: formatFloatToInteger(p.embroidery.done),
+      pending: pendingLabel(p.embroidery),
+      pendingAge: pendingAgeOf(p.embroidery),
       step: 4,
     },
     {
       key: 'sew',
       name: t('menus.sideBar.sewing'),
       icon: 'mdi-nail',
-      done: formatFloatToInteger(sumPieces(sewActions.value.filter(o => o.status === 'accepted'))),
-      pending: pendingPieces(sewActions.value),
-      pendingAge: oldestPendingAge(sewActions.value.filter(o => o.status === 'pending')),
+      done: formatFloatToInteger(p.sew.done),
+      pending: pendingLabel(p.sew),
+      pendingAge: pendingAgeOf(p.sew),
       step: 5,
     },
     {
       key: 'package',
       name: t('menus.sideBar.package'),
       icon: 'mdi-package-down',
-      done: formatFloatToInteger(sumPieces(packageActions.value.filter(o => o.status === 'accepted'))),
-      pending: pendingPieces(packageActions.value),
-      pendingAge: oldestPendingAge(packageActions.value.filter(o => o.status === 'pending')),
+      done: formatFloatToInteger(p.package.done),
+      pending: pendingLabel(p.package),
+      pendingAge: pendingAgeOf(p.package),
       step: 6,
     },
     {
       key: 'warehouse',
       name: t('menus.sideBar.productWarehouse'),
       icon: 'mdi-warehouse',
-      done: formatFloatToInteger(sumPieces(toProductWarehouseActions.value.filter(o => o.status === 'accepted'))),
-      pending: pendingPieces(toProductWarehouseActions.value),
-      pendingAge: oldestPendingAge(toProductWarehouseActions.value.filter(o => o.status === 'pending')),
+      done: formatFloatToInteger(p.warehouse.done),
+      pending: pendingLabel(p.warehouse),
+      pendingAge: pendingAgeOf(p.warehouse),
       step: 6,
     },
     {
       key: 'sale',
       name: t('menus.sideBar.sales'),
       icon: 'mdi-cart-percent',
-      done: formatFloatToInteger(soldTotal.value),
+      done: formatFloatToInteger(p.sold.done),
       pending: null,
       step: 7,
     },
   ];
 });
-
-function pendingPieces(items) {
-  const pending = sumPieces(items.filter(o => o.status === 'pending'));
-  return pending > 0 ? formatFloatToInteger(pending) : null;
-}
 
 function onStageClick(stage) {
   if (stage.step) {

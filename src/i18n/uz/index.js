@@ -125,6 +125,8 @@ export default {
       expenses: 'Xarajat',
       profit: 'Foyda (taxminiy)',
       expensesNote: 'oylik va ayriboshlashsiz',
+      comparedTo: 'Taqqoslash davri',
+      vsPrevious: 'Oldingi davrga nisbatan o\'zgarish',
     },
   },
   transaction: {

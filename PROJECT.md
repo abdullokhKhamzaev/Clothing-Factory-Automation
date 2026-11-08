@@ -274,10 +274,17 @@ Mantiq to'liq frontendda: `src/libraries/salaryPeriod.js` + `SalaryInfo.vue`. Ba
 
 Texnik: sotuvlar so'rovi 30s keshlanadi (bir sahifada takror so'rov ketmaydi).
 
+### Tezlik: agregat endpoint + gzip (2026-11-08)
+- **Dashboard va Jarayon paneli endi bitta yengil so'rovdan oladi**: `GET /api/statistics/summary?from=YYYY-MM-DD&to=YYYY-MM-DD` (backend: `src/Component/Statistics/StatisticsSummary.php` + `src/Controller/Statistics/StatisticsSummaryAction.php`, faqat ADMIN/SUPER_ADMIN). Ilgari sahifa ochilishida ~12 ta sahifalashsiz so'rov ketardi (2 oylik davrda faqat actions javobi 1.7MB edi); endi javob ~1KB, ~0.2s, davr uzunligiga deyarli bog'liq emas. Hisob formulalari eski frontend mantiqi bilan AYNAN bir xil (15 ko'rsatkich raqamma-raqam solishtirilib tasdiqlangan). Frontend keshi: `src/stores/statistics.js` — promise keshlanadi, ikkala komponent bitta so'rovni bo'lishadi.
+- **Taqqoslash foizlari**: endpoint xuddi shu uzunlikdagi OLDINGI davrni ham hisoblaydi (`previous`, `previousRange`); Dashboard kartalari ostida ↑/↓ % belgilari (valyutama-valyuta), yaxshi yo'nalish yashil (Qarz/Xarajat uchun o'sish qizil). Qoldiq kartasida foiz yo'q (joriy holat).
+- **gzip**: `docker/nginx/default.conf` da JSON turlariga siqish yoqilgan — og'ir ro'yxat javoblari ~15 barobar kichik (1.7MB → 110KB). Stepper qadamlari (batafsil jadvallar) eski endpointlarda qoldi — ular lazy va endi gzip bilan yengil.
+
 ### Servis modellar statistikaga kirmaydi (2026-11-04)
 Bazada **"Петли"** (id 68) va **"Qayta qadoqlash"** (id 74) mahsulot modeli sifatida saqlanadi — ishchilar shu ish uchun hisobot topshirib, ishbay haq olishi uchun. Lekin ular mahsulot emas va statistikani shishirar edi. `excludeNonProductModels` yordamchisi (`defaults.js`, `NON_PRODUCT_MODEL_KEYWORDS` — nomga kichik-katta harfsiz kalit so'z moslashuvi: `qayta qadoqlash`, `petli`, `петли`, `петля` va kirill varianti) **faqat admin statistikasida** qo'llanadi: Tikuv va Qadoqlash tablari, jarayon panelining tikuv/qadoqlash kartalari, Dashboard "Ishlab chiqarildi" va Tahlil tabidagi ishlab-chiqarish soni. Ishchi portallari, master tasdiqlash sahifalari va ombor oqimlari **o'zgarmagan** — tikuvchi Петли hisobotini oldingidek topshiradi.
 
 ### Statistika ma'lumot manbalari (nima, qayerdan, qanday)
+
+> 2026-11-08 dan: **Dashboard va Jarayon paneli** qatorlari endi to'g'ridan-to'g'ri quyidagi endpointlardan emas, `GET /api/statistics/summary` dan keladi — server xuddi shu formulalarni SQL bilan hisoblaydi. Jadvaldagi manbalar endi faqat Stepper qadamlari va formulalarning kelib chiqishini hujjatlaydi.
 
 | Ko'rsatkich | API manbasi | Hisoblash |
 |---|---|---|
