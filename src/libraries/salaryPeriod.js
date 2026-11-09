@@ -27,9 +27,32 @@ export function splitEarnedByPeriod(entries) {
   return { period1, period2 };
 }
 
+// To'lovning MAOSH hisobiga kiradigan qismi: qo'shimcha (yo'l kira, ovqat puli
+// va h.k. — admin to'lov paytida ko'rsatadi) chiqarib tashlanadi
+export function salaryPortionOf(tx) {
+  const price = parseFloat(tx?.price) || 0;
+  const extra = parseFloat(tx?.extraAmount) || 0;
+  return Math.max(0, price - extra);
+}
+
+// Oy to'lovlaridagi jami qo'shimcha to'lovlar
+export function extraTotalOf(transactions) {
+  return (transactions || []).reduce((sum, tx) => sum + (parseFloat(tx?.extraAmount) || 0), 0);
+}
+
+// Qo'shimcha to'lov sabablari (takrorlanmasin)
+export function extraReasonsOf(transactions) {
+  const reasons = new Set();
+  (transactions || []).forEach((tx) => {
+    if ((parseFloat(tx?.extraAmount) || 0) > 0 && tx?.extraReason) reasons.add(tx.extraReason);
+  });
+  return [...reasons].join(', ');
+}
+
 // FIFO taqsimot: to'lovlar (xronologik) avval 1-davr qarzini yopadi, keyin 2-davrni,
 // ortgani bonus. Bitta to'lov kerak bo'lsa ikki davrga bo'linadi — bu shunchaki
 // hisob-kitob, tranzaksiyaning o'ziga tegilmaydi.
+// To'lovning QO'SHIMCHA qismi (extraAmount) taqsimotga KIRMAYDI — u maosh emas.
 // Qaytaradi: davrlar bo'yicha to'langan summa va har davrga pul tekkan oxirgi to'lov.
 export function allocatePayments(earned, transactions) {
   const result = {
@@ -46,7 +69,7 @@ export function allocatePayments(earned, transactions) {
   );
 
   sorted.forEach((tx) => {
-    let amount = parseFloat(tx.price || 0);
+    let amount = salaryPortionOf(tx);
     if (!Number.isFinite(amount) || amount <= 0) return;
 
     const toPeriod1 = Math.min(amount, remaining1);

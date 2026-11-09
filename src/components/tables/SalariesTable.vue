@@ -5,6 +5,7 @@ import { useQuasar } from "quasar";
 import { useSalary } from "stores/salary.js";
 import { useWorkEntries } from "stores/workEntries.js";
 import { buildReportData, buildReportHtml } from "src/libraries/salaryReport.js";
+import { salaryPortionOf, extraTotalOf, extraReasonsOf } from "src/libraries/salaryPeriod.js";
 import { formatDate, formatFloatToInteger, roundToDecimal, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue";
 import RefreshButton from "components/RefreshButton.vue";
@@ -75,20 +76,13 @@ function getItems () {
     });
 }
 
-// Oyning qo'shimcha to'lovi (yo'l kira, lazer...): ishchi profilidagi summa HAR 15 KUNLIK
-// davr uchun, ya'ni oy = 2 × summa. Faqat oyda ishi/oyligi bor bo'lsa qo'shiladi
+// Oy ichida TO'LOVLAR bilan berilgan qo'shimchalar yig'indisi (yo'l kira, ovqat
+// puli va h.k.) — admin to'lov paytida ko'rsatadi, maosh hisobiga kirmaydi
 function monthExtraOf(salary) {
-  const extra = Number(salary.worker?.extraPayment) || 0;
-  if (extra <= 0) return 0;
-
-  const hasEarning = (Number(salary.baseSalary) || 0) > 0
-    || (Number(salary.dailyWage) || 0) > 0
-    || (Number(salary.pieceworkEarning) || 0) > 0;
-
-  return hasEarning ? extra * 2 : 0;
+  return extraTotalOf(salary.transaction);
 }
 
-// Bir yozuvning hisoblangan oyligi: (baseSalary yoki dailyWage yoki ishbay) + qo'shimcha.
+// Bir yozuvning hisoblangan oyligi: baseSalary yoki dailyWage yoki ishbay.
 // DIQQAT: salary.dailyWage — kunlik stavka EMAS, oyning YIG'ILGAN jami!
 // Davomat belgilanganda unga ishchining kunlik stavkasi qo'shib boriladi
 // (jarimalar ayirilgan) — shuning uchun workedDays ga KO'PAYTIRILMAYDI
@@ -97,11 +91,9 @@ function earnedOf(salary) {
   const dailyWage = Number(salary.dailyWage) || 0;
   const pieceworkEarning = Number(salary.pieceworkEarning) || 0;
 
-  let earned = pieceworkEarning;
-  if (baseSalary > 0) earned = baseSalary;
-  else if (dailyWage > 0) earned = dailyWage;
-
-  return earned + monthExtraOf(salary);
+  if (baseSalary > 0) return baseSalary;
+  if (dailyWage > 0) return dailyWage;
+  return pieceworkEarning;
 }
 
 // Kunlik ishchining oy jarimasi: stavka x kunlar - yig'ilgan jami.
@@ -115,11 +107,12 @@ function penaltyOf(salary) {
   return Math.max(0, rate * days - total);
 }
 
-// Bir yozuvning HAQIQIY to'langani — tranzaksiyalar yig'indisi (avans ham shu yerda).
+// Bir yozuvning MAOSH uchun to'langani — tranzaksiyalar yig'indisi (avans ham
+// shu yerda), har to'lovning QO'SHIMCHA qismi (yo'l kira) chiqarib tashlanadi.
 // salary.paidAmount/advancePayment maydonlari OXIRGI to'lovni yozadi xolos,
 // bir oyda bir necha to'lov bo'lsa kam ko'rsatib qo'yadi — ularga ishonmaymiz
 function paidOf(salary) {
-  return (salary.transaction || []).reduce((sum, t) => sum + (parseFloat(t.price) || 0), 0);
+  return (salary.transaction || []).reduce((sum, t) => sum + salaryPortionOf(t), 0);
 }
 
 // Qarzimiz: faqat musbat qoldiq. Ortiqcha to'langan (bonus) ishchi
@@ -287,6 +280,12 @@ function paySalaryAction () {
     isPaid: false
   }
 
+  // To'lovning qo'shimcha qismi (yo'l kira va h.k.) — admin shu yerda ko'rsatadi
+  if (Number(selectedData.value.extraQuantity) > 0) {
+    input.extraAmount = String(selectedData.value.extraQuantity);
+    input.extraReason = (selectedData.value.extraReason || '').trim();
+  }
+
   repository.paySalary(selectedData.value.id, input)
     .then(() => {
       showSalaryModal.value = false;
@@ -325,6 +324,11 @@ function payAdvanceAction () {
 
   const input = {
     advancePayment: selectedData.value.quantity,
+  }
+
+  if (Number(selectedData.value.extraQuantity) > 0) {
+    input.extraAmount = String(selectedData.value.extraQuantity);
+    input.extraReason = (selectedData.value.extraReason || '').trim();
   }
 
   repository.payAdvance(selectedData.value.id, input)
@@ -548,8 +552,8 @@ function payAdvanceAction () {
           <div v-else-if="col.name === 'extraPayment'">
             <template v-if="monthExtraOf(props.row) > 0">
               <div>{{ formatFloatToInteger(monthExtraOf(props.row)) }} {{ props.row.budget.name }}</div>
-              <div v-if="props.row.worker?.extraPaymentReason" class="text-caption text-grey">
-                {{ props.row.worker.extraPaymentReason }}
+              <div v-if="extraReasonsOf(props.row.transaction)" class="text-caption text-grey">
+                {{ extraReasonsOf(props.row.transaction) }}
               </div>
             </template>
             <template v-else>-</template>
@@ -690,6 +694,26 @@ function payAdvanceAction () {
             class="col-12"
             hide-bottom-space
           />
+          <!-- Qo'shimcha to'lov: umumiy summaning qancha qismi yo'l kira/ovqat
+               kabi qo'shimcha ekanini admin shu yerda ko'rsatadi; bu qism
+               davr maoshini yopishga hisoblanmaydi, alohida ko'rsatiladi -->
+          <q-input
+            filled
+            :prefix="selectedData.budget.name"
+            type="number"
+            v-model="selectedData.extraQuantity"
+            :label="$t('forms.salary.fields.extra.label')"
+            :hint="$t('forms.salary.fields.extra.hint')"
+            :rules="[ val => !Number(val) || Number(val) <= Number(selectedData.quantity || 0) || $t('forms.salary.fields.extra.validation.max')]"
+            class="col-12 col-md-6"
+          />
+          <q-input
+            filled
+            v-model="selectedData.extraReason"
+            :label="$t('forms.salary.fields.extraReason.label')"
+            :rules="[ val => !Number(selectedData.extraQuantity) || !!(val && val.trim()) || $t('forms.salary.fields.extraReason.validation.required')]"
+            class="col-12 col-md-6"
+          />
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
@@ -737,6 +761,23 @@ function payAdvanceAction () {
             :rules="[ val => val && val > -1 || $t('forms.advance.fields.quantity.validation.required')]"
             class="col-12"
             hide-bottom-space
+          />
+          <q-input
+            filled
+            :prefix="selectedData.budget.name"
+            type="number"
+            v-model="selectedData.extraQuantity"
+            :label="$t('forms.salary.fields.extra.label')"
+            :hint="$t('forms.salary.fields.extra.hint')"
+            :rules="[ val => !Number(val) || Number(val) <= Number(selectedData.quantity || 0) || $t('forms.salary.fields.extra.validation.max')]"
+            class="col-12 col-md-6"
+          />
+          <q-input
+            filled
+            v-model="selectedData.extraReason"
+            :label="$t('forms.salary.fields.extraReason.label')"
+            :rules="[ val => !Number(selectedData.extraQuantity) || !!(val && val.trim()) || $t('forms.salary.fields.extraReason.validation.required')]"
+            class="col-12 col-md-6"
           />
         </div>
         <q-separator />

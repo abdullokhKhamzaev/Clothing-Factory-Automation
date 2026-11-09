@@ -6,10 +6,11 @@
 //   period = 2  -> «Oy yakuni»: ishbay to'liq oy + belgilangan oylik va kunlik
 //                  xodimlar ham (butun oy holati)
 //
-// Hisob mantiqlari sahifadagi bilan BIR XIL: FIFO (salaryPeriod.js), qo'shimcha
-// to'lov ishlagan davrga, qarz faqat musbat qoldiq (bonus boshqani yashirmaydi).
+// Hisob mantiqlari sahifadagi bilan BIR XIL: FIFO (salaryPeriod.js), to'lovning
+// qo'shimcha qismi (yo'l kira) maosh hisobiga kirmaydi — alohida ko'rsatiladi,
+// qarz faqat musbat qoldiq (bonus boshqani yashirmaydi).
 
-import { splitEarnedByPeriod, allocatePayments } from './salaryPeriod.js';
+import { splitEarnedByPeriod, allocatePayments, salaryPortionOf, extraTotalOf, extraReasonsOf } from './salaryPeriod.js';
 
 export function buildReportData(salaries, monthEntries, period) {
   // Ish yozuvlarini ishchi bo'yicha guruhlash
@@ -30,15 +31,17 @@ export function buildReportData(salaries, monthEntries, period) {
     const base = Number(salary.baseSalary) || 0;
     const daily = Number(salary.dailyWage) || 0;
     const workedDays = Number(salary.workedDays) || 0;
-    const extra = Number(salary.worker?.extraPayment) || 0;
-    const extraReason = salary.worker?.extraPaymentReason || '';
     const transactions = salary.transaction || [];
-    const paidTotal = transactions.reduce((sum, t) => sum + (parseFloat(t.price) || 0), 0);
+    // To'lovlar ichida berilgan qo'shimchalar (yo'l kira va h.k.) — alohida ustun
+    const extra = extraTotalOf(transactions);
+    const extraReason = extraReasonsOf(transactions);
+    // Maosh uchun to'langani: qo'shimcha qismlar chiqarilgan
+    const paidTotal = transactions.reduce((sum, t) => sum + salaryPortionOf(t), 0);
     const isFixed = base > 0 || daily > 0;
 
     const earned = splitEarnedByPeriod(entriesByWorker.get(workerIri) || []);
-    const owedP1 = earned.period1 > 0 ? earned.period1 + extra : 0;
-    const owedP2 = earned.period2 > 0 ? earned.period2 + extra : 0;
+    const owedP1 = earned.period1;
+    const owedP2 = earned.period2;
 
     // «Nega hisoblanmagan» — ishchining maosh turiga qarab aniq sabab:
     // kunlik -> davomat yuritilmagan; oylik -> summa belgilanmagan; ishbay -> ish yozuvi yo'q
@@ -66,7 +69,7 @@ export function buildReportData(salaries, monthEntries, period) {
       paid = paidTotal;
       if (isFixed) {
         type = base > 0 ? 'monthly' : 'daily';
-        owed = (base > 0 ? base : daily) + extra * 2;
+        owed = base > 0 ? base : daily;
       } else {
         type = salaryType === 'daily' ? 'daily' : salaryType === 'monthly' ? 'monthly' : 'piecework';
         owed = owedP1 + owedP2;

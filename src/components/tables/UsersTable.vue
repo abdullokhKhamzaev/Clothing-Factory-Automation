@@ -32,7 +32,6 @@ const columns = [
   { name: 'phone', label: t('tables.users.columns.phone'), align: 'left', field: 'phone' },
   { name: 'salaryType', label: t('tables.users.columns.salaryType'), align: 'left', field: 'salaryType' },
   { name: 'salary', label: t('tables.users.columns.salary'), align: 'left', field: 'salary' },
-  { name: 'extraPayment', label: t('tables.users.columns.extraPayment'), align: 'left', field: 'extraPayment' },
   { name: 'roles', label: t('tables.users.columns.role'), align: 'left', field: 'roles', sortable: true },
   { name: 'action', label: '', align: 'right', field: 'action', required: true }
 ];
@@ -108,8 +107,6 @@ function createAction() {
     salaryType: selectedData.value.salaryType,
     budget: selectedData.value.budget,
     roles: [selectedData.value.roles],
-    extraPayment: Number(selectedData.value.extraPayment) > 0 ? String(selectedData.value.extraPayment) : null,
-    extraPaymentReason: Number(selectedData.value.extraPayment) > 0 ? (selectedData.value.extraPaymentReason || null) : null,
   }
 
   repository.createUser(input)
@@ -176,8 +173,6 @@ function updateAction() {
         salaryType: selectedData.value.salaryType,
         budget: selectedData.value.budget,
         roles: [selectedData.value.roles],
-        extraPayment: Number(selectedData.value.extraPayment) > 0 ? String(selectedData.value.extraPayment) : null,
-        extraPaymentReason: Number(selectedData.value.extraPayment) > 0 ? (selectedData.value.extraPaymentReason || null) : null
       }
 
       repository.editUser(selectedData.value.id, input)
@@ -395,16 +390,6 @@ function exportTable(users) {
             {{ formatFloatToInteger(props.row.salary) === '0' ? '-' : formatFloatToInteger(props.row.salary) + ' ' + props.row.budget.name }}
           </div>
 
-          <div v-else-if="col.name === 'extraPayment'">
-            <template v-if="Number(props.row.extraPayment) > 0">
-              <div>{{ formatFloatToInteger(props.row.extraPayment) }} {{ props.row.budget?.name }} {{ $t('tables.users.columns.per15Days') }}</div>
-              <div v-if="props.row.extraPaymentReason" class="text-caption text-grey">
-                {{ props.row.extraPaymentReason }}
-              </div>
-            </template>
-            <template v-else>-</template>
-          </div>
-
           <div v-else-if="col.name === 'budget'">
             {{ props.row?.budget?.name || '-' }}
           </div>
@@ -540,21 +525,6 @@ function exportTable(users) {
             hide-bottom-space
             class="col-12"
           />
-          <q-input
-            filled
-            type="number"
-            v-model="selectedData.extraPayment"
-            :label="$t('forms.user.fields.extraPayment.label')"
-            :hint="$t('forms.user.fields.extraPayment.hint')"
-            class="col-12"
-          />
-          <q-input
-            v-if="Number(selectedData.extraPayment) > 0"
-            filled
-            v-model="selectedData.extraPaymentReason"
-            :label="$t('forms.user.fields.extraPaymentReason.label')"
-            class="col-12"
-          />
         </div>
         <q-separator />
         <div class="q-px-md q-py-sm text-center">
@@ -677,21 +647,6 @@ function exportTable(users) {
                 :label="$t('forms.user.fields.salary.label')"
                 :rules="[ val => val && val.length > 0 || $t('forms.user.fields.salary.validation.required')]"
                 hide-bottom-space
-                class="col-12"
-              />
-              <q-input
-                filled
-                type="number"
-                v-model="selectedData.extraPayment"
-                :label="$t('forms.user.fields.extraPayment.label')"
-                :hint="$t('forms.user.fields.extraPayment.hint')"
-                class="col-12"
-              />
-              <q-input
-                v-if="Number(selectedData.extraPayment) > 0"
-                filled
-                v-model="selectedData.extraPaymentReason"
-                :label="$t('forms.user.fields.extraPaymentReason.label')"
                 class="col-12"
               />
             </div>

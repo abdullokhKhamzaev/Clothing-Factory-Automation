@@ -645,6 +645,19 @@ export default {
             required: 'Миқдор талаб қилинади.',
           }
         },
+        extra: {
+          label: 'Шундан қўшимча тўлов',
+          hint: 'Йўл кира, овқат пули каби — маош ҳисобига кирмайди',
+          validation: {
+            max: 'Қўшимча умумий суммадан ошмаслиги керак',
+          }
+        },
+        extraReason: {
+          label: 'Қўшимча тўлов сабаби',
+          validation: {
+            required: 'Сабабини ёзинг (масалан: йўл кира)',
+          }
+        },
       },
       buttons: {
         pay: 'Тўлаш'
@@ -2531,6 +2544,8 @@ export default {
     details: {
       monthlyRate: 'Ойлик тариф',
       extraIncluded: 'Қўшимча тўлов ҳисобга киритилди',
+      extraPaid: 'Қўшимча тўланган',
+      extraPortion: 'Шундан қўшимча',
       appliedPenalty: 'Жарима (ҳисобга олинган)',
       monthTotal: 'ой жами',
       periodShare: 'Шу давр улуши',

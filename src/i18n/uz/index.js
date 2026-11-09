@@ -645,6 +645,19 @@ export default {
             required: 'Miqdor talab qilinadi.',
           }
         },
+        extra: {
+          label: "Shundan qo'shimcha to'lov",
+          hint: "Yo'l kira, ovqat puli kabi — maosh hisobiga kirmaydi",
+          validation: {
+            max: "Qo'shimcha umumiy summadan oshmasligi kerak",
+          }
+        },
+        extraReason: {
+          label: "Qo'shimcha to'lov sababi",
+          validation: {
+            required: "Sababini yozing (masalan: yo'l kira)",
+          }
+        },
       },
       buttons: {
         pay: 'To\'lash'
@@ -2531,6 +2544,8 @@ export default {
     details: {
       monthlyRate: 'Oylik tarif',
       extraIncluded: 'Qo\'shimcha to\'lov hisobga kiritildi',
+      extraPaid: 'Qo\'shimcha to\'langan',
+      extraPortion: 'Shundan qo\'shimcha',
       appliedPenalty: 'Jarima (hisobga olingan)',
       monthTotal: 'oy jami',
       periodShare: 'Shu davr ulushi',

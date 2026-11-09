@@ -3,7 +3,7 @@ import {computed, onMounted, ref, watch} from "vue"
 import {useSalary} from "stores/salary.js"
 import {useAttendance} from "stores/attendance.js"
 import {formatDate, formatFloatToInteger} from "../../libraries/constants/defaults.js"
-import {periodFromDateFrom, splitEarnedByPeriod, allocatePayments} from "src/libraries/salaryPeriod.js"
+import {periodFromDateFrom, splitEarnedByPeriod, allocatePayments, extraTotalOf, extraReasonsOf} from "src/libraries/salaryPeriod.js"
 import SalaryPaymentsList from "components/SalaryPaymentsList.vue"
 
 const props = defineProps({
@@ -129,9 +129,10 @@ const currencyInfo = computed(() => {
 // Tanlangan davr: 1 (1–15) yoki 2 (16 – oy oxiri)
 const selectedPeriod = computed(() => periodFromDateFrom(props.date?.dateFrom) || 1)
 
-// Davriy qo'shimcha to'lov (yo'l kira, lazer...) — har 15 kunlik davr uchun
-const extraPerPeriod = computed(() => Number(currentSalaryData.value?.worker?.extraPayment) || 0)
-const extraReason = computed(() => currentSalaryData.value?.worker?.extraPaymentReason || '')
+// Oy to'lovlari ichida berilgan qo'shimchalar (yo'l kira va h.k.) —
+// admin to'lov paytida ko'rsatadi, maosh hisobiga kirmaydi
+const extraTotal = computed(() => extraTotalOf(currentSalaryData.value?.transaction))
+const extraReason = computed(() => extraReasonsOf(currentSalaryData.value?.transaction))
 
 // Kunlik ishchi uchun shaffof taqsimot: stavka x kunlar - jarima = jami.
 // Ishchi o'zi ham ko'radi — tushunmovchilik/janjal bo'lmasligi uchun
@@ -146,12 +147,10 @@ const dailyBreakdown = computed(() => {
 })
 
 // Har bir davrning hisoblangan summasi.
-// Ishbay: oy yozuvlaridan sanasi bo'yicha bo'linadi; belgilangan/kunlik: oylik ikkiga teng bo'linadi.
-// Qo'shimcha to'lov ISHLAGAN davrga qo'shiladi (ishbayda — o'sha davrda ishi bo'lsa,
-// belgilangan oylikda — har doim), bo'sh davrga soxta qarz yozilmaydi
+// Ishbay: oy yozuvlaridan sanasi bo'yicha bo'linadi; belgilangan/kunlik: oylik
+// ikkiga teng bo'linadi. Qo'shimcha to'lovlar (yo'l kira) bu hisobga KIRMAYDI —
+// ular to'lov paytida belgilanadi va alohida ko'rsatiladi
 const earnedByPeriod = computed(() => {
-  const extra = extraPerPeriod.value
-
   if (salaryType.value === 'fixed' && currentSalaryData.value) {
     const baseSalary = Number(currentSalaryData.value.baseSalary) || 0
     // DIQQAT: dailyWage — kunlik stavka emas, davomatdan YIG'ILGAN oy jami
@@ -159,15 +158,15 @@ const earnedByPeriod = computed(() => {
     const dailyWage = Number(currentSalaryData.value.dailyWage) || 0
     const monthlyAmount = baseSalary > 0 ? baseSalary : dailyWage
     return {
-      period1: monthlyAmount / 2 + extra,
-      period2: monthlyAmount / 2 + extra
+      period1: monthlyAmount / 2,
+      period2: monthlyAmount / 2
     }
   }
 
   const earned = splitEarnedByPeriod(props.monthEntries)
   return {
-    period1: earned.period1 > 0 ? earned.period1 + extra : 0,
-    period2: earned.period2 > 0 ? earned.period2 + extra : 0
+    period1: earned.period1,
+    period2: earned.period2
   }
 })
 
@@ -331,10 +330,10 @@ onMounted(() => {
                     <span>{{ formatFloatToInteger(currentSalaryData.dailyWage) }} {{ currencyInfo.name }} — {{ currentSalaryData.workedDays }} kun davomat</span>
                   </div>
                 </div>
-                <!-- Qo'shimcha to'lov (yo'l kira, lazer...) hisobga kiritilgan bo'lsa -->
-                <div v-if="extraPerPeriod > 0 && pieceworkEarning > 0" class="text-caption text-amber-9 q-mt-xs flex items-center q-gutter-xs">
+                <!-- Oy to'lovlari ichida berilgan qo'shimchalar (yo'l kira...) — maoshdan alohida -->
+                <div v-if="extraTotal > 0" class="text-caption text-amber-9 q-mt-xs flex items-center q-gutter-xs">
                   <q-icon name="add_circle" size="xs" color="amber-8" />
-                  <span>{{ $t('salaryInfo.details.extraIncluded') }}: +{{ formatFloatToInteger(extraPerPeriod) }} {{ currencyInfo.name }}<template v-if="extraReason"> ({{ extraReason }})</template></span>
+                  <span>{{ $t('salaryInfo.details.extraPaid') }}: +{{ formatFloatToInteger(extraTotal) }} {{ currencyInfo.name }}<template v-if="extraReason"> ({{ extraReason }})</template></span>
                 </div>
               </div>
             </div>

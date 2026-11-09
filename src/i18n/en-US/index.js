@@ -645,6 +645,19 @@ export default {
             required: 'Quantity is required.',
           }
         },
+        extra: {
+          label: 'Of which extra payment',
+          hint: 'Transport, food allowance etc. — not counted as salary',
+          validation: {
+            max: 'Extra cannot exceed the total amount',
+          }
+        },
+        extraReason: {
+          label: 'Extra payment reason',
+          validation: {
+            required: 'Write the reason (e.g. transport)',
+          }
+        },
       },
       buttons: {
         pay: 'Pay'
@@ -2531,6 +2544,8 @@ export default {
     details: {
       monthlyRate: 'Monthly Rate',
       extraIncluded: 'Extra payment included',
+      extraPaid: 'Extra paid',
+      extraPortion: 'Of which extra',
       appliedPenalty: 'Penalty (applied)',
       monthTotal: 'month total',
       periodShare: 'This period share',

@@ -27,6 +27,13 @@ const props = defineProps({
             </div>
           </div>
         </div>
+        <!-- To'lovning qo'shimcha qismi (yo'l kira va h.k.) — shaffof ko'rsatamiz -->
+        <div v-if="Number(order.extraAmount) > 0" class="row">
+          <div class="col-12 text-caption text-amber-9">
+            {{ $t('salaryInfo.details.extraPortion') }}: {{ formatFloatToInteger(order.extraAmount) }}
+            <template v-if="order.extraReason"> — {{ order.extraReason }}</template>
+          </div>
+        </div>
         <div class="row">
           <div class="col-12 flex justify-between text-caption text-grey">
             <div>

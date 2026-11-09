@@ -176,8 +176,9 @@ Login'dan keyin yo'naltirish roli bo'yicha (`LoginPage.redirectUserByRole`).
 - **daily (kunlik)** — `dailyWage` = oyning YIG'ILGAN jamisi (davomatdan qayta hisoblanadi: Σ kun stavkasi − Σ jarima); `workedDays` = kelishi belgilangan kunlar. DIQQAT: dailyWage hech qachon kunlar soniga KO'PAYTIRILMAYDI
 - **ishbay (piecework)** — `pieceworkEarning` (ish yozuvlaridan yig'iladi)
 
-Hisoblangan oylik = (`baseSalary` yoki `dailyWage` yoki `ishbay`) + qo'shimcha to'lov (2 davr × `user.extraPayment`).
-To'langan = oy qatoriga bog'langan TRANZAKSIYALAR yig'indisi (avans ham shu yerda).
+Hisoblangan oylik = `baseSalary` yoki `dailyWage` yoki `ishbay`.
+To'langan = oy qatoriga bog'langan TRANZAKSIYALAR yig'indisi (avans ham shu yerda), har to'lovning
+`extraAmount` (qo'shimcha — yo'l kira va h.k.) qismi maosh hisobidan CHIQARILADI.
 `advancePayment`/`paidAmount` maydonlari faqat OXIRGI to'lov summasini saqlaydi — jamlashda ishlatilmaydi.
 Qarz = har ishchi bo'yicha max(0, hisoblangan − to'langan) yig'indisi (birovning bonusi boshqaning qarzini yashirmaydi).
 
@@ -242,13 +243,17 @@ jarima oylikka qo'llanmagan bo'lsa — ogohlantirish banneri.
 Davomat endi himoyalangan: o'qish — ishchi faqat o'zinikini (OwnWorkerDataExtension), yozish
 (belgilash, jarima) — faqat adminlar; `worker` bo'yicha server filtri qo'shildi.
 
-### Qo'shimcha to'lov — yo'l kira, lazer va h.k. (2026-11-08)
-Ishchi profilida (`user.extraPayment` + `extraPaymentReason`) davriy qo'shimcha to'lov kiritiladi —
-summa **har 15 kunlik davr uchun** (masalan yo'l kira 75 000 → oyiga 150 000). U ishchining davr
-hisobiga qo'shiladi: ishbayda — faqat o'sha davrda ishi bo'lsa (bo'sh davrga soxta qarz yozilmaydi),
-belgilangan oylikda — har doim. Admin oyliklar jadvalida alohida «Qo'shimcha to'lov» ustuni bor va
-«hisoblangan» jamiga kiradi; ishchi sahifasida davr kartasida «+75 000 (yo'l kira)» izohi ko'rinadi.
-Kiritish: foydalanuvchi yaratish/tahrirlash modalida.
+### Qo'shimcha to'lov — yo'l kira, ovqat puli va h.k. (2026-11-09, qayta ishlangan)
+ESKI usul (profildagi 15 kunlik qat'iy `user.extraPayment`) BEKOR qilindi — ishchi kelmagan
+kunlarda ham qo'shilib, maoshni noto'g'ri qilardi (Version20261109180000 ustunlarni o'chiradi).
+YANGI usul: admin **to'lov paytida** ko'rsatadi — to'lov oynasida «Shundan qo'shimcha to'lov»
+(summa) + «Sababi» maydonlari bor; qiymat `transaction.extraAmount`/`extraReason` ga muhrlanadi.
+Qoidalar: qo'shimcha ≤ umumiy summa, summa bo'lsa sabab majburiy (backend ham tekshiradi).
+Hisob: qo'shimcha qism maosh/davr qarzini yopishga HISOBLANMAYDI (FIFO taqsimotdan chiqariladi —
+`salaryPeriod.js: salaryPortionOf`), bonus ham emas. UI: oyliklar jadvalida «Qo'shimcha to'lov»
+ustuni (oy to'lovlaridagi jami + sabablari), to'lovlar ro'yxatida har to'lov ostida «Shundan
+qo'shimcha: X — sabab», ishchi sahifasida «Qo'shimcha to'langan» izohi, PDF hisobotda ism ostida.
+Admin oyni bir necha bo'lib to'laganida har to'lovda alohida qo'shimcha ko'rsata oladi.
 
 ### 15 kunlik to'lov davrlari — FIFO (2026-11-08)
 Ishbay ishchilarga oylik oyiga 2 marta beriladi: **1-davr (1–15)** va **2-davr (16 – oy oxiri)**.
