@@ -2,17 +2,18 @@ import { defineBoot } from '#q-app/wrappers'
 import { createI18n } from 'vue-i18n'
 import messages from 'src/i18n'
 
+// Check if the language is stored in localStorage
+const storedLang = localStorage.getItem('lang') || 'uz'
+
+// Instansiya modul darajasida: store'lar (masalan chat) ham tarjimalardan
+// foydalana olishi uchun eksport qilinadi
+export const i18n = createI18n({
+  locale: storedLang,
+  globalInjection: true,
+  messages
+})
+
 export default defineBoot(({ app }) => {
-  // Check if the language is stored in localStorage
-  const storedLang = localStorage.getItem('lang') || 'uz'
-
-  // Create the i18n instance with the stored language
-  const i18n = createI18n({
-    locale: storedLang,
-    globalInjection: true,
-    messages
-  })
-
   // Set i18n instance on app
   app.use(i18n)
 

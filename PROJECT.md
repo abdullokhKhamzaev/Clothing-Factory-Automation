@@ -202,9 +202,21 @@ yagona quroli `ReadOnlySql` — **faqat SELECT**: kod darajasida qat'iy filtr (b
 taqiqlangan kalit so'zlar, avto-LIMIT 200) + **baza darajasida READ ONLY tranzaksiya** (validatsiya
 chetlab o'tilsa ham MariaDB yozishni rad etadi — SQLSTATE 25006). Yaratish/o'zgartirish/o'chirish
 texnik jihatdan mumkin emas. Modelga butun sxema + fabrika lug'ati beriladi (`SchemaGlossary`).
-Javob ostida «Bajarilgan so'rovlar» bo'limi — shaffoflik uchun. Fayllar: backend
+Fayllar: backend
 `src/Component/Chat/*`, `src/Controller/Chat/ChatAction.php`; frontend `pages/ChatPage.vue`,
 `stores/chat.js`.
+
+**Streaming (2026-11-09):** `/api/chat` endi SSE oqimi qaytaradi (`status` / `token` / `done` /
+`error` hodisalari, 10s heartbeat, `X-Accel-Buffering: no`). Foydalanuvchi javobni token-token
+jonli ko'radi, bosqich statuslari chiqadi («Bazadan ma'lumot olinmoqda (№2)…»), ulanish jim
+turmagani uchun proxy timeoutlari urmay qoladi. Suhbat holati va so'rov **store'da** yashaydi
+(`stores/chat.js`): savol berib boshqa sahifaga o'tib ketilsa so'rov uzilmaydi — javob kelganda
+saqlanadi va «AI javobi tayyor» bildirishnomasi chiqadi. Uzish faqat ataylab: inputdagi
+**To'xtatish** tugmasi yoki brauzer yopilishi — ikkala holda server OpenAI oqimini darhol uzadi
+(`ClientGoneException`), token isrof bo'lmaydi; kelgan qism «javob to'xtatildi» belgisi bilan
+saqlanadi. Oqim `OpenAiClient::chatStream` (alohida curl handle, tool_calls deltalardan yig'iladi,
+`stream_options.include_usage` bilan token sarfi). Tashqi nginx-proxy'da `proxy_read_timeout 300s`
+(shablon: serverdagi `/root/nginx-proxy/scripts/http*.conf`).
 
 ### PDF ish haqi hisoboti (2026-11-08)
 Oyliklar sahifasida «PDF hisobot» tugmasi: davr tanlanadi — **1–15** (faqat ishbay ishchilar,

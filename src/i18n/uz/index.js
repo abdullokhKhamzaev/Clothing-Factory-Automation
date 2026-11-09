@@ -2460,6 +2460,9 @@ export default {
     readOnlyNote: "Yordamchi ma'lumotlarni FAQAT O'QIYDI — hech narsani o'zgartira, yarata yoki o'chira olmaydi.",
     failed: 'Javob olishda xatolik yuz berdi',
     emptyReply: 'Javob kelmadi',
+    stop: "To'xtatish",
+    stopped: "javob to'xtatildi",
+    ready: 'AI javobi tayyor — AI Yordamchi sahifasida',
   },
   salaryReport: {
     button: 'PDF hisobot',

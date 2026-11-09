@@ -1,40 +1,15 @@
 <script setup>
 import { nextTick, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useChat } from "stores/chat.js";
 import { renderMarkdown } from "src/libraries/miniMarkdown.js";
-import { apiErrorMessage } from "src/libraries/constants/defaults.js";
-import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
+// Suhbat holati STORE'da: savol berib boshqa sahifaga o'tib ketilsa ham
+// so'rov davom etadi, javob kelganda saqlanadi va bildirishnoma chiqadi
 const chat = useChat();
+const { messages, liveAnswer, statusText, loading, errorText } = storeToRefs(chat);
 
-// Suhbat brauzerda saqlanadi: refresh/qayta kirishda ham turadi,
-// faqat «Tozalash» bosilganda o'chadi
-const STORAGE_KEY = 'aiChat.messages';
-
-function loadSaved() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-const messages = ref(loadSaved());
-
-watch(messages, (value) => {
-  try {
-    // Saqlashda hajmni jilovlaymiz: oxirgi 60 xabar yetarli
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(value.slice(-60)));
-  } catch {
-    // localStorage yopiq bo'lsa — indamay o'tamiz
-  }
-}, { deep: true });
 const input = ref('');
-const loading = ref(false);
-const errorText = ref('');
 const scrollArea = ref(null);
 
 // Tayyor savollar — PROJECT.md'dagi asosiy biznes yo'nalishlari bo'yicha
@@ -47,42 +22,17 @@ const suggestions = [
   "Joriy oy xarajatlari qanday taqsimlangan?",
 ];
 
-async function send(text) {
+function send(text) {
   const question = (text ?? input.value).trim();
   if (!question || loading.value) return;
 
-  errorText.value = '';
-  messages.value.push({ role: 'user', content: question });
   input.value = '';
-  loading.value = true;
+  chat.send(question);
   scrollDown();
-
-  try {
-    const res = await chat.ask(
-      messages.value.map(m => ({ role: m.role, content: m.content }))
-    );
-    messages.value.push({
-      role: 'assistant',
-      content: res?.data?.reply || t('aiChat.emptyReply'),
-    });
-  } catch (err) {
-    errorText.value = apiErrorMessage(err, err?.response?.data?.error || t('aiChat.failed'));
-    // Savol tarixda qoladi — qayta yuborish oson bo'lsin
-  } finally {
-    loading.value = false;
-    scrollDown();
-  }
 }
 
-function clearChat() {
-  messages.value = [];
-  errorText.value = '';
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // e'tiborsiz
-  }
-}
+// Yangi xabar yoki oqim kelganda pastga tushamiz
+watch([messages, liveAnswer], scrollDown, { deep: true });
 
 // Saqlangan suhbat bilan ochilganda pastga tushamiz
 onMounted(scrollDown);
@@ -110,13 +60,13 @@ function scrollDown() {
         color="grey"
         icon="delete_sweep"
         :label="$t('aiChat.clear')"
-        @click="clearChat"
+        @click="chat.clear()"
       />
     </div>
 
     <div ref="scrollArea" class="chat-messages q-pa-md">
       <!-- Bo'sh holat: tayyor savollar -->
-      <div v-if="!messages.length" class="text-center q-mt-xl">
+      <div v-if="!messages.length && !loading" class="text-center q-mt-xl">
         <q-icon name="forum" size="48px" color="grey-5" />
         <div class="text-grey-7 q-mt-sm q-mb-md">{{ $t('aiChat.hint') }}</div>
         <div class="q-gutter-sm">
@@ -145,10 +95,14 @@ function scrollDown() {
         </div>
       </div>
 
+      <!-- Jonli oqim: javob token-token yozilib boradi -->
       <div v-if="loading" class="flex justify-start q-mb-md">
         <div class="bubble bubble-ai">
-          <q-spinner-dots size="28px" color="primary" />
-          <span class="text-grey-7 q-ml-sm">{{ $t('aiChat.thinking') }}</span>
+          <div v-if="liveAnswer" v-html="renderMarkdown(liveAnswer)" />
+          <div class="flex items-center q-mt-xs">
+            <q-spinner-dots size="24px" color="primary" />
+            <span v-if="statusText" class="text-grey-7 q-ml-sm">{{ statusText }}</span>
+          </div>
         </div>
       </div>
 
@@ -168,13 +122,26 @@ function scrollDown() {
       class="q-mt-sm"
     >
       <template v-slot:append>
+        <!-- Oqim ketayotganda yuborish o'rniga To'xtatish chiqadi -->
         <q-btn
+          v-if="loading"
+          round
+          dense
+          flat
+          color="red"
+          icon="stop_circle"
+          @click="chat.stop()"
+        >
+          <q-tooltip>{{ $t('aiChat.stop') }}</q-tooltip>
+        </q-btn>
+        <q-btn
+          v-else
           round
           dense
           flat
           color="primary"
           icon="send"
-          :disable="loading || !input.trim()"
+          :disable="!input.trim()"
           @click="send()"
         />
       </template>
@@ -273,15 +240,5 @@ body.body--dark .bubble-ai .md-table tr:nth-child(even) td {
   background: #fff;
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 4px;
-}
-
-.query-pre {
-  font-size: 11px;
-  background: #f5f5f5;
-  border-radius: 6px;
-  padding: 8px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  margin: 4px 0 0;
 }
 </style>

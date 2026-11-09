@@ -2460,6 +2460,9 @@ export default {
     readOnlyNote: 'The assistant can only READ data — it cannot change, create or delete anything.',
     failed: 'Failed to get a response',
     emptyReply: 'No reply received',
+    stop: 'Stop',
+    stopped: 'answer stopped',
+    ready: 'AI answer is ready — see the AI Assistant page',
   },
   salaryReport: {
     button: 'PDF report',
