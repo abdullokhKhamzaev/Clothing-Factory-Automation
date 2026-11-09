@@ -2470,6 +2470,7 @@ export default {
     printTitle: 'AI Assistant conversation',
     question: 'Question',
     answer: 'Answer',
+    noAnswer: 'No answer received',
   },
   salaryReport: {
     button: 'PDF report',

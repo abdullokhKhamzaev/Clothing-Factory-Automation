@@ -2470,6 +2470,7 @@ export default {
     printTitle: 'AI Ёрдамчи суҳбати',
     question: 'Савол',
     answer: 'Жавоб',
+    noAnswer: 'Жавоб олинмаган',
   },
   salaryReport: {
     button: 'PDF ҳисобот',

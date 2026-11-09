@@ -24,6 +24,7 @@ function exportLabels() {
     title: t('aiChat.printTitle'),
     question: t('aiChat.question'),
     answer: t('aiChat.answer'),
+    noAnswer: t('aiChat.noAnswer'),
   };
 }
 

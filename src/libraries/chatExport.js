@@ -11,16 +11,44 @@ function escapeHtml(text) {
 }
 
 /**
+ * Suhbatni savol-javob JUFTLARIGA yig'adi va shovqinni tozalaydi:
+ * xatolik tufayli javobsiz qolib qayta yuborilgan savollar (ketma-ket
+ * kelgan user xabarlari) dan faqat oxirgisi olinadi.
+ * Natija: [{ question, answer|null }]
+ */
+function toQaPairs(messages) {
+  const pairs = [];
+
+  for (const message of messages) {
+    const content = String(message.content ?? '').trim();
+    if (!content) continue;
+
+    if (message.role === 'user') {
+      const last = pairs[pairs.length - 1];
+      if (last && last.answer === null) {
+        // Oldingi savol javobsiz qolgan (xatolik) — yangisi uning o'rnini oladi
+        last.question = content;
+      } else {
+        pairs.push({ question: content, answer: null });
+      }
+    } else if (pairs.length) {
+      pairs[pairs.length - 1].answer = content;
+    }
+  }
+
+  return pairs;
+}
+
+/**
  * Suhbatni oddiy matnga aylantiradi — Telegram/WhatsApp'ga tashlash uchun.
- * labels: { title, question, answer }
+ * labels: { title, question, answer, noAnswer }
  */
 export function chatToText(messages, labels) {
   const lines = [`${labels.title} — ${new Date().toLocaleDateString()}`, ''];
 
-  for (const message of messages) {
-    const prefix = message.role === 'user' ? `❓ ${labels.question}` : `🤖 ${labels.answer}`;
-    lines.push(`${prefix}:`);
-    lines.push(String(message.content ?? '').trim());
+  for (const pair of toQaPairs(messages)) {
+    lines.push(`❓ ${pair.question}`);
+    lines.push(pair.answer ?? `(${labels.noAnswer})`);
     lines.push('');
   }
 
@@ -28,18 +56,17 @@ export function chatToText(messages, labels) {
 }
 
 /**
- * Suhbatning chop etiladigan (PDF) HTML hujjatini quradi.
- * AI javoblari miniMarkdown orqali (jadval/qalin) chiziladi.
+ * Suhbatning chop etiladigan (PDF) HTML hujjatini quradi — hisobot
+ * ko'rinishida: savol ko'k tasma, javob uning ostida (jadval/qalin
+ * miniMarkdown orqali chiziladi). Emojisiz — chop etishda buziladi.
  */
 export function buildChatHtml(messages, labels) {
-  const blocks = messages.map(message => {
-    if (message.role === 'user') {
-      return `<div class="msg user"><div class="who">❓ ${escapeHtml(labels.question)}</div>`
-        + `<div class="body">${escapeHtml(message.content)}</div></div>`;
-    }
+  const blocks = toQaPairs(messages).map(pair => {
+    const answer = pair.answer === null
+      ? `<div class="a no-answer">${escapeHtml(labels.noAnswer)}</div>`
+      : `<div class="a">${renderMarkdown(pair.answer)}</div>`;
 
-    return `<div class="msg ai"><div class="who">🤖 ${escapeHtml(labels.answer)}</div>`
-      + `<div class="body">${renderMarkdown(message.content)}</div></div>`;
+    return `<div class="qa"><div class="q">${escapeHtml(pair.question)}</div>${answer}</div>`;
   }).join('\n');
 
   return `<!doctype html>
@@ -48,26 +75,36 @@ export function buildChatHtml(messages, labels) {
 <meta charset="utf-8">
 <title>${escapeHtml(labels.title)}</title>
 <style>
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #222; margin: 24px; }
-  h1 { font-size: 18px; margin: 0 0 4px; }
-  .date { color: #777; margin-bottom: 20px; }
-  .msg { margin-bottom: 14px; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; page-break-inside: avoid; }
-  .msg.user { background: #eef4fd; }
-  .who { font-weight: bold; margin-bottom: 6px; color: #1565c0; }
-  .msg.ai .who { color: #2e7d32; }
-  .body { white-space: pre-wrap; }
-  .msg.ai .body { white-space: normal; }
+  @page { margin: 14mm; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #222; margin: 0; }
+  h1 { font-size: 19px; margin: 0; }
+  .date { color: #777; font-size: 12px; margin: 4px 0 6px; }
+  .head { border-bottom: 2px solid #1565c0; padding-bottom: 10px; margin-bottom: 4px; }
+  .qa { margin-top: 18px; }
+  .q {
+    background: #eef4fd;
+    border-left: 4px solid #1565c0;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-weight: 600;
+    page-break-after: avoid;
+  }
+  .a { padding: 8px 4px 2px; }
+  .no-answer { color: #999; font-style: italic; }
   .md-table { border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 12px; }
-  .md-table th, .md-table td { border: 1px solid #bbb; padding: 4px 7px; text-align: left; }
-  .md-table th { background: #f0f4f8; }
+  .md-table th, .md-table td { border: 1px solid #c5ccd4; padding: 4px 8px; text-align: left; }
+  .md-table th { background: #e8eef5; }
+  .md-table tr:nth-child(even) td { background: #f7f9fb; }
   .md-list { margin: 6px 0; padding-left: 20px; }
   .md-heading { font-weight: bold; margin: 8px 0 4px; }
   .md-gap { height: 8px; }
 </style>
 </head>
 <body>
-<h1>${escapeHtml(labels.title)}</h1>
-<div class="date">${new Date().toLocaleString()}</div>
+<div class="head">
+  <h1>${escapeHtml(labels.title)}</h1>
+  <div class="date">${new Date().toLocaleString()}</div>
+</div>
 ${blocks}
 </body>
 </html>`;
