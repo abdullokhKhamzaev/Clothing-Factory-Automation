@@ -2463,6 +2463,13 @@ export default {
     stop: "To'xtatish",
     stopped: "javob to'xtatildi",
     ready: 'AI javobi tayyor — AI Yordamchi sahifasida',
+    copy: 'Nusxalash',
+    copied: 'Suhbat nusxalandi — endi istalgan joyga tashlang',
+    copyHint: "Suhbatni matn qilib nusxalash (Telegram va h.k. uchun)",
+    pdfHint: 'Suhbatni PDF qilib saqlash yoki chop etish',
+    printTitle: 'AI Yordamchi suhbati',
+    question: 'Savol',
+    answer: 'Javob',
   },
   salaryReport: {
     button: 'PDF hisobot',

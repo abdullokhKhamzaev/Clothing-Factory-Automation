@@ -1,16 +1,44 @@
 <script setup>
 import { nextTick, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { copyToClipboard, useQuasar } from "quasar";
+import { useI18n } from "vue-i18n";
 import { useChat } from "stores/chat.js";
 import { renderMarkdown } from "src/libraries/miniMarkdown.js";
+import { chatToText, buildChatHtml, printHtml } from "src/libraries/chatExport.js";
 
 // Suhbat holati STORE'da: savol berib boshqa sahifaga o'tib ketilsa ham
 // so'rov davom etadi, javob kelganda saqlanadi va bildirishnoma chiqadi
 const chat = useChat();
 const { messages, liveAnswer, statusText, loading, errorText } = storeToRefs(chat);
 
+const $q = useQuasar();
+const { t } = useI18n();
+
 const input = ref('');
 const scrollArea = ref(null);
+
+// Ulashish uchun: suhbatni matn qilib nusxalash yoki PDF (chop) qilish
+function exportLabels() {
+  return {
+    title: t('aiChat.printTitle'),
+    question: t('aiChat.question'),
+    answer: t('aiChat.answer'),
+  };
+}
+
+async function copyChat() {
+  try {
+    await copyToClipboard(chatToText(messages.value, exportLabels()));
+    $q.notify({ type: 'positive', position: 'top', timeout: 1500, message: t('aiChat.copied') });
+  } catch {
+    $q.notify({ type: 'negative', position: 'top', timeout: 1500, message: t('aiChat.failed') });
+  }
+}
+
+function printChat() {
+  printHtml(buildChatHtml(messages.value, exportLabels()));
+}
 
 // Tayyor savollar — PROJECT.md'dagi asosiy biznes yo'nalishlari bo'yicha
 const suggestions = [
@@ -52,16 +80,41 @@ function scrollDown() {
         <q-icon name="smart_toy" class="q-mr-sm" />{{ $t('aiChat.title') }}
       </div>
       <q-space />
-      <q-btn
-        v-if="messages.length"
-        flat
-        dense
-        no-caps
-        color="grey"
-        icon="delete_sweep"
-        :label="$t('aiChat.clear')"
-        @click="chat.clear()"
-      />
+      <template v-if="messages.length">
+        <q-btn
+          flat
+          dense
+          no-caps
+          color="primary"
+          icon="content_copy"
+          :label="$q.screen.gt.xs ? $t('aiChat.copy') : ''"
+          @click="copyChat"
+        >
+          <q-tooltip>{{ $t('aiChat.copyHint') }}</q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          dense
+          no-caps
+          color="primary"
+          icon="picture_as_pdf"
+          :label="$q.screen.gt.xs ? 'PDF' : ''"
+          class="q-ml-sm"
+          @click="printChat"
+        >
+          <q-tooltip>{{ $t('aiChat.pdfHint') }}</q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          dense
+          no-caps
+          color="grey"
+          icon="delete_sweep"
+          :label="$q.screen.gt.xs ? $t('aiChat.clear') : ''"
+          class="q-ml-sm"
+          @click="chat.clear()"
+        />
+      </template>
     </div>
 
     <div ref="scrollArea" class="chat-messages q-pa-md">

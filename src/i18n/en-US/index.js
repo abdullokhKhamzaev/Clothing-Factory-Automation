@@ -2463,6 +2463,13 @@ export default {
     stop: 'Stop',
     stopped: 'answer stopped',
     ready: 'AI answer is ready — see the AI Assistant page',
+    copy: 'Copy',
+    copied: 'Conversation copied — paste it anywhere',
+    copyHint: 'Copy the conversation as text (for Telegram etc.)',
+    pdfHint: 'Save or print the conversation as PDF',
+    printTitle: 'AI Assistant conversation',
+    question: 'Question',
+    answer: 'Answer',
   },
   salaryReport: {
     button: 'PDF report',
