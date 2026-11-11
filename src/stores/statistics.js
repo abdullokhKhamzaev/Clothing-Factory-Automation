@@ -25,5 +25,26 @@ export const useStatistics = defineStore('statistics', () => {
     return promise;
   }
 
-  return { fetchSummary };
+  // O'sish dinamikasi (bo'limlar × hafta/oy/yil bo'laklari)
+  const growthCache = {};
+
+  async function fetchGrowth({ dateFrom, dateTo, unit = 'auto', force = false }) {
+    const key = `${dateFrom}|${dateTo}|${unit}`;
+
+    if (!force && growthCache[key]) {
+      return growthCache[key];
+    }
+
+    const promise = client
+      .get(`statistics/growth?from=${dateFrom}&to=${dateTo}&unit=${unit}`)
+      .catch(error => {
+        delete growthCache[key];
+        throw error;
+      });
+
+    growthCache[key] = promise;
+    return promise;
+  }
+
+  return { fetchSummary, fetchGrowth };
 });

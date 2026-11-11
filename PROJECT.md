@@ -133,6 +133,16 @@ va pul endpointlari tabiatan atomik (bitta flush).
 
 ---
 
+### Sessiya va tokenlar (2026-11-11)
+Access token **7 kun** (`TOKEN_ACCESS_EXPIRATION_PERIOD=P7D`), refresh token **1 yil**
+(`TOKEN_REFRESH_EXPIRATION_PERIOD=P1Y`) — ilova har ochilganda `App.vue` refresh orqali yangi
+juftlik oladi, shuning uchun faol foydalanuvchi amalda hech qachon login qilmaydi. Refresh
+tokenlar endi FAQAT **parol o'zgarganda** bekor qilinadi (`user.password_changed_at`,
+`UserManager::hashPassword` muhrlaydi) — ilgari `updatedAt` tekshirilib, admin ishchining
+istalgan maydonini tahrirlasa ham u logout bo'lib qolardi. Rol/maosh o'zgarishi logout talab
+qilmaydi: ruxsatlar serverda bazadan tekshiriladi, frontend menyusi keyingi ochilishda yangi
+token bilan yangilanadi. Serverda muddatlar `.env.local`da override qilinadi.
+
 ## 4. Sahifalar katalogi
 
 ### 4.1 Admin panel (`/admin/*`)
@@ -290,6 +300,19 @@ Mantiq to'liq frontendda: `src/libraries/salaryPeriod.js` + `SalaryInfo.vue`. Ba
    - *Talab*: zakazlar asosida — talab vs yetkazildi, yetkazilmadi (qizil), eng talabgor modellar, xaridorlar kesimida
 
 Texnik: sotuvlar so'rovi 30s keshlanadi (bir sahifada takror so'rov ketmaydi).
+
+### O'sish dinamikasi (2026-11-11)
+Pipeline ostidagi «O'sish dinamikasi» kartasi: `GET /api/statistics/growth?from&to&unit` —
+davr hafta/oy/yil bo'laklariga bo'linadi (auto: ≤35 kun hafta, ≤2 yil oy, undan uzun yil;
+tugma bilan almashtiriladi) va har bo'lakda bo'limlar: to'quv kg, bichuv/tikuv/qadoqlash/savdo
+dona, tushum va xarajat valyuta kesimida. Har katakda qiymat + oldingi bo'lakka nisbatan ↑/↓ %
+(xarajatda o'sish qizil — `inverse`). Backend: `StatisticsGrowth` (formulalar Summary bilan bir
+xil), frontend: `GrowthDynamics.vue`, kesh `stores/statistics.js: fetchGrowth`. AI yordamchiga
+ham xuddi shu `growth_report(from,to,unit)` quroli ulangan — «oyma-oy qanday o'sdik?» savollariga
+aniq raqamlar bilan javob beradi. Dashboard'da «Haftalik trend» grafigi (sotildi/qadoqlandi,
+SVG, piksel-aniq, jadval ko'rinishi bilan) va «Kun yakuni (AI)» tugmasi (chat'ga tayyor savol),
+pipeline strelkalarida bosqichlararo taxminiy oqim foizlari. Sana surish (◀ ▶) oy boshidan
+boshlangan oraliqlarda kalendar OY bo'yicha ishlaydi (joriy oyga qaytganda bugungacha kesiladi).
 
 ### Tezlik: agregat endpoint + gzip (2026-11-08)
 - **Dashboard va Jarayon paneli endi bitta yengil so'rovdan oladi**: `GET /api/statistics/summary?from=YYYY-MM-DD&to=YYYY-MM-DD` (backend: `src/Component/Statistics/StatisticsSummary.php` + `src/Controller/Statistics/StatisticsSummaryAction.php`, faqat ADMIN/SUPER_ADMIN). Ilgari sahifa ochilishida ~12 ta sahifalashsiz so'rov ketardi (2 oylik davrda faqat actions javobi 1.7MB edi); endi javob ~1KB, ~0.2s, davr uzunligiga deyarli bog'liq emas. Hisob formulalari eski frontend mantiqi bilan AYNAN bir xil (15 ko'rsatkich raqamma-raqam solishtirilib tasdiqlangan). Frontend keshi: `src/stores/statistics.js` — promise keshlanadi, ikkala komponent bitta so'rovni bo'lishadi.

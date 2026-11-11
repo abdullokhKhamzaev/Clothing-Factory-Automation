@@ -1,6 +1,7 @@
 <script setup>
 import { nextTick, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useRoute, useRouter } from "vue-router";
 import { copyToClipboard, useQuasar } from "quasar";
 import { useI18n } from "vue-i18n";
 import { useChat } from "stores/chat.js";
@@ -63,8 +64,20 @@ function send(text) {
 // Yangi xabar yoki oqim kelganda pastga tushamiz
 watch([messages, liveAnswer], scrollDown, { deep: true });
 
-// Saqlangan suhbat bilan ochilganda pastga tushamiz
-onMounted(scrollDown);
+// Saqlangan suhbat bilan ochilganda pastga tushamiz.
+// Boshqa sahifadan tayyor savol bilan kelingan bo'lsa (?q=...) — darhol yuboramiz
+const route = useRoute();
+const router = useRouter();
+
+onMounted(() => {
+  scrollDown();
+
+  const q = typeof route.query.q === 'string' ? route.query.q.trim() : '';
+  if (q) {
+    router.replace({ query: {} }); // savol URL'da qolib qayta yuborilmasin
+    send(q);
+  }
+});
 
 function scrollDown() {
   nextTick(() => {

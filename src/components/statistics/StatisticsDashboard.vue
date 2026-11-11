@@ -1,7 +1,9 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue"
 import {useI18n} from "vue-i18n";
+import {useRouter} from "vue-router";
 import RefreshButton from "components/RefreshButton.vue";
+import WeeklyTrendChart from "components/statistics/WeeklyTrendChart.vue";
 import {useStatistics} from "stores/statistics.js";
 import {formatFloatToInteger, roundToDecimal} from "src/libraries/constants/defaults.js";
 
@@ -17,6 +19,12 @@ const props = defineProps({
 })
 
 const { t } = useI18n();
+const router = useRouter();
+
+// Bir bosishda AI yordamchiga o'tib, tayyor "kun yakuni" savolini yuborish
+function askDayReport() {
+  router.push({ name: 'club.aiChat', query: { q: t('statistics.dashboard.aiDayReportQuestion') } });
+}
 
 // Server tayyor agregatlarni qaytaradi: current (tanlangan davr),
 // previous (xuddi shu uzunlikdagi oldingi davr — taqqoslash uchun)
@@ -133,7 +141,20 @@ onMounted(() => {
           {{ $t('statistics.dashboard.comparedTo') }}: {{ previousRange.from }} — {{ previousRange.to }}
         </div>
       </div>
-      <refresh-button dense :action="() => getData(true)" />
+      <div class="flex items-center q-gutter-sm">
+        <q-btn
+          dense
+          outline
+          no-caps
+          color="primary"
+          icon="smart_toy"
+          :label="$q.screen.gt.xs ? $t('statistics.dashboard.aiDayReport') : ''"
+          @click="askDayReport"
+        >
+          <q-tooltip>{{ $t('statistics.dashboard.aiDayReportHint') }}</q-tooltip>
+        </q-btn>
+        <refresh-button dense :action="() => getData(true)" />
+      </div>
     </q-card-section>
 
     <q-linear-progress v-if="loading" indeterminate color="primary" />
@@ -165,6 +186,9 @@ onMounted(() => {
           </q-card>
         </div>
       </div>
+
+      <!-- Haftalik trend: sotilgan va qadoqlangan donalar -->
+      <weekly-trend-chart :trend="summary?.trend || []" />
     </q-card-section>
   </q-card>
 </template>

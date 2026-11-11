@@ -71,6 +71,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.weaving'),
       icon: 'texture',
       done: `${formatFloatToInteger(p.weave.done)} kg`,
+      raw: p.weave.done,
       pending: pendingLabel(p.weave, ' kg'),
       pendingAge: pendingAgeOf(p.weave),
       step: 1,
@@ -80,6 +81,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.paint'),
       icon: 'mdi-palette',
       done: `${formatFloatToInteger(p.paint.done)} kg`,
+      raw: p.paint.done,
       pending: pendingLabel(p.paint, ' kg'),
       pendingAge: pendingAgeOf(p.paint),
       step: 2,
@@ -89,6 +91,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.cutting'),
       icon: 'mdi-scissors-cutting',
       done: formatFloatToInteger(p.cut.done),
+      raw: p.cut.done,
       pending: pendingLabel(p.cut),
       pendingAge: pendingAgeOf(p.cut),
       step: 3,
@@ -98,6 +101,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.embroidery'),
       icon: 'mdi-draw',
       done: formatFloatToInteger(p.embroidery.done),
+      raw: p.embroidery.done,
       pending: pendingLabel(p.embroidery),
       pendingAge: pendingAgeOf(p.embroidery),
       step: 4,
@@ -107,6 +111,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.sewing'),
       icon: 'mdi-nail',
       done: formatFloatToInteger(p.sew.done),
+      raw: p.sew.done,
       pending: pendingLabel(p.sew),
       pendingAge: pendingAgeOf(p.sew),
       step: 5,
@@ -116,6 +121,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.package'),
       icon: 'mdi-package-down',
       done: formatFloatToInteger(p.package.done),
+      raw: p.package.done,
       pending: pendingLabel(p.package),
       pendingAge: pendingAgeOf(p.package),
       step: 6,
@@ -125,6 +131,7 @@ const stages = computed(() => {
       name: t('menus.sideBar.productWarehouse'),
       icon: 'mdi-warehouse',
       done: formatFloatToInteger(p.warehouse.done),
+      raw: p.warehouse.done,
       pending: pendingLabel(p.warehouse),
       pendingAge: pendingAgeOf(p.warehouse),
       step: 6,
@@ -134,11 +141,26 @@ const stages = computed(() => {
       name: t('menus.sideBar.sales'),
       icon: 'mdi-cart-percent',
       done: formatFloatToInteger(p.sold.done),
+      raw: p.sold.done,
       pending: null,
       step: 7,
     },
   ];
 });
+
+// Bosqichlararo TAXMINIY oqim foizi — faqat birligi bir xil va barcha mahsulot
+// o'tadigan qo'shni juftliklarda (to'quv->bo'yoq, tikuv->qadoqlash,
+// qadoqlash->ombor, ombor->savdo). Bichuv->vishivka ataylab yo'q: hamma model
+// vishivkaga bormaydi, foiz adashtiradi
+const FLOW_ARROWS = new Set([0, 4, 5, 6]);
+
+function arrowPct(index) {
+  if (!FLOW_ARROWS.has(index)) return null;
+  const prev = stages.value[index]?.raw;
+  const next = stages.value[index + 1]?.raw;
+  if (!(prev > 0) || !(next >= 0)) return null;
+  return Math.round((next / prev) * 100);
+}
 
 function onStageClick(stage) {
   if (stage.step) {
@@ -206,8 +228,12 @@ onMounted(() => {
             </div>
           </q-card>
 
-          <div v-if="index < stages.length - 1" class="column justify-center q-px-xs">
+          <div v-if="index < stages.length - 1" class="column justify-center items-center q-px-xs">
             <q-icon name="mdi-arrow-right-bold" color="grey-6" size="20px" />
+            <div v-if="arrowPct(index) !== null" class="text-caption" :class="arrowPct(index) < 70 ? 'text-deep-orange' : 'text-grey-7'">
+              {{ arrowPct(index) }}%
+              <q-tooltip>{{ t('statistics.pipeline.flowHint') }}</q-tooltip>
+            </div>
           </div>
         </template>
       </div>

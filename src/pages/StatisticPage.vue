@@ -5,6 +5,7 @@ import { date as qdate } from "quasar";
 import { DATE_FORMAT } from "src/libraries/constants/defaults.js";
 import StatisticsDashboard from "components/statistics/StatisticsDashboard.vue";
 import ProductionPipeline from "components/statistics/ProductionPipeline.vue";
+import GrowthDynamics from "components/statistics/GrowthDynamics.vue";
 import AllReports from "components/statistics/AllReports.vue";
 
 const { t } = useI18n();
@@ -110,12 +111,34 @@ function applyPreset(preset) {
   setRange(preset.from, preset.to);
 }
 
-// --- Oraliqni o'z uzunligiga surish ---
+// --- Oraliqni surish ---
+// OY REJIMI: oraliq oy boshidan (1-sanadan) boshlangan bo'lsa — butun oy ham,
+// «Bu oy» kabi "oy boshidan bugungacha" ham — kalendar OY bo'yicha suriladi:
+// 1–11 noyabrdan ◀ bossa TO'LIQ oktabr (1–31) keladi, 28/30/31 kunga o'zi
+// moslashadi. ▶ bilan joriy oyga qaytilganda kelajak kunlar ko'rsatilmaydi —
+// bugungacha kesiladi. Boshqa oraliqlar avvalgidek o'z uzunligiga suriladi
 function shift(direction) {
+  const from = parse(dateFrom.value);
+  const to = parse(dateTo.value);
+
+  if (from.getDate() === 1) {
+    const monthsSpan = (to.getFullYear() * 12 + to.getMonth())
+      - (from.getFullYear() * 12 + from.getMonth()) + 1;
+    const newFrom = qdate.addToDate(from, { months: direction * monthsSpan });
+    const newLastMonth = qdate.addToDate(newFrom, { months: monthsSpan - 1 });
+    let newTo = qdate.endOfDate(newLastMonth, 'month');
+
+    const now = utcToday();
+    if (newTo > now && newFrom <= now) newTo = now;
+
+    setRange(fmt(newFrom), fmt(newTo));
+    return;
+  }
+
   const days = rangeDays.value * direction;
   setRange(
-    fmt(qdate.addToDate(parse(dateFrom.value), { days })),
-    fmt(qdate.addToDate(parse(dateTo.value), { days })),
+    fmt(qdate.addToDate(from, { days })),
+    fmt(qdate.addToDate(to, { days })),
   );
 }
 
@@ -171,6 +194,8 @@ function goToStep(stepNumber) {
   <StatisticsDashboard :date-from="dateFrom" :date-to="dateTo" />
 
   <ProductionPipeline :date-from="dateFrom" :date-to="dateTo" @select-step="goToStep" />
+
+  <GrowthDynamics :date-from="dateFrom" :date-to="dateTo" />
 
   <AllReports ref="allReports" :date-from="dateFrom" :date-to="dateTo" />
 </template>
