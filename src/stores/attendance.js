@@ -10,7 +10,9 @@ export const useAttendance = defineStore('attendance', () => {
     params.set('pagination', filterProps?.rowsPerPage === '~' ? 'false' : 'true');
 
     if (filterProps.date) {
+      // Aynan BITTA kun: faqat after yuborilsa keyingi kunlar ham kirib qolardi
       params.set('date[after]', filterProps.date);
+      params.set('date[before]', filterProps.date);
     }
     if (filterProps.worker) {
       params.set('worker', filterProps.worker);

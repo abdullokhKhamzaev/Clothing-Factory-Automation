@@ -1,7 +1,7 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import { useI18n } from "vue-i18n";
-import { useQuasar } from "quasar";
+import { useQuasar, date as qdate } from "quasar";
 import { useAttendance } from "stores/attendance.js";
 import { useAbout } from "stores/user/about.js";
 import { formatDate, formatFloatToInteger, apiErrorMessage, savedRowsPerPage, rememberRowsPerPage } from "../../libraries/constants/defaults.js";
@@ -47,6 +47,26 @@ const filters = ref({
   // ishchilar ro'yxatni shishirmasin
   salaryType: 'daily'
 });
+
+// Tanlangan kunning hafta kuni nomi — admin bir qarashda qaysi kun uchun
+// davomat qilayotganini bilsin
+const weekdayName = computed(() => {
+  const parts = String(filters.value.date || '').split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return '';
+  const day = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
+  return t('tables.attendance.weekdays.d' + day);
+});
+
+const isToday = computed(() => filters.value.date === new Date().toISOString().split('T')[0]);
+
+// Kunni ◀ ▶ bilan almashtirish
+function shiftDay(direction) {
+  const parts = String(filters.value.date || '').split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return;
+  const next = qdate.addToDate(new Date(parts[0], parts[1] - 1, parts[2]), { days: direction });
+  filters.value.date = qdate.formatDate(next, 'YYYY-MM-DD');
+  getItems();
+}
 
 function getItems () {
   if (loading.value) return; // Prevent multiple rapid calls
@@ -188,11 +208,13 @@ function departureAction () {
 
         <div class="table-toolbar-controls">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <q-btn flat dense round icon="chevron_left" color="primary" @click="shiftDay(-1)" />
           <q-input
             filled
             v-model="filters.date"
             dense
             outlined
+            :prefix="weekdayName + ','"
             :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
             mask="####-##-##"
             :debounce="1000"
@@ -214,6 +236,7 @@ function departureAction () {
               </q-icon>
             </template>
           </q-input>
+          <q-btn flat dense round icon="chevron_right" color="primary" :disable="isToday" @click="shiftDay(1)" />
           <q-select
             dense
             multiple

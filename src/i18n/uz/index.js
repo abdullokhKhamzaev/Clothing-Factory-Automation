@@ -2000,6 +2000,15 @@ export default {
       },
     },
     attendance: {
+    weekdays: {
+      d0: 'Yakshanba',
+      d1: 'Dushanba',
+      d2: 'Seshanba',
+      d3: 'Chorshanba',
+      d4: 'Payshanba',
+      d5: 'Juma',
+      d6: 'Shanba',
+    },
       header: {
         title: 'Davomat',
         empty: 'Hech qanday davomad topilmadi'
