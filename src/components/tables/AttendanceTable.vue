@@ -45,7 +45,8 @@ const filters = ref({
   date: date.value,
   // Davomat faqat KUNLIK (kunbay) ishchilar uchun yuritiladi — oylik/ishbay
   // ishchilar ro'yxatni shishirmasin
-  salaryType: 'daily'
+  salaryType: 'daily',
+  workerName: ''
 });
 
 // Tanlangan kunning hafta kuni nomi — admin bir qarashda qaysi kun uchun
@@ -208,6 +209,22 @@ function departureAction () {
 
         <div class="table-toolbar-controls">
           <refresh-button :action="refresh" class="q-mb-md q-mb-sm-none" />
+          <!-- Ishchi ismi bo'yicha qidiruv (lotin/kirill farqsiz) -->
+          <q-input
+            dense
+            outlined
+            clearable
+            v-model="filters.workerName"
+            :label="$t('tables.users.header.searchTitle')"
+            :debounce="600"
+            :class="$q.screen.lt.sm ? 'full-width q-mb-md' : false"
+            style="min-width: 180px"
+            @update:model-value="getItems"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="primary" />
+            </template>
+          </q-input>
           <q-btn flat dense round icon="chevron_left" color="primary" @click="shiftDay(-1)" />
           <q-input
             filled
