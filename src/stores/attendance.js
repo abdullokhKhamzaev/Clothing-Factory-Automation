@@ -15,6 +15,9 @@ export const useAttendance = defineStore('attendance', () => {
     if (filterProps.worker) {
       params.set('worker', filterProps.worker);
     }
+    if (filterProps.salaryType) {
+      params.set('worker.salaryType', filterProps.salaryType);
+    }
     if (filterProps.dateFrom) {
       params.set('date[after]', filterProps.dateFrom);
     }

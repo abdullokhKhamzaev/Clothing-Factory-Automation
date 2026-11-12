@@ -42,7 +42,10 @@ const pagination = ref({
 });
 
 const filters = ref({
-  date: date.value
+  date: date.value,
+  // Davomat faqat KUNLIK (kunbay) ishchilar uchun yuritiladi — oylik/ishbay
+  // ishchilar ro'yxatni shishirmasin
+  salaryType: 'daily'
 });
 
 function getItems () {
